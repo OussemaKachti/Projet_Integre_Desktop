@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="tn.esprit.controllers.SondageController"
+      styleClass="sondage-container">
+
+    <!-- Header Image with Title -->
+    <StackPane styleClass="header-banner">
+        <ImageView fitWidth="1200" fitHeight="300" preserveRatio="false">
+            <image>
+                <Image url="@../../images/poll-banner.png"/>
+            </image>
+        </ImageView>
+        <Label text="Our Polls" styleClass="banner-title"/>
+    </StackPane>
+
+    <HBox spacing="20" padding="20">
+        <!-- Left Side - Polls List -->
+        <VBox spacing="15" HBox.hgrow="ALWAYS">
+            <!-- Poll Item -->
+            <VBox styleClass="poll-item">
+                <HBox styleClass="poll-header" spacing="10">
+                    <ImageView fitHeight="40" fitWidth="40" styleClass="profile-pic"/>
+                    <VBox>
+                        <Label fx:id="userName" text="pres iee"/>
+                        <Label fx:id="pollDate" text="06 Mar 2025"/>
+                    </VBox>
+                    <Button text="View Summary" styleClass="btn-summary" 
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity" 
+                            alignment="CENTER_RIGHT"/>
+                </HBox>
+
+                <Label fx:id="pollQuestion" text="tunisia / algeria ?" 
+                       styleClass="poll-question"/>
+
+                <VBox spacing="10" styleClass="poll-options">
+                    <RadioButton text="tunis" toggleGroup="$pollGroup"/>
+                    <ProgressBar progress="0.8" styleClass="poll-progress"/>
+                    
+                    <RadioButton text="al" toggleGroup="$pollGroup"/>
+                    <ProgressBar progress="0.2" styleClass="poll-progress"/>
+                </VBox>
+
+                <Button text="Submit Vote" styleClass="btn-submit"/>
+            </VBox>
+        </VBox>
+
+        <!-- Right Side - Create Poll -->
+        <VBox styleClass="create-poll-section" minWidth="300">
+            <Label text="Create a Poll" styleClass="section-title"/>
+            <TextField promptText="Type your question here" 
+                      styleClass="question-input"/>
+            
+            <Label text="Options" styleClass="section-subtitle"/>
+            <TextField promptText="Option 1" styleClass="option-input"/>
+            <TextField promptText="Option 2" styleClass="option-input"/>
+            
+            <Button text="Add Option" styleClass="btn-add-option"/>
+            <Button text="Create Poll" styleClass="btn-create"/>
+        </VBox>
+    </HBox>
+</VBox>
