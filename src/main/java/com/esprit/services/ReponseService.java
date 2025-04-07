@@ -6,7 +6,6 @@ import com.esprit.models.Sondage;
 import com.esprit.models.User;
 import com.esprit.utils.DataSource;
 import com.esprit.utils.DatabaseConnection;
-import com.esprit.utils.DataSource;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +21,9 @@ public class ReponseService {
         connection = DataSource.getInstance().getCnx();
     }
 
+    /**
+     * Ajoute un vote (méthode déjà existante)
+     */
     public void addVote(Reponse reponse) throws SQLException {
         // Vérifier si l'utilisateur a déjà voté
         if (hasUserVoted(reponse.getUser().getId(), reponse.getSondage().getId())) {
@@ -40,7 +42,58 @@ public class ReponseService {
             pst.executeUpdate();
         }
     }
+    
+    /**
+     * Ajoute une réponse à un sondage
+     */
+    public void add(Reponse reponse) throws SQLException {
+        String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
+        try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            pst.setTimestamp(1, Timestamp.valueOf(reponse.getDateReponse()));
+            pst.setInt(2, reponse.getUser().getId());
+            pst.setInt(3, reponse.getChoixSondage().getId());
+            pst.setInt(4, reponse.getSondage().getId());
+
+            pst.executeUpdate();
+            
+            ResultSet rs = pst.getGeneratedKeys();
+            if (rs.next()) {
+                reponse.setId(rs.getInt(1));
+            }
+        }
+    }
+    
+    /**
+     * Met à jour une réponse existante
+     */
+    public void update(Reponse reponse) throws SQLException {
+        String query = "UPDATE reponse SET date_reponse = ?, choix_sondage_id = ? WHERE id = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setTimestamp(1, Timestamp.valueOf(reponse.getDateReponse()));
+            pst.setInt(2, reponse.getChoixSondage().getId());
+            pst.setInt(3, reponse.getId());
+            
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Supprime une réponse par son ID
+     */
+    public void delete(Integer id) throws SQLException {
+        String query = "DELETE FROM reponse WHERE id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, id);
+            pst.executeUpdate();
+        }
+    }
+
+    /**
+     * Supprime la réponse d'un utilisateur pour un sondage (méthode déjà existante)
+     */
     public void deleteUserVote(int userId, int sondageId) throws SQLException {
         String query = "DELETE FROM reponse WHERE user_id = ? AND sondage_id = ?";
 
@@ -51,6 +104,9 @@ public class ReponseService {
         }
     }
 
+    /**
+     * Vérifie si un utilisateur a déjà voté pour un sondage (méthode déjà existante)
+     */
     public boolean hasUserVoted(int userId, int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE user_id = ? AND sondage_id = ?";
 
@@ -65,7 +121,29 @@ public class ReponseService {
         }
         return false;
     }
+    
+    /**
+     * Récupère la réponse d'un utilisateur pour un sondage
+     */
+    public Reponse getUserResponseForPoll(int userId, int sondageId) throws SQLException {
+        String query = "SELECT * FROM reponse WHERE user_id = ? AND sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, userId);
+            pst.setInt(2, sondageId);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                return mapResultSetToReponse(rs);
+            }
+        }
+        
+        return null;
+    }
 
+    /**
+     * Récupère les résultats d'un sondage (méthode déjà existante)
+     */
     public Map<String, Object> getPollResults(int sondageId) throws SQLException {
         Map<String, Object> results = new HashMap<>();
         String query = """
@@ -96,6 +174,9 @@ public class ReponseService {
         return results;
     }
 
+    /**
+     * Obtient une couleur en fonction du pourcentage (méthode déjà existante)
+     */
     private String getColorByPercentage(double percentage) {
         if (percentage <= 20)
             return "#e74c3c";
@@ -109,7 +190,10 @@ public class ReponseService {
             return "#3498db";
     }
 
-    public ObservableList<Reponse> getReponsesBySondage(int sondageId) throws SQLException {
+    /**
+     * Récupère toutes les réponses d'un sondage (méthode déjà existante renommée)
+     */
+    public ObservableList<Reponse> getBySondage(int sondageId) throws SQLException {
         ObservableList<Reponse> reponses = FXCollections.observableArrayList();
         String query = "SELECT * FROM reponse WHERE sondage_id = ? ORDER BY date_reponse DESC";
 
@@ -124,8 +208,12 @@ public class ReponseService {
         return reponses;
     }
 
+    /**
+     * Convertit un ResultSet en objet Reponse (méthode déjà existante)
+     */
     private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
         Reponse reponse = new Reponse();
+        reponse.setId(rs.getInt("id"));
         reponse.setDateReponse(rs.getTimestamp("date_reponse").toLocalDateTime());
 
         // Charger les relations
@@ -138,20 +226,5 @@ public class ReponseService {
         reponse.setSondage(sondageService.getById(rs.getInt("sondage_id")));
 
         return reponse;
-    }
-
-    public Reponse getUserResponse(int id, Integer id2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserResponse'");
-    }
-
-    public void delete(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
-    }
-
-    public void add(Reponse reponse) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'add'");
     }
 }

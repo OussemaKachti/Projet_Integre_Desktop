@@ -5,12 +5,13 @@ import com.esprit.utils.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public class ClubService {
     private Connection connection;
     private static ClubService instance;
 
-    ClubService() {
+    public ClubService() {
         connection = DataSource.getInstance().getCnx();
     }
 
@@ -54,6 +55,19 @@ public class ClubService {
         return null;
     }
 
+    public Club findByPresident(int presidentId) throws SQLException {
+        String query = "SELECT * FROM club WHERE president_id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, presidentId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToClub(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Club> getAll() throws SQLException {
         List<Club> clubs = new ArrayList<>();
         String query = "SELECT * FROM club";
@@ -83,15 +97,58 @@ public class ClubService {
     private Club mapResultSetToClub(ResultSet rs) throws SQLException {
         Club club = new Club();
         club.setId(rs.getInt("id"));
-        club.setNom(rs.getString("nom"));
-        club.setDescription(rs.getString("description"));
-        club.setLogo(rs.getString("logo"));
-        club.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
-        club.setStatus(rs.getString("status"));
         
-        // Get president
+        // Adaptation aux noms de colonnes de Symfony
+        try {
+            // Essayer d'abord avec les noms de colonnes Java
+            club.setNom(rs.getString("nom"));
+        } catch (SQLException e) {
+            // Si échec, essayer avec les noms de colonnes Symfony
+            club.setNom(rs.getString("nom_c"));
+        }
+        
+        try {
+            club.setDescription(rs.getString("description"));
+        } catch (SQLException e) {
+            // Si échec, essayer avec les noms de colonnes Symfony
+            club.setDescription(rs.getString("description_c"));
+        }
+        
+        try {
+            club.setLogo(rs.getString("logo"));
+        } catch (SQLException e) {
+            // Ignorer si la colonne n'existe pas
+        }
+        
+        try {
+            club.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
+        } catch (SQLException e) {
+            // Si échec, essayer avec un autre format ou définir une date par défaut
+            try {
+                club.setDateCreation(rs.getDate("date_creation").toLocalDate().atStartOfDay());
+            } catch (SQLException ex) {
+                // Si toujours échec, utiliser la date actuelle
+                club.setDateCreation(LocalDateTime.now());
+            }
+        }
+        
+        try {
+            club.setStatus(rs.getString("status"));
+        } catch (SQLException e) {
+            // Ignorer si la colonne n'existe pas
+        }
+        
+        // Get president - adapter au nom de colonne correct
         UserService userService = UserService.getInstance();
-        club.setPresident(userService.getById(rs.getInt("president_id")));
+        int presidentId;
+        try {
+            presidentId = rs.getInt("president_id");
+        } catch (SQLException e) {
+            // Si échec, essayer d'autres noms possibles
+            presidentId = rs.getInt("user_id");
+        }
+        
+        club.setPresident(userService.getById(presidentId));
         
         return club;
     }

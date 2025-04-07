@@ -61,12 +61,34 @@ public class CommentaireService {
         }
     }
 
+    /**
+     * Supprime un commentaire avec vérification d'autorisation
+     * @param commentId ID du commentaire à supprimer
+     * @param userId ID de l'utilisateur qui fait la demande de suppression
+     * @throws SQLException En cas d'erreur SQL
+     * @throws SecurityException Si l'utilisateur n'est pas autorisé
+     */
     public void delete(int commentId, int userId) throws SQLException {
         // Vérifier si l'utilisateur est autorisé à supprimer
         if (!isUserAuthorized(userId, commentId)) {
             throw new SecurityException("User not authorized to delete this comment");
         }
 
+        String query = "DELETE FROM commentaire WHERE id = ?";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, commentId);
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Supprime un commentaire sans vérification d'autorisation
+     * Utilisé principalement par le contrôleur CRUD
+     * @param commentId ID du commentaire à supprimer
+     * @throws SQLException En cas d'erreur SQL
+     */
+    public void delete(int commentId) throws SQLException {
         String query = "DELETE FROM commentaire WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {

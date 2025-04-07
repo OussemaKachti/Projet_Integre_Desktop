@@ -11,7 +11,7 @@ public class UserService {
     private Connection conn;
     private static UserService instance;
 
-    UserService() {
+    public UserService() {
         conn = DataSource.getInstance().getCnx();
     }
 
@@ -97,9 +97,47 @@ public class UserService {
         user.setNom(rs.getString("nom"));
         user.setPrenom(rs.getString("prenom"));
         user.setEmail(rs.getString("email"));
-        user.setTel(rs.getString("tel"));
-        user.setRole(RoleEnum.valueOf(rs.getString("role")));
-        // user.setStatus(rs.getString("status"));
+
+        // Le champ tel peut ne pas exister dans la base Symfony
+        try {
+            user.setTel(rs.getString("tel"));
+        } catch (SQLException e) {
+            // Ignorer si la colonne n'existe pas
+        }
+
+        // Gestion adaptative du rôle
+        String roleStr = rs.getString("role");
+        try {
+            // 1. Essayer la valeur directe
+            user.setRole(RoleEnum.valueOf(roleStr));
+        } catch (IllegalArgumentException e) {
+            try {
+                // 2. Essayer la valeur en majuscules
+                user.setRole(RoleEnum.valueOf(roleStr.toUpperCase()));
+            } catch (IllegalArgumentException ex) {
+                try {
+                    // 3. Traiter les cas spécifiques connus
+                    if (roleStr.equalsIgnoreCase("presidentClub") ||
+                            roleStr.equalsIgnoreCase("PRESIDENTCLUB")) {
+                        user.setRole(RoleEnum.PRESIDENTCLUB);
+                    } else if (roleStr.equalsIgnoreCase("administrateur") ||
+                            roleStr.equalsIgnoreCase("admin")) {
+                        user.setRole(RoleEnum.ADMINISTRATEUR);
+                    } else if (roleStr.equalsIgnoreCase("membre") ||
+                            roleStr.equalsIgnoreCase("user")) {
+                        user.setRole(RoleEnum.MEMBRE);
+                    } else {
+                        // 4. Valeur par défaut
+                        System.out.println("Rôle inconnu: " + roleStr + ", utilisation de MEMBRE par défaut");
+                        user.setRole(RoleEnum.MEMBRE);
+                    }
+                } catch (Exception exc) {
+                    // En cas d'erreur, utiliser MEMBRE par défaut
+                    user.setRole(RoleEnum.MEMBRE);
+                }
+            }
+        }
+
         return user;
     }
 

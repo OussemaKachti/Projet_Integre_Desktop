@@ -142,4 +142,24 @@ public class SondageService {
             pst.executeUpdate();
         }
     }
+
+    /**
+     * Récupère tous les sondages d'un club spécifique
+     */
+    public List<Sondage> getByClub(int clubId) throws SQLException {
+        List<Sondage> sondages = new ArrayList<>();
+        String query = "SELECT * FROM sondage WHERE club_id = ? ORDER BY created_at DESC";
+
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, clubId);
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    sondages.add(mapResultSetToSondage(rs));
+                }
+            }
+        }
+        
+        return sondages;
+    }
 }
