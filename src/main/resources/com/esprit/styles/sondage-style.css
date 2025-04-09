@@ -1,0 +1,347 @@
+/* Main Styles */
+.main-container {
+    -fx-background-color: #f5f5f5;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Header Section */
+.header-section {
+    -fx-background-color: linear-gradient(to right, #6a11cb, #2575fc);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+.breadcrumb {
+    -fx-text-fill: white;
+}
+
+.breadcrumb-item {
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-cursor: hand;
+}
+
+.breadcrumb-item-active {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.breadcrumb-separator {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+}
+
+/* Content Section */
+.content-section {
+    -fx-background-color: transparent;
+}
+
+.content-section .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Poll Container */
+.poll-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-border-radius: 10px;
+}
+
+.user-info {
+    -fx-border-color: transparent transparent #eee transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.user-name {
+    -fx-font-weight: bold;
+}
+
+.date-separator {
+    -fx-text-fill: #888;
+}
+
+.poll-date {
+    -fx-text-fill: #888;
+}
+
+.poll-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Poll Options */
+.poll-options {
+    -fx-spacing: 10px;
+}
+
+.poll-option {
+    -fx-background-color: #f9f9f9;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+}
+
+.poll-option-radio {
+    -fx-font-size: 14px;
+}
+
+.poll-option-radio .radio {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 100%;
+    -fx-padding: 3px;
+}
+
+.poll-option-radio:selected .radio {
+    -fx-background-color: white;
+    -fx-border-color: #6a11cb;
+}
+
+.poll-option-radio:selected .dot {
+    -fx-background-color: #6a11cb;
+    -fx-background-insets: 0;
+}
+
+/* Progress Bars */
+.progress-bar {
+    -fx-accent: #4285F4;
+    -fx-background-color: #eee;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+.progress-bar-java {
+    -fx-accent: #4285F4;
+}
+
+.progress-bar-python {
+    -fx-accent: #34A853;
+}
+
+.progress-bar-javascript {
+    -fx-accent: #FBBC05;
+}
+
+.progress-bar-csharp {
+    -fx-accent: #EA4335;
+}
+
+.progress-bar-react {
+    -fx-accent: #61DAFB;
+}
+
+.progress-bar-angular {
+    -fx-accent: #DD0031;
+}
+
+.progress-bar-vue {
+    -fx-accent: #41B883;
+}
+
+.percentage-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* Buttons */
+.vote-button {
+    -fx-background-color: #6a11cb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-padding: 8 15;
+}
+
+.vote-button:hover {
+    -fx-background-color: #5800b3;
+}
+
+.comments-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #555;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+.comments-button:hover {
+    -fx-text-fill: #6a11cb;
+}
+
+.delete-vote-button {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-padding: 5 10;
+}
+
+.delete-vote-button:hover {
+    -fx-background-color: #d32f2f;
+}
+
+/* Comment Form */
+.comment-form {
+    -fx-border-color: #eee transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+    -fx-padding: 15 10 10 10;
+}
+
+.comment-form-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.comment-textarea {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+.post-comment-button {
+    -fx-background-color: #6a11cb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-padding: 8 15;
+}
+
+.post-comment-button:hover {
+    -fx-background-color: #5800b3;
+}
+
+/* Sidebar */
+.sidebar-section {
+    -fx-background-color: transparent;
+}
+
+.poll-creation-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3);
+    -fx-border-radius: 10px;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.section-subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+}
+
+.input-box {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+.options-container {
+    -fx-spacing: 10px;
+}
+
+.add-option-button {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #6a11cb;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.add-option-button:hover {
+    -fx-background-color: #e5e5e5;
+}
+
+.admin-message {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.create-poll-button {
+    -fx-background-color: #6a11cb;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-font-size: 15px;
+}
+
+.create-poll-button:hover {
+    -fx-background-color: #5800b3;
+}
+
+.view-all-polls-button {
+    -fx-background-color: linear-gradient(to right, #6a11cb, #2575fc);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+    -fx-font-size: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}
+
+.view-all-polls-button:hover {
+    -fx-background-color: linear-gradient(to right, #5800b3, #1b58c7);
+}
+
+/* Comment Modal */
+.comments-modal {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);
+}
+
+.comment-box {
+    -fx-border-color: transparent transparent #eee transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 10px;
+}
+
+.avatar-name {
+    -fx-font-weight: bold;
+}
+
+.post-meta {
+    -fx-text-fill: #888;
+    -fx-font-size: 12px;
+}
+
+.comment-content {
+    -fx-padding: 10px 0;
+}
+
+.comment-actions {
+    -fx-spacing: 10px;
+}
+
+.edit-comment-textarea {
+    -fx-background-color: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-font-size: 13px;
+    -fx-pref-height: 60px;
+} 
