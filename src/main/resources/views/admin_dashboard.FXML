@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminDashboardController">
+   <left>
+      <!-- Sidebar Navigation -->
+      <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+         <padding>
+            <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+         </padding>
+         
+         <!-- Application Logo -->
+         <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+            <Label text="UNICLUBS" styleClass="logo-text">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </HBox>
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Admin Info -->
+         <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+            <font>
+               <Font name="System Bold" size="16.0" />
+            </font>
+         </Label>
+         <Label text="Administrator" styleClass="admin-role" />
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Menu Items -->
+         <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+            <Button fx:id="userManagementButton" onAction="#showUserManagement" styleClass="sidebar-button, active" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="clubManagementButton" onAction="#showClubManagement" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏛️" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="eventManagementButton" onAction="#showEventManagement" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="📅" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="productOrdersButton" onAction="#showProductOrders" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🛒" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏆" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="📊" />
+               </graphic>
+            </Button>
+            
+            <VBox.margin>
+               <Insets bottom="20.0" />
+            </VBox.margin>
+         </VBox>
+         
+         <!-- Bottom Menu Options -->
+         <VBox spacing="5.0">
+            <Button fx:id="profileButton" onAction="#navigateToProfile" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🚪" />
+               </graphic>
+            </Button>
+         </VBox>
+      </VBox>
+   </left>
+   
+   <center>
+      <!-- Main Content Area -->
+      <BorderPane fx:id="contentArea">
+         <top>
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" styleClass="dashboard-header" spacing="20.0">
+               <padding>
+                  <Insets top="15.0" right="20.0" bottom="15.0" left="20.0" />
+               </padding>
+               
+               <Label fx:id="contentTitle" text="User Management" styleClass="dashboard-title">
+                  <font>
+                     <Font name="System Bold" size="24.0" />
+                  </font>
+               </Label>
+               
+               <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                  <!-- Search Box -->
+                  <TextField fx:id="searchField" promptText="Search users..." prefWidth="300.0" />
+                  <Button fx:id="searchButton" text="Search" styleClass="button-primary" onAction="#handleSearch" />
+               </HBox>
+            </HBox>
+         </top>
+         
+         <center>
+            <!-- Content Stack Pane - Different views will be loaded here -->
+            <StackPane fx:id="contentStackPane">
+               <!-- User Management View - This is the only one we're fully implementing -->
+               <ScrollPane fx:id="userManagementView" fitToWidth="true" fitToHeight="true">
+                  <VBox spacing="20.0">
+                     <padding>
+                        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+                     </padding>
+                     
+                     <!-- Statistics Summary Section -->
+                     <HBox spacing="20.0">
+                        <!-- Total Users Card -->
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                           </padding>
+                           <Label text="Total Users" styleClass="stat-title" />
+                           <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value">
+                              <font>
+                                 <Font size="24.0" />
+                              </font>
+                           </Label>
+                        </VBox>
+                        
+                        <!-- Active Users Card -->
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                           </padding>
+                           <Label text="Active Users" styleClass="stat-title" />
+                           <Label fx:id="activeUsersLabel" text="0" styleClass="stat-value">
+                              <font>
+                                 <Font size="24.0" />
+                              </font>
+                           </Label>
+                        </VBox>
+                        
+                        <!-- Unverified Users Card -->
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                           </padding>
+                           <Label text="Unverified Users" styleClass="stat-title" />
+                           <Label fx:id="unverifiedUsersLabel" text="0" styleClass="stat-value">
+                              <font>
+                                 <Font size="24.0" />
+                              </font>
+                           </Label>
+                        </VBox>
+                        
+                        <!-- Club Presidents Card -->
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                           </padding>
+                           <Label text="Club Presidents" styleClass="stat-title" />
+                           <Label fx:id="clubPresidentsLabel" text="0" styleClass="stat-value">
+                              <font>
+                                 <Font size="24.0" />
+                              </font>
+                           </Label>
+                        </VBox>
+                     </HBox>
+                     
+                     <!-- User Action Buttons -->
+                     <HBox spacing="10.0">
+                        <Button fx:id="createUserButton" text="Create User" styleClass="button-primary" onAction="#showCreateUser">
+                           <graphic>
+                              <Label text="➕" textFill="WHITE" />
+                           </graphic>
+                        </Button>
+                        
+                        <Button fx:id="activateDeactivateButton" text="Activate/Deactivate User" styleClass="button-secondary" onAction="#toggleUserStatus" disable="true">
+                           <graphic>
+                              <Label text="🔄" />
+                           </graphic>
+                        </Button>
+                        
+                        <Button fx:id="deleteUserButton" text="Delete User" styleClass="button-secondary" onAction="#deleteSelectedUser" disable="true">
+                           <graphic>
+                              <Label text="❌" />
+                           </graphic>
+                        </Button>
+                     </HBox>
+                     
+                     <!-- Users Table -->
+                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                        <columns>
+                           <TableColumn fx:id="idColumn" text="ID" prefWidth="50.0" />
+                           <TableColumn fx:id="firstNameColumn" text="First Name" prefWidth="120.0" />
+                           <TableColumn fx:id="lastNameColumn" text="Last Name" prefWidth="120.0" />
+                           <TableColumn fx:id="emailColumn" text="Email" prefWidth="180.0" />
+                           <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="100.0" />
+                           <TableColumn fx:id="roleColumn" text="Role" prefWidth="120.0" />
+                           <TableColumn fx:id="statusColumn" text="Status" prefWidth="80.0" />
+                           <TableColumn fx:id="verifiedColumn" text="Verified" prefWidth="70.0" />
+                           <TableColumn fx:id="warningCountColumn" text="Warning Count" prefWidth="100.0" />
+                           <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="150.0" />
+                        </columns>
+                     </TableView>
+                  </VBox>
+               </ScrollPane>
+            </StackPane>
+         </center>
+         
+         <bottom>
+            <!-- Footer -->
+            <HBox alignment="CENTER" styleClass="dashboard-footer">
+               <padding>
+                  <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+               </padding>
+               <Label text="© 2024 UNICLUBS - Admin Dashboard v1.0" styleClass="footer-text" />
+            </HBox>
+         </bottom>
+      </BorderPane>
+   </center>
+</BorderPane>

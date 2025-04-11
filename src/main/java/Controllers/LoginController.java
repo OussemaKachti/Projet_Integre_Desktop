@@ -174,16 +174,8 @@ public class LoginController {
         try {
             // Navigate based on user role
             if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
-                // For admin users, go to admin dashboard (keeping alert for now)
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Login Successful");
-                alert.setHeaderText("Admin Login Success");
-                alert.setContentText("User successfully logged in as: " + user.getRole() + 
-                                "\nWould redirect to: Admin Dashboard");
-                alert.showAndWait();
-                
-                // When admin dashboard is ready, use this code:
-                // navigateToView("/views/admin_dashboard.fxml", "Admin Dashboard");
+                // For admin users, go to admin dashboard
+                navigateToAdminDashboard();
             } else {
                 // For all other users, navigate to profile page
                 navigateToProfile();
@@ -195,30 +187,54 @@ public class LoginController {
         }
     }
     
-    // Navigate to profile page
-  // Update the navigateToProfile method in LoginController.java to properly maximize:
-
-private void navigateToProfile() {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/profile.fxml"));
-        Parent root = loader.load();
-        
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        stage.setTitle("My Profile - UNICLUBS");
-        
-        // Create scene without explicit dimensions
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        
-        // Set to main application screens (maximized)
-        MainApp.adjustStageSize(false);
-        
-        stage.show();
-    } catch (IOException e) {
-        e.printStackTrace();
-        showError("Error navigating to profile: " + e.getMessage());
+    // Method to navigate to admin dashboard
+    private void navigateToAdminDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/admin_dashboard.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("Admin Dashboard - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Set to main application screens (maximized)
+            MainApp.adjustStageSize(false);
+            
+            // Additionally, maximize the window for admin dashboard
+            MainApp.maximizeStage(stage);
+            
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error navigating to admin dashboard: " + e.getMessage());
+        }
     }
-}
+    
+    // Navigate to profile page
+    private void navigateToProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/profile.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("My Profile - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Set to main application screens (maximized)
+            MainApp.adjustStageSize(false);
+            
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error navigating to profile: " + e.getMessage());
+        }
+    }
     
     // Helper method for navigation
     private void navigateToView(String viewPath, String title) {
