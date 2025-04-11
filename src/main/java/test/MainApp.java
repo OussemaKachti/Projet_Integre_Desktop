@@ -18,9 +18,9 @@ public class MainApp extends Application {
     
     // Define standard window sizes
     private static final double LOGIN_WIDTH = 600;
-    private static final double LOGIN_HEIGHT = 500;
-    private static final double MAIN_WIDTH = 1000;
-    private static final double MAIN_HEIGHT = 700;
+    private static final double LOGIN_HEIGHT = 550;
+    private static final double MAIN_WIDTH = 1280;
+    private static final double MAIN_HEIGHT = 800;
     
     // Store the primary stage as a static reference for access from controllers
     private static Stage primaryStage;
@@ -82,20 +82,33 @@ public class MainApp extends Application {
     public static void adjustStageSize(boolean isLoginScreen) {
         if (primaryStage == null) return;
         
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        
         if (isLoginScreen) {
+            // Login screens have centered, fixed size
+            primaryStage.setMaximized(false);
             primaryStage.setWidth(LOGIN_WIDTH);
             primaryStage.setHeight(LOGIN_HEIGHT);
             primaryStage.setMinWidth(LOGIN_WIDTH);
             primaryStage.setMinHeight(LOGIN_HEIGHT);
+            centerStageOnScreen(primaryStage);
         } else {
-            primaryStage.setWidth(MAIN_WIDTH);
-            primaryStage.setHeight(MAIN_HEIGHT);
+            // Main screens should be maximized on the screen
+            primaryStage.setMaximized(true);
+            
+            // Set minimum sizes so it can be unmaximized if needed
             primaryStage.setMinWidth(900);
             primaryStage.setMinHeight(600);
         }
-        
-        // Re-center the window after size change
-        centerStageOnScreen(primaryStage);
+    }
+    
+    /**
+     * Makes any stage fill the screen
+     * @param stage The stage to maximize
+     */
+    public static void maximizeStage(Stage stage) {
+        if (stage == null) return;
+        stage.setMaximized(true);
     }
 
     public static void main(String[] args) {

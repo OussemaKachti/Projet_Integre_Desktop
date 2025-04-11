@@ -12,6 +12,7 @@ import entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -22,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import services.AuthService;
 import test.MainApp;
@@ -292,43 +294,49 @@ public class ProfileController {
             e.printStackTrace();
         }
     }
-
-    @FXML
+@FXML
 private void handleEditProfile(ActionEvent event) {
     try {
         // Load the edit profile dialog
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/edit_profile.fxml"));
         Parent root = loader.load();
-
+        
         // Get the controller and pass the current user
         EditProfileController controller = loader.getController();
         controller.setCurrentUser(currentUser);
         controller.setParentController(this);
-
+        
         // Create a new stage for the dialog
         Stage dialogStage = new Stage();
         dialogStage.setTitle("Edit Profile - UNICLUBS");
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(editProfileBtn.getScene().getWindow());
         
-        // Set appropriate size for edit dialog
-        Scene scene = new Scene(root, 550, 600);
+        // Create scene without explicit dimensions - using the size defined in the FXML
+        Scene scene = new Scene(root);
         dialogStage.setScene(scene);
-        dialogStage.setMinWidth(550);
-        dialogStage.setMinHeight(600);
         
-        // Center the dialog on screen
-        MainApp.centerStageOnScreen(dialogStage);
-
+        // Increase dimensions to ensure all content (including buttons) is visible
+        dialogStage.setMinWidth(570);
+        dialogStage.setMinHeight(670); // Increased height to ensure buttons are visible
+        dialogStage.setWidth(570);
+        dialogStage.setHeight(670); // Increased height to ensure buttons are visible
+        
+        // Allow resizing in case user needs to adjust the view
+        dialogStage.setResizable(true);
+        
+        // Center the dialog on screen for more reliable positioning
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        dialogStage.setX((screenBounds.getWidth() - dialogStage.getWidth()) / 2);
+        dialogStage.setY((screenBounds.getHeight() - dialogStage.getHeight()) / 2);
+        
         // Show the dialog and wait
-        dialogStage.showAndWait();
-
+        dialogStage.showAndWait(); 
     } catch (IOException e) {
         e.printStackTrace();
         showError("Could not load edit profile dialog: " + e.getMessage());
     }
 }
-
     @FXML
     private void handleChangeImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -489,41 +497,44 @@ private void handleEditProfile(ActionEvent event) {
         updateProfileDisplay();
     }
 
-   private void navigateToLogin() throws IOException {
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-    Parent root = loader.load();
-
-    Stage stage = (Stage) userRoleLabel.getScene().getWindow();
-    
-    // Adjust to login screen size
-    MainApp.adjustStageSize(true);
-    
-    stage.setScene(new Scene(root));
-    stage.setTitle("Login - UNICLUBS");
-    stage.show();
-}
-  @FXML
-private void navigateToDashboard(ActionEvent event) {
-    // Only admin can access dashboard
-    if (currentUser == null || !"ADMIN".equals(currentUser.getRole().toString())) {
-        return;
-    }
-    
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dashboard.fxml"));
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
         Parent root = loader.load();
+
+        Stage stage = (Stage) userRoleLabel.getScene().getWindow();
         
-        Stage stage = (Stage) dashboardButton.getScene().getWindow();
+        // Adjust to login screen size
+        MainApp.adjustStageSize(true);
         
-        // Use the main application size for dashboard
-        MainApp.adjustStageSize(false);
-        
+        // Create scene without explicit dimensions
         stage.setScene(new Scene(root));
-        stage.setTitle("Admin Dashboard - UNICLUBS");
+        stage.setTitle("Login - UNICLUBS");
         stage.show();
-    } catch (IOException e) {
-        e.printStackTrace();
-        showError("Could not load dashboard: " + e.getMessage());
     }
-}
+    
+    @FXML
+    private void navigateToDashboard(ActionEvent event) {
+        // Only admin can access dashboard
+        if (currentUser == null || !"ADMIN".equals(currentUser.getRole().toString())) {
+            return;
+        }
+        
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dashboard.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) dashboardButton.getScene().getWindow();
+            
+            // Use the main application size for dashboard
+            MainApp.adjustStageSize(false);
+            
+            // Create scene without explicit dimensions
+            stage.setScene(new Scene(root));
+            stage.setTitle("Admin Dashboard - UNICLUBS");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Could not load dashboard: " + e.getMessage());
+        }
+    }
 }

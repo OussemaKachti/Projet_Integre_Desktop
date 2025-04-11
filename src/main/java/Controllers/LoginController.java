@@ -148,25 +148,27 @@ public class LoginController {
         }
     }
     
-private void navigateToVerification() {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/verify.fxml"));
-        Parent root = loader.load();
-        
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        stage.setTitle("Verify Account - UNICLUBS");
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        
-        // Keep login/verify screens at the smaller size
-        MainApp.adjustStageSize(true);
-        
-        stage.show();
-    } catch (IOException e) {
-        e.printStackTrace();
-        showError("Error navigating to verification: " + e.getMessage());
+    private void navigateToVerification() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/verify.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("Verify Account - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Keep login/verify screens at the smaller size
+            MainApp.adjustStageSize(true);
+            
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error navigating to verification: " + e.getMessage());
+        }
     }
-}
     
     private void loadDashboard(User user) {
         try {
@@ -181,7 +183,7 @@ private void navigateToVerification() {
                 alert.showAndWait();
                 
                 // When admin dashboard is ready, use this code:
-                // navigateToView("/views/admin_dashboard.fxml", "Admin Dashboard", 800, 600);
+                // navigateToView("/views/admin_dashboard.fxml", "Admin Dashboard");
             } else {
                 // For all other users, navigate to profile page
                 navigateToProfile();
@@ -194,17 +196,21 @@ private void navigateToVerification() {
     }
     
     // Navigate to profile page
-    private void navigateToProfile() {
+  // Update the navigateToProfile method in LoginController.java to properly maximize:
+
+private void navigateToProfile() {
     try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/profile.fxml"));
         Parent root = loader.load();
         
         Stage stage = (Stage) emailField.getScene().getWindow();
         stage.setTitle("My Profile - UNICLUBS");
+        
+        // Create scene without explicit dimensions
         Scene scene = new Scene(root);
         stage.setScene(scene);
         
-        // Adjust stage size for the main application screens
+        // Set to main application screens (maximized)
         MainApp.adjustStageSize(false);
         
         stage.show();
@@ -215,7 +221,7 @@ private void navigateToVerification() {
 }
     
     // Helper method for navigation
-    private void navigateToView(String viewPath, String title, int width, int height) {
+    private void navigateToView(String viewPath, String title) {
         try {
             URL resourceUrl = getClass().getResource(viewPath);
             if (resourceUrl == null) {
@@ -226,8 +232,14 @@ private void navigateToVerification() {
             
             Parent root = FXMLLoader.load(resourceUrl);
             Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, width, height));
+            
+            // Create scene without explicit dimensions
+            stage.setScene(new Scene(root));
             stage.setTitle(title);
+            
+            // Let MainApp handle sizing
+            MainApp.adjustStageSize(false);
+            
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -237,25 +249,27 @@ private void navigateToVerification() {
     }
     
     @FXML
-   private void navigateToRegister() {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/register.fxml"));
-        Parent root = loader.load();
-        
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        stage.setTitle("Register - UNICLUBS");
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        
-        // Keep login/register screens at the smaller size
-        MainApp.adjustStageSize(true);
-        
-        stage.show();
-    } catch (IOException e) {
-        e.printStackTrace();
-        showError("Error navigating to registration: " + e.getMessage());
+    private void navigateToRegister() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/register.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("Register - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Keep login/register screens at the smaller size
+            MainApp.adjustStageSize(true);
+            
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error navigating to registration: " + e.getMessage());
+        }
     }
-}
     
     @FXML
     private void forgotPassword(ActionEvent event) {
@@ -269,8 +283,15 @@ private void navigateToVerification() {
             
             Parent root = FXMLLoader.load(resourceUrl);
             Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 500, 300));
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
             stage.setTitle("Forgot Password");
+            
+            // Use login screen sizing
+            MainApp.adjustStageSize(true);
+            
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

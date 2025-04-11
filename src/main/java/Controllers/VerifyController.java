@@ -1,5 +1,7 @@
 package controllers;
 
+import java.io.IOException;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,9 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import services.AuthService;
-
-import java.io.IOException;
-import java.net.URL;
+import test.MainApp;
 
 public class VerifyController {
 
@@ -60,16 +60,19 @@ public class VerifyController {
     @FXML
     private void navigateToLogin() {
         try {
-            URL resourceUrl = getClass().getResource("/views/login.fxml");
-            if (resourceUrl == null) {
-                showStatus("Login FXML file not found", true);
-                return;
-            }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+            Parent root = loader.load();
             
-            Parent root = FXMLLoader.load(resourceUrl);
             Stage stage = (Stage) tokenField.getScene().getWindow();
-            stage.setScene(new Scene(root, 500, 400));
-            stage.setTitle("Login");
+            stage.setTitle("Login - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Adjust to login screen size
+            MainApp.adjustStageSize(true);
+            
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

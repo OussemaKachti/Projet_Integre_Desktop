@@ -2,7 +2,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.net.URL;
 
 import entities.User;
 import javafx.event.ActionEvent;
@@ -16,6 +15,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import services.AuthService;
+import test.MainApp;
 import utils.ValidationHelper;
 import utils.ValidationUtils;
 
@@ -174,59 +174,65 @@ public class RegisterController {
         }
     }
     
-    private void navigateToVerification(User user) {
+    // Update the navigateToVerification method in RegisterController.java:
+
+private void navigateToVerification(User user) {
+    try {
+        // Show an alert with the verification token
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Registration Successful");
+        alert.setHeaderText("Account Created Successfully");
+        alert.setContentText("A verification email has been sent to " + user.getEmail() + 
+            ".\n\nYour verification token is: " + user.getConfirmationToken() + 
+            "\n\nPlease use this token to verify your account.");
+        alert.showAndWait();
+        
+        // Navigate to verification page
         try {
-            // Show an alert with the verification token
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Registration Successful");
-            alert.setHeaderText("Account Created Successfully");
-            alert.setContentText("A verification email has been sent to " + user.getEmail() + 
-                ".\n\nYour verification token is: " + user.getConfirmationToken() + 
-                "\n\nPlease use this token to verify your account.");
-            alert.showAndWait();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/verify.fxml"));
+            Parent root = loader.load();
             
-            // Navigate to verification page
-            try {
-                URL resourceUrl = getClass().getResource("/views/verify.fxml");
-                if (resourceUrl == null) {
-                    errorLabel.setText("Verification page not found");
-                    errorLabel.setVisible(true);
-                    return;
-                }
-                
-                Parent root = FXMLLoader.load(resourceUrl);
-                Stage stage = (Stage) emailField.getScene().getWindow();
-                stage.setScene(new Scene(root, 500, 400));
-                stage.setTitle("Verify Your Account");
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                errorLabel.setText("Error loading verification page: " + e.getMessage());
-                errorLabel.setVisible(true);
-                // Fall back to login page
-                navigateToLogin(null);
-            }
-        } catch (Exception e) {
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("Verify Your Account - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Keep login/verify screens at the smaller centered size
+            MainApp.adjustStageSize(true);
+            
+            stage.show();
+        } catch (IOException e) {
             e.printStackTrace();
-            errorLabel.setText("Error showing verification: " + e.getMessage());
+            errorLabel.setText("Error loading verification page: " + e.getMessage());
             errorLabel.setVisible(true);
+            // Fall back to login page
+            navigateToLogin(null);
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        errorLabel.setText("Error showing verification: " + e.getMessage());
+        errorLabel.setVisible(true);
     }
+}
     
     @FXML
     private void navigateToLogin(ActionEvent event) {
         try {
-            URL resourceUrl = getClass().getResource("/views/login.fxml");
-            if (resourceUrl == null) {
-                errorLabel.setText("Login FXML file not found");
-                errorLabel.setVisible(true);
-                return;
-            }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+            Parent root = loader.load();
             
-            Parent root = FXMLLoader.load(resourceUrl);
             Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 500, 400));
-            stage.setTitle("Login");
+            stage.setTitle("Login - UNICLUBS");
+            
+            // Create scene without explicit dimensions
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // Keep login/register screens at the smaller size
+            MainApp.adjustStageSize(true);
+            
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
