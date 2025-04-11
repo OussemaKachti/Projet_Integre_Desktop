@@ -2,110 +2,137 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0"
-      prefWidth="600.0" spacing="5.0" xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.RegisterController">
-   <children>
-      <Label text="Create an Account">
-         <font>
-            <Font name="System Bold" size="22.0" />
-         </font>
-      </Label>
-      <!-- General error label -->
-      <Label fx:id="errorLabel" text="Error message" textFill="RED" visible="false" />
-      
-      <!-- First name and last name fields with their error labels -->
-      <HBox alignment="CENTER" spacing="10.0">
-         <children>
-            <VBox prefWidth="250.0">
-               <children>
-                  <TextField fx:id="firstNameField" prefHeight="30.0" prefWidth="250.0" promptText="First Name" />
-                  <Label fx:id="firstNameErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
-               </children>
-            </VBox>
-            <VBox prefWidth="250.0">
-               <children>
-                  <TextField fx:id="lastNameField" prefHeight="30.0" prefWidth="250.0" promptText="Last Name" />
-                  <Label fx:id="lastNameErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
-               </children>
-            </VBox>
-         </children>
-      </HBox>
-      
-      <!-- Email field with its error label -->
-      <VBox alignment="CENTER" maxWidth="520.0">
-         <children>
-            <TextField fx:id="emailField" prefHeight="30.0" promptText="Email Address" />
-            <Label fx:id="emailErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
-         </children>
-      </VBox>
-      
-      <!-- Phone field with its error label - made more prominent and required -->
-      <VBox alignment="CENTER" maxWidth="520.0">
-         <children>
-            <HBox alignment="CENTER_LEFT">
-               <children>
-                  <TextField fx:id="phoneField" prefHeight="30.0" promptText="Phone Number (required)" HBox.hgrow="ALWAYS" />
-                  <Label text="*" textFill="RED">
-                     <HBox.margin>
-                        <Insets left="5.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <Label fx:id="phoneErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" wrapText="true" />
-         </children>
+<BorderPane xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.RegisterController"
+            stylesheets="@../styles/uniclubs.css">
+   <top>
+      <HBox alignment="CENTER" styleClass="header">
          <padding>
-            <Insets bottom="5.0" />
+            <Insets bottom="15.0" top="15.0" />
          </padding>
-      </VBox>
-      
-      <!-- Password fields with their error labels -->
-      <HBox alignment="CENTER" spacing="10.0">
-         <children>
-            <VBox prefWidth="250.0">
-               <children>
-                  <PasswordField fx:id="passwordField" prefHeight="30.0" prefWidth="250.0" promptText="Password" />
-                  <Label fx:id="passwordErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" wrapText="true" />
-               </children>
-            </VBox>
-            <VBox prefWidth="250.0">
-               <children>
-                  <PasswordField fx:id="confirmPasswordField" prefHeight="30.0" prefWidth="250.0" promptText="Confirm Password" />
-                  <Label fx:id="confirmPasswordErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
-               </children>
-            </VBox>
-         </children>
+         
+         <ImageView fitHeight="50.0" fitWidth="50.0" preserveRatio="true">
+            <Image url="@../images/uniclubs_logo_white.png"/>
+         </ImageView>
+         
+         <Label text="UNICLUBS" textFill="WHITE">
+            <font>
+               <Font name="System Bold" size="22.0" />
+            </font>
+            <HBox.margin>
+               <Insets left="10.0" />
+            </HBox.margin>
+         </Label>
       </HBox>
-      
-      <!-- Add some helper text about phone number format -->
-      <Label text="Phone numbers must be in Tunisian format (e.g. +21655123456, 55123456)"
-             style="-fx-font-size: 11px; -fx-text-fill: #555555;" />
-      
-      <Button defaultButton="true" mnemonicParsing="false" onAction="#handleRegister"
-             prefHeight="40.0" prefWidth="200.0"
-             style="-fx-background-color: #2196F3;" text="Register" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
-         <VBox.margin>
-            <Insets top="15.0" />
-         </VBox.margin>
-      </Button>
-      
-      <Button mnemonicParsing="false" onAction="#navigateToLogin"
-             text="Already have an account? Login" textFill="#2196f3"
-             style="-fx-background-color: transparent;" />
-   </children>
-   <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-   </padding>
-</VBox>
+   </top>
+   
+   <center>
+      <VBox alignment="CENTER" spacing="15.0">
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
+         </padding>
+         
+         <!-- Page Title -->
+         <Label styleClass="title" text="Create Your Account">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+         
+         <!-- Error message area -->
+         <Label fx:id="errorLabel" styleClass="alert-error"
+                text="Please correct the errors below" visible="false" wrapText="true" />
+         
+         <!-- Registration Form -->
+         <VBox maxWidth="600.0" styleClass="card" spacing="20.0">
+            <!-- Name Fields -->
+            <HBox spacing="15.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container">
+                  <Label text="First Name" />
+                  <TextField fx:id="firstNameField" promptText="Enter your first name" />
+                  <Label fx:id="firstNameErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
+               
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container">
+                  <Label text="Last Name" />
+                  <TextField fx:id="lastNameField" promptText="Enter your last name" />
+                  <Label fx:id="lastNameErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
+            </HBox>
+            
+            <!-- Email Field -->
+            <VBox styleClass="field-container">
+               <Label text="Email Address" />
+               <TextField fx:id="emailField" promptText="Enter your email address" />
+               <Label fx:id="emailErrorLabel" styleClass="error-message" 
+                      visible="false" />
+            </VBox>
+            
+            <!-- Phone Field with Required Indicator -->
+            <VBox styleClass="field-container">
+               <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <Label text="Phone Number" />
+                  <Label text="*" textFill="#f44336" />
+               </HBox>
+               <TextField fx:id="phoneField" promptText="Tunisian format (e.g. +21655123456)" />
+               <Label fx:id="phoneErrorLabel" styleClass="error-message" 
+                      visible="false" />
+               <Label styleClass="text-small, text-muted" 
+                      text="Phone numbers must be in Tunisian format (e.g. +21655123456, 55123456)" />
+            </VBox>
+            
+            <!-- Password Fields -->
+            <HBox spacing="15.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container">
+                  <Label text="Password" />
+                  <PasswordField fx:id="passwordField" promptText="Create a secure password" />
+                  <Label fx:id="passwordErrorLabel" styleClass="error-message" 
+                         visible="false" wrapText="true" />
+               </VBox>
+               
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container">
+                  <Label text="Confirm Password" />
+                  <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" />
+                  <Label fx:id="confirmPasswordErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
+            </HBox>
+            
+            <!-- Terms Checkbox -->
+            <CheckBox fx:id="termsCheckBox" text="I agree to the Terms and Conditions" />
+            
+            <!-- Action Buttons -->
+            <HBox alignment="CENTER" spacing="15.0">
+               <Button onAction="#navigateToLogin" 
+                       styleClass="button-secondary" text="Back to Login" 
+                       prefWidth="150.0" />
+               <Button defaultButton="true" onAction="#handleRegister" 
+                       styleClass="button-primary" text="Create Account" 
+                       prefWidth="150.0" />
+            </HBox>
+         </VBox>
+      </VBox>
+   </center>
+   
+   <!-- Footer -->
+   <bottom>
+      <HBox alignment="CENTER" styleClass="header-light">
+         <Label styleClass="text-muted, text-small" 
+                text="© 2024 UNICLUBS - All rights reserved" />
+      </HBox>
+   </bottom>
+</BorderPane>

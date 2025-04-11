@@ -24,6 +24,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import services.AuthService;
+import test.MainApp;
 import utils.SessionManager;
 
 public class ProfileController {
@@ -54,6 +55,9 @@ public class ProfileController {
 
     @FXML
     private Button logoutButton;
+    
+    @FXML
+    private Button dashboardButton;
 
     @FXML
     private Label profileInfoMessage;
@@ -107,6 +111,7 @@ public class ProfileController {
     private final AuthService authService = new AuthService();
     private User currentUser;
     private final String UPLOADS_DIRECTORY = "uploads/profiles/";
+    private final String DEFAULT_IMAGE_PATH = "/images/default_profile.png";
 
     @FXML
     private void initialize() {
@@ -120,6 +125,12 @@ public class ProfileController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        // Set dashboard button visibility based on role
+        if (dashboardButton != null) {
+            dashboardButton.setVisible("ADMIN".equals(currentUser.getRole().toString()));
+            dashboardButton.setManaged("ADMIN".equals(currentUser.getRole().toString()));
         }
 
         // Update profile information
@@ -149,35 +160,52 @@ public class ProfileController {
 
     private void loadProfileImage() {
         String profilePicture = currentUser.getProfilePicture();
-        Image image;
 
         try {
             if (profilePicture != null && !profilePicture.isEmpty()) {
                 File imageFile = new File(UPLOADS_DIRECTORY + profilePicture);
                 if (imageFile.exists()) {
-                    image = new Image(imageFile.toURI().toString());
+                    Image image = new Image(imageFile.toURI().toString());
+                    profileImageView.setImage(image);
                 } else {
                     // Use a default image if profile picture file not found
-                    createDefaultImage();
+                    loadDefaultImage();
                 }
             } else {
                 // Use default image if no profile picture set
-                createDefaultImage();
+                loadDefaultImage();
             }
         } catch (Exception e) {
             e.printStackTrace();
             // Create a fallback colored circle if image loading fails
-            createDefaultImage();
+            createDefaultImageFallback();
         }
 
-        // Make the image view circular
-        profileImageView.setStyle("-fx-background-radius: 50%; -fx-background-color: #cccccc;");
+        // Apply circular clip to the image view
+        profileImageView.setStyle("-fx-background-radius: 60; -fx-background-color: #cccccc;");
     }
 
-    private void createDefaultImage() {
-        // Create a colored circle as default profile image
+    private void loadDefaultImage() {
+        try {
+            // First try to load the default image from resources
+            Image defaultImage = new Image(getClass().getResourceAsStream(DEFAULT_IMAGE_PATH));
+            if (defaultImage != null && !defaultImage.isError()) {
+                profileImageView.setImage(defaultImage);
+            } else {
+                // If default image couldn't be loaded, create a fallback image
+                createDefaultImageFallback();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // If any error occurs, create a fallback image
+            createDefaultImageFallback();
+        }
+    }
+
+    private void createDefaultImageFallback() {
+        // Create a colored circle as default profile image (as a fallback)
         javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(60);
-        circle.setFill(javafx.scene.paint.Color.web("#2196F3"));
+        circle.setFill(javafx.scene.paint.Color.web("#00A0E3")); // UNICLUBS blue
 
         // Convert the circle to an image
         javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
@@ -266,32 +294,40 @@ public class ProfileController {
     }
 
     @FXML
-    private void handleEditProfile(ActionEvent event) {
-        try {
-            // Load the edit profile dialog
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/edit_profile.fxml"));
-            Parent root = loader.load();
+private void handleEditProfile(ActionEvent event) {
+    try {
+        // Load the edit profile dialog
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/edit_profile.fxml"));
+        Parent root = loader.load();
 
-            // Get the controller and pass the current user
-            EditProfileController controller = loader.getController();
-            controller.setCurrentUser(currentUser);
-            controller.setParentController(this);
+        // Get the controller and pass the current user
+        EditProfileController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
+        controller.setParentController(this);
 
-            // Create a new stage for the dialog
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Profile");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(editProfileBtn.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+        // Create a new stage for the dialog
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Edit Profile - UNICLUBS");
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.initOwner(editProfileBtn.getScene().getWindow());
+        
+        // Set appropriate size for edit dialog
+        Scene scene = new Scene(root, 550, 600);
+        dialogStage.setScene(scene);
+        dialogStage.setMinWidth(550);
+        dialogStage.setMinHeight(600);
+        
+        // Center the dialog on screen
+        MainApp.centerStageOnScreen(dialogStage);
 
-            // Show the dialog and wait
-            dialogStage.showAndWait();
+        // Show the dialog and wait
+        dialogStage.showAndWait();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Could not load edit profile dialog: " + e.getMessage());
-        }
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Could not load edit profile dialog: " + e.getMessage());
     }
+}
 
     @FXML
     private void handleChangeImage(ActionEvent event) {
@@ -453,13 +489,41 @@ public class ProfileController {
         updateProfileDisplay();
     }
 
-    private void navigateToLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-        Parent root = loader.load();
+   private void navigateToLogin() throws IOException {
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+    Parent root = loader.load();
 
-        Stage stage = (Stage) userRoleLabel.getScene().getWindow();
-        stage.setScene(new Scene(root, 500, 400));
-        stage.setTitle("Login");
-        stage.show();
+    Stage stage = (Stage) userRoleLabel.getScene().getWindow();
+    
+    // Adjust to login screen size
+    MainApp.adjustStageSize(true);
+    
+    stage.setScene(new Scene(root));
+    stage.setTitle("Login - UNICLUBS");
+    stage.show();
+}
+  @FXML
+private void navigateToDashboard(ActionEvent event) {
+    // Only admin can access dashboard
+    if (currentUser == null || !"ADMIN".equals(currentUser.getRole().toString())) {
+        return;
     }
+    
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dashboard.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) dashboardButton.getScene().getWindow();
+        
+        // Use the main application size for dashboard
+        MainApp.adjustStageSize(false);
+        
+        stage.setScene(new Scene(root));
+        stage.setTitle("Admin Dashboard - UNICLUBS");
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Could not load dashboard: " + e.getMessage());
+    }
+}
 }

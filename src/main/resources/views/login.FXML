@@ -5,50 +5,92 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" 
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" 
-      prefWidth="500.0" spacing="8.0" xmlns="http://javafx.com/javafx/17" 
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
-   <children>
-      <Label text="Login to Club Management">
-         <font>
-            <Font name="System Bold" size="22.0" />
-         </font>
-      </Label>
-      <!-- General error message that appears at the top -->
-      <Label fx:id="errorLabel" text="Error message" textFill="RED" visible="false" />
-      
-      <!-- Email field with its error label -->
-      <TextField fx:id="emailField" maxWidth="300.0" promptText="Email" />
-      <Label fx:id="emailErrorLabel" maxWidth="300.0" textFill="RED" 
-             style="-fx-font-size: 11px;" visible="false" />
-      
-      <!-- Password field with its error label -->
-      <PasswordField fx:id="passwordField" maxWidth="300.0" promptText="Password" />
-      <Label fx:id="passwordErrorLabel" maxWidth="300.0" textFill="RED" 
-             style="-fx-font-size: 11px;" visible="false" />
-      
-      <Button defaultButton="true" mnemonicParsing="false" onAction="#handleLogin" 
-              prefHeight="30.0" prefWidth="150.0" 
-              style="-fx-background-color: #2196F3;" text="Login" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font>
-         <VBox.margin>
-            <Insets top="10.0" />
-         </VBox.margin>
-      </Button>
-      <Button mnemonicParsing="false" onAction="#navigateToRegister" 
-              text="Don't have an account? Register" textFill="#2196f3" 
-              style="-fx-background-color: transparent;" />
-      <Button mnemonicParsing="false" onAction="#forgotPassword" 
-              text="Forgot Password?" textFill="#2196f3" 
-              style="-fx-background-color: transparent;" />
-   </children>
-   <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-   </padding>
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controllers.LoginController"
+            stylesheets="@../styles/uniclubs.css">
+   <center>
+      <VBox alignment="CENTER" maxWidth="450.0" spacing="20.0">
+         <padding>
+            <Insets left="50.0" right="50.0" />
+         </padding>
+         
+         <!-- Logo and Title Section -->
+         <HBox alignment="CENTER" spacing="20.0" styleClass="logo-container">
+            <ImageView fitHeight="80.0" fitWidth="80.0" preserveRatio="true">
+               <Image url="@../images/uniclubs_logo.png"/>
+            </ImageView>
+         </HBox>
+         
+         <Label styleClass="title" text="Welcome to UNICLUBS">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+         
+         <Label styleClass="subtitle" text="Sign in to your account">
+            <font>
+               <Font size="14.0" />
+            </font>
+         </Label>
+         
+         <!-- Error message area -->
+         <Label fx:id="errorLabel" styleClass="alert-error"
+                text="Invalid email or password" visible="false" wrapText="true" />
+         
+         <!-- Login Form -->
+         <VBox alignment="CENTER" spacing="15" styleClass="form-container">
+            <!-- Email field -->
+            <VBox styleClass="field-container">
+               <Label text="Email" />
+               <TextField fx:id="emailField" promptText="Enter your email address" />
+               <Label fx:id="emailErrorLabel" styleClass="error-message" 
+                      visible="false" />
+            </VBox>
+            
+            <!-- Password field -->
+            <VBox styleClass="field-container">
+               <Label text="Password" />
+               <PasswordField fx:id="passwordField" promptText="Enter your password" />
+               <Label fx:id="passwordErrorLabel" styleClass="error-message" 
+                      visible="false" />
+            </VBox>
+            
+            <!-- Login button -->
+            <Button defaultButton="true" onAction="#handleLogin" 
+                    styleClass="button-primary" text="Sign In" maxWidth="Infinity">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            
+            <!-- Additional links -->
+            <HBox alignment="CENTER" spacing="10.0">
+               <Button onAction="#navigateToRegister" 
+                       styleClass="button-link" text="Create an account" />
+               <Label styleClass="text-muted" text="•" />
+               <Button onAction="#forgotPassword" 
+                       styleClass="button-link" text="Forgot password?" />
+            </HBox>
+         </VBox>
+      </VBox>
+   </center>
+   
+   <!-- Footer -->
+   <bottom>
+      <HBox alignment="CENTER" styleClass="header-light">
+         <Label styleClass="text-muted, text-small" 
+                text="UNICLUBS - Club Management System" />
+      </HBox>
+   </bottom>
+</BorderPane>

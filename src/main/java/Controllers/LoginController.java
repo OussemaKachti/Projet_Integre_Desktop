@@ -4,7 +4,7 @@ package controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
-
+ 
 import entities.User;
 import enums.RoleEnum;
 import javafx.event.ActionEvent;
@@ -20,6 +20,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import services.AuthService;
+import test.MainApp;
 import utils.SessionManager;
 import utils.ValidationHelper;
 import utils.ValidationUtils;
@@ -147,26 +148,25 @@ public class LoginController {
         }
     }
     
-    private void navigateToVerification() {
-        try {
-            URL resourceUrl = getClass().getResource("/views/verify.fxml");
-            if (resourceUrl == null) {
-                errorLabel.setText("Verification page not found");
-                errorLabel.setVisible(true);
-                return;
-            }
-            
-            Parent root = FXMLLoader.load(resourceUrl);
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 500, 400));
-            stage.setTitle("Verify Your Account");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorLabel.setText("Error loading verification page: " + e.getMessage());
-            errorLabel.setVisible(true);
-        }
+private void navigateToVerification() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/verify.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        stage.setTitle("Verify Account - UNICLUBS");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        
+        // Keep login/verify screens at the smaller size
+        MainApp.adjustStageSize(true);
+        
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to verification: " + e.getMessage());
     }
+}
     
     private void loadDashboard(User user) {
         try {
@@ -195,25 +195,24 @@ public class LoginController {
     
     // Navigate to profile page
     private void navigateToProfile() {
-        try {
-            URL resourceUrl = getClass().getResource("/views/profile.fxml");
-            if (resourceUrl == null) {
-                errorLabel.setText("Profile view not found");
-                errorLabel.setVisible(true);
-                return;
-            }
-            
-            Parent root = FXMLLoader.load(resourceUrl);
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("My Profile");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorLabel.setText("Error loading profile page: " + e.getMessage());
-            errorLabel.setVisible(true);
-        }
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/profile.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        stage.setTitle("My Profile - UNICLUBS");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        
+        // Adjust stage size for the main application screens
+        MainApp.adjustStageSize(false);
+        
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to profile: " + e.getMessage());
     }
+}
     
     // Helper method for navigation
     private void navigateToView(String viewPath, String title, int width, int height) {
@@ -238,26 +237,25 @@ public class LoginController {
     }
     
     @FXML
-    private void navigateToRegister(ActionEvent event) {
-        try {
-            URL resourceUrl = getClass().getResource("/views/register.fxml");
-            if (resourceUrl == null) {
-                errorLabel.setText("Register FXML file not found");
-                errorLabel.setVisible(true);
-                return;
-            }
-            
-            Parent root = FXMLLoader.load(resourceUrl);
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(root, 600, 500));
-            stage.setTitle("Register");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorLabel.setText("Error loading registration page: " + e.getMessage());
-            errorLabel.setVisible(true);
-        }
+   private void navigateToRegister() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/register.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        stage.setTitle("Register - UNICLUBS");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        
+        // Keep login/register screens at the smaller size
+        MainApp.adjustStageSize(true);
+        
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to registration: " + e.getMessage());
     }
+}
     
     @FXML
     private void forgotPassword(ActionEvent event) {
