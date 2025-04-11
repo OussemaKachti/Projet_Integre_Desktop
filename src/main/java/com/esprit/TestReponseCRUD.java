@@ -12,7 +12,7 @@ import com.esprit.services.ChoixSondageService;
 import com.esprit.services.CommentaireService;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
@@ -229,7 +229,7 @@ public class TestReponseCRUD {
         reponse.setUser(user);
         reponse.setSondage(sondage);
         reponse.setChoixSondage(choix.get(choixIndex));
-        reponse.setDateReponse(LocalDateTime.now());
+        reponse.setDateReponse(LocalDate.now());
         
         // Sauvegarder la réponse
         reponseService.add(reponse);
@@ -289,7 +289,7 @@ public class TestReponseCRUD {
         
         // Mettre à jour la réponse
         reponseActuelle.setChoixSondage(choix.get(choixIndex));
-        reponseActuelle.setDateReponse(LocalDateTime.now());
+        reponseActuelle.setDateReponse(LocalDate.now());
         
         // Sauvegarder la modification
         reponseService.update(reponseActuelle);
@@ -450,8 +450,8 @@ public class TestReponseCRUD {
     private static void afficherSondagesParClub() throws SQLException {
         System.out.println("\n=== Liste des sondages par club ===");
         
-        System.out.print("Entrez l'ID du club: ");
-        int clubId = lireEntier();
+        System.out.print("Entrez l'ID ou le nom du club: ");
+        String clubId = scanner.nextLine();
         
         // Récupérer les sondages du club
         List<Sondage> sondages = sondageService.getByClub(clubId);

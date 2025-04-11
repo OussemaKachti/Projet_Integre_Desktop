@@ -1,16 +1,16 @@
 package com.esprit.models;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Commentaire {
     private Integer id;
     private String contenuComment;
-    private LocalDateTime dateComment;
+    private LocalDate dateComment;
     private User user;
     private Sondage sondage;
 
     public Commentaire() {
-        this.dateComment = LocalDateTime.now();
+        this.dateComment = LocalDate.now();
     }
 
     public Integer getId() {
@@ -29,11 +29,11 @@ public class Commentaire {
         this.contenuComment = contenuComment;
     }
 
-    public LocalDateTime getDateComment() {
+    public LocalDate getDateComment() {
         return dateComment;
     }
 
-    public void setDateComment(LocalDateTime dateComment) {
+    public void setDateComment(LocalDate dateComment) {
         this.dateComment = dateComment;
     }
 

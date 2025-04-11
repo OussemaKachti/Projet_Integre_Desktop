@@ -99,7 +99,7 @@ public class TestSondageCRUD {
     private static void afficherSondages(int clubId) throws SQLException {
         System.out.println("\n=== Liste des sondages du club ===");
         
-        List<Sondage> sondages = sondageService.getByClub(clubId);
+        List<Sondage> sondages = sondageService.getByClub(String.valueOf(clubId));
         
         if (sondages.isEmpty()) {
             System.out.println("Aucun sondage trouvé pour ce club.");

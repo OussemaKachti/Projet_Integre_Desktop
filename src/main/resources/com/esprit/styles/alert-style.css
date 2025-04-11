@@ -74,4 +74,92 @@
 /* Styles pour l'icône */
 .alert-dialog > *.graphic-container {
     -fx-padding: 15px;
+}
+
+/* Styles pour les alertes et notifications */
+
+.toast-label {
+    -fx-background-radius: 20px;
+    -fx-background-color: rgba(60, 60, 60, 0.9);
+    -fx-text-fill: white;
+    -fx-padding: 15px 25px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);
+    -fx-min-width: 250px;
+    -fx-max-width: 350px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.toast-success {
+    -fx-background-color: rgba(76, 175, 80, 0.9);
+}
+
+.toast-error {
+    -fx-background-color: rgba(244, 67, 54, 0.9);
+}
+
+.toast-warning {
+    -fx-background-color: rgba(255, 152, 0, 0.9);
+}
+
+.toast-info {
+    -fx-background-color: rgba(33, 150, 243, 0.9);
+}
+
+/* Styles pour les boutons des alertes */
+.alert .button-bar .button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.alert .button-bar .button:hover {
+    -fx-background-color: #43A047;
+}
+
+.alert .button-bar .cancel-button {
+    -fx-background-color: #F44336;
+}
+
+.alert .button-bar .cancel-button:hover {
+    -fx-background-color: #E53935;
+}
+
+/* Style pour le contenu des alertes */
+.alert .content-text {
+    -fx-font-size: 14px;
+    -fx-padding: 10px 5px;
+}
+
+/* Style pour l'en-tête des alertes */
+.alert .header-panel {
+    -fx-background-color: #4CAF50;
+    -fx-padding: 10px;
+}
+
+.alert .header-panel .label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Styles spécifiques pour les différents types d'alertes */
+.alert.information .header-panel {
+    -fx-background-color: #2196F3;
+}
+
+.alert.warning .header-panel {
+    -fx-background-color: #FF9800;
+}
+
+.alert.error .header-panel {
+    -fx-background-color: #F44336;
+}
+
+.alert.confirmation .header-panel {
+    -fx-background-color: #4CAF50;
 } 

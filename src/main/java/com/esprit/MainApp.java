@@ -11,11 +11,12 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(
-            getClass().getResource("/com/esprit/views/sondage/MainSondage.fxml"));
+            getClass().getResource("/com/esprit/views/SondageView.fxml"));
         
         Scene scene = new Scene(root);
         primaryStage.setTitle("Gestion des Sondages");
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);  // Démarrer en mode plein écran
         primaryStage.show();
     }
     

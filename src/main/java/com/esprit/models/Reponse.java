@@ -1,18 +1,18 @@
 package com.esprit.models;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Reponse {
     private Integer id;
-    private LocalDateTime dateReponse;
+    private LocalDate dateReponse;
     private User user;
     private ChoixSondage choixSondage;
     private Sondage sondage;
 
     public Reponse() {
-        this.dateReponse = LocalDateTime.now();
+        this.dateReponse = LocalDate.now();
     }
 
     public Integer getId() {
@@ -23,11 +23,11 @@ public class Reponse {
         this.id = id;
     }
 
-    public LocalDateTime getDateReponse() {
+    public LocalDate getDateReponse() {
         return dateReponse;
     }
 
-    public void setDateReponse(LocalDateTime dateReponse) {
+    public void setDateReponse(LocalDate dateReponse) {
         this.dateReponse = dateReponse;
     }
 

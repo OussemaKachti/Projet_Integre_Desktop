@@ -8,7 +8,7 @@ import com.esprit.services.UserService;
 import com.esprit.services.CommentaireService;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
@@ -147,7 +147,7 @@ public class TestCommentaireCRUD {
         // Créer le commentaire
         Commentaire commentaire = new Commentaire();
         commentaire.setContenuComment(contenu);
-        commentaire.setDateComment(LocalDateTime.now());
+        commentaire.setDateComment(LocalDate.now());
         commentaire.setUser(user);
         commentaire.setSondage(sondage);
         
@@ -200,7 +200,7 @@ public class TestCommentaireCRUD {
         
         // Mettre à jour le commentaire
         commentaireAModifier.setContenuComment(nouveauContenu);
-        commentaireAModifier.setDateComment(LocalDateTime.now()); // Mettre à jour la date
+        commentaireAModifier.setDateComment(LocalDate.now()); // Mettre à jour la date
         
         // Sauvegarder les modifications
         commentaireService.update(commentaireAModifier);

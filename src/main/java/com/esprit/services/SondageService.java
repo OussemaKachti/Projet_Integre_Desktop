@@ -145,21 +145,124 @@ public class SondageService {
 
     /**
      * Récupère tous les sondages d'un club spécifique
+     * 
+     * @param clubId2 Nom ou ID du club pour lequel récupérer les sondages
+     * @return Liste des sondages du club
      */
-    public List<Sondage> getByClub(int clubId) throws SQLException {
+    public List<Sondage> getByClub(String clubId2) throws SQLException {
         List<Sondage> sondages = new ArrayList<>();
-        String query = "SELECT * FROM sondage WHERE club_id = ? ORDER BY created_at DESC";
+
+        // Si on recherche par ID (cas où clubNom est un nombre)
+        if (clubId2.matches("\\d+")) {
+            int clubId = Integer.parseInt(clubId2);
+            String query = "SELECT * FROM sondage WHERE club_id = ? ORDER BY created_at DESC";
+
+            try (PreparedStatement pst = connection.prepareStatement(query)) {
+                pst.setInt(1, clubId);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        sondages.add(mapResultSetToSondage(rs));
+                    }
+                }
+            }
+        }
+        // Si on recherche par nom du club
+        else {
+            // Modifié pour tenir compte de la structure réelle de la table club
+            // qui pourrait avoir soit 'nom' soit 'nom_c' comme nom de colonne
+            String query = "SELECT s.* FROM sondage s " +
+                    "INNER JOIN club c ON s.club_id = c.id " +
+                    "WHERE c.nom = ? OR c.nom_c = ? " +
+                    "ORDER BY s.created_at DESC";
+
+            try (PreparedStatement pst = connection.prepareStatement(query)) {
+                pst.setString(1, clubId2);
+                pst.setString(2, clubId2);
+
+                try (ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        sondages.add(mapResultSetToSondage(rs));
+                    }
+                }
+            }
+        }
+
+        return sondages;
+    }
+
+    /**
+     * Récupère tous les choix d'un sondage spécifique
+     * 
+     * @param sondageId ID du sondage pour lequel récupérer les choix
+     * @return Liste des choix du sondage
+     */
+    public List<ChoixSondage> getChoixBySondage(int sondageId) throws SQLException {
+        List<ChoixSondage> choix = new ArrayList<>();
+        String query = "SELECT * FROM choix_sondage WHERE sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setInt(1, clubId);
+            pst.setInt(1, sondageId);
             
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
-                    sondages.add(mapResultSetToSondage(rs));
+                    ChoixSondage option = new ChoixSondage();
+                    option.setId(rs.getInt("id"));
+                    option.setContenu(rs.getString("contenu"));
+                    
+                    // Set the sondage reference 
+                    Sondage sondage = new Sondage();
+                    sondage.setId(sondageId);
+                    option.setSondage(sondage);
+                    
+                    choix.add(option);
                 }
             }
         }
         
-        return sondages;
+        return choix;
+    }
+
+    /**
+     * Récupère tous les sondages (méthode de compatibilité)
+     */
+    public List<Sondage> readAll() throws SQLException {
+        return new ArrayList<>(getAll());
+    }
+
+    /**
+     * Delete all comments related to a poll
+     */
+    public void deleteCommentsByPollId(int pollId) throws SQLException {
+        String query = "DELETE FROM commentaire WHERE sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, pollId);
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Delete all responses/votes related to a poll
+     */
+    public void deleteResponsesByPollId(int pollId) throws SQLException {
+        String query = "DELETE FROM reponse WHERE sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, pollId);
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Delete all options related to a poll
+     */
+    public void deleteOptionsByPollId(int pollId) throws SQLException {
+        String query = "DELETE FROM choix_sondage WHERE sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, pollId);
+            pst.executeUpdate();
+        }
     }
 }

@@ -4,19 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -24,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="750.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/sondage-style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="750.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/sondage-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.SondageViewController">
    <top>
       <Pane prefHeight="150.0" prefWidth="1200.0" styleClass="header-section" BorderPane.alignment="CENTER">
          <children>
@@ -48,265 +37,7 @@
          <content>
             <HBox prefHeight="600.0" prefWidth="1180.0" spacing="20.0">
                <children>
-                  <VBox prefHeight="600.0" prefWidth="800.0" spacing="20.0" styleClass="polls-section">
-                     <children>
-                        <VBox prefWidth="100.0" styleClass="poll-container">
-                           <children>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" styleClass="user-info">
-                                 <children>
-                                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../images/avatar.png" />
-                                       </image>
-                                    </ImageView>
-                                    <Label styleClass="user-name" text="John Doe" />
-                                    <Label styleClass="date-separator" text="|" />
-                                    <Label styleClass="poll-date" text="10 Jun 2023" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <Label prefWidth="760.0" styleClass="poll-title" text="What is your favorite programming language?">
-                                 <VBox.margin>
-                                    <Insets bottom="15.0" left="10.0" right="10.0" top="10.0" />
-                                 </VBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="18.0" />
-                                 </font>
-                              </Label>
-                              <VBox prefWidth="100.0" spacing="10.0" styleClass="poll-options">
-                                 <children>
-                                    <fx:define>
-                                       <ToggleGroup fx:id="pollOptions" />
-                                    </fx:define>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="Java" toggleGroup="$pollOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.75" styleClass="progress-bar-java" />
-                                          <Label styleClass="percentage-label" text="75%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="Python" toggleGroup="$pollOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.60" styleClass="progress-bar-python" />
-                                          <Label styleClass="percentage-label" text="60%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="JavaScript" toggleGroup="$pollOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.45" styleClass="progress-bar-javascript" />
-                                          <Label styleClass="percentage-label" text="45%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="C#" toggleGroup="$pollOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.25" styleClass="progress-bar-csharp" />
-                                          <Label styleClass="percentage-label" text="25%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </VBox>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
-                                 <children>
-                                    <Button mnemonicParsing="false" styleClass="vote-button" text="Submit Vote" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="20.0" styleClass="comment-header">
-                                 <children>
-                                    <Button mnemonicParsing="false" styleClass="comments-button" text="5 Comments" />
-                                    <Pane HBox.hgrow="ALWAYS" />
-                                    <Label text="Your choice:">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label styleClass="user-choice" text="Java" />
-                                    <Button mnemonicParsing="false" styleClass="delete-vote-button" text="Delete Vote" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <VBox prefWidth="100.0" styleClass="comment-form">
-                                 <children>
-                                    <Label styleClass="comment-form-title" text="Write a comment">
-                                       <font>
-                                          <Font name="System Bold" size="14.0" />
-                                       </font>
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" />
-                                       </VBox.margin>
-                                    </Label>
-                                    <TextArea prefHeight="80.0" prefWidth="200.0" promptText="Enter your comment..." styleClass="comment-textarea" wrapText="true" />
-                                    <HBox alignment="CENTER_RIGHT" prefWidth="200.0">
-                                       <children>
-                                          <Button mnemonicParsing="false" styleClass="post-comment-button" text="Post Comment">
-                                             <HBox.margin>
-                                                <Insets top="10.0" />
-                                             </HBox.margin>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </VBox>
-                           </children>
-                           <padding>
-                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                           </padding>
-                        </VBox>
-                        
-                        <!-- Second Poll Example -->
-                        <VBox prefWidth="100.0" styleClass="poll-container">
-                           <children>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" styleClass="user-info">
-                                 <children>
-                                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../images/avatar.png" />
-                                       </image>
-                                    </ImageView>
-                                    <Label styleClass="user-name" text="Jane Smith" />
-                                    <Label styleClass="date-separator" text="|" />
-                                    <Label styleClass="poll-date" text="5 Jun 2023" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <Label prefWidth="760.0" styleClass="poll-title" text="What framework do you prefer for web development?">
-                                 <VBox.margin>
-                                    <Insets bottom="15.0" left="10.0" right="10.0" top="10.0" />
-                                 </VBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="18.0" />
-                                 </font>
-                              </Label>
-                              <VBox prefWidth="100.0" spacing="10.0" styleClass="poll-options">
-                                 <children>
-                                    <fx:define>
-                                       <ToggleGroup fx:id="frameworkOptions" />
-                                    </fx:define>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="React" toggleGroup="$frameworkOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.65" styleClass="progress-bar-react" />
-                                          <Label styleClass="percentage-label" text="65%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="Angular" toggleGroup="$frameworkOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.40" styleClass="progress-bar-angular" />
-                                          <Label styleClass="percentage-label" text="40%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                    <HBox prefWidth="200.0" spacing="10.0" styleClass="poll-option">
-                                       <children>
-                                          <RadioButton mnemonicParsing="false" styleClass="poll-option-radio" text="Vue.js" toggleGroup="$frameworkOptions" />
-                                          <Pane HBox.hgrow="ALWAYS" />
-                                          <ProgressBar prefWidth="500.0" progress="0.55" styleClass="progress-bar-vue" />
-                                          <Label styleClass="percentage-label" text="55%" />
-                                       </children>
-                                       <padding>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </padding>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </VBox>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
-                                 <children>
-                                    <Button mnemonicParsing="false" styleClass="vote-button" text="Submit Vote" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="20.0" styleClass="comment-header">
-                                 <children>
-                                    <Button mnemonicParsing="false" styleClass="comments-button" text="3 Comments" />
-                                    <Pane HBox.hgrow="ALWAYS" />
-                                    <Label text="Your choice:">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label styleClass="user-choice" text="No vote" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <VBox prefWidth="100.0" styleClass="comment-form">
-                                 <children>
-                                    <Label styleClass="comment-form-title" text="Write a comment">
-                                       <font>
-                                          <Font name="System Bold" size="14.0" />
-                                       </font>
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" />
-                                       </VBox.margin>
-                                    </Label>
-                                    <TextArea prefHeight="80.0" prefWidth="200.0" promptText="Enter your comment..." styleClass="comment-textarea" wrapText="true" />
-                                    <HBox alignment="CENTER_RIGHT" prefWidth="200.0">
-                                       <children>
-                                          <Button mnemonicParsing="false" styleClass="post-comment-button" text="Post Comment">
-                                             <HBox.margin>
-                                                <Insets top="10.0" />
-                                             </HBox.margin>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </VBox>
-                           </children>
-                           <padding>
-                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                           </padding>
-                        </VBox>
-                     </children>
+                  <VBox fx:id="sondagesContainer" prefHeight="600.0" prefWidth="800.0" spacing="20.0" styleClass="polls-section">
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
@@ -325,7 +56,7 @@
                                     <Insets bottom="15.0" />
                                  </VBox.margin>
                               </Label>
-                              <TextField promptText="Type your question here" styleClass="input-box">
+                              <TextField fx:id="pollQuestionField" promptText="Type your question here" styleClass="input-box">
                                  <VBox.margin>
                                     <Insets bottom="15.0" />
                                  </VBox.margin>
@@ -338,13 +69,13 @@
                                     <Insets bottom="10.0" />
                                  </VBox.margin>
                               </Label>
-                              <VBox prefWidth="100.0" spacing="10.0" styleClass="options-container">
+                              <VBox fx:id="pollOptionsContainer" prefWidth="100.0" spacing="10.0" styleClass="options-container">
                                  <children>
-                                    <TextField promptText="Option 1" styleClass="input-box" />
-                                    <TextField promptText="Option 2" styleClass="input-box" />
+                                    <TextField fx:id="option1Field" promptText="Option 1" styleClass="input-box" />
+                                    <TextField fx:id="option2Field" promptText="Option 2" styleClass="input-box" />
                                  </children>
                               </VBox>
-                              <Button mnemonicParsing="false" styleClass="add-option-button" text="+ Add option">
+                              <Button fx:id="addOptionButton" mnemonicParsing="false" onAction="#handleAddOption" styleClass="add-option-button" text="+ Add option">
                                  <VBox.margin>
                                     <Insets bottom="15.0" top="10.0" />
                                  </VBox.margin>
@@ -364,17 +95,18 @@
                                     <Insets bottom="15.0" />
                                  </VBox.margin>
                               </VBox>
-                              <Button mnemonicParsing="false" styleClass="create-poll-button" text="Create Poll" />
+                              <Button fx:id="createPollButton" mnemonicParsing="false" onAction="#handleCreatePoll" styleClass="create-poll-button" text="Create Poll" />
                            </children>
                            <padding>
                               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                            </padding>
                         </VBox>
-                        <Button mnemonicParsing="false" prefWidth="320.0" styleClass="view-all-polls-button" text="View all polls">
+                        <Button fx:id="viewAllPollsButton" mnemonicParsing="false" prefWidth="320.0" styleClass="view-all-polls-button" text="View all polls">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </Button>
+                        <ComboBox fx:id="filterClubComboBox" prefWidth="320.0" promptText="Filter by club" />
                      </children>
                      <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

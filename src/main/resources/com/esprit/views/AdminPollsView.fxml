@@ -21,7 +21,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="900.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/admin-polls-style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="900.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/admin-polls-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <Pane prefHeight="150.0" prefWidth="1200.0" styleClass="header-section" BorderPane.alignment="CENTER">
          <children>
