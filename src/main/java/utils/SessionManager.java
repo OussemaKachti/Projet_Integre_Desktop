@@ -38,4 +38,8 @@ public class SessionManager {
     public void logout() {
         currentUser = null;
     }
+    public void clearSession() {
+    this.currentUser = null;
+    // If you have any other session data, clear it here
+}
 }

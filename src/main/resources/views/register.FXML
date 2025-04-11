@@ -10,8 +10,8 @@
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0"
-      prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/17"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0"
+      prefWidth="600.0" spacing="5.0" xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.RegisterController">
    <children>
       <Label text="Create an Account">
@@ -19,24 +19,76 @@
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
+      <!-- General error label -->
       <Label fx:id="errorLabel" text="Error message" textFill="RED" visible="false" />
       
+      <!-- First name and last name fields with their error labels -->
       <HBox alignment="CENTER" spacing="10.0">
          <children>
-            <TextField fx:id="firstNameField" prefHeight="30.0" prefWidth="250.0" promptText="First Name" />
-            <TextField fx:id="lastNameField" prefHeight="30.0" prefWidth="250.0" promptText="Last Name" />
+            <VBox prefWidth="250.0">
+               <children>
+                  <TextField fx:id="firstNameField" prefHeight="30.0" prefWidth="250.0" promptText="First Name" />
+                  <Label fx:id="firstNameErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
+               </children>
+            </VBox>
+            <VBox prefWidth="250.0">
+               <children>
+                  <TextField fx:id="lastNameField" prefHeight="30.0" prefWidth="250.0" promptText="Last Name" />
+                  <Label fx:id="lastNameErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
+               </children>
+            </VBox>
          </children>
       </HBox>
       
-      <TextField fx:id="emailField" maxWidth="520.0" prefHeight="30.0" promptText="Email Address" />
-      <TextField fx:id="phoneField" maxWidth="520.0" prefHeight="30.0" promptText="Phone Number (optional)" />
+      <!-- Email field with its error label -->
+      <VBox alignment="CENTER" maxWidth="520.0">
+         <children>
+            <TextField fx:id="emailField" prefHeight="30.0" promptText="Email Address" />
+            <Label fx:id="emailErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
+         </children>
+      </VBox>
       
+      <!-- Phone field with its error label - made more prominent and required -->
+      <VBox alignment="CENTER" maxWidth="520.0">
+         <children>
+            <HBox alignment="CENTER_LEFT">
+               <children>
+                  <TextField fx:id="phoneField" prefHeight="30.0" promptText="Phone Number (required)" HBox.hgrow="ALWAYS" />
+                  <Label text="*" textFill="RED">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <Label fx:id="phoneErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" wrapText="true" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Password fields with their error labels -->
       <HBox alignment="CENTER" spacing="10.0">
          <children>
-            <PasswordField fx:id="passwordField" prefHeight="30.0" prefWidth="250.0" promptText="Password" />
-            <PasswordField fx:id="confirmPasswordField" prefHeight="30.0" prefWidth="250.0" promptText="Confirm Password" />
+            <VBox prefWidth="250.0">
+               <children>
+                  <PasswordField fx:id="passwordField" prefHeight="30.0" prefWidth="250.0" promptText="Password" />
+                  <Label fx:id="passwordErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" wrapText="true" />
+               </children>
+            </VBox>
+            <VBox prefWidth="250.0">
+               <children>
+                  <PasswordField fx:id="confirmPasswordField" prefHeight="30.0" prefWidth="250.0" promptText="Confirm Password" />
+                  <Label fx:id="confirmPasswordErrorLabel" textFill="RED" style="-fx-font-size: 11px;" visible="false" />
+               </children>
+            </VBox>
          </children>
       </HBox>
+      
+      <!-- Add some helper text about phone number format -->
+      <Label text="Phone numbers must be in Tunisian format (e.g. +21655123456, 55123456)"
+             style="-fx-font-size: 11px; -fx-text-fill: #555555;" />
       
       <Button defaultButton="true" mnemonicParsing="false" onAction="#handleRegister"
              prefHeight="40.0" prefWidth="200.0"
@@ -44,6 +96,9 @@
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
+         <VBox.margin>
+            <Insets top="15.0" />
+         </VBox.margin>
       </Button>
       
       <Button mnemonicParsing="false" onAction="#navigateToLogin"

@@ -50,7 +50,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
     
-    @Column(name = "tel")
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$", 
+            message = "Invalid Tunisian phone number format")
+    @Column(name = "tel", unique = true)
     private String phone;
     
     @Column(name = "profile_picture")

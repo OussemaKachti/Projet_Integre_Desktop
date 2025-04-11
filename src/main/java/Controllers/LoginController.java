@@ -1,25 +1,28 @@
+// Path: src/main/java/controllers/LoginController.java
 package controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+
+import entities.User;
+import enums.RoleEnum;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import services.AuthService;
-import entities.User;
-import enums.RoleEnum;
 import utils.SessionManager;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Optional;
+import utils.ValidationHelper;
+import utils.ValidationUtils;
 
 public class LoginController {
 
@@ -32,20 +35,46 @@ public class LoginController {
     @FXML
     private Label errorLabel;
     
+    @FXML
+    private Label emailErrorLabel;
+    
+    @FXML
+    private Label passwordErrorLabel;
+    
     private final AuthService authService = new AuthService();
+    private ValidationHelper validator;
     
     @FXML
     private void initialize() {
         errorLabel.setVisible(false);
+        
+        // Initialize the validation helper
+        validator = new ValidationHelper()
+            .addField(emailField, emailErrorLabel)
+            .addField(passwordField, passwordErrorLabel);
     }
     
     @FXML
     private void handleLogin(ActionEvent event) {
-        String email = emailField.getText();
+        // Reset validation state
+        validator.reset();
+        errorLabel.setVisible(false);
+        
+        String email = emailField.getText().trim();
         String password = passwordField.getText();
         
-        if (email.isEmpty() || password.isEmpty()) {
-            showError("Email and password are required");
+        // Validate email
+        boolean isEmailValid = validator.validateRequired(emailField, "Email is required");
+        if (isEmailValid && !ValidationUtils.isValidEmail(email)) {
+            validator.showError(emailField, "Please enter a valid email address");
+            isEmailValid = false;
+        }
+        
+        // Validate password
+        boolean isPasswordValid = validator.validateRequired(passwordField, "Password is required");
+        
+        // If any validation failed, stop here
+        if (!isEmailValid || !isPasswordValid) {
             return;
         }
         
@@ -60,9 +89,15 @@ public class LoginController {
                     // Account not verified - show special error and option to resend verification
                     showNotVerifiedError(email);
                     return;
+                } else if (errorCode == AuthService.AUTH_INVALID_CREDENTIALS) {
+                    // For security reasons, don't specify whether email or password is wrong
+                    errorLabel.setText("Invalid email or password");
+                    errorLabel.setVisible(true);
+                    return;
                 } else {
                     // Regular authentication failure
-                    showError(authService.getLastAuthErrorMessage());
+                    errorLabel.setText(authService.getLastAuthErrorMessage());
+                    errorLabel.setVisible(true);
                     return;
                 }
             }
@@ -74,7 +109,8 @@ public class LoginController {
             loadDashboard(user);
         } catch (Exception e) {
             e.printStackTrace();
-            showError("Authentication error: " + e.getMessage());
+            errorLabel.setText("Authentication error: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
     
@@ -105,7 +141,8 @@ public class LoginController {
                 // Navigate to verification page
                 navigateToVerification();
             } else {
-                showError("Failed to resend verification email. Please try again later.");
+                errorLabel.setText("Failed to resend verification email. Please try again later.");
+                errorLabel.setVisible(true);
             }
         }
     }
@@ -114,7 +151,8 @@ public class LoginController {
         try {
             URL resourceUrl = getClass().getResource("/views/verify.fxml");
             if (resourceUrl == null) {
-                showError("Verification page not found");
+                errorLabel.setText("Verification page not found");
+                errorLabel.setVisible(true);
                 return;
             }
             
@@ -125,56 +163,77 @@ public class LoginController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Error loading verification page: " + e.getMessage());
+            errorLabel.setText("Error loading verification page: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
     
     private void loadDashboard(User user) {
         try {
-            // For testing purposes only - show alert instead of loading FXML
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Login Successful");
-            alert.setHeaderText("Login Success - Testing Mode");
-            
-            // Different message based on role
-            String destinationInfo;
+            // Navigate based on user role
             if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
-                destinationInfo = "Would redirect to: Admin Dashboard";
+                // For admin users, go to admin dashboard (keeping alert for now)
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Login Successful");
+                alert.setHeaderText("Admin Login Success");
+                alert.setContentText("User successfully logged in as: " + user.getRole() + 
+                                "\nWould redirect to: Admin Dashboard");
+                alert.showAndWait();
+                
+                // When admin dashboard is ready, use this code:
+                // navigateToView("/views/admin_dashboard.fxml", "Admin Dashboard", 800, 600);
             } else {
-                destinationInfo = "Would redirect to: Homepage";
+                // For all other users, navigate to profile page
+                navigateToProfile();
             }
-            
-            alert.setContentText("User successfully logged in as: " + user.getRole() + 
-                            "\n" + destinationInfo);
-            alert.showAndWait();
-            
-            // Don't attempt to load FXML files during testing
-            return;
-            
-            /* Original code preserved but updated for your navigation flow
-            String viewName;
-            if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
-                viewName = "/views/admin_dashboard.fxml";
-            } else {
-                // NON_MEMBRE, MEMBRE, and PRESIDENT_CLUB all go to homepage
-                viewName = "/views/homepage.fxml";
-            }
-            
-            URL resourceUrl = getClass().getResource(viewName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            errorLabel.setText("Error navigating after login: " + e.getMessage());
+            errorLabel.setVisible(true);
+        }
+    }
+    
+    // Navigate to profile page
+    private void navigateToProfile() {
+        try {
+            URL resourceUrl = getClass().getResource("/views/profile.fxml");
             if (resourceUrl == null) {
-                showError("FXML file not found: " + viewName);
+                errorLabel.setText("Profile view not found");
+                errorLabel.setVisible(true);
                 return;
             }
             
             Parent root = FXMLLoader.load(resourceUrl);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("Dashboard - " + user.getFirstName() + " " + user.getLastName());
+            stage.setTitle("My Profile");
             stage.show();
-            */
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            showError("Error in testing mode: " + e.getMessage());
+            errorLabel.setText("Error loading profile page: " + e.getMessage());
+            errorLabel.setVisible(true);
+        }
+    }
+    
+    // Helper method for navigation
+    private void navigateToView(String viewPath, String title, int width, int height) {
+        try {
+            URL resourceUrl = getClass().getResource(viewPath);
+            if (resourceUrl == null) {
+                errorLabel.setText("View not found: " + viewPath);
+                errorLabel.setVisible(true);
+                return;
+            }
+            
+            Parent root = FXMLLoader.load(resourceUrl);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setScene(new Scene(root, width, height));
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            errorLabel.setText("Error loading view: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
     
@@ -183,7 +242,8 @@ public class LoginController {
         try {
             URL resourceUrl = getClass().getResource("/views/register.fxml");
             if (resourceUrl == null) {
-                showError("Register FXML file not found");
+                errorLabel.setText("Register FXML file not found");
+                errorLabel.setVisible(true);
                 return;
             }
             
@@ -194,7 +254,8 @@ public class LoginController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Error loading registration page: " + e.getMessage());
+            errorLabel.setText("Error loading registration page: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
     
@@ -203,7 +264,8 @@ public class LoginController {
         try {
             URL resourceUrl = getClass().getResource("/views/forgot_password.fxml");
             if (resourceUrl == null) {
-                showError("Forgot password FXML file not found");
+                errorLabel.setText("Forgot password FXML file not found");
+                errorLabel.setVisible(true);
                 return;
             }
             
@@ -214,7 +276,8 @@ public class LoginController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Error loading password reset page: " + e.getMessage());
+            errorLabel.setText("Error loading password reset page: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
     

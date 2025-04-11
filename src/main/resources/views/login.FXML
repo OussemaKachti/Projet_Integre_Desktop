@@ -9,8 +9,8 @@
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" 
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" 
-      prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/17" 
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" 
+      prefWidth="500.0" spacing="8.0" xmlns="http://javafx.com/javafx/17" 
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginController">
    <children>
       <Label text="Login to Club Management">
@@ -18,15 +18,28 @@
             <Font name="System Bold" size="22.0" />
          </font>
       </Label>
+      <!-- General error message that appears at the top -->
       <Label fx:id="errorLabel" text="Error message" textFill="RED" visible="false" />
+      
+      <!-- Email field with its error label -->
       <TextField fx:id="emailField" maxWidth="300.0" promptText="Email" />
+      <Label fx:id="emailErrorLabel" maxWidth="300.0" textFill="RED" 
+             style="-fx-font-size: 11px;" visible="false" />
+      
+      <!-- Password field with its error label -->
       <PasswordField fx:id="passwordField" maxWidth="300.0" promptText="Password" />
+      <Label fx:id="passwordErrorLabel" maxWidth="300.0" textFill="RED" 
+             style="-fx-font-size: 11px;" visible="false" />
+      
       <Button defaultButton="true" mnemonicParsing="false" onAction="#handleLogin" 
               prefHeight="30.0" prefWidth="150.0" 
               style="-fx-background-color: #2196F3;" text="Login" textFill="WHITE">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
       </Button>
       <Button mnemonicParsing="false" onAction="#navigateToRegister" 
               text="Don't have an account? Register" textFill="#2196f3" 

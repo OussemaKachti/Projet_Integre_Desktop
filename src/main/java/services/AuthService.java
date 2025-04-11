@@ -1,11 +1,12 @@
 package services;
 
-import entities.User;
-import utils.PasswordUtils;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
-import enums.RoleEnum;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import entities.User;
+import enums.RoleEnum;
+import jakarta.persistence.TypedQuery;
+import utils.PasswordUtils;
 
 public class AuthService {
     
@@ -223,4 +224,55 @@ public class AuthService {
     public void close() {
         userService.close();
     }
+    // Find user by email
+public User findUserByEmail(String email) {
+    return userService.findByEmail(email);
+}
+
+// Find user by phone
+public User findUserByPhone(String phone) {
+    try {
+        TypedQuery<User> query = userService.getEntityManager().createQuery(
+            "SELECT u FROM User u WHERE u.phone = :phone", 
+            User.class
+        );
+        query.setParameter("phone", phone);
+        List<User> result = query.getResultList();
+        return result.isEmpty() ? null : result.get(0);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
+// Update user profile information
+public boolean updateUserProfile(User user) {
+    try {
+        userService.modifier(user);
+        return true;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+// Change user password
+public boolean changePassword(String email, String currentPassword, String newPassword) {
+    // First authenticate with current password
+    User user = authenticate(email, currentPassword);
+    
+    if (user == null) {
+        return false;
+    }
+    
+    try {
+        // Hash the new password
+        user.setPassword(PasswordUtils.hashPassword(newPassword));
+        userService.modifier(user);
+        return true;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 }
