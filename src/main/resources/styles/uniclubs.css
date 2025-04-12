@@ -347,6 +347,23 @@
     -fx-background-color: white;
 }
 
+/* Hide horizontal scrollbar */
+.hide-horizontal-scrollbar .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-padding: -7;
+}
+
+/* Custom Pagination */
+.custom-pagination .pagination-control {
+    -fx-spacing: 8;
+}
+
+.custom-pagination .pagination-control .page {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-radius: 5;
+}
+
 /* Search Controls */
 .search-container {
     -fx-spacing: 10;

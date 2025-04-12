@@ -1,15 +1,15 @@
 package controllers;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import entities.User;
 import enums.RoleEnum;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -21,23 +21,28 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import services.AuthService;
 import services.UserService;
@@ -110,6 +115,9 @@ public class AdminDashboardController {
     private Button createUserButton;
     
     @FXML
+    private Button userStatsButton;
+    
+    @FXML
     private TableView<User> usersTable;
     
     @FXML
@@ -134,25 +142,26 @@ public class AdminDashboardController {
     private TableColumn<User, String> statusColumn;
     
     @FXML
-    private TableColumn<User, Boolean> verifiedColumn;
-    
-    @FXML
     private TableColumn<User, Void> actionsColumn;
     
     @FXML
     private Pagination usersPagination;
     
     private final AuthService authService = new AuthService();
-    private final UserService userService = new UserService();
+    private UserService userService;
     private User currentUser;
     private ObservableList<User> usersList = FXCollections.observableArrayList();
     private FilteredList<User> filteredUsers;
     
     // Pagination Constants
-    private static final int ROWS_PER_PAGE = 10;
+    private static final int ROWS_PER_PAGE = 7;
     
     @FXML
     private void initialize() {
+        try {
+            // Initialize services
+            userService = new UserService();
+            
         // Load current admin user
         currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -186,6 +195,10 @@ public class AdminDashboardController {
         
         // By default, show the user management view
         showUserManagement();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Initialization Error", "Failed to initialize the controller");
+        }
     }
     
     private void setupUserManagementView() {
@@ -196,12 +209,22 @@ public class AdminDashboardController {
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         
-        // Keep UNCONSTRAINED_RESIZE_POLICY to make sure column widths are respected
-        usersTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        // Set specific widths for certain columns
+        actionsColumn.setPrefWidth(430.0); // Ensure actions column is wide enough for buttons
+        
+        // Make the table completely fill its parent container
+        usersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        // Disable horizontal scrollbar directly - don't try to use lookup, which causes a ClassCastException
+        usersTable.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            // Simply set the property directly on the TableView
+            // This is more reliable than trying to access the internal VirtualFlow
+            usersTable.setStyle(usersTable.getStyle() + "; -fx-hbar-policy: never;");
+        });
         
         // Custom cell factories for formatted display
-        statusColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
         statusColumn.setCellFactory(column -> new TableCell<User, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -218,21 +241,6 @@ public class AdminDashboardController {
                     } else {
                         setTextFill(Color.RED);
                     }
-                }
-            }
-        });
-        
-        verifiedColumn.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().isVerified()));
-        verifiedColumn.setCellFactory(column -> new TableCell<User, Boolean>() {
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText(item ? "✓" : "✗");
-                    setTextFill(item ? Color.GREEN : Color.RED);
                 }
             }
         });
@@ -259,7 +267,7 @@ public class AdminDashboardController {
                 
                 // Update pagination
                 updatePagination();
-            }
+            } 
         });
         
         // Setup pagination
@@ -269,90 +277,70 @@ public class AdminDashboardController {
     private void setupActionsColumn() {
         actionsColumn.setCellFactory(column -> {
             return new TableCell<User, Void>() {
-                private final Button activateButton = new Button("Activate");
-                private final Button disableButton = new Button("Disable");
-                private final Button detailsButton = new Button("Details");
-                private final Button deleteButton = new Button("Delete");
-                private final HBox pane = new HBox(10); // Increased spacing between buttons
-                
-                {
-                    // Configure buttons with wider widths
-                    activateButton.getStyleClass().add("button-secondary");
-                    activateButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 12px;");
-                    activateButton.setPrefWidth(90);
-                    
-                    disableButton.getStyleClass().add("button-secondary");
-                    disableButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 12px;");
-                    disableButton.setPrefWidth(90);
-                    
-                    detailsButton.getStyleClass().add("button-secondary");
-                    detailsButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 12px;");
-                    detailsButton.setPrefWidth(90);
-                    
-                    deleteButton.getStyleClass().add("button-secondary");
-                    deleteButton.setStyle("-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-size: 12px;");
-                    deleteButton.setPrefWidth(90);
-                    
-                    // Set action handlers
-                    activateButton.setOnAction(event -> {
-                        User user = getTableView().getItems().get(getIndex());
-                        toggleUserStatus(user, true);
-                    });
-                    
-                    disableButton.setOnAction(event -> {
-                        User user = getTableView().getItems().get(getIndex());
-                        toggleUserStatus(user, false);
-                    });
-                    
-                    detailsButton.setOnAction(event -> {
-                        User user = getTableView().getItems().get(getIndex());
-                        showUserDetails(user);
-                    });
-                    
-                    deleteButton.setOnAction(event -> {
-                        User user = getTableView().getItems().get(getIndex());
-                        deleteUser(user);
-                    });
-                    
-                    // Configure HBox 
-                    pane.setAlignment(Pos.CENTER);
-                    pane.setPadding(new Insets(0, 0, 0, 0)); // Left padding
-                }
-                
                 @Override
                 protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
                     
                     if (empty) {
                         setGraphic(null);
-                    } else {
+                        return;
+                    }
+                    
                         try {
                             User user = getTableView().getItems().get(getIndex());
+                        if (user == null) {
+                            setGraphic(null);
+                            return;
+                        }
                             
                             // Check if user is an admin (no actions allowed)
                             boolean isAdmin = "ADMINISTRATEUR".equals(user.getRole().toString());
-                            
                             if (isAdmin) {
                                 setGraphic(null);
                                 return;
                             }
                             
-                            // Clear previous buttons
-                            pane.getChildren().clear();
-                            
-                            // Show appropriate buttons based on user status
+                        // Create buttons for each row
+                        HBox buttons = new HBox();
+                        buttons.setSpacing(5);
+                        buttons.setAlignment(Pos.CENTER);
+                        
+                        // Status toggle button (Activate/Disable)
+                        Button statusButton;
                             if ("active".equalsIgnoreCase(user.getStatus())) {
-                                pane.getChildren().addAll(disableButton, detailsButton, deleteButton);
+                            statusButton = createButton("Disable", "#FF9800");
+                            statusButton.setOnAction(e -> toggleUserStatus(user, false));
                             } else {
-                                pane.getChildren().addAll(activateButton, detailsButton, deleteButton);
-                            }
-                            
-                            setGraphic(pane);
-                        } catch (IndexOutOfBoundsException e) {
-                            // Handle the case where getIndex() might be out of bounds
+                            statusButton = createButton("Activate", "#4CAF50");
+                            statusButton.setOnAction(e -> toggleUserStatus(user, true));
+                        }
+                        
+                        // Details button
+                        Button detailsButton = createButton("Details", "#2196F3");
+                        detailsButton.setOnAction(e -> showUserDetails(user));
+                        
+                        // Delete button
+                        Button deleteButton = createButton("Delete", "#F44336");
+                        deleteButton.setOnAction(e -> deleteUser(user));
+                        
+                        buttons.getChildren().addAll(statusButton, detailsButton, deleteButton);
+                        setGraphic(buttons);
+                    } catch (Exception e) {
                             setGraphic(null);
                         }
                     }
+                
+                private Button createButton(String text, String color) {
+                    Button button = new Button(text);
+                    button.setStyle(
+                        "-fx-background-color: " + color + ";" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 10px;" +
+                        "-fx-padding: 3 5 3 5;" +  // Smaller padding
+                        "-fx-background-radius: 3;" // Rounded corners
+                    );
+                    button.setMaxWidth(Double.MAX_VALUE);
+                    return button;
                 }
             };
         });
@@ -373,11 +361,31 @@ public class AdminDashboardController {
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                // Update user status in memory
                 user.setStatus(newStatus);
+                
+                // Update in database
                 userService.modifier(user);
                 
-                // Refresh the table
-                loadUserData();
+                // Reload all user data from database
+                List<User> updatedUsers = userService.recuperer();
+                usersList.clear();
+                for (User u : updatedUsers) {
+                    if (!"ADMINISTRATEUR".equals(u.getRole().toString())) {
+                        usersList.add(u);
+                    }
+                }
+                
+                // Update the filtered list and pagination
+                if (filteredUsers != null) {
+                    filteredUsers.setPredicate(filteredUsers.getPredicate());
+                    updatePagination();
+                }
+                
+                // If in details view, update the details content
+                if (userDetailsView.isVisible()) {
+                    showUserDetails(user);
+                }
                 
                 // Updated success message to match new terminology
                 String successMessage = "User " + user.getFirstName() + " " + user.getLastName();
@@ -515,9 +523,9 @@ public class AdminDashboardController {
         }
         statusButton.getStyleClass().add("button-secondary");
         statusButton.setOnAction(e -> {
-            toggleUserStatus(user, !"active".equalsIgnoreCase(user.getStatus()));
-            // Return to user list after toggling
-            showUserManagement();
+            boolean wasActive = "active".equalsIgnoreCase(user.getStatus());
+            toggleUserStatus(user, !wasActive);
+            // We don't need to return to user list now, the toggleUserStatus method will refresh the details view
         });
         
         Button deleteButton = new Button("Delete User");
@@ -593,8 +601,8 @@ public class AdminDashboardController {
     }
     
     private void updatePagination() {
-        int totalPages = (int) Math.ceil((double) filteredUsers.size() / ROWS_PER_PAGE);
-        usersPagination.setPageCount(Math.max(1, totalPages));
+            int totalPages = (int) Math.ceil((double) filteredUsers.size() / ROWS_PER_PAGE);
+            usersPagination.setPageCount(Math.max(1, totalPages));
         
         // Reset to first page when data changes
         if (usersPagination.getCurrentPageIndex() >= totalPages) {
@@ -682,6 +690,420 @@ public class AdminDashboardController {
         
         // Refresh user data
         loadUserData();
+    }
+    
+    @FXML
+    private void showUserStatistics() {
+        contentTitle.setText("User Statistics");
+        
+        // Create main container with BorderPane for better organization
+        VBox statsView = new VBox();
+        statsView.setStyle("-fx-background-color: #f8f9fa;");
+        
+        // Clear any previous content
+        statsView.getChildren().clear();
+        
+        // Create container for better layout
+        BorderPane mainContainer = new BorderPane();
+        mainContainer.setPadding(new Insets(30));
+        
+        // Top bar with back button and title
+        HBox topBar = new HBox(30);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+        topBar.setPadding(new Insets(0, 0, 35, 0));
+        
+        // Back button
+        Button backButton = new Button("← Back to Users");
+        backButton.getStyleClass().add("transparent-button");
+        backButton.setStyle("-fx-font-size: 16px;");
+        backButton.setOnAction(e -> {
+            showUserManagement();
+        });
+        
+        // Title
+        Label titleLabel = new Label("User Statistics Dashboard");
+        titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold;");
+        
+        topBar.getChildren().addAll(backButton, titleLabel);
+        
+        // Set the top bar
+        mainContainer.setTop(topBar);
+        
+        // Create a horizontal box for main content
+        HBox contentBox = new HBox(40);
+        contentBox.setPadding(new Insets(25));
+        
+        // Left section - User overview and status distribution
+        VBox leftSection = new VBox(40);
+        leftSection.setPrefWidth(600);
+        
+        // User statistics cards
+        VBox statsCards = new VBox(20);
+        
+        Label statsTitle = new Label("User Overview");
+        statsTitle.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        statsTitle.setPadding(new Insets(0, 0, 15, 0));
+        
+        // Create a horizontal box for the stat cards
+        HBox cardsBox = new HBox(35);
+        cardsBox.setAlignment(Pos.CENTER);
+        
+        // Total users card
+        int totalUsers = (int) usersList.stream()
+                .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()))
+                .count();
+        VBox totalUsersCard = createSimpleStatCard("Total Users", String.valueOf(totalUsers), "#2196F3");
+        
+        // Verified users card
+        long verifiedCount = usersList.stream()
+                .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()) && u.isVerified())
+                .count();
+        VBox verifiedUsersCard = createSimpleStatCard("Verified Users", String.valueOf(verifiedCount), "#4CAF50");
+        
+        // Active users card
+        long activeCount = usersList.stream()
+                .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()) && "active".equalsIgnoreCase(u.getStatus()))
+                .count();
+        VBox activeUsersCard = createSimpleStatCard("Active Users", String.valueOf(activeCount), "#FFC107");
+        
+        cardsBox.getChildren().addAll(totalUsersCard, verifiedUsersCard, activeUsersCard);
+        statsCards.getChildren().addAll(statsTitle, cardsBox);
+        
+        // Status distribution section
+        VBox statusSection = new VBox(20);
+        
+        Label statusTitle = new Label("User Status Distribution");
+        statusTitle.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        statusTitle.setPadding(new Insets(25, 0, 15, 0));
+        
+        VBox statusBars = createStatusBars();
+        statusSection.getChildren().addAll(statusTitle, statusBars);
+        
+        // Add sections to left container
+        leftSection.getChildren().addAll(statsCards, statusSection);
+        
+        // Right section - Role distribution and recent registrations
+        VBox rightSection = new VBox(40);
+        rightSection.setPrefWidth(600);
+        
+        // Role distribution
+        VBox roleSection = new VBox(20);
+        
+        Label roleTitle = new Label("User Role Distribution");
+        roleTitle.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        roleTitle.setPadding(new Insets(0, 0, 15, 0));
+        
+        VBox roleDistribution = createRoleDistributionTable();
+        roleSection.getChildren().addAll(roleTitle, roleDistribution);
+        
+        // Recent registrations
+        VBox recentSection = new VBox(20);
+        
+        Label recentTitle = new Label("Recent User Registrations");
+        recentTitle.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        recentTitle.setPadding(new Insets(25, 0, 15, 0));
+        
+        VBox recentUsers = createRecentRegistrationsList();
+        
+        // Add a simple border to the recent users list to make it stand out
+        recentUsers.setStyle("-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: white; -fx-padding: 15;");
+        
+        recentSection.getChildren().addAll(recentTitle, recentUsers);
+        
+        // Add sections to right container
+        rightSection.getChildren().addAll(roleSection, recentSection);
+        
+        // Add left and right sections to the main content box
+        contentBox.getChildren().addAll(leftSection, rightSection);
+        
+        // Set the center content
+        mainContainer.setCenter(contentBox);
+        
+        // Add the main container to the stats view
+        statsView.getChildren().add(mainContainer);
+        
+        // Hide other views and show stats view
+        userManagementView.setVisible(false);
+        userManagementView.setManaged(false);
+        userDetailsView.setVisible(false);
+        userDetailsView.setManaged(false);
+        
+        // Add to content stack pane (replacing previous content)
+        contentStackPane.getChildren().clear();
+        contentStackPane.getChildren().addAll(userManagementView, userDetailsView, statsView);
+    }
+
+    // Simplified stat card method
+    private VBox createSimpleStatCard(String title, String value, String color) {
+        VBox card = new VBox(8);
+        card.getStyleClass().add("card");
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(20));
+        card.setMinWidth(160);
+        card.setMinHeight(150);
+        
+        // Icon at the top with color matching the value
+        Label iconLabel = new Label(getIconForStat(title));
+        iconLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: " + color + ";");
+        
+        // Value in the middle with large font
+        Label valueLabel = new Label(value);
+        valueLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        
+        // Title at the bottom
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-text-fill: #757575; -fx-font-size: 16px;");
+        
+        card.getChildren().addAll(iconLabel, valueLabel, titleLabel);
+        return card;
+    }
+    
+    // Helper method to get appropriate icon for stat cards
+    private String getIconForStat(String title) {
+        switch(title) {
+            case "Total Users": return "👥";
+            case "Active Users": return "✅";
+            case "Inactive Users": return "❌";
+            case "Verified Users": return "✔️";
+            case "Unverified Users": return "⚠️";
+            default: return "❓";
+        }
+    }
+    
+    // Format role name for display
+    private String formatRoleName(String roleName) {
+        switch(roleName) {
+            case "NON_MEMBRE":
+                return "Non-Member";
+            case "MEMBRE":
+                return "Member";
+            case "PRESIDENT_CLUB":
+                return "Club President";
+            case "ADMINISTRATEUR":
+                return "Administrator";
+            default:
+                return roleName;
+        }
+    }
+
+    // Create role distribution table
+    private VBox createRoleDistributionTable() {
+        VBox container = new VBox(10);
+        
+        // Count users by role
+        Map<String, Integer> roleCounts = new HashMap<>();
+        int totalUsers = 0;
+        
+        for (User user : usersList) {
+            if (!"ADMINISTRATEUR".equals(user.getRole().toString())) {
+            String role = user.getRole().toString();
+            roleCounts.put(role, roleCounts.getOrDefault(role, 0) + 1);
+                totalUsers++;
+            }
+        }
+        
+        // Create grid for role data
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(5));
+        
+        // Headers
+        Label roleHeader = new Label("Role");
+        roleHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        Label countHeader = new Label("Count");
+        countHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        Label percentHeader = new Label("%");
+        percentHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        Label barHeader = new Label("Distribution");
+        barHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        
+        grid.add(roleHeader, 0, 0);
+        grid.add(countHeader, 1, 0);
+        grid.add(percentHeader, 2, 0);
+        grid.add(barHeader, 3, 0);
+        
+        // Add rows for each role
+        int row = 1;
+        for (String role : new String[]{"NON_MEMBRE", "MEMBRE", "PRESIDENT_CLUB"}) {
+            int count = roleCounts.getOrDefault(role, 0);
+            double percentage = totalUsers > 0 ? (double) count / totalUsers * 100 : 0;
+            
+            Label roleLabel = new Label(formatRoleName(role));
+            roleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            
+            Label countLabel = new Label(String.valueOf(count));
+            countLabel.setStyle("-fx-font-size: 14px;");
+            
+            Label percentLabel = new Label(String.format("%.0f%%", percentage));
+            percentLabel.setStyle("-fx-font-size: 14px;");
+            
+            // Progress bar
+            ProgressBar progressBar = new ProgressBar(percentage / 100);
+            progressBar.setPrefWidth(200);
+            progressBar.setPrefHeight(15);
+            
+            // Choose color based on role
+            String color = "#2196F3"; // default blue
+            if (role.equals("MEMBRE")) color = "#4CAF50"; // green for members
+            if (role.equals("PRESIDENT_CLUB")) color = "#FFC107"; // gold for presidents
+            
+            progressBar.setStyle("-fx-accent: " + color + ";");
+            
+            grid.add(roleLabel, 0, row);
+            grid.add(countLabel, 1, row);
+            grid.add(percentLabel, 2, row);
+            grid.add(progressBar, 3, row);
+            
+            row++;
+        }
+        
+        // Add the grid to the container
+        container.getChildren().add(grid);
+        
+        return container;
+    }
+    
+    // Create status distribution bars
+    private VBox createStatusBars() {
+        VBox container = new VBox(12);
+        
+        // Count users by status
+        int activeCount = 0;
+        int inactiveCount = 0;
+        int totalUsers = 0;
+        
+        for (User user : usersList) {
+            if (!"ADMINISTRATEUR".equals(user.getRole().toString())) {
+                totalUsers++;
+            if ("active".equalsIgnoreCase(user.getStatus())) {
+                activeCount++;
+            } else {
+                inactiveCount++;
+            }
+            }
+        }
+        
+        // Calculate percentages
+        double activePercentage = totalUsers > 0 ? (double) activeCount / totalUsers * 100 : 0;
+        double inactivePercentage = totalUsers > 0 ? (double) inactiveCount / totalUsers * 100 : 0;
+        
+        // Create grid for better alignment
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(5));
+        
+        // Active users row
+        Label activeLabel = new Label("Active");
+        activeLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        
+        ProgressBar activeBar = new ProgressBar(activePercentage / 100);
+        activeBar.setPrefWidth(200);
+        activeBar.setPrefHeight(15);
+        activeBar.setStyle("-fx-accent: #4CAF50;");
+        
+        Label activeStatsLabel = new Label(String.format("%d (%.0f%%)", activeCount, activePercentage));
+        activeStatsLabel.setStyle("-fx-font-size: 14px;");
+        
+        grid.add(activeLabel, 0, 0);
+        grid.add(activeBar, 1, 0);
+        grid.add(activeStatsLabel, 2, 0);
+        
+        // Inactive users row
+        Label inactiveLabel = new Label("Inactive");
+        inactiveLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        
+        ProgressBar inactiveBar = new ProgressBar(inactivePercentage / 100);
+        inactiveBar.setPrefWidth(200);
+        inactiveBar.setPrefHeight(15);
+        inactiveBar.setStyle("-fx-accent: #F44336;");
+        
+        Label inactiveStatsLabel = new Label(String.format("%d (%.0f%%)", inactiveCount, inactivePercentage));
+        inactiveStatsLabel.setStyle("-fx-font-size: 14px;");
+        
+        grid.add(inactiveLabel, 0, 1);
+        grid.add(inactiveBar, 1, 1);
+        grid.add(inactiveStatsLabel, 2, 1);
+        
+        // Add the grid to the container
+        container.getChildren().add(grid);
+        
+        return container;
+    }
+    
+    // Create a list of recent user registrations
+    private VBox createRecentRegistrationsList() {
+        VBox container = new VBox(10);
+        
+        // Sort users by creation date (most recent first)
+        List<User> sortedUsers = new ArrayList<>(usersList);
+        sortedUsers.sort((u1, u2) -> {
+            if (u1.getCreatedAt() == null && u2.getCreatedAt() == null) return 0;
+            if (u1.getCreatedAt() == null) return 1;
+            if (u2.getCreatedAt() == null) return -1;
+            return u2.getCreatedAt().compareTo(u1.getCreatedAt());
+        });
+        
+        // Take top 5 most recent
+        int count = 0;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        if (sortedUsers.isEmpty()) {
+            Label noUsers = new Label("No users registered yet");
+            noUsers.setStyle("-fx-font-size: 14px;");
+            container.getChildren().add(noUsers);
+        } else {
+            for (User user : sortedUsers) {
+                if (count >= 5) break;
+                if ("ADMINISTRATEUR".equals(user.getRole().toString())) continue;
+                
+                HBox userItem = new HBox(15);
+                userItem.setAlignment(Pos.CENTER_LEFT);
+                userItem.setPadding(new Insets(8));
+                
+                // Date
+                String date = user.getCreatedAt() != null ? 
+                            user.getCreatedAt().format(formatter) : "Unknown";
+                
+                Label dateLabel = new Label(date);
+                dateLabel.setMinWidth(100);
+                dateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
+                
+                // User info
+                VBox userInfo = new VBox(3);
+                HBox.setHgrow(userInfo, Priority.ALWAYS);
+                
+                Label nameLabel = new Label(user.getFirstName() + " " + user.getLastName());
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+                
+                Label emailLabel = new Label(user.getEmail());
+                emailLabel.setStyle("-fx-font-style: italic; -fx-font-size: 13px;");
+                
+                userInfo.getChildren().addAll(nameLabel, emailLabel);
+                
+                // Status indicator
+                String statusText = user.isVerified() ? "✓" : "✗";
+                String statusColor = user.isVerified() ? "#4CAF50" : "#F44336";
+                
+                Label statusLabel = new Label(statusText);
+                statusLabel.setStyle("-fx-text-fill: " + statusColor + "; -fx-font-weight: bold; -fx-font-size: 16px;");
+                
+                userItem.getChildren().addAll(dateLabel, userInfo, statusLabel);
+                
+                // Add separator except for the last item
+                container.getChildren().add(userItem);
+                if (count < Math.min(4, sortedUsers.size() - 1)) {
+                    Separator separator = new Separator();
+                    separator.setPadding(new Insets(5, 0, 5, 0));
+                    container.getChildren().add(separator);
+                }
+                
+                count++;
+            }
+        }
+        
+        return container;
     }
     
     @FXML

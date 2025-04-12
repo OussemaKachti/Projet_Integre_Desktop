@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -140,8 +141,10 @@
             <!-- Content Stack Pane - Different views will be loaded here -->
             <StackPane fx:id="contentStackPane">
                <!-- User Management View - This is the only one we're fully implementing -->
-               <ScrollPane fx:id="userManagementView" fitToWidth="true" fitToHeight="true">
-                  <VBox spacing="20.0">
+               <ScrollPane fx:id="userManagementView" fitToWidth="true" fitToHeight="true" 
+                           HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" 
+                           vbarPolicy="NEVER" hbarPolicy="NEVER">
+                  <VBox spacing="20.0" maxWidth="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                      <padding>
                         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
                      </padding>
@@ -188,6 +191,15 @@
                         </VBox>
                      </HBox>
                      
+                     <!-- Statistics Button -->
+                     <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-padding: 10 0 15 0;">
+                        <Button fx:id="userStatsButton" onAction="#showUserStatistics" styleClass="button-primary" text="View Detailed Statistics">
+                           <graphic>
+                              <Label text="📊" textFill="WHITE" />
+                           </graphic>
+                        </Button>
+                     </HBox>
+                     
                      <!-- User Action Buttons - Only kept Create User button -->
                      <HBox spacing="10.0">
                         <Button fx:id="createUserButton" text="Create User" styleClass="button-primary" onAction="#showCreateUser">
@@ -198,17 +210,22 @@
                      </HBox>
                      
                      <!-- Users Table - REMOVED Warning Count and Created At columns -->
-                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" 
+                                prefHeight="310.0" maxHeight="310.0" maxWidth="Infinity" 
+                                fixedCellSize="44.0" style="-fx-padding: 0; -fx-background-color: transparent;">
+                        <styleClass>
+                            <String fx:value="no-header-table" />
+                            <String fx:value="hide-horizontal-scrollbar" />
+                        </styleClass>
                         <columns>
-                           <TableColumn fx:id="idColumn" text="ID" prefWidth="40.0" />
-                           <TableColumn fx:id="firstNameColumn" text="First Name" prefWidth="100.0" />
-                           <TableColumn fx:id="lastNameColumn" text="Last Name" prefWidth="100.0" />
-                           <TableColumn fx:id="emailColumn" text="Email" prefWidth="170.0" />
-                           <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="100.0" />
-                           <TableColumn fx:id="roleColumn" text="Role" prefWidth="110.0" />
+                           <TableColumn fx:id="idColumn" text="ID" prefWidth="35.0" />
+                           <TableColumn fx:id="firstNameColumn" text="First Name" prefWidth="85.0" />
+                           <TableColumn fx:id="lastNameColumn" text="Last Name" prefWidth="85.0" />
+                           <TableColumn fx:id="emailColumn" text="Email" prefWidth="130.0" />
+                           <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="80.0" />
+                           <TableColumn fx:id="roleColumn" text="Role" prefWidth="90.0" />
                            <TableColumn fx:id="statusColumn" text="Status" prefWidth="70.0" />
-                           <TableColumn fx:id="verifiedColumn" text="Verified" prefWidth="70.0" />
-                           <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="300.0" />
+                           <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="430.0" />
                         </columns>
                         <placeholder>
                            <Label text="No users found" />
@@ -216,7 +233,7 @@
                      </TableView>
                      
                      <!-- Pagination Control -->
-                     <Pagination fx:id="usersPagination" pageCount="1" maxPageIndicatorCount="5" />
+                     <Pagination fx:id="usersPagination" pageCount="1" maxPageIndicatorCount="7" styleClass="custom-pagination" />
                   </VBox>
                </ScrollPane>
                
