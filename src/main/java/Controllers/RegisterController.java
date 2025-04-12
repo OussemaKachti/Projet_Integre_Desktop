@@ -178,19 +178,22 @@ public class RegisterController {
 
 private void navigateToVerification(User user) {
     try {
-        // Show an alert with the verification token
+        // Show a success message WITHOUT the token
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Registration Successful");
         alert.setHeaderText("Account Created Successfully");
-        alert.setContentText("A verification email has been sent to " + user.getEmail() + 
-            ".\n\nYour verification token is: " + user.getConfirmationToken() + 
-            "\n\nPlease use this token to verify your account.");
+        alert.setContentText("A verification code has been sent to " + user.getEmail() + 
+            ".\n\nPlease check your email and enter the code on the next screen to activate your account.");
         alert.showAndWait();
         
         // Navigate to verification page
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/verify.fxml"));
             Parent root = loader.load();
+            
+            // Pass the email to verification controller
+            VerifyController controller = loader.getController();
+            controller.setUserEmail(user.getEmail());
             
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("Verify Your Account - UNICLUBS");
@@ -201,13 +204,14 @@ private void navigateToVerification(User user) {
             
             // Keep login/verify screens at the smaller centered size
             MainApp.adjustStageSize(true);
+            MainApp.centerStageOnScreen(stage);
             
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             errorLabel.setText("Error loading verification page: " + e.getMessage());
             errorLabel.setVisible(true);
-            // Fall back to login page
+            // Fall back to login page if verify page can't be loaded
             navigateToLogin(null);
         }
     } catch (Exception e) {

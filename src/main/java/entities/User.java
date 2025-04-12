@@ -49,36 +49,41 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
-    
+
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$", 
+    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$",
             message = "Invalid Tunisian phone number format")
     @Column(name = "tel", unique = true)
     private String phone;
-    
+
     @Column(name = "profile_picture")
     private String profilePicture;
-    
+
     @Column(name = "status")
     private String status = "active";
-    
+
     @Column(name = "is_verified")
     private boolean isVerified = false;
-    
+
     @Column(name = "confirmation_token")
     private String confirmationToken;
-    
+
     @Column(name = "confirmation_token_expires_at")
     private LocalDateTime confirmationTokenExpiresAt;
-    
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
-    
+
     @Column(name = "warning_count")
     private int warningCount = 0;
+    @Column(name = "verification_attempts")
+    private int verificationAttempts = 0;
+
+    @Column(name = "last_code_sent_time")
+    private LocalDateTime lastCodeSentTime;
 
     // Constructors
     public User() {
@@ -218,15 +223,31 @@ public class User {
         this.warningCount = warningCount;
     }
 
+    public int getVerificationAttempts() {
+        return verificationAttempts;
+    }
+
+    public void setVerificationAttempts(int verificationAttempts) {
+        this.verificationAttempts = verificationAttempts;
+    }
+
+    public LocalDateTime getLastCodeSentTime() {
+        return lastCodeSentTime;
+    }
+
+    public void setLastCodeSentTime(LocalDateTime lastCodeSentTime) {
+        this.lastCodeSentTime = lastCodeSentTime;
+    }
+
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", status='" + status + '\'' +
-                '}';
+        return "User{"
+                + "id=" + id
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + ", role=" + role
+                + ", status='" + status + '\''
+                + '}';
     }
 }

@@ -11,7 +11,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" 
+<BorderPane prefHeight="550.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.VerifyController"
             stylesheets="@../styles/uniclubs.css">
@@ -34,12 +34,17 @@
             </font>
          </Label>
          
-         <Label styleClass="subtitle" text="Please enter the verification token sent to your email"
-                textAlignment="CENTER" wrapText="true">
-            <font>
-               <Font size="14.0" />
-            </font>
-         </Label>
+         <!-- Email display -->
+         <VBox alignment="CENTER" spacing="5">
+            <Label text="We've sent a verification code to:" 
+                   styleClass="subtitle" textAlignment="CENTER" />
+            <Label fx:id="emailLabel" text="email@example.com" 
+                  styleClass="subtitle" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+         </VBox>
          
          <!-- Status message area -->
          <Label fx:id="statusLabel" styleClass="alert-error"
@@ -47,15 +52,22 @@
          
          <!-- Verification Form -->
          <VBox alignment="CENTER" spacing="20" styleClass="card">
+            <padding>
+               <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+            </padding>
+            
+            <Label text="Enter the 6-digit verification code:" 
+                   styleClass="subtitle" />
+            
             <!-- Token input -->
-            <TextField fx:id="tokenField" alignment="CENTER" promptText="Enter verification token">
+            <TextField fx:id="tokenField" alignment="CENTER" promptText="Enter verification code" maxWidth="200">
                <font>
-                  <Font size="16.0" />
+                  <Font size="20.0" />
                </font>
             </TextField>
             
             <!-- Verify button -->
-            <Button defaultButton="true" onAction="#handleVerify" 
+            <Button fx:id="verifyButton" defaultButton="true" onAction="#handleVerify" 
                     styleClass="button-primary" text="Verify Account" 
                     maxWidth="200.0">
                <font>
@@ -63,13 +75,19 @@
                </font>
             </Button>
             
-            <!-- Options -->
+            <!-- Resend section -->
             <VBox alignment="CENTER" spacing="10.0">
-               <Label styleClass="text-small, text-muted" 
-                      text="Having trouble? Contact support or return to login" />
-               <Button onAction="#navigateToLogin" styleClass="button-link" 
-                       text="Back to Login" />
+               <Label text="Didn't receive a code?" styleClass="text-small" />
+               <Button fx:id="resendButton" onAction="#handleResendCode" 
+                       styleClass="button-secondary" text="Resend Code" 
+                       maxWidth="200.0" />
+               <Label fx:id="timerLabel" text="Resend available in 02:00" 
+                      styleClass="text-small" />
             </VBox>
+            
+            <!-- Login option -->
+            <Button onAction="#navigateToLogin" styleClass="button-link" 
+                    text="Back to Login" />
          </VBox>
       </VBox>
    </center>

@@ -1,8 +1,15 @@
 package services;
 
 import java.util.Properties;
-import javax.mail.*;
-import javax.mail.internet.*;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import utils.EmailConfig;
 
 public class EmailService {
@@ -72,33 +79,25 @@ public class EmailService {
      * @param token Verification token
      * @return True if sent successfully
      */
-    public boolean sendVerificationEmail(String email, String name, String token) {
-        String subject = "Verify Your Account";
-        
-        // Build verification URL - IMPORTANT: Don't use /verify as direct URL
-        // Instead, use a parameter-based approach that your application can handle
-        String verificationUrl = EmailConfig.getAppUrl() + "/views/verify.fxml?token=" + token;
-        
-        // For JavaFX application, it's better to just provide the token
-        // and have the user enter it manually in the verify page
-        
-        // Build email content
-        String content = 
-            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
-            "<h2>Welcome to Club Management System!</h2>" +
-            "<p>Hello " + name + ",</p>" +
-            "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>" +
-            "<div style='background-color: #f4f4f4; padding: 15px; margin: 15px 0; text-align: center;'>" +
-            "<h3 style='margin: 0; color: #2196F3; font-size: 24px;'>" + token + "</h3>" +
-            "</div>" +
-            "<p>Open the application and navigate to the verification page to enter this code.</p>" +
-            "<p>If you did not create an account, please ignore this email.</p>" +
-            "<p>Regards,<br>Club Management Team</p>" +
-            "</div>";
-        
-        return sendEmail(email, subject, content);
-    }
+public boolean sendVerificationEmail(String email, String name, String code) {
+    String subject = "Your UNICLUBS Verification Code";
     
+    String content = 
+        "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+        "<h2 style='color: #00A0E3;'>Welcome to UNICLUBS!</h2>" +
+        "<p>Hello " + name + ",</p>" +
+        "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>" +
+        "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
+        "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + code + "</h2>" +
+        "</div>" +
+        "<p>This verification code will expire in <strong>2 hours</strong>.</p>" +
+        "<p>If you did not request this code, please ignore this email.</p>" +
+        "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
+        "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+        "</div>";
+    
+    return sendEmail(email, subject, content);
+}
     /**
      * Sends a password reset email to a user
      * 
