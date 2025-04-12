@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.AjouterCategorie"
+            prefHeight="500.0" prefWidth="700.0">
+
+   <StackPane AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+      <!-- Main background with gradient -->
+      <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
+
+         <!-- Header -->
+         <top>
+            <BorderPane style="-fx-background-color: #040f71; -fx-padding: 15;">
+               <left>
+                  <Label text="Add New Category" textFill="WHITE">
+                     <font>
+                        <Font name="Arial Bold" size="28"/>
+                     </font>
+                  </Label>
+               </left>
+               <right>
+                  <HBox alignment="CENTER_RIGHT" spacing="10">
+                     <Button text="Back" onAction="#handleBack"
+                             style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-padding: 8 15;">
+                        <font>
+                           <Font name="Arial" size="14"/>
+                        </font>
+                     </Button>
+                  </HBox>
+               </right>
+               <effect>
+                  <DropShadow color="#00000033" radius="5" spread="0.05"/>
+               </effect>
+            </BorderPane>
+         </top>
+
+         <!-- Main content -->
+         <center>
+            <BorderPane style="-fx-padding: 40;">
+               <center>
+                  <VBox spacing="30" alignment="TOP_CENTER">
+
+                     <!-- Introduction -->
+                     <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
+                        <Label text="Enter the details below to create a new category" style="-fx-text-fill: #555555;">
+                           <font>
+                              <Font name="Arial" size="14"/>
+                           </font>
+                        </Label>
+                     </HBox>
+
+                     <!-- Category Name -->
+                     <VBox spacing="15" alignment="CENTER" maxWidth="450">
+                        <Label text="Category Name" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                           <font>
+                              <Font name="Arial" size="14"/>
+                           </font>
+                        </Label>
+                        <TextField fx:id="nomcattf" promptText="e.g., Sports, Music, Academic"
+                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;" maxWidth="450">
+                           <font>
+                              <Font name="Arial" size="14"/>
+                           </font>
+                           <effect>
+                              <DropShadow color="#0000000d" radius="3" spread="0.01"/>
+                           </effect>
+                        </TextField>
+                     </VBox>
+
+                     <!-- Optional - Description field -->
+                     <VBox spacing="15" alignment="CENTER" maxWidth="450">
+                        <Label text="Description (Optional)" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                           <font>
+                              <Font name="Arial" size="14"/>
+                           </font>
+                        </Label>
+                        <TextArea fx:id="descriptionArea" promptText="Enter a short description for this category..." wrapText="true" prefHeight="100"
+                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;" maxWidth="450">
+                           <font>
+                              <Font name="Arial" size="14"/>
+                           </font>
+                           <effect>
+                              <DropShadow color="#0000000d" radius="3" spread="0.01"/>
+                           </effect>
+                        </TextArea>
+                     </VBox>
+
+                     <!-- Action buttons -->
+                     <HBox spacing="20" alignment="CENTER" style="-fx-padding: 30 0;">
+                        <Button text="Cancel" onAction="#handleCancel"
+                                style="-fx-background-color: #f8f9fa; -fx-text-fill: #333333; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 12 30;">
+                           <font>
+                              <Font name="Arial Bold" size="14"/>
+                           </font>
+                        </Button>
+                        <Button fx:id="ajoutercat" text="Add Category" onAction="#insererCategorie"
+                                style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 12 30;">
+                           <font>
+                              <Font name="Arial Bold" size="14"/>
+                           </font>
+                           <effect>
+                              <DropShadow color="#00000033" radius="5" spread="0.05"/>
+                           </effect>
+                        </Button>
+                     </HBox>
+                  </VBox>
+               </center>
+            </BorderPane>
+         </center>
+
+         <!-- Footer -->
+         <bottom>
+            <HBox alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 10;">
+               <Label text="© 2025 - Club Event Management" style="-fx-text-fill: #666666;">
+                  <font>
+                     <Font name="Arial" size="12"/>
+                  </font>
+               </Label>
+            </HBox>
+         </bottom>
+      </BorderPane>
+   </StackPane>
+</AnchorPane>
