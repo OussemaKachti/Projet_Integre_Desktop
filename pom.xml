@@ -39,6 +39,20 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.23</version>
         </dependency>
+        
+        <!-- FontAwesomeFX -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
+        
+        <!-- Additional FontAwesomeFX Dependencies -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-commons</artifactId>
+            <version>9.1.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -48,7 +62,11 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
+    <!-- <mainClass>com.esprit.AdminCommentsApplication</mainClass> -->
+    <!-- <mainClass>com.esprit.tests.TestAdminCommentsView</mainClass> -->
+    <!-- <mainClass>com.esprit.tests.TestAdminViews</mainClass> -->
     <mainClass>com.esprit.SondageApplication</mainClass>
+    <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
 </configuration>
             </plugin>
             

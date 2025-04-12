@@ -342,4 +342,21 @@ public class ReponseService {
         
         return 0;
     }
+
+    /**
+     * Get total votes for all polls
+     */
+    public int getTotalVotesForAllPolls() throws SQLException {
+        String query = "SELECT COUNT(*) FROM reponse";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        
+        return 0;
+    }
 }

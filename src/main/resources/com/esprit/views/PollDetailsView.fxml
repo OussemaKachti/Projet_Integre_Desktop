@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="900.0" prefWidth="1200.0" 
+            styleClass="main-container" stylesheets="@../styles/poll-details-style.css" xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.PollDetailsController">
+   <top>
+      <HBox alignment="CENTER_LEFT" prefHeight="80.0" styleClass="header-section">
+         <children>
+            <Button fx:id="backButton" mnemonicParsing="false" styleClass="header-back-button" text="← Back" onAction="#onBackButtonClick" />
+            <Label styleClass="header-title" text="Poll Details Dashboard" HBox.hgrow="ALWAYS">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </Label>
+         </children>
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+      </HBox>
+   </top>
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="content-section">
+         <content>
+            <VBox spacing="20.0">
+               <children>
+                  <!-- Poll Information Card -->
+                  <VBox styleClass="admin-container">
+                     <children>
+                        <Label text="Poll Information" styleClass="section-title, poll-info-title">
+                           <font>
+                              <Font name="System Bold" size="22.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="15.0" />
+                           </VBox.margin>
+                        </Label>
+                        
+                        <GridPane hgap="0" vgap="15.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="150.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="800.0" />
+                           </columnConstraints>
+                           <children>
+                              <Label text="Question:" styleClass="detail-label" GridPane.rowIndex="0" GridPane.halignment="RIGHT">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <Label fx:id="questionLabel" text="" wrapText="true" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                              
+                              <Label text="Club:" styleClass="detail-label" GridPane.rowIndex="1" GridPane.halignment="RIGHT">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <Label fx:id="clubLabel" text="" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              
+                              <Label text="Created At:" styleClass="detail-label" GridPane.rowIndex="2" GridPane.halignment="RIGHT">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <Label fx:id="createdAtLabel" text="" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </GridPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                     </padding>
+                  </VBox>
+                  
+                  <!-- Results Section - Grid layout for Statistics and Distribution side by side -->
+                  <GridPane hgap="20.0" vgap="0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                     </columnConstraints>
+                     
+                     <!-- Response Statistics Section -->
+                     <VBox styleClass="admin-container" GridPane.columnIndex="0">
+                        <children>
+                           <Label text="Response Statistics" styleClass="section-title, response-stats-title">
+                              <font>
+                                 <Font name="System Bold" size="22.0" />
+                              </font>
+                              <VBox.margin>
+                                 <Insets bottom="15.0" />
+                              </VBox.margin>
+                           </Label>
+                           
+                           <!-- Results with progress bars -->
+                           <VBox fx:id="responseStatsContainer" spacing="15.0">
+                              <!-- Results will be added dynamically -->
+                           </VBox>
+                        </children>
+                        <padding>
+                           <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                        </padding>
+                     </VBox>
+                     
+                     <!-- Vote Distribution Section -->
+                     <VBox styleClass="admin-container" GridPane.columnIndex="1">
+                        <children>
+                           <Label text="Vote Distribution Cards" styleClass="section-title, distribution-title">
+                              <font>
+                                 <Font name="System Bold" size="22.0" />
+                              </font>
+                              <VBox.margin>
+                                 <Insets bottom="15.0" />
+                              </VBox.margin>
+                           </Label>
+                           
+                           <!-- Distribution cards -->
+                           <HBox fx:id="voteCardsContainer" spacing="15.0" alignment="CENTER">
+                              <!-- Cards will be added dynamically -->
+                           </HBox>
+                        </children>
+                        <padding>
+                           <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                        </padding>
+                     </VBox>
+                  </GridPane>
+                  
+                  <!-- Comments Section -->
+                  <VBox styleClass="admin-container">
+                     <children>
+                        <Label text="User Comments" styleClass="section-title, comments-title">
+                           <font>
+                              <Font name="System Bold" size="22.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="15.0" />
+                           </VBox.margin>
+                        </Label>
+                        
+                        <!-- Table de commentaires -->
+                        <TableView fx:id="commentsTable" prefHeight="250.0" styleClass="comments-table" VBox.vgrow="ALWAYS" fixedCellSize="50.0">
+                           <columns>
+                             <TableColumn fx:id="userColumn" prefWidth="180.0" text="User" />
+                             <TableColumn fx:id="commentColumn" prefWidth="620.0" text="Comment" />
+                             <TableColumn fx:id="createdAtColumn" prefWidth="180.0" text="Date" />
+                             <TableColumn fx:id="actionsColumn" prefWidth="120.0" text="Actions" />
+                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                        
+                        <!-- Pagination pour les commentaires - placée après la table -->
+                        <Pagination fx:id="commentsPagination" prefHeight="50.0" styleClass="pagination">
+                           <VBox.margin>
+                              <Insets top="10.0" bottom="10.0" />
+                           </VBox.margin>
+                        </Pagination>
+                        
+                        <!-- Empty state for comments -->
+                        <StackPane fx:id="noCommentsPane" styleClass="no-data-container" visible="false" managed="false">
+                           <children>
+                              <Label text="No comments available for this poll" styleClass="no-data-message" />
+                           </children>
+                           <padding>
+                              <Insets top="20.0" bottom="20.0" />
+                           </padding>
+                        </StackPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane> 

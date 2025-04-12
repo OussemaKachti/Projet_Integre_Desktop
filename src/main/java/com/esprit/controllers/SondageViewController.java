@@ -16,6 +16,8 @@ import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -34,11 +36,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -51,6 +57,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.HashSet;
+import javafx.scene.Node;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 public class SondageViewController implements Initializable {
 
@@ -67,6 +78,10 @@ public class SondageViewController implements Initializable {
     // Éléments du formulaire de création de sondage
     @FXML
     private TextField pollQuestionField;
+    @FXML
+    private Label questionErrorLabel;
+    @FXML
+    private Label optionsErrorLabel;
     @FXML
     private VBox pollOptionsContainer;
     @FXML
@@ -258,7 +273,7 @@ public class SondageViewController implements Initializable {
         Button commentsButton = new Button(commentCount + " Comments");
         commentsButton.getStyleClass().add("comments-button");
         commentsButton.setOnAction(e -> openCommentsModal(sondage));
-        
+
         // Add icon to button
         commentsButtonWithIcon.getChildren().addAll(commentIcon, commentsButton);
         
@@ -294,6 +309,18 @@ public class SondageViewController implements Initializable {
         commentTextArea.setPrefHeight(70);
         commentTextArea.setWrapText(true);
         
+        // Label for comment validation errors
+        Label commentErrorLabel = new Label();
+        commentErrorLabel.getStyleClass().add("validation-error");
+        commentErrorLabel.setVisible(false);
+        commentErrorLabel.setWrapText(true);
+        commentErrorLabel.setText("Comment cannot be empty.");
+        
+        // Add real-time validation to the textarea
+        commentTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateComment(newValue, commentErrorLabel, commentTextArea);
+        });
+        
         // Add comment button container
         HBox addCommentButtonBox = new HBox();
         addCommentButtonBox.setAlignment(Pos.CENTER_RIGHT);
@@ -313,10 +340,14 @@ public class SondageViewController implements Initializable {
         addCommentButton.setOnAction(e -> {
             try {
                 String content = commentTextArea.getText().trim();
-                if (!content.isEmpty()) {
-                    addComment(sondage, content);
-                    commentTextArea.clear();
+                // Validate the comment before submitting
+                if (!validateComment(content, commentErrorLabel, commentTextArea)) {
+                    return;
                 }
+                
+                addComment(sondage, content);
+                commentTextArea.clear();
+                commentErrorLabel.setVisible(false);
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
@@ -328,11 +359,11 @@ public class SondageViewController implements Initializable {
         addCommentButtonBox.getChildren().add(postButtonWithIcon);
         
         // Add all elements to the comment form
-        commentForm.getChildren().addAll(commentFormHeader, commentTextArea, addCommentButtonBox);
+        commentForm.getChildren().addAll(commentFormHeader, commentTextArea, commentErrorLabel, addCommentButtonBox);
         
         // Add comment form to sondage box
         sondageBox.getChildren().add(commentForm);
-        
+
         return sondageBox;
     }
 
@@ -353,7 +384,7 @@ public class SondageViewController implements Initializable {
         // Label pour le texte de l'option
         Label optionLabel = new Label(option.getContenu());
         optionLabel.getStyleClass().add("option-label");
-        optionLabel.setPrefWidth(150);
+        optionLabel.setPrefWidth(200); // Increased width for better readability
 
         // Créer un spacer pour pousser la barre de progression et le pourcentage à droite
         Pane spacer = new Pane();
@@ -362,32 +393,18 @@ public class SondageViewController implements Initializable {
         // Barre de progression
         ProgressBar progressBar = new ProgressBar(totalVotes > 0 ? (double) optionVotes / totalVotes : 0);
         progressBar.getStyleClass().add("option-progress");
-        progressBar.setPrefWidth(500);
+        progressBar.setPrefWidth(220); // Match CSS width
 
-        // Choisir une classe CSS pour la couleur de la barre en fonction de l'option
-        String cssClass;
-        String content = option.getContenu().toLowerCase();
-        if (content.contains("java")) {
-            cssClass = "progress-bar-java";
-        } else if (content.contains("python")) {
-            cssClass = "progress-bar-python";
-        } else if (content.contains("javascript") || content.contains("js")) {
-            cssClass = "progress-bar-javascript";
-        } else if (content.contains("c#") || content.contains("csharp")) {
-            cssClass = "progress-bar-csharp";
-        } else if (content.contains("react")) {
-            cssClass = "progress-bar-react";
-        } else if (content.contains("angular")) {
-            cssClass = "progress-bar-angular";
-        } else if (content.contains("vue")) {
-            cssClass = "progress-bar-vue";
+        // Apply color class based on percentage range
+        if (percentage <= 25.0) {
+            progressBar.getStyleClass().add("progress-bar-low");
+        } else if (percentage <= 50.0) {
+            progressBar.getStyleClass().add("progress-bar-medium-low");
+        } else if (percentage <= 75.0) {
+            progressBar.getStyleClass().add("progress-bar-medium-high");
         } else {
-            // Choisir une couleur aléatoire parmi les disponibles
-            String[] classes = { "progress-bar-java", "progress-bar-python", "progress-bar-javascript",
-                    "progress-bar-csharp", "progress-bar-react", "progress-bar-angular", "progress-bar-vue" };
-            cssClass = classes[option.getId() % classes.length];
+            progressBar.getStyleClass().add("progress-bar-high");
         }
-        progressBar.getStyleClass().add(cssClass);
 
         // Label pour le pourcentage
         Label percentageLabel = new Label(String.format("%.1f%% (%d votes)", percentage, optionVotes));
@@ -419,22 +436,6 @@ public class SondageViewController implements Initializable {
         // Check if the current user has already voted and what their choice was
         ChoixSondage userChoice = getUserChoice(sondage);
         
-        // Add user's current choice display if they've voted
-        if (userChoice != null) {
-            HBox userChoiceBox = new HBox(10);
-            userChoiceBox.getStyleClass().add("user-choice-box");
-            userChoiceBox.setAlignment(Pos.CENTER_LEFT);
-            
-            Label yourChoiceLabel = new Label("Your choice:");
-            yourChoiceLabel.getStyleClass().add("your-choice-label");
-            
-            Label userChoiceLabel = new Label(userChoice.getContenu());
-            userChoiceLabel.getStyleClass().add("user-choice");
-            
-            userChoiceBox.getChildren().addAll(yourChoiceLabel, userChoiceLabel);
-            optionsContainer.getChildren().add(userChoiceBox);
-        }
-        
         // Create option rows with radio buttons and progress bars
         for (int i = 0; i < options.size(); i++) {
             ChoixSondage option = options.get(i);
@@ -464,8 +465,20 @@ public class SondageViewController implements Initializable {
             
             // Progress bar to show vote percentage
             ProgressBar optionProgress = new ProgressBar(percentage / 100);
-            optionProgress.setPrefWidth(150);
-            optionProgress.getStyleClass().addAll("option-progress", "progress-bar-color-" + (i % 8));
+            optionProgress.setPrefWidth(220); // Match CSS width
+            
+            // Apply color class based on percentage range
+            if (percentage <= 25.0) {
+                optionProgress.getStyleClass().add("progress-bar-low");
+            } else if (percentage <= 50.0) {
+                optionProgress.getStyleClass().add("progress-bar-medium-low");
+            } else if (percentage <= 75.0) {
+                optionProgress.getStyleClass().add("progress-bar-medium-high");
+            } else {
+                optionProgress.getStyleClass().add("progress-bar-high");
+            }
+            
+            optionProgress.getStyleClass().add("option-progress");
             
             // Percentage label
             Label percentageLabel = new Label(String.format("%.1f%%", percentage));
@@ -475,10 +488,14 @@ public class SondageViewController implements Initializable {
             optionsContainer.getChildren().add(optionRow);
         }
         
-        // Add voting buttons
+        // Create a container for the voting controls and user's choice
+        HBox controlsContainer = new HBox();
+        controlsContainer.setAlignment(Pos.CENTER);
+        controlsContainer.setPrefWidth(Double.MAX_VALUE);
+        
+        // Left side - Voting buttons
         HBox buttonsBox = new HBox(10);
-        buttonsBox.setAlignment(Pos.CENTER_RIGHT);
-        buttonsBox.setPadding(new Insets(10, 0, 0, 0));
+        buttonsBox.getStyleClass().add("vote-buttons-container");
         
         Button voteButton;
         if (userChoice == null) {
@@ -491,36 +508,66 @@ public class SondageViewController implements Initializable {
         voteButton.getStyleClass().add("vote-button");
         voteButton.setOnAction(e -> handleVote(sondage, optionsGroup));
         
+        buttonsBox.getChildren().add(voteButton);
+        
         // Add delete vote button if user has already voted
         if (userChoice != null) {
             Button deleteVoteButton = new Button("Delete Vote");
             deleteVoteButton.getStyleClass().add("delete-vote-button");
             deleteVoteButton.setOnAction(e -> {
                 try {
-                    // Delete user's vote
-                    reponseService.deleteUserVote(currentUser.getId(), sondage.getId());
+                    // Show confirmation dialog
+                    boolean confirmed = showCustomConfirmDialog(
+                            "Delete Vote", 
+                            "Are you sure you want to delete your vote?",
+                            "This action cannot be undone.");
                     
-                    // Show confirmation
-                    AlertUtils.showConfirmation("Vote", "Your vote has been deleted.");
-                    
-                    // Refresh the view
-                    refreshData();
+                    if (confirmed) {
+                        // Delete user's vote
+                        reponseService.deleteUserVote(currentUser.getId(), sondage.getId());
+                        
+                        // Show confirmation
+                        showCustomAlert("Success", "Your vote has been deleted successfully.", "success");
+                        
+                        // Refresh the view
+                        refreshData();
+                    }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    AlertUtils.showError("Error", "Failed to delete vote: " + ex.getMessage());
+                    showCustomAlert("Error", "Failed to delete vote: " + ex.getMessage(), "error");
                 }
             });
             
-            buttonsBox.getChildren().addAll(voteButton, deleteVoteButton);
-        } else {
-            buttonsBox.getChildren().add(voteButton);
+            buttonsBox.getChildren().add(deleteVoteButton);
         }
         
-        optionsContainer.getChildren().add(buttonsBox);
+        // Right side - User's choice if already voted
+        HBox userChoiceContainer = new HBox();
+        userChoiceContainer.getStyleClass().add("choice-status-container");
+        HBox.setHgrow(userChoiceContainer, Priority.ALWAYS);
+        
+        if (userChoice != null) {
+            HBox userChoiceBox = new HBox(10);
+            userChoiceBox.getStyleClass().add("user-choice-box");
+            userChoiceBox.setAlignment(Pos.CENTER_RIGHT);
+            
+            Label yourChoiceLabel = new Label("Your choice:");
+            yourChoiceLabel.getStyleClass().add("your-choice-label");
+            
+            Label userChoiceLabel = new Label(userChoice.getContenu());
+            userChoiceLabel.getStyleClass().add("user-choice");
+            
+            userChoiceBox.getChildren().addAll(yourChoiceLabel, userChoiceLabel);
+            userChoiceContainer.getChildren().add(userChoiceBox);
+        }
+        
+        // Add components to the container
+        controlsContainer.getChildren().addAll(buttonsBox, userChoiceContainer);
+        optionsContainer.getChildren().add(controlsContainer);
         
         return optionsContainer;
     }
-
+    
     /**
      * Handle user vote for a poll
      */
@@ -532,10 +579,10 @@ public class SondageViewController implements Initializable {
             
             // Validate selection
             if (selectedOption == null) {
-                AlertUtils.showWarning("Voting", "Please select an option to vote.");
+                showCustomAlert("Warning", "Please select an option to vote.", "warning");
                 return;
             }
-            
+
             // Get the choice ID from the selected radio button's user data
             int choixId = (int) selectedOption.getUserData();
             
@@ -543,198 +590,438 @@ public class SondageViewController implements Initializable {
             boolean hasVoted = reponseService.hasUserVoted(currentUser.getId(), sondage.getId());
             
             if (hasVoted) {
-                // Update existing vote
-                reponseService.updateUserVote(currentUser.getId(), sondage.getId(), choixId);
-                AlertUtils.showConfirmation("Vote", "Your vote has been updated!");
+                // Confirm before updating vote
+                boolean confirmed = showCustomConfirmDialog(
+                        "Change Vote", 
+                        "Are you sure you want to change your vote?", 
+                        "Your previous vote will be replaced.");
+                
+                if (confirmed) {
+                    // Update existing vote
+                    reponseService.updateUserVote(currentUser.getId(), sondage.getId(), choixId);
+                    showCustomAlert("Success", "Your vote has been updated successfully!", "success");
+                    
+                    // Refresh the view
+                    refreshData();
+                }
             } else {
                 // Add new vote
                 reponseService.addVote(currentUser.getId(), sondage.getId(), choixId);
-                AlertUtils.showConfirmation("Vote", "Your vote has been recorded!");
+                showCustomAlert("Success", "Your vote has been recorded successfully!", "success");
+                
+                // Refresh the view
+                refreshData();
             }
-            
-            // Refresh the view
-            refreshData();
             
         } catch (SQLException e) {
             e.printStackTrace();
-            AlertUtils.showError("Error", "Failed to record vote: " + e.getMessage());
+            showCustomAlert("Error", "Failed to record vote: " + e.getMessage(), "error");
         }
     }
 
-    @FXML
-    private void addComment() throws SQLException {
-        if (currentSondage == null) {
-            AlertUtils.showWarning("Comment", "Please select a poll before adding a comment.");
+    /**
+     * Add a comment to a poll
+     */
+    private void addComment(Sondage sondage, String content) throws SQLException {
+        // Create a temporary label and validate comment
+        Label tempLabel = new Label();
+        if (!validateComment(content, tempLabel, null)) {
+            showCustomAlert("Warning", tempLabel.getText(), "warning");
             return;
         }
 
-        String commentText = commentTextArea.getText().trim();
-        if (commentText.isEmpty()) {
-            AlertUtils.showWarning("Comment", "Comment cannot be empty.");
-            return;
-        }
-
-        // Créer et enregistrer le commentaire
+        // Create and save the comment
         Commentaire commentaire = new Commentaire();
-        commentaire.setSondage(currentSondage);
+        commentaire.setSondage(sondage);
         commentaire.setUser(currentUser);
-        commentaire.setContenuComment(commentText);
+        commentaire.setContenuComment(content);
         commentaire.setDateComment(LocalDate.now());
 
         commentaireService.add(commentaire);
 
-        AlertUtils.showConfirmation("Comment", "Your comment has been added successfully!");
-        commentTextArea.clear();
+        showCustomAlert("Success", "Your comment has been added successfully!", "success");
+        refreshData();
     }
-
-    private void openCommentsModal(Sondage sondage) {
-        try {
-            // Sauvegarder le sondage actuel
-            currentSondage = sondage;
-
-            // Obtenir l'URL du fichier FXML et la vérifier
-            URL fxmlUrl = getClass().getResource("/com/esprit/views/CommentsModal.fxml");
-            if (fxmlUrl == null) {
-                AlertUtils.showError("Error", "Unable to locate CommentsModal.fxml. Please check the file path.");
-                return;
-            }
-
-            // Charger la vue de la modale des commentaires
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            VBox commentsModal = loader.load();
-
-            // Récupérer le contrôleur de la modale
-            CommentsModalController controller = loader.getController();
-            if (controller == null) {
-                AlertUtils.showError("Error", "Unable to load CommentsModalController.");
-                return;
-            }
-            
-            controller.setSondage(sondage);
-            controller.setParentController(this);
-            controller.setCurrentUser(currentUser);
-
-            // Créer une nouvelle scène et fenêtre pour la modale
-            Scene scene = new Scene(commentsModal);
-            
-            // Charger le fichier CSS
-            URL cssUrl = getClass().getResource("/com/esprit/styles/sondage-style.css");
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            } else {
-                System.err.println("Warning: Unable to load CSS file. The modal will appear without styling.");
-            }
-            
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Comments - " + sondage.getQuestion());
-            stage.setScene(scene);
-            stage.setMinWidth(800);
-            stage.setMinHeight(600);
-
-            // Afficher la modale
-            stage.showAndWait();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error details: " + e.getMessage());
-            if (e.getCause() != null) {
-                System.err.println("Cause: " + e.getCause().getMessage());
-            }
-            AlertUtils.showError("Error", "Unable to open comments window: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtils.showError("Error", "Unexpected error: " + e.getMessage());
+    
+    /**
+     * Custom alert dialog with modern styling
+     */
+    private void showCustomAlert(String title, String message, String type) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+        dialogStage.setResizable(false);
+        
+        // Create the dialog container
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.getStyleClass().add("custom-alert");
+        
+        // Add type-specific class for styling
+        if ("success".equals(type)) {
+            dialogVBox.getStyleClass().add("custom-alert-success");
+        } else if ("warning".equals(type)) {
+            dialogVBox.getStyleClass().add("custom-alert-warning");
+        } else if ("error".equals(type)) {
+            dialogVBox.getStyleClass().add("custom-alert-error");
         }
-    }
-
-    // Méthode appelée par d'autres contrôleurs pour rafraîchir les données
-    public void refreshData() {
-        try {
-            loadSondages(filterClubComboBox.getValue());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Error", "Error refreshing data: " + e.getMessage());
+        
+        dialogVBox.setPadding(new Insets(20));
+        
+        // Create icon and title in a horizontal box
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Add appropriate icon based on alert type
+        Label iconLabel = new Label();
+        iconLabel.getStyleClass().add("custom-alert-icon");
+        
+        if ("success".equals(type)) {
+            iconLabel.setText("✓");
+        } else if ("warning".equals(type)) {
+            iconLabel.setText("⚠");
+        } else if ("error".equals(type)) {
+            iconLabel.setText("✕");
+        } else {
+            iconLabel.setText("ℹ");
         }
+        
+        // Dialog title
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("title");
+        
+        headerBox.getChildren().addAll(iconLabel, titleLabel);
+        
+        // Dialog message
+        Label messageLabel = new Label(message);
+        messageLabel.setWrapText(true);
+        messageLabel.getStyleClass().add("content");
+        
+        // OK button
+        Button okButton = new Button("OK");
+        okButton.getStyleClass().addAll("custom-alert-button", "custom-alert-button-ok");
+        okButton.setOnAction(e -> {
+            // Fade out animation before closing
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dialogVBox);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> dialogStage.close());
+            fadeOut.play();
+        });
+        
+        // Button container
+        HBox buttonsBox = new HBox();
+        buttonsBox.getStyleClass().add("buttons-box");
+        buttonsBox.getChildren().add(okButton);
+        
+        // Add all elements to dialog
+        dialogVBox.getChildren().addAll(headerBox, messageLabel, buttonsBox);
+        
+        // Set up background with drop shadow
+        StackPane rootPane = new StackPane();
+        rootPane.getStyleClass().add("custom-alert-background");
+        
+        // Make background semi-transparent and clickable to dismiss
+        Region overlay = new Region();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dialogVBox);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.setOnFinished(event -> dialogStage.close());
+                fadeOut.play();
+            }
+        });
+        
+        rootPane.getChildren().addAll(overlay, dialogVBox);
+        
+        // Create scene with transparent background
+        Scene dialogScene = new Scene(rootPane);
+        dialogScene.setFill(Color.TRANSPARENT);
+        dialogScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+        
+        // Set and show the dialog with animation
+        dialogStage.setScene(dialogScene);
+        
+        // Center on screen
+        dialogStage.setOnShown(e -> {
+            dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
+            dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+            
+            // Play fade-in animation
+            dialogVBox.setOpacity(0);
+            dialogVBox.setScaleX(0.9);
+            dialogVBox.setScaleY(0.9);
+            
+            ParallelTransition pt = new ParallelTransition();
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(350), dialogVBox);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            
+            ScaleTransition scaleIn = new ScaleTransition(Duration.millis(350), dialogVBox);
+            scaleIn.setFromX(0.9);
+            scaleIn.setFromY(0.9);
+            scaleIn.setToX(1);
+            scaleIn.setToY(1);
+            
+            pt.getChildren().addAll(fadeIn, scaleIn);
+            pt.play();
+        });
+        
+        dialogStage.showAndWait();
     }
-
-    @FXML
-    private void handleAddOption() {
-        optionCount++;
-        TextField newOptionField = new TextField();
-        newOptionField.setPromptText("Option " + optionCount);
-        newOptionField.getStyleClass().add("input-box");
-        pollOptionsContainer.getChildren().add(newOptionField);
+    
+    /**
+     * Custom confirmation dialog with OK/Cancel buttons 
+     * @return true if confirmed, false if canceled
+     */
+    private boolean showCustomConfirmDialog(String title, String message, String details) {
+        final boolean[] result = {false};
+        
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+        dialogStage.setResizable(false);
+        
+        // Create the dialog container
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.getStyleClass().add("custom-alert");
+        dialogVBox.setPadding(new Insets(25));
+        
+        // Create icon and title in a horizontal box
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Add appropriate icon for confirmation
+        Label iconLabel = new Label("❓");
+        iconLabel.getStyleClass().addAll("custom-alert-icon", "custom-alert-confirm-icon");
+        
+        // Dialog title
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("title");
+        
+        headerBox.getChildren().addAll(iconLabel, titleLabel);
+        
+        // Dialog message and details in a VBox
+        VBox messageBox = new VBox(8);
+        
+        Label messageLabel = new Label(message);
+        messageLabel.setWrapText(true);
+        messageLabel.getStyleClass().add("content");
+        
+        Label detailsLabel = new Label(details);
+        detailsLabel.setWrapText(true);
+        detailsLabel.getStyleClass().add("details-content");
+        
+        messageBox.getChildren().addAll(messageLabel, detailsLabel);
+        
+        // Buttons
+        Button confirmButton = new Button("Confirm");
+        confirmButton.getStyleClass().addAll("custom-alert-button", "custom-alert-button-ok");
+        confirmButton.setOnAction(e -> {
+            // Fade out animation before closing
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dialogVBox);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> {
+                result[0] = true;
+                dialogStage.close();
+            });
+            fadeOut.play();
+        });
+        
+        Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().addAll("custom-alert-button", "custom-alert-button-cancel");
+        cancelButton.setOnAction(e -> {
+            // Fade out animation before closing
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dialogVBox);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> {
+                result[0] = false;
+                dialogStage.close();
+            });
+            fadeOut.play();
+        });
+        
+        // Button container
+        HBox buttonsBox = new HBox(15);
+        buttonsBox.setAlignment(Pos.CENTER);
+        buttonsBox.getStyleClass().add("buttons-box");
+        buttonsBox.getChildren().addAll(cancelButton, confirmButton);
+        
+        // Set up background with drop shadow
+        StackPane rootPane = new StackPane();
+        rootPane.getStyleClass().add("custom-alert-background");
+        
+        // Make background semi-transparent and clickable to dismiss
+        Region overlay = new Region();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), dialogVBox);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.setOnFinished(event -> {
+                    result[0] = false;
+                    dialogStage.close();
+                });
+                fadeOut.play();
+            }
+        });
+        
+        // Add all elements to dialog
+        dialogVBox.getChildren().addAll(headerBox, messageBox, buttonsBox);
+        rootPane.getChildren().addAll(overlay, dialogVBox);
+        
+        // Create scene with transparent background
+        Scene dialogScene = new Scene(rootPane);
+        dialogScene.setFill(Color.TRANSPARENT);
+        dialogScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+        
+        // Set and show the dialog with animation
+        dialogStage.setScene(dialogScene);
+        
+        // Center on screen
+        dialogStage.setOnShown(e -> {
+            dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
+            dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+            
+            // Play fade-in animation
+            dialogVBox.setOpacity(0);
+            dialogVBox.setScaleX(0.9);
+            dialogVBox.setScaleY(0.9);
+            
+            ParallelTransition pt = new ParallelTransition();
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(350), dialogVBox);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            
+            ScaleTransition scaleIn = new ScaleTransition(Duration.millis(350), dialogVBox);
+            scaleIn.setFromX(0.9);
+            scaleIn.setFromY(0.9);
+            scaleIn.setToX(1);
+            scaleIn.setToY(1);
+            
+            pt.getChildren().addAll(fadeIn, scaleIn);
+            pt.play();
+        });
+        
+        dialogStage.showAndWait();
+        
+        return result[0];
     }
-
+    
     @FXML
     private void handleCreatePoll() {
+        // Reset validation error messages
+        questionErrorLabel.setVisible(false);
+        optionsErrorLabel.setVisible(false);
+        
+        String question = pollQuestionField.getText().trim();
+        boolean hasError = false;
+        
+        // Validate question
+        if (question.isEmpty()) {
+            questionErrorLabel.setText("Question cannot be empty.");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (!question.endsWith("?")) {
+            questionErrorLabel.setText("Question must end with a question mark (?).");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (question.length() < 5) {
+            questionErrorLabel.setText("Question must be at least 5 characters long.");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        }
+        
+        // Collect options
+        List<String> options = new ArrayList<>();
+        boolean hasEmptyOption = false;
+        boolean hasInvalidOption = false;
+        Pattern validOptionPattern = Pattern.compile(".*[a-zA-Z0-9].*"); // Must contain at least one alphanumeric char
+        
+        for (Node node : pollOptionsContainer.getChildren()) {
+            if (node instanceof TextField) {
+                TextField optionField = (TextField) node;
+                String optionText = optionField.getText().trim();
+                if (optionText.isEmpty()) {
+                    hasEmptyOption = true;
+                } else if (!validOptionPattern.matcher(optionText).matches()) {
+                    hasInvalidOption = true;
+                } else {
+                    options.add(optionText);
+                }
+            }
+        }
+        
+        // Validate options
+        if (hasEmptyOption) {
+            optionsErrorLabel.setText("All options must have content.");
+            optionsErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (hasInvalidOption) {
+            optionsErrorLabel.setText("Options must contain at least one letter or number.");
+            optionsErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (options.size() < 2) {
+            optionsErrorLabel.setText("Please add at least 2 options for the poll.");
+            optionsErrorLabel.setVisible(true);
+            hasError = true;
+        } else {
+            // Check for duplicate options
+            Set<String> uniqueOptions = new HashSet<>(options.stream().map(String::toLowerCase).collect(Collectors.toList()));
+            if (uniqueOptions.size() != options.size()) {
+                optionsErrorLabel.setText("Duplicate options are not allowed.");
+                optionsErrorLabel.setVisible(true);
+                hasError = true;
+            }
+        }
+        
+        if (hasError) {
+            return;
+        }
+        
         try {
-            // Validation des entrées
-            String question = pollQuestionField.getText().trim();
-            if (question.isEmpty()) {
-                AlertUtils.showError("Error", "Please enter a question for the poll.");
-                return;
-            }
-
-            // Récupérer les options
-            List<String> options = new ArrayList<>();
-            for (int i = 0; i < pollOptionsContainer.getChildren().size(); i++) {
-                if (pollOptionsContainer.getChildren().get(i) instanceof TextField) {
-                    TextField optionField = (TextField) pollOptionsContainer.getChildren().get(i);
-                    String optionText = optionField.getText().trim();
-                    if (!optionText.isEmpty()) {
-                        options.add(optionText);
-                    }
-                }
-            }
-
-            if (options.size() < 2) {
-                AlertUtils.showError("Error", "Please provide at least 2 options for the poll.");
-                return;
-            }
-
-            // Trouver le club de l'utilisateur
-            Club userClub = clubService.findByPresident(currentUser.getId());
-            if (userClub == null) {
-                // Pour les tests, si l'utilisateur n'est pas président d'un club,
-                // on prend le premier club disponible
-                List<Club> clubs = clubService.getAll();
-                if (clubs.isEmpty()) {
-                    AlertUtils.showError("Error", "No club available. You must be associated with a club to create a poll.");
-                    return;
-                }
-                userClub = clubs.get(0);
-            }
-
-            // Créer le sondage
+            // Create poll object
             Sondage sondage = new Sondage();
             sondage.setQuestion(question);
             sondage.setUser(currentUser);
+            
+            // Find the club associated with the current user (president)
+            Club userClub = clubService.findByPresident(currentUser.getId());
+            if (userClub == null) {
+                showCustomAlert("Error", "You must be a club president to create polls.", "error");
+                return;
+            }
             sondage.setClub(userClub);
-            sondage.setCreatedAt(LocalDateTime.now());
-
-            // Ajouter les options au sondage
+            
+            // Add options to the poll
             for (String optionText : options) {
                 ChoixSondage choix = new ChoixSondage();
                 choix.setContenu(optionText);
-                choix.setSondage(sondage);
                 sondage.addChoix(choix);
             }
-
-            // Enregistrer le sondage
+            
+            // Save the poll
             sondageService.add(sondage);
-
-            // Réinitialiser le formulaire
+            
+            // Reset form
             resetPollForm();
-
-            // Recharger les sondages pour afficher le nouveau
-            loadSondages(filterClubComboBox.getValue());
-
-            AlertUtils.showSuccess("Success", "Poll created successfully!");
+            
+            // Show success popup
+            showCustomAlert("Success", "Your poll has been created successfully!", "success");
+            
+            // Reload sondages properly - using "all" as filter to show all polls
+            filterClubComboBox.getSelectionModel().select("all");
+            loadSondages("all");
+            
         } catch (SQLException e) {
             e.printStackTrace();
-            AlertUtils.showError("Error", "Failed to create poll: " + e.getMessage());
+            showCustomAlert("Error", "An error occurred while creating the poll: " + e.getMessage(), "error");
         }
     }
 
@@ -763,7 +1050,7 @@ public class SondageViewController implements Initializable {
             // Trouver le club dont l'utilisateur est président
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
-                AlertUtils.showInfo("Information", "You are not the president of any club.");
+                AlertUtils.showInformation("Information", "You are not the president of any club.");
                 return;
             }
             
@@ -814,25 +1101,147 @@ public class SondageViewController implements Initializable {
         return commentaireService.getBySondage(pollId).size();
     }
     
-    /**
-     * Add a comment to a poll
-     */
-    private void addComment(Sondage sondage, String content) throws SQLException {
-        if (content.isEmpty()) {
-            AlertUtils.showWarning("Comment", "Comment cannot be empty.");
-            return;
+    private void openCommentsModal(Sondage sondage) {
+        try {
+            // Sauvegarder le sondage actuel
+            currentSondage = sondage;
+
+            // Obtenir l'URL du fichier FXML et la vérifier
+            URL fxmlUrl = getClass().getResource("/com/esprit/views/CommentsModal.fxml");
+            if (fxmlUrl == null) {
+                AlertUtils.showError("Error", "Unable to locate CommentsModal.fxml. Please check the file path.");
+                return;
+            }
+
+            // Charger la vue de la modale des commentaires
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            VBox commentsModal = loader.load();
+
+            // Récupérer le contrôleur de la modale
+            CommentsModalController controller = loader.getController();
+            if (controller == null) {
+                AlertUtils.showError("Error", "Unable to load CommentsModalController.");
+                return;
+            }
+            
+            // Configure the controller with required data
+            controller.setSondage(sondage);
+            controller.setParentController(this);
+            controller.setCurrentUser(currentUser);
+            
+            // Initialize the modal content after setting necessary data
+            controller.setupModalContent();
+
+            // Créer une nouvelle scène et fenêtre pour la modale
+            Scene scene = new Scene(commentsModal);
+            
+            // Charger le fichier CSS
+            URL cssUrl = getClass().getResource("/com/esprit/styles/sondage-style.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            } else {
+                System.err.println("Warning: Unable to load CSS file. The modal will appear without styling.");
+            }
+            
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Comments - " + sondage.getQuestion());
+            stage.setScene(scene);
+            stage.setMinWidth(800);
+            stage.setMinHeight(600);
+
+            // Afficher la modale
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Error", "Failed to open comments modal: " + e.getMessage());
         }
+    }
 
-        // Create and save the comment
-        Commentaire commentaire = new Commentaire();
-        commentaire.setSondage(sondage);
-        commentaire.setUser(currentUser);
-        commentaire.setContenuComment(content);
-        commentaire.setDateComment(LocalDate.now());
+    // Méthode appelée par d'autres contrôleurs pour rafraîchir les données
+    public void refreshData() {
+        try {
+            loadSondages(filterClubComboBox.getValue());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Error", "Error refreshing data: " + e.getMessage());
+        }
+    }
 
-        commentaireService.add(commentaire);
+    @FXML
+    private void handleAddOption() {
+        optionCount++;
+        TextField newOptionField = new TextField();
+        newOptionField.setPromptText("Option " + optionCount);
+        newOptionField.getStyleClass().add("input-box");
+        pollOptionsContainer.getChildren().add(newOptionField);
+    }
 
-        AlertUtils.showInfo("Comment", "Your comment has been added successfully!");
-        refreshData();
+    private boolean validateComment(String content, Label commentErrorLabel, TextArea commentTextArea) {
+        if (content == null || content.trim().isEmpty()) {
+            commentErrorLabel.setText("Comment cannot be empty.");
+            commentErrorLabel.setVisible(true);
+            return false;
+        }
+        
+        // Check minimum length (2 characters)
+        if (content.trim().length() < 2) {
+            commentErrorLabel.setText("Comment is too short. Minimum 2 characters required.");
+            commentErrorLabel.setVisible(true);
+            return false;
+        }
+        
+        // Check maximum length (20 characters)
+        if (content.trim().length() > 20) {
+            commentErrorLabel.setText("Comment is too long. Maximum 20 characters allowed.");
+            commentErrorLabel.setVisible(true);
+            return false;
+        }
+        
+        // Check for inappropriate words
+        List<String> inappropriateWords = Arrays.asList(
+            "insulte", "grossier", "offensive", "vulgar", "idiot", "stupid"
+        );
+        
+        // Highlight inappropriate words in the textarea and show error message
+        String lowercaseContent = content.toLowerCase();
+        for (String word : inappropriateWords) {
+            if (lowercaseContent.contains(word.toLowerCase())) {
+                // Create a styled text version to highlight the inappropriate word
+                String errorMessage = "Comment contains inappropriate word: \"" + word + "\"";
+                commentErrorLabel.setText(errorMessage);
+                commentErrorLabel.setVisible(true);
+                
+                // Mark the inappropriate word in the textarea by using CSS
+                int startIndex = lowercaseContent.indexOf(word.toLowerCase());
+                int endIndex = startIndex + word.length();
+                
+                // We can't directly style parts of TextArea, but we can show the validation error
+                return false;
+            }
+        }
+        
+        // Check for too many uppercase letters (more than 50% of alphabetic characters)
+        int uppercaseCount = 0;
+        int lowercaseCount = 0;
+        
+        for (char c : content.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                uppercaseCount++;
+            } else if (Character.isLowerCase(c)) {
+                lowercaseCount++;
+            }
+        }
+        
+        if (uppercaseCount + lowercaseCount > 0 && 
+            (double) uppercaseCount / (uppercaseCount + lowercaseCount) > 0.5) {
+            commentErrorLabel.setText("Too many uppercase letters. Please avoid shouting.");
+            commentErrorLabel.setVisible(true);
+            return false;
+        }
+        
+        // If all validations pass, hide the error message and return true
+        commentErrorLabel.setVisible(false);
+        return true;
     }
 }

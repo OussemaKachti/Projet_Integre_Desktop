@@ -20,6 +20,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.control.Tooltip;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Contrôleur pour la fenêtre modale d'édition de sondage
@@ -239,26 +242,73 @@ public class EditPollModalController implements Initializable {
      * Validate form and enable/disable save button
      */
     private void validateForm() {
-        boolean valid = true;
+        boolean isValid = true;
+        StringBuilder errorMessage = new StringBuilder();
         
-        // Question should not be empty
-        if (pollQuestionInput.getText().trim().isEmpty()) {
-            valid = false;
-        }
-        
-        // At least 2 options should not be empty
-        int validOptions = 0;
-        for (TextField field : optionFields) {
-            if (!field.getText().trim().isEmpty()) {
-                validOptions++;
+        // Valider la question
+        String question = pollQuestionInput.getText().trim();
+        if (question.isEmpty()) {
+            isValid = false;
+            errorMessage.append("• Question cannot be empty\n");
+        } else {
+            Sondage tempSondage = new Sondage();
+            tempSondage.setQuestion(question);
+            
+            if (tempSondage.estQuestionInvalide()) {
+                isValid = false;
+                errorMessage.append("• Question must be at least 5 characters long\n");
+            }
+            
+            if (tempSondage.questionSansPointInterrogation()) {
+                isValid = false;
+                errorMessage.append("• Question should end with a question mark\n");
             }
         }
         
-        if (validOptions < 2) {
-            valid = false;
+        // Valider les options
+        List<String> optionTexts = new ArrayList<>();
+        int validOptionsCount = 0;
+        
+        for (TextField field : optionFields) {
+            String optionText = field.getText().trim();
+            if (!optionText.isEmpty()) {
+                ChoixSondage choix = new ChoixSondage();
+                choix.setContenu(optionText);
+                
+                if (choix.estContenuInvalide()) {
+                    isValid = false;
+                    errorMessage.append("• Option \"").append(optionText).append("\" is invalid (must be 2-100 characters)\n");
+                } else {
+                    validOptionsCount++;
+                    optionTexts.add(optionText);
+                }
+            }
         }
         
-        saveButton.setDisable(!valid);
+        // Vérifier le nombre d'options valides
+        if (validOptionsCount < 2) {
+            isValid = false;
+            errorMessage.append("• At least 2 valid options are required\n");
+        }
+        
+        // Vérifier les options dupliquées
+        Set<String> uniqueOptions = new HashSet<>(optionTexts);
+        if (uniqueOptions.size() < optionTexts.size()) {
+            isValid = false;
+            errorMessage.append("• Options must be unique\n");
+        }
+        
+        // Mettre à jour l'état du bouton de sauvegarde
+        saveButton.setDisable(!isValid);
+        
+        // Mettre à jour le tooltip avec les erreurs
+        if (!isValid) {
+            Tooltip tooltip = new Tooltip(errorMessage.toString());
+            tooltip.setShowDelay(Duration.ZERO);
+            saveButton.setTooltip(tooltip);
+        } else {
+            saveButton.setTooltip(null);
+        }
     }
     
     /**
@@ -299,7 +349,7 @@ public class EditPollModalController implements Initializable {
                     choixSondageService.add(choix);
                 }
                 
-                AlertUtils.showInfo("Success", "Poll created successfully!");
+                AlertUtils.showInformation("Success", "Poll created successfully!");
             } else {
                 // When updating an existing poll:
                 // 1. First update the poll question
@@ -350,7 +400,7 @@ public class EditPollModalController implements Initializable {
                         }
                     }
                     
-                    AlertUtils.showInfo("Success", "Poll updated successfully!");
+                    AlertUtils.showInformation("Success", "Poll updated successfully!");
                     
                 } catch (SQLException e) {
                     AlertUtils.showError("Error", "Failed to update poll options: " + e.getMessage());

@@ -2,7 +2,10 @@ package com.esprit.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class Sondage {
     private Integer id;
@@ -13,6 +16,11 @@ public class Sondage {
     private List<ChoixSondage> choix;
     private List<Commentaire> commentaires;
     private List<Reponse> reponses;
+    
+    // Regex pour vérifier la longueur minimale de la question
+    private static final Pattern PATTERN_QUESTION_VALIDE = Pattern.compile("^.{5,}$");
+    // Nombre minimal de choix requis
+    private static final int NOMBRE_MINIMAL_CHOIX = 2;
 
     public Sondage() {
         this.createdAt = LocalDateTime.now();
@@ -105,5 +113,52 @@ public class Sondage {
             this.reponses.add(reponse);
             reponse.setSondage(this);
         }
+    }
+    
+    /**
+     * Vérifie si la question du sondage est invalide (trop courte)
+     * @return true si la question est invalide
+     */
+    public boolean estQuestionInvalide() {
+        return question == null || !PATTERN_QUESTION_VALIDE.matcher(question).matches();
+    }
+    
+    /**
+     * Vérifie si la question se termine par un point d'interrogation
+     * @return true si la question ne se termine pas par un point d'interrogation
+     */
+    public boolean questionSansPointInterrogation() {
+        return question == null || !question.trim().endsWith("?");
+    }
+    
+    /**
+     * Vérifie si le nombre de choix est insuffisant
+     * @return true si le nombre de choix est insuffisant
+     */
+    public boolean nombreChoixInsuffisant() {
+        return choix == null || choix.size() < NOMBRE_MINIMAL_CHOIX;
+    }
+    
+    /**
+     * Vérifie si des choix sont dupliqués
+     * @return true si des choix sont dupliqués
+     */
+    public boolean contientChoixDupliques() {
+        if (choix == null || choix.isEmpty()) {
+            return false;
+        }
+        
+        Set<String> contenus = new HashSet<>();
+        for (ChoixSondage choixSondage : choix) {
+            String contenu = choixSondage.getContenu();
+            if (contenu != null) {
+                if (contenus.contains(contenu.toLowerCase())) {
+                    return true;
+                }
+                contenus.add(contenu.toLowerCase());
+            }
+        }
+        
+        return false;
     }
 }
