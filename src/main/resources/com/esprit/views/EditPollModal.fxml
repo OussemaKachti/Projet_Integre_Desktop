@@ -43,6 +43,7 @@
             <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
          </padding>
       </HBox>
+      <Label fx:id="errorMessageLabel" styleClass="error-message" wrapText="true" visible="false" />
       <ScrollPane fitToWidth="true" prefHeight="400.0" prefWidth="600.0" styleClass="modal-body">
          <content>
             <VBox prefWidth="630.0" spacing="20.0" styleClass="modal-content">
@@ -109,6 +110,7 @@
                         <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
                      </padding>
                   </VBox>
+                  
                </children>
                <padding>
                   <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />

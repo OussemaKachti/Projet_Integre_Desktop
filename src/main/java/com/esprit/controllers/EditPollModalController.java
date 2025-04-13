@@ -15,12 +15,16 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ButtonType;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -43,6 +47,7 @@ public class EditPollModalController implements Initializable {
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
     @FXML private Button closeButton;
+    @FXML private Label errorMessageLabel;
 
     private final SondageService sondageService = SondageService.getInstance();
     private final ChoixSondageService choixSondageService = new ChoixSondageService();
@@ -261,19 +266,19 @@ public class EditPollModalController implements Initializable {
         String question = pollQuestionInput.getText().trim();
         if (question.isEmpty()) {
             isValid = false;
-            errorMessage.append("• Question cannot be empty\n");
+            errorMessage.append("• La question ne peut pas être vide\n");
         } else {
             Sondage tempSondage = new Sondage();
             tempSondage.setQuestion(question);
             
             if (tempSondage.estQuestionInvalide()) {
                 isValid = false;
-                errorMessage.append("• Question must be at least 5 characters long\n");
+                errorMessage.append("• La question doit contenir au moins 5 caractères\n");
             }
             
             if (tempSondage.questionSansPointInterrogation()) {
                 isValid = false;
-                errorMessage.append("• Question should end with a question mark\n");
+                errorMessage.append("• La question doit se terminer par un point d'interrogation\n");
             }
         }
         
@@ -289,7 +294,8 @@ public class EditPollModalController implements Initializable {
                 
                 if (choix.estContenuInvalide()) {
                     isValid = false;
-                    errorMessage.append("• Option \"").append(optionText).append("\" is invalid (must be 2-100 characters)\n");
+                    errorMessage.append("• L'option \"").append(optionText)
+                              .append("\" est invalide (doit contenir entre 2 et 100 caractères)\n");
                 } else {
                     validOptionsCount++;
                     optionTexts.add(optionText);
@@ -300,38 +306,37 @@ public class EditPollModalController implements Initializable {
         // Vérifier le nombre d'options valides
         if (validOptionsCount < 2) {
             isValid = false;
-            errorMessage.append("• At least 2 valid options are required\n");
+            errorMessage.append("• Au moins 2 options valides sont requises\n");
         }
         
         // Vérifier les options dupliquées
         Set<String> uniqueOptions = new HashSet<>(optionTexts);
         if (uniqueOptions.size() < optionTexts.size()) {
             isValid = false;
-            errorMessage.append("• Options must be unique\n");
+            errorMessage.append("• Les options doivent être uniques\n");
         }
         
-        // Mettre à jour l'état du bouton de sauvegarde
+        // Mettre à jour l'état du bouton de sauvegarde et le message d'erreur
         saveButton.setDisable(!isValid);
         
-        // Mettre à jour le tooltip avec les erreurs
         if (!isValid) {
-            Tooltip tooltip = new Tooltip(errorMessage.toString());
-            tooltip.setShowDelay(Duration.ZERO);
-            saveButton.setTooltip(tooltip);
+            errorMessageLabel.setText(errorMessage.toString());
+            errorMessageLabel.setVisible(true);
         } else {
-            saveButton.setTooltip(null);
+            errorMessageLabel.setVisible(false);
         }
     }
     
     /**
      * Handle save action
      */
+    @FXML
     private void handleSave(ActionEvent event) {
         try {
             // Validate input
             String question = pollQuestionInput.getText().trim();
             if (question.isEmpty()) {
-                AlertUtils.showWarning("Invalid Input", "Please enter a poll question.");
+                AlertUtils.showWarning("Entrée invalide", "Veuillez saisir une question.");
                 return;
             }
             
@@ -342,7 +347,7 @@ public class EditPollModalController implements Initializable {
                     .collect(Collectors.toList());
             
             if (options.size() < 2) {
-                AlertUtils.showWarning("Invalid Input", "Please enter at least 2 options.");
+                AlertUtils.showWarning("Entrée invalide", "Veuillez saisir au moins 2 options.");
                 return;
             }
             
@@ -360,8 +365,6 @@ public class EditPollModalController implements Initializable {
                     choix.setSondage(currentPoll);
                     choixSondageService.add(choix);
                 }
-                
-                AlertUtils.showInformation("Success", "Poll created successfully!");
             } else {
                 // When updating an existing poll:
                 // 1. First update the poll question
@@ -389,34 +392,23 @@ public class EditPollModalController implements Initializable {
                         }
                     }
                     
-                    // 4. If there are more existing options than new ones, remove the excess
+                    // 4. If there are more existing options than new ones, handle the excess
                     if (existingOptions.size() > options.size()) {
                         for (int i = options.size(); i < existingOptions.size(); i++) {
                             ChoixSondage optionToRemove = existingOptions.get(i);
-                            // Before deleting, check if there are any responses
-                            try {
-                                // Make sure that this option has no votes/responses
-                                if (choixSondageService.getResponseCount(optionToRemove.getId()) > 0) {
-                                    // If it has responses, keep it but mark it deprecated
-                                    optionToRemove.setContenu("[Deprecated] " + optionToRemove.getContenu());
-                                    choixSondageService.update(optionToRemove);
-                                } else {
-                                    // If no responses, safe to delete
-                                    choixSondageService.delete(optionToRemove.getId());
-                                }
-                            } catch (SQLException ex) {
-                                // If deletion fails, just update with deprecated label
+                            if (choixSondageService.getResponseCount(optionToRemove.getId()) > 0) {
                                 optionToRemove.setContenu("[Deprecated] " + optionToRemove.getContenu());
                                 choixSondageService.update(optionToRemove);
+                            } else {
+                                choixSondageService.delete(optionToRemove.getId());
                             }
                         }
                     }
                     
-                    AlertUtils.showInformation("Success", "Poll updated successfully!");
-                    
                 } catch (SQLException e) {
-                    AlertUtils.showError("Error", "Failed to update poll options: " + e.getMessage());
+                    AlertUtils.showError("Erreur", "Échec de la mise à jour des options : " + e.getMessage());
                     e.printStackTrace();
+                    return;
                 }
             }
             
@@ -424,12 +416,27 @@ public class EditPollModalController implements Initializable {
             if (onSaveHandler != null) {
                 onSaveHandler.run();
             }
+
+            // Show success alert and close modal after it's acknowledged
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Success");
+            alert.setHeaderText(null);
+            alert.setContentText("Poll operation completed successfully!");
             
-            // Close modal
-            closeModal();
+            // Setup the alert with custom styling
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/alert-style.css").toExternalForm());
+            dialogPane.getStyleClass().addAll("dialog-pane", "confirmation");
             
+            // Get the OK button and style it
+            Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+            okButton.getStyleClass().add("ok-button");
+            
+            // When OK is clicked, close both the alert and the modal
+            alert.showAndWait().ifPresent(response -> closeModal());
+
         } catch (SQLException e) {
-            AlertUtils.showError("Error", "Could not save poll: " + e.getMessage());
+            AlertUtils.showError("Erreur", "Impossible de sauvegarder le sondage : " + e.getMessage());
             e.printStackTrace();
         }
     }

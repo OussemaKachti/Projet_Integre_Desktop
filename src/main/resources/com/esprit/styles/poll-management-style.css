@@ -67,30 +67,28 @@
 
 /* Search Controls */
 .search-input {
-    -fx-background-color: #f9f9f9;
-    -fx-border-color: #ddd;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
-    -fx-padding: 8px;
-    -fx-prompt-text-fill: #999;
+    -fx-background-color: white;
+    -fx-border-color: #e3e6f0;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px 15px;
+    -fx-font-size: 13px;
 }
 
 .search-input:focused {
-    -fx-border-color: #007bff;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,123,255,0.25), 3, 0, 0, 0);
+    -fx-border-color: #4e73df;
 }
 
 .search-button {
-    -fx-background-color: #007bff;
+    -fx-background-color: #4e73df;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 5px;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 20px;
+    -fx-background-radius: 4px;
     -fx-cursor: hand;
-    -fx-padding: 8 15;
 }
 
 .search-button:hover {
-    -fx-background-color: #0069d9;
+    -fx-background-color: #2e59d9;
 }
 
 /* Back Button */
@@ -110,38 +108,55 @@
 /* Table Styles */
 .poll-table {
     -fx-background-color: white;
-    -fx-table-cell-border-color: #ddd;
-    -fx-border-color: #ddd;
-    -fx-border-width: 1px;
-    -fx-border-radius: 5px;
-    -fx-fixed-cell-size: 50px;
+    -fx-border-color: #e3e6f0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+.poll-table .column-header-background {
+    -fx-background-color: #f8f9fc;
+    -fx-background-radius: 8px 8px 0 0;
+    -fx-padding: 0 0 5px 0;
 }
 
 .poll-table .column-header {
-    -fx-background-color: rgb(6, 65, 128);
-    -fx-padding: 15px;
-    -fx-font-size: 14px;
+    -fx-background-color: transparent;
+    -fx-size: 45px;
+    -fx-border-color: transparent transparent #e3e6f0 transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
 .poll-table .column-header .label {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI Semibold";
     -fx-font-size: 14px;
-    -fx-alignment: center;
+    -fx-text-fill: #4e73df;
+    -fx-padding: 16px 15px 16px 15px;
+    -fx-alignment: center-left;
 }
 
 .poll-table .table-row-cell {
     -fx-background-color: white;
-    -fx-border-color: #f1f1f1;
-    -fx-table-cell-border-color: #f1f1f1;
-    -fx-padding: 15px;
-    -fx-cell-size: 50px;
+    -fx-border-color: transparent transparent #e3e6f0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.poll-table .table-row-cell:hover {
+    -fx-background-color: #f8f9fc;
+}
+
+.poll-table .table-row-cell:selected {
+    -fx-background-color: #eaecf4;
 }
 
 .poll-table .table-cell {
-    -fx-alignment: center-left;
-    -fx-padding: 10px 5px;
+    -fx-padding: 12px 15px;
+    -fx-text-fill: #5a5c69;
     -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent;
 }
 
 .poll-table .table-column {
@@ -176,39 +191,29 @@
 }
 
 .edit-button {
-    -fx-background-color: #28a745;
+    -fx-background-color: #4e73df;
     -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 15px;
     -fx-background-radius: 4px;
     -fx-cursor: hand;
-    -fx-padding: 5 10;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-min-width: 65px;
-    -fx-pref-width: 65px;
-    -fx-min-height: 25px;
 }
 
 .edit-button:hover {
-    -fx-background-color: #218838;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-background-color: #2e59d9;
 }
 
 .delete-button {
-    -fx-background-color: #dc3545;
+    -fx-background-color: #e74a3b;
     -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 15px;
     -fx-background-radius: 4px;
     -fx-cursor: hand;
-    -fx-padding: 5 10;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-min-width: 65px;
-    -fx-pref-width: 65px;
-    -fx-min-height: 25px;
 }
 
 .delete-button:hover {
-    -fx-background-color: #c82333;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-background-color: #be2617;
 }
 
 /* Toast Notification */
@@ -577,4 +582,11 @@
     -fx-text-fill: white;
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
+}
+
+.error-message {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 13px;
+    -fx-padding: 5px 0;
+    -fx-font-weight: bold;
 } 
