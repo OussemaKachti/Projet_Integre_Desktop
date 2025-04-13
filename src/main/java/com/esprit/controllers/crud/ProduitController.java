@@ -1,10 +1,13 @@
 package com.esprit.controllers.crud;
 
+import com.esprit.ProduitApp;
 import com.esprit.models.Produit;
 import com.esprit.services.ProduitService;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -13,6 +16,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.event.ActionEvent;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
@@ -32,7 +37,7 @@ public class ProduitController implements Initializable {
 
     @FXML private TextField txtNom;
     @FXML private TextField txtPrix;
-    @FXML private TextField txtDescription;
+    @FXML private TextArea txtDescription;
     @FXML private Button btnSave;
     @FXML private Button btnUpdate;
     @FXML private Button btnCancel;
@@ -261,4 +266,19 @@ public class ProduitController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    @FXML
+    private void goToCommande(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/CommandeView.fxml"));
+            Parent root = loader.load();
+
+            // Remplace la scène actuelle
+            ProduitApp.getPrimaryStage().getScene().setRoot(root);
+            ProduitApp.adjustStageSize(false); // Optionnel : met en plein écran si tu veux
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -1,10 +1,14 @@
 package com.esprit.controllers.crud;
 
+import com.esprit.ProduitApp;
 import com.esprit.models.Commande;
+import com.esprit.models.Produit;
 import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.CommandeService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.collections.FXCollections;
@@ -12,6 +16,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -171,4 +177,18 @@ public class CommandeController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    @FXML
+    private void goToProduit(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit.fxml"));
+            Parent root = loader.load();
+
+            ProduitApp.getPrimaryStage().getScene().setRoot(root);
+            ProduitApp.adjustStageSize(false); // Si tu veux resize
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

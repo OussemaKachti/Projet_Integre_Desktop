@@ -155,35 +155,38 @@ public class CommentaireController implements Initializable {
                     deleteCommentaire(commentaire);
                 });
             }
-            
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    // Vérifier si l'utilisateur courant est l'auteur du commentaire
                     Commentaire commentaire = getTableView().getItems().get(getIndex());
-                    User currentUser = userService.getById(1); // Utilisateur statique ID=1
-                    
-                    boolean isAuthor = (commentaire.getUser() != null && 
-                                      commentaire.getUser().getId() == currentUser.getId());
-                    
                     HBox buttons = new HBox(5);
-                    
-                    // L'utilisateur ne peut éditer que ses propres commentaires
-                    editButton.setDisable(!isAuthor);
-                    buttons.getChildren().add(editButton);
-                    
-                    // L'utilisateur ne peut supprimer que ses propres commentaires
-                    deleteButton.setDisable(!isAuthor);
-                    buttons.getChildren().add(deleteButton);
-                    
+
+                    try {
+                        User currentUser = userService.getById(1); // ← Problème ici sans try-catch
+
+                        boolean isAuthor = (commentaire.getUser() != null &&
+                                commentaire.getUser().getId() == currentUser.getId());
+
+                        editButton.setDisable(!isAuthor);
+                        deleteButton.setDisable(!isAuthor);
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        editButton.setDisable(true);
+                        deleteButton.setDisable(true);
+                    }
+
+                    buttons.getChildren().addAll(editButton, deleteButton);
                     buttons.setPadding(new Insets(0, 0, 0, 5));
                     setGraphic(buttons);
                 }
             }
+
         });
     }
     

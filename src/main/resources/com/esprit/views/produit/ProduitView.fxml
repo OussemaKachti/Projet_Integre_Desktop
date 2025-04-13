@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.Region?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.ProduitController"
+      spacing="10"
+      alignment="CENTER">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <!-- Titre -->
+    <Label text="Gestion des Produits" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <!-- Table des Produits -->
+    <TableView fx:id="tableProduits" prefWidth="600">
+        <columns>
+            <TableColumn fx:id="colNom" text="Nom" prefWidth="200"/>
+            <TableColumn fx:id="colPrix" text="Prix" prefWidth="100"/>
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <!-- Formulaire de Saisie -->
+    <VBox spacing="10" alignment="CENTER" prefWidth="600">
+        <TextField fx:id="txtNom" promptText="Nom du produit" prefWidth="400"/>
+        <TextField fx:id="txtPrix" promptText="Prix du produit" prefWidth="400"/>
+        <TextArea fx:id="txtDescription" promptText="Description du produit" prefWidth="400" wrapText="true" />
+
+
+        <!-- Boutons de sauvegarde et de mise à jour -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="btnSave" text="Ajouter" />
+            <Button fx:id="btnUpdate" text="Modifier" visible="false"/>
+            <Button fx:id="btnCancel" text="Annuler"/>
+            <Button fx:id="btnGoToCommande" text="Vers Commandes" onAction="#goToCommande" />
+
+        </HBox>
+    </VBox>
+
+</VBox>
