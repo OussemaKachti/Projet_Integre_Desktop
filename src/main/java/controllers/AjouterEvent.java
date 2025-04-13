@@ -29,7 +29,7 @@ public class AjouterEvent implements Initializable {
     private TextArea desc_event;
 
     @FXML
-    private ComboBox<String> club_combo, categorie_combo;
+    private ComboBox<String> club_combo, categorie_combo, event_type_combo;
 
     @FXML
     private DatePicker start_date, end_date;
@@ -117,6 +117,11 @@ public class AjouterEvent implements Initializable {
             e.setLieux(lieux.getText());
             e.setClub_id(clubId);
             e.setCategorie_id(categorieId);
+
+            // Ajout de cette ligne pour définir le type
+            if (event_type_combo.getValue() != null) {
+                e.setType(event_type_combo.getValue());
+            }
 
             // Convertir LocalDate -> java.sql.Date
             e.setStart_date(java.sql.Date.valueOf(start_date.getValue()));

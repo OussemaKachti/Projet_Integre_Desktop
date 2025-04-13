@@ -118,4 +118,35 @@ public class ServiceEvent {
 
         return categorieId;
     }
+    public String getClubNameById(int clubId) {
+        String clubName = null;
+        try {
+            String query = "SELECT nom_c FROM club WHERE id = ?";
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setInt(1, clubId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                clubName = rs.getString("nom_c");
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la récupération du nom du club: " + ex.getMessage());
+        }
+        return clubName;
+    }
+
+    public String getCategoryNameById(int categoryId) {
+        String categoryName = null;
+        try {
+            String query = "SELECT nom_cat FROM categorie WHERE id = ?";
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setInt(1, categoryId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                categoryName = rs.getString("nom_cat");
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la récupération du nom de la catégorie: " + ex.getMessage());
+        }
+        return categoryName;
+    }
 }
