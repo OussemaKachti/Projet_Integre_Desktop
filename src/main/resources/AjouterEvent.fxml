@@ -222,7 +222,7 @@
                                                         <DropShadow color="#0000000d" radius="3" spread="0.01" />
                                                     </effect>
                                                 </ComboBox>
-                                                <Button fx:id="addCategoryButton" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 35; -fx-min-height: 35; -fx-font-weight: bold;" text="+">
+                                                <Button fx:id="addCategoryButton" onAction="#handleAddCategoryButton" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 35; -fx-min-height: 35; -fx-font-weight: bold;" text="+">
                                                     <font>
                                                         <Font name="System Bold" size="14" />
                                                     </font>

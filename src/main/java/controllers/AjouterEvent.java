@@ -1,10 +1,14 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +18,7 @@ import models.Evenement;
 import services.ServiceEvent;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 import javafx.fxml.Initializable;
@@ -39,6 +44,8 @@ public class AjouterEvent implements Initializable {
 
     @FXML
     private Button chooseImageButton;
+    @FXML
+    private Button addEventButton;
 
     private final ServiceEvent serviceEvent = new ServiceEvent();
     private String selectedImagePath;
@@ -59,7 +66,35 @@ public class AjouterEvent implements Initializable {
         ObservableList<String> clubs = serviceEvent.getAllClubsNames();
         club_combo.setItems(clubs);
     }
+    @FXML
+    private Button addCategoryButton;
 
+    @FXML
+    private void handleAddCategoryButton(ActionEvent event) {
+        try {
+            // Charger la vue d'ajout de catégorie
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterCat.fxml"));
+            Parent root = loader.load();
+
+            // Créer une nouvelle scène ou utiliser une fenêtre modale
+            Stage stage = new Stage();
+            stage.setTitle("Ajouter une catégorie");
+            stage.setScene(new Scene(root));
+
+            // Définir le style de la fenêtre
+            stage.initModality(Modality.APPLICATION_MODAL); // Empêche l'interaction avec la fenêtre principale
+            stage.initOwner(addCategoryButton.getScene().getWindow());
+
+            // Afficher la fenêtre et attendre qu'elle soit fermée
+            stage.showAndWait();
+
+            // Recharger les catégories après la fermeture de la fenêtre d'ajout
+            loadCategories();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page d'ajout de catégorie: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     @FXML
     private void handleChooseImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -135,10 +170,21 @@ public class AjouterEvent implements Initializable {
             // Ajouter l'événement
             serviceEvent.ajouter(e);
 
+            // Afficher une alerte de succès
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement ajouté avec succès !");
 
-            // Réinitialiser les champs
-            clearFields();
+            // Rediriger vers la page qui affiche tous les événements
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherEvent.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) addEventButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page de liste des événements: " + ex.getMessage());
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'ajout : " + ex.getMessage());

@@ -18,7 +18,7 @@
          <top>
             <BorderPane style="-fx-background-color: #040f71; -fx-padding: 15;">
                <left>
-                  <Label text="Add New Category" textFill="WHITE">
+                  <Label text="Category Management" textFill="WHITE">
                      <font>
                         <Font name="Arial Bold" size="28"/>
                      </font>
@@ -42,73 +42,55 @@
 
          <!-- Main content -->
          <center>
-            <BorderPane style="-fx-padding: 40;">
+            <BorderPane style="-fx-padding: 20;">
                <center>
-                  <VBox spacing="30" alignment="TOP_CENTER">
-
-                     <!-- Introduction -->
-                     <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
-                        <Label text="Enter the details below to create a new category" style="-fx-text-fill: #555555;">
+                  <VBox spacing="20">
+                     <!-- Top section: Add category form -->
+                     <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+                        <Label text="Add New Category:" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
                            <font>
-                              <Font name="Arial" size="14"/>
+                              <Font name="Arial Bold" size="14"/>
                            </font>
                         </Label>
-                     </HBox>
 
-                     <!-- Category Name -->
-                     <VBox spacing="15" alignment="CENTER" maxWidth="450">
-                        <Label text="Category Name" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                        <TextField fx:id="nomcattf" promptText="Category name" prefWidth="300"
+                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 8;">
                            <font>
                               <Font name="Arial" size="14"/>
                            </font>
-                        </Label>
-                        <TextField fx:id="nomcattf" promptText="e.g., Sports, Music, Academic"
-                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;" maxWidth="450">
-                           <font>
-                              <Font name="Arial" size="14"/>
-                           </font>
-                           <effect>
-                              <DropShadow color="#0000000d" radius="3" spread="0.01"/>
-                           </effect>
                         </TextField>
-                     </VBox>
 
-                     <!-- Optional - Description field -->
-                     <VBox spacing="15" alignment="CENTER" maxWidth="450">
-                        <Label text="Description (Optional)" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
-                           <font>
-                              <Font name="Arial" size="14"/>
-                           </font>
-                        </Label>
-                        <TextArea fx:id="descriptionArea" promptText="Enter a short description for this category..." wrapText="true" prefHeight="100"
-                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;" maxWidth="450">
-                           <font>
-                              <Font name="Arial" size="14"/>
-                           </font>
-                           <effect>
-                              <DropShadow color="#0000000d" radius="3" spread="0.01"/>
-                           </effect>
-                        </TextArea>
-                     </VBox>
-
-                     <!-- Action buttons -->
-                     <HBox spacing="20" alignment="CENTER" style="-fx-padding: 30 0;">
-                        <Button text="Cancel" onAction="#handleCancel"
-                                style="-fx-background-color: #f8f9fa; -fx-text-fill: #333333; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 12 30;">
-                           <font>
-                              <Font name="Arial Bold" size="14"/>
-                           </font>
-                        </Button>
                         <Button fx:id="ajoutercat" text="Add Category" onAction="#insererCategorie"
-                                style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 12 30;">
+                                style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;">
                            <font>
-                              <Font name="Arial Bold" size="14"/>
+                              <Font name="Arial Bold" size="13"/>
                            </font>
                            <effect>
-                              <DropShadow color="#00000033" radius="5" spread="0.05"/>
+                              <DropShadow color="#00000033" radius="3" spread="0.02"/>
                            </effect>
                         </Button>
                      </HBox>
+
+                     <!-- Bottom section: Categories table -->
+                     <VBox spacing="10" VBox.vgrow="ALWAYS">
+                        <Label text="Available Categories" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                           <font>
+                              <Font name="Arial Bold" size="16"/>
+                           </font>
+                        </Label>
+
+                        <TableView fx:id="categoriesTableView" VBox.vgrow="ALWAYS"
+                                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+                           <columns>
+                              <TableColumn fx:id="idColumn" text="ID" prefWidth="100" />
+                              <TableColumn fx:id="nameColumn" text="Category Name" prefWidth="550" />
+                           </columns>
+
+                           <effect>
+                              <DropShadow color="#0000000d" radius="3" spread="0.01"/>
+                           </effect>
+                        </TableView>
+                     </VBox>
                   </VBox>
                </center>
             </BorderPane>
@@ -117,7 +99,7 @@
          <!-- Footer -->
          <bottom>
             <HBox alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 10;">
-               <Label text="© 2025 - Club Event Management" style="-fx-text-fill: #666666;">
+               <Label text="© 2025 - Club Management" style="-fx-text-fill: #666666;">
                   <font>
                      <Font name="Arial" size="12"/>
                   </font>

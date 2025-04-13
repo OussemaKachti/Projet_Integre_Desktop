@@ -5,7 +5,9 @@ import utils.DataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceCategorie implements IService<Categorie> {
@@ -47,8 +49,18 @@ public class ServiceCategorie implements IService<Categorie> {
 
     @Override
     public List<Categorie> afficher() throws SQLException {
-        // Exemple de méthode d'affichage (à compléter si nécessaire)
-        // Retourne une liste des catégories
-        return null;
+        List<Categorie> categories = new ArrayList<>();
+        String req = "SELECT * FROM categorie";
+        PreparedStatement preparedStatement = connection.prepareStatement(req);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String nom = rs.getString("nom_cat");
+            Categorie categorie = new Categorie(id, nom);
+            categories.add(categorie);
+        }
+
+        return categories;
     }
 }
