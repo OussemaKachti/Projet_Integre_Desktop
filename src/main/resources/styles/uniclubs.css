@@ -350,7 +350,15 @@
 /* Hide horizontal scrollbar */
 .hide-horizontal-scrollbar .scroll-bar:horizontal {
     -fx-opacity: 0;
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
     -fx-padding: -7;
+}
+
+.hide-horizontal-scrollbar .scroll-bar:horizontal * {
+    -fx-opacity: 0;
+    -fx-background-color: transparent;
 }
 
 /* Custom Pagination */

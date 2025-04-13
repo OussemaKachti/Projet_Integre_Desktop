@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -200,27 +199,21 @@ public class VerifyController {
     /**
      * Navigate to login page
      */
-    @FXML
-    private void navigateToLogin() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-            Parent root = loader.load();
-            
-            Stage stage = (Stage) tokenField.getScene().getWindow();
-            stage.setTitle("Login - UNICLUBS");
-            
-            // Create scene without explicit dimensions
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            
-            // Adjust to login screen size
-            MainApp.adjustStageSize(true);
-            MainApp.centerStageOnScreen(stage);
-            
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showStatus("Error loading login page: " + e.getMessage(), true);
-        }
+   @FXML
+private void navigateToLogin() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) tokenField.getScene().getWindow();
+        
+        // Use the utility method for consistent setup
+        MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+        
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showStatus("Error loading login page: " + e.getMessage(), true);
     }
+}
 }

@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminProfileController">
+<BorderPane stylesheets="@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminProfileController">
    <top>
       <HBox alignment="CENTER_LEFT" styleClass="header">
          <padding>

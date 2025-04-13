@@ -1,6 +1,9 @@
 package services;
 
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -14,8 +17,25 @@ import utils.EmailConfig;
 
 public class EmailService {
     
+    // Thread pool for handling email sending in background
+    private static final Executor emailExecutor = Executors.newFixedThreadPool(2);
+    
     /**
-     * Sends an email
+     * Asynchronously sends an email on a background thread
+     * 
+     * @param to Recipient email
+     * @param subject Email subject
+     * @param content Email content (HTML)
+     * @return CompletableFuture that completes with true if sent successfully, false otherwise
+     */
+    public CompletableFuture<Boolean> sendEmailAsync(String to, String subject, String content) {
+        return CompletableFuture.supplyAsync(() -> {
+            return sendEmailInternal(to, subject, content);
+        }, emailExecutor);
+    }
+    
+    /**
+     * Synchronously sends an email (for backwards compatibility)
      * 
      * @param to Recipient email
      * @param subject Email subject
@@ -23,6 +43,20 @@ public class EmailService {
      * @return True if sent successfully
      */
     public boolean sendEmail(String to, String subject, String content) {
+        // Start async operation but wait for result
+        try {
+            return sendEmailAsync(to, subject, content).join();
+        } catch (Exception e) {
+            System.out.println("Sync email send failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Internal method that actually sends the email
+     */
+    private boolean sendEmailInternal(String to, String subject, String content) {
         try {
             // Get email configuration
             Properties props = new Properties();
@@ -72,60 +106,84 @@ public class EmailService {
     }
     
     /**
-     * Sends a verification email to a user
+     * Sends a verification email to a user asynchronously
      * 
      * @param email User's email
      * @param name User's name
      * @param token Verification token
-     * @return True if sent successfully
+     * @return CompletableFuture that completes with true if sent successfully
      */
-public boolean sendVerificationEmail(String email, String name, String code) {
-    String subject = "Your UNICLUBS Verification Code";
+    public CompletableFuture<Boolean> sendVerificationEmailAsync(String email, String name, String code) {
+        String subject = "Your UNICLUBS Verification Code";
+        
+        String content = 
+            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+            "<h2 style='color: #00A0E3;'>Welcome to UNICLUBS!</h2>" +
+            "<p>Hello " + name + ",</p>" +
+            "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>" +
+            "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
+            "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + code + "</h2>" +
+            "</div>" +
+            "<p>This verification code will expire in <strong>2 hours</strong>.</p>" +
+            "<p>If you did not request this code, please ignore this email.</p>" +
+            "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
+            "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+            "</div>";
+        
+        return sendEmailAsync(email, subject, content);
+    }
     
-    String content = 
-        "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
-        "<h2 style='color: #00A0E3;'>Welcome to UNICLUBS!</h2>" +
-        "<p>Hello " + name + ",</p>" +
-        "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>" +
-        "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
-        "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + code + "</h2>" +
-        "</div>" +
-        "<p>This verification code will expire in <strong>2 hours</strong>.</p>" +
-        "<p>If you did not request this code, please ignore this email.</p>" +
-        "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
-        "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
-        "</div>";
-    
-    return sendEmail(email, subject, content);
-}
     /**
-     * Sends a password reset email to a user
+     * Synchronous version for backward compatibility
+     */
+    public boolean sendVerificationEmail(String email, String name, String code) {
+        try {
+            return sendVerificationEmailAsync(email, name, code).join();
+        } catch (Exception e) {
+            System.out.println("Sync verification email send failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Sends a password reset email to a user asynchronously
      * 
      * @param email User's email
      * @param name User's name
      * @param token Password reset token
-     * @return True if sent successfully
+     * @return CompletableFuture that completes with true if sent successfully
      */
-    public boolean sendPasswordResetEmail(String email, String name, String token) {
-        String subject = "Reset Your Password";
+    public CompletableFuture<Boolean> sendPasswordResetEmailAsync(String email, String name, String token) {
+        String subject = "Your UNICLUBS Password Reset Code";
         
-        // Similar adjustment as for verification
-        String resetUrl = EmailConfig.getAppUrl() + "/reset-password?token=" + token;
-        
-        // Build email content - focusing on the token
         String content = 
             "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
-            "<h2>Password Reset Request</h2>" +
+            "<h2 style='color: #00A0E3;'>Password Reset</h2>" +
             "<p>Hello " + name + ",</p>" +
-            "<p>We received a request to reset your password. Please use the following reset code:</p>" +
-            "<div style='background-color: #f4f4f4; padding: 15px; margin: 15px 0; text-align: center;'>" +
-            "<h3 style='margin: 0; color: #2196F3; font-size: 24px;'>" + token + "</h3>" +
+            "<p>We received a request to reset your password. To proceed, please use the following code:</p>" +
+            "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
+            "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + token + "</h2>" +
             "</div>" +
-            "<p>Open the application and navigate to the password reset page to enter this code.</p>" +
-            "<p>If you did not request a password reset, please ignore this email.</p>" +
-            "<p>Regards,<br>Club Management Team</p>" +
+            "<p>This reset code will expire in <strong>2 hours</strong>.</p>" +
+            "<p>If you did not request this code, please ignore this email or contact support if you have concerns.</p>" +
+            "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
+            "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
             "</div>";
         
-        return sendEmail(email, subject, content);
+        return sendEmailAsync(email, subject, content);
+    }
+    
+    /**
+     * Synchronous version for backward compatibility
+     */
+    public boolean sendPasswordResetEmail(String email, String name, String token) {
+        try {
+            return sendPasswordResetEmailAsync(email, name, token).join();
+        } catch (Exception e) {
+            System.out.println("Sync password reset email send failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

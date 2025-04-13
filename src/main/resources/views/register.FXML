@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
@@ -18,126 +18,113 @@
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.RegisterController"
             stylesheets="@../styles/uniclubs.css">
-   <top>
-      <HBox alignment="CENTER" styleClass="header">
+   <center>
+      <VBox alignment="TOP_CENTER" maxWidth="600.0" spacing="0">
          <padding>
-            <Insets bottom="15.0" top="15.0" />
+            <Insets left="40.0" right="40.0" top="5.0" bottom="10.0" />
          </padding>
          
-         <ImageView fitHeight="50.0" fitWidth="50.0" preserveRatio="true">
-            <Image url="@../images/uniclubs_logo_white.png"/>
-         </ImageView>
-         
-         <Label text="UNICLUBS" textFill="WHITE">
+         <!-- Title Section - ultra compact -->
+         <Label styleClass="title" text="Create Your Account" textFill="#0096c9">
             <font>
                <Font name="System Bold" size="22.0" />
             </font>
-            <HBox.margin>
-               <Insets left="10.0" />
-            </HBox.margin>
          </Label>
-      </HBox>
-   </top>
-   
-   <center>
-      <AnchorPane>
-         <VBox alignment="CENTER" spacing="10.0" AnchorPane.topAnchor="5.0" 
-               AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="5.0" 
-               AnchorPane.leftAnchor="30.0">
-            
-            <!-- Page Title -->
-            <Label styleClass="title" text="Create Your Account">
-               <font>
-                  <Font name="System Bold" size="24.0" />
-               </font>
-            </Label>
-            
-            <!-- Error message area -->
-            <Label fx:id="errorLabel" styleClass="alert-error"
-                   text="Please correct the errors below" visible="false" wrapText="true" />
-            
-            <!-- Registration Form -->
-            <VBox maxWidth="700.0" styleClass="card" spacing="12.0">
-               <padding>
-                  <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
-               </padding>
+         
+         <Label styleClass="subtitle" text="Join UNICLUBS to manage your club activities">
+            <font>
+               <Font size="13.0" />
+            </font>
+            <VBox.margin>
+               <Insets bottom="0.0" />
+            </VBox.margin>
+         </Label>
+         
+         <!-- Error message area - hidden by default -->
+         <Label fx:id="errorLabel" styleClass="alert-error"
+                text="Please correct the errors below" visible="false" wrapText="true" />
+         
+         <!-- Registration Form - ultra compact spacing -->
+         <VBox alignment="CENTER" spacing="3" styleClass="form-container">
+            <!-- Name Fields in one row -->
+            <HBox spacing="10.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+                  <Label text="First Name" />
+                  <TextField fx:id="firstNameField" promptText="Enter your first name" />
+                  <Label fx:id="firstNameErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
                
-               <!-- Name and Email Fields in one row -->
-               <HBox spacing="12.0">
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <Label text="First Name" />
-                     <TextField fx:id="firstNameField" promptText="Enter your first name" />
-                     <Label fx:id="firstNameErrorLabel" styleClass="error-message" 
-                            visible="false" />
-                  </VBox>
-                  
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <Label text="Last Name" />
-                     <TextField fx:id="lastNameField" promptText="Enter your last name" />
-                     <Label fx:id="lastNameErrorLabel" styleClass="error-message" 
-                            visible="false" />
-                  </VBox>
-                  
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <Label text="Email Address" />
-                     <TextField fx:id="emailField" promptText="Enter your email address" />
-                     <Label fx:id="emailErrorLabel" styleClass="error-message" 
-                            visible="false" />
-                  </VBox>
-               </HBox>
-               
-               <!-- Phone and Password Fields in one row -->
-               <HBox spacing="12.0">
-                  <!-- Phone Field with Required Indicator -->
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <HBox alignment="CENTER_LEFT" spacing="5.0">
-                        <Label text="Phone Number" />
-                        <Label text="*" textFill="#f44336" />
-                     </HBox>
-                     <TextField fx:id="phoneField" promptText="Tunisian format (e.g. +21655123456)" />
-                     <Label fx:id="phoneErrorLabel" styleClass="error-message" 
-                            visible="false" />
-                     <Label styleClass="text-small, text-muted" 
-                            text="Phone numbers must be in Tunisian format" />
-                  </VBox>
-                  
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <Label text="Password" />
-                     <PasswordField fx:id="passwordField" promptText="Create a secure password" />
-                     <Label fx:id="passwordErrorLabel" styleClass="error-message" 
-                            visible="false" wrapText="true" />
-                  </VBox>
-                  
-                  <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
-                     <Label text="Confirm Password" />
-                     <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" />
-                     <Label fx:id="confirmPasswordErrorLabel" styleClass="error-message" 
-                            visible="false" />
-                  </VBox>
-               </HBox>
-               
-               <!-- Terms Checkbox and Buttons -->
-               <HBox alignment="CENTER_LEFT" spacing="15.0">
-                  <CheckBox fx:id="termsCheckBox" text="I agree to the Terms and Conditions" />
-                  <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
-                     <Button onAction="#navigateToLogin" 
-                             styleClass="button-secondary" text="Back to Login" 
-                             prefWidth="150.0" />
-                     <Button defaultButton="true" onAction="#handleRegister" 
-                             styleClass="button-primary" text="Create Account" 
-                             prefWidth="150.0" />
-                  </HBox>
-               </HBox>
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+                  <Label text="Last Name" />
+                  <TextField fx:id="lastNameField" promptText="Enter your last name" />
+                  <Label fx:id="lastNameErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
+            </HBox>
+            
+            <!-- Email field -->
+            <VBox styleClass="field-container" spacing="1">
+               <Label text="Email Address" />
+               <TextField fx:id="emailField" promptText="Enter your email address" />
+               <Label fx:id="emailErrorLabel" styleClass="error-message" 
+                      visible="false" />
             </VBox>
+            
+            <!-- Phone field - compact -->
+            <VBox styleClass="field-container" spacing="1">
+               <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <Label text="Phone Number" />
+               </HBox>
+               <TextField fx:id="phoneField" promptText="Tunisian format (e.g. +21655123456)" />
+               <Label fx:id="phoneErrorLabel" styleClass="error-message" 
+                      visible="false" />
+               <Label styleClass="text-small, text-muted" 
+                      text="Phone numbers must be in Tunisian format">
+                  <font>
+                     <Font size="10.0" />
+                  </font>
+               </Label>
+            </VBox>
+            
+            <!-- Password Fields in one row -->
+            <HBox spacing="10.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+                  <Label text="Password" />
+                  <PasswordField fx:id="passwordField" promptText="Create a secure password" />
+                  <Label fx:id="passwordErrorLabel" styleClass="error-message" 
+                         visible="false" wrapText="true" />
+               </VBox>
+               
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+                  <Label text="Confirm Password" />
+                  <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" />
+                  <Label fx:id="confirmPasswordErrorLabel" styleClass="error-message" 
+                         visible="false" />
+               </VBox>
+            </HBox>
+            
+            <!-- Terms Checkbox -->
+            <HBox alignment="CENTER_LEFT" spacing="5.0">
+               <padding>
+                  <Insets top="2.0" />
+               </padding>
+               <CheckBox fx:id="termsCheckBox" text="I agree to the Terms and Conditions" />
+            </HBox>
+            
+            <!-- Buttons -->
+            <HBox spacing="10.0" alignment="CENTER">
+               <padding>
+                  <Insets top="5.0" bottom="5.0" />
+               </padding>
+               <Button onAction="#navigateToLogin" 
+                       styleClass="button-secondary" text="Back to Login" 
+                       prefWidth="150.0" />
+               <Button defaultButton="true" onAction="#handleRegister" 
+                       styleClass="button-primary" text="Create Account" 
+                       prefWidth="150.0" />
+            </HBox>
          </VBox>
-      </AnchorPane>
+      </VBox>
    </center>
-   
-   <!-- Footer -->
-   <bottom>
-      <HBox alignment="CENTER" styleClass="header-light">
-         <Label styleClass="text-muted, text-small" 
-                text="© 2024 UNICLUBS - All rights reserved" />
-      </HBox>
-   </bottom>
 </BorderPane>

@@ -11,7 +11,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
-<BorderPane prefHeight="550.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" 
+<BorderPane xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="controllers.VerifyController"
             stylesheets="@../styles/uniclubs.css">

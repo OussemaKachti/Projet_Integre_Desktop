@@ -497,44 +497,16 @@ private void handleEditProfile(ActionEvent event) {
         updateProfileDisplay();
     }
 
-    private void navigateToLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-        Parent root = loader.load();
-
-        Stage stage = (Stage) userRoleLabel.getScene().getWindow();
-        
-        // Adjust to login screen size
-        MainApp.adjustStageSize(true);
-        
-        // Create scene without explicit dimensions
-        stage.setScene(new Scene(root));
-        stage.setTitle("Login - UNICLUBS");
-        stage.show();
-    }
+   private void navigateToLogin() throws IOException {
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+    Parent root = loader.load();
     
-    @FXML
-    private void navigateToDashboard(ActionEvent event) {
-        // Only admin can access dashboard
-        if (currentUser == null || !"ADMIN".equals(currentUser.getRole().toString())) {
-            return;
-        }
-        
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dashboard.fxml"));
-            Parent root = loader.load();
-            
-            Stage stage = (Stage) dashboardButton.getScene().getWindow();
-            
-            // Use the main application size for dashboard
-            MainApp.adjustStageSize(false);
-            
-            // Create scene without explicit dimensions
-            stage.setScene(new Scene(root));
-            stage.setTitle("Admin Dashboard - UNICLUBS");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Could not load dashboard: " + e.getMessage());
-        }
-    }
+    Stage stage = (Stage) userRoleLabel.getScene().getWindow();
+    
+    // Use the utility method for consistent setup
+    MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+}
+
+    
+  
 }

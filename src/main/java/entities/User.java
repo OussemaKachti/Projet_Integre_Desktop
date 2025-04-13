@@ -80,7 +80,7 @@ public class User {
     @Column(name = "warning_count")
     private int warningCount = 0;
     @Column(name = "verification_attempts")
-    private int verificationAttempts = 0;
+    private Integer verificationAttempts = 0;
 
     @Column(name = "last_code_sent_time")
     private LocalDateTime lastCodeSentTime;
@@ -223,11 +223,11 @@ public class User {
         this.warningCount = warningCount;
     }
 
-    public int getVerificationAttempts() {
-        return verificationAttempts;
+    public Integer getVerificationAttempts() {
+        return verificationAttempts == null ? 0 : verificationAttempts;
     }
 
-    public void setVerificationAttempts(int verificationAttempts) {
+    public void setVerificationAttempts(Integer verificationAttempts) {
         this.verificationAttempts = verificationAttempts;
     }
 

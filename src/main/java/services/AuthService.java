@@ -58,8 +58,9 @@ public class AuthService {
         if (user.getPassword().equals(password) || 
             (user.getPassword().startsWith("$2a$") && PasswordUtils.verifyPassword(password, user.getPassword()))) {
             // Update last login time
+            userService.updateLastLoginTime(user.getId());
             user.setLastLoginAt(LocalDateTime.now());
-            userService.modifier(user);
+            
             return user;
         }
         
@@ -127,6 +128,54 @@ public class AuthService {
         return token;
     }
     
+    /**
+     * Generate a password reset code (numeric) and send it via email
+     * @param email User's email
+     * @return Reset code or null if user not found
+     */
+    public String generatePasswordResetCode(String email) {
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        
+        // Generate a 6-digit numeric code
+        String resetCode = generateVerificationCode();
+        user.setConfirmationToken(resetCode);
+        user.setConfirmationTokenExpiresAt(LocalDateTime.now().plusHours(2));
+        user.setLastCodeSentTime(LocalDateTime.now());
+        userService.modifier(user);
+        
+        // Send password reset email asynchronously
+        emailService.sendPasswordResetEmailAsync(
+            user.getEmail(),
+            user.getFirstName() + " " + user.getLastName(),
+            resetCode
+        );
+        
+        return resetCode;
+    }
+    
+    /**
+     * Verify a password reset code without changing the password
+     * This is used to validate the code before showing the password reset form
+     * 
+     * @param code The reset code to verify
+     * @param email The user's email address
+     * @return true if the code is valid, false otherwise
+     */
+    public boolean verifyResetCode(String code, String email) {
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            return false;
+        }
+        
+        // Check if token matches and is not expired
+        return user.getConfirmationToken() != null && 
+               user.getConfirmationToken().equals(code) && 
+               user.getConfirmationTokenExpiresAt().isAfter(LocalDateTime.now());
+    }
+    
     public boolean resetPassword(String token, String newPassword) {
         try {
             TypedQuery<User> query = userService.getEntityManager().createQuery(
@@ -178,8 +227,9 @@ public class AuthService {
             // Save user
             userService.ajouter(user);
             
-            // Send verification email with code
-            emailService.sendVerificationEmail(
+            // Send verification email with code asynchronously
+            // We don't wait for this to complete - it will happen in the background
+            emailService.sendVerificationEmailAsync(
                 user.getEmail(),
                 user.getFirstName() + " " + user.getLastName(),
                 verificationCode
@@ -289,37 +339,41 @@ public class AuthService {
     /**
      * Resend verification code
      * @param email User's email
-     * @return true if email sent successfully, false otherwise
+     * @return true if process started successfully, false otherwise
      */
-  public boolean resendVerificationCode(String email) {
-    User user = userService.findByEmail(email);
-    if (user == null || user.isVerified()) {
-        return false;
+    public boolean resendVerificationCode(String email) {
+        User user = userService.findByEmail(email);
+        if (user == null || user.isVerified()) {
+            return false;
+        }
+        
+        // Check if last code was sent within the last 1 minute (rate limiting)
+        LocalDateTime lastCodeSentTime = user.getLastCodeSentTime();
+        if (lastCodeSentTime != null && 
+            lastCodeSentTime.isAfter(LocalDateTime.now().minusMinutes(1))) {
+            return false; // Too many requests - reduced from 2 minutes to 1 minute
+        }
+        
+        // Generate new verification code
+        String verificationCode = generateVerificationCode();
+        user.setConfirmationToken(verificationCode);
+        user.setConfirmationTokenExpiresAt(
+            LocalDateTime.now().plusHours(VERIFICATION_EXPIRY_HOURS));
+        user.setLastCodeSentTime(LocalDateTime.now());
+        user.setVerificationAttempts(0); // Reset attempts
+        userService.modifier(user);
+        
+        // Send verification email asynchronously
+        // Return true immediately, as we've updated the user record
+        // The email will be sent in the background
+        emailService.sendVerificationEmailAsync(
+            user.getEmail(),
+            user.getFirstName() + " " + user.getLastName(),
+            verificationCode
+        );
+        
+        return true;
     }
-    
-    // Check if last code was sent within the last 1 minute (rate limiting)
-    LocalDateTime lastCodeSentTime = user.getLastCodeSentTime();
-    if (lastCodeSentTime != null && 
-        lastCodeSentTime.isAfter(LocalDateTime.now().minusMinutes(1))) {
-        return false; // Too many requests - reduced from 2 minutes to 1 minute
-    }
-    
-    // Generate new verification code
-    String verificationCode = generateVerificationCode();
-    user.setConfirmationToken(verificationCode);
-    user.setConfirmationTokenExpiresAt(
-        LocalDateTime.now().plusHours(VERIFICATION_EXPIRY_HOURS));
-    user.setLastCodeSentTime(LocalDateTime.now());
-    user.setVerificationAttempts(0); // Reset attempts
-    userService.modifier(user);
-    
-    // Send verification email
-    return emailService.sendVerificationEmail(
-        user.getEmail(),
-        user.getFirstName() + " " + user.getLastName(),
-        verificationCode
-    );
-}
     
     /**
      * Resend verification email for an unverified account - legacy method

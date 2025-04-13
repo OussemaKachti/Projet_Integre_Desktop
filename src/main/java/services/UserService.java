@@ -1,6 +1,7 @@
 // Path: src/main/java/services/UserService.java
 package services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -133,4 +134,12 @@ public class UserService implements Service<User> {
         if (em != null && em.isOpen()) em.close();
         if (emf != null && emf.isOpen()) emf.close();
     }
+    public void updateLastLoginTime(int userId) {
+    executeInTransaction(() -> {
+        em.createQuery("UPDATE User u SET u.lastLoginAt = :now WHERE u.id = :id")
+            .setParameter("now", LocalDateTime.now())
+            .setParameter("id", userId)
+            .executeUpdate();
+    });
+}
 }

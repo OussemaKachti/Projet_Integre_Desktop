@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
 
 import entities.User;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -558,41 +559,57 @@ public class AdminProfileController {
         updateProfileDisplay();
     }
     
-    private void navigateToLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+  private void navigateToLogin() throws IOException {
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+    Parent root = loader.load();
+    
+    Stage stage = (Stage) backToDashboardButton.getScene().getWindow();
+    
+    // Use the utility method for consistent setup
+    MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+    
+    stage.show();
+}
+    
+@FXML
+private void navigateToDashboard() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/admin_dashboard.fxml"));
         Parent root = loader.load();
         
         Stage stage = (Stage) backToDashboardButton.getScene().getWindow();
         
-        // Adjust to login screen size
-        MainApp.adjustStageSize(true);
-        
         // Create scene without explicit dimensions
-        stage.setScene(new Scene(root));
-        stage.setTitle("Login - UNICLUBS");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.setTitle("Admin Dashboard - UNICLUBS");
+        
+        // Ensure minimum dimensions for responsive layout
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+        
+        // Force the stage to be maximized
+        stage.setMaximized(true);
+        
+        // Add a short delay before showing to allow layout to calculate properly
+        Platform.runLater(() -> {
+            // Force layout pass
+            root.layout();
+            
+            // Trick to refresh the layout by toggling maximized state
+            boolean wasMaximized = stage.isMaximized();
+            stage.setMaximized(false);
+            Platform.runLater(() -> {
+                stage.setMaximized(true);
+            });
+        });
+        
         stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showAlert("Error", "Navigation Error", "Could not load dashboard");
     }
-    
-    @FXML
-    private void navigateToDashboard() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/admin_dashboard.fxml"));
-            Parent root = loader.load();
-            
-            Stage stage = (Stage) backToDashboardButton.getScene().getWindow();
-            
-            // Use the main application size for dashboard
-            MainApp.adjustStageSize(false);
-            
-            // Create scene without explicit dimensions
-            stage.setScene(new Scene(root));
-            stage.setTitle("Admin Dashboard - UNICLUBS");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Navigation Error", "Could not load dashboard");
-        }
-    }
+}
     
     private void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
