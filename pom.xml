@@ -40,6 +40,18 @@
             <version>8.0.23</version>
         </dependency>
         
+        <!-- Jakarta Mail for sending emails -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        
         <!-- FontAwesomeFX -->
         <dependency>
             <groupId>de.jensd</groupId>

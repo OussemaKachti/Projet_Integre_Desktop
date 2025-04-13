@@ -796,37 +796,47 @@
     -fx-translate-y: 1px;
 }
 
-/* Progress bars with different colors */
-.progress-bar-color-0 .bar {
-    -fx-background-color: #4e73df;
+/* Progress bar colors based on percentage ranges */
+.progress-bar-low .bar {
+    -fx-background-color: #e74a3b;  /* 0-20% - Rouge */
 }
 
-.progress-bar-color-1 .bar {
-    -fx-background-color: #1cc88a;
+.progress-bar-medium-low .bar {
+    -fx-background-color: #f6c23e;  /* 20-40% - Jaune */
 }
 
-.progress-bar-color-2 .bar {
-    -fx-background-color: #36b9cc;
+.progress-bar-medium .bar {
+    -fx-background-color: #4e73df;  /* 40-60% - Bleu */
 }
 
-.progress-bar-color-3 .bar {
-    -fx-background-color: #f6c23e;
+.progress-bar-medium-high .bar {
+    -fx-background-color: #1cc88a;  /* 60-80% - Vert clair */
 }
 
-.progress-bar-color-4 .bar {
-    -fx-background-color: #e74a3b;
+.progress-bar-high .bar {
+    -fx-background-color: #2e59d9;  /* 80-100% - Bleu foncé */
 }
 
-.progress-bar-color-5 .bar {
-    -fx-background-color: #6f42c1;
+/* Add hover effect for better user interaction */
+.progress-bar-low .bar:hover,
+.progress-bar-medium-low .bar:hover,
+.progress-bar-medium .bar:hover,
+.progress-bar-medium-high .bar:hover,
+.progress-bar-high .bar:hover {
+    -fx-opacity: 0.9;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
 }
 
-.progress-bar-color-6 .bar {
-    -fx-background-color: #fd7e14;
-}
-
+/* Remove old color classes */
+.progress-bar-color-0 .bar,
+.progress-bar-color-1 .bar,
+.progress-bar-color-2 .bar,
+.progress-bar-color-3 .bar,
+.progress-bar-color-4 .bar,
+.progress-bar-color-5 .bar,
+.progress-bar-color-6 .bar,
 .progress-bar-color-7 .bar {
-    -fx-background-color: #20c997;
+    -fx-background-color: transparent;
 }
 
 /* Styling for individual poll option row */
@@ -1206,21 +1216,21 @@
 }
 
 .progress-bar-low .bar {
-    -fx-background-color: #FFC0CB; /* Pink Light - faible participation (0-20%) */
+    -fx-background-color: #e74a3b; /* Pink Light - faible participation (0-20%) */
 }
 
 .progress-bar-medium-low .bar {
-    -fx-background-color: #98FB98; /* Pale Green - participation modérée basse (21-40%) */
+    -fx-background-color: #f6c23e; /* Pale Green - participation modérée basse (21-40%) */
 }
 
 .progress-bar-medium .bar {
-    -fx-background-color: #87CEEB; /* Sky Blue - participation moyenne (41-60%) */
+    -fx-background-color: #4e73df; /* Sky Blue - participation moyenne (41-60%) */
 }
 
 .progress-bar-medium-high .bar {
-    -fx-background-color: #32CD32; /* Lime Green - bonne participation (61-80%) */
+    -fx-background-color: #1cc88a; /* Lime Green - bonne participation (61-80%) */
 }
 
 .progress-bar-high .bar {
-    -fx-background-color: #228B22; /* Forest Green - excellente participation (81-100%) */
+    -fx-background-color: #2e59d9; /* Forest Green - excellente participation (81-100%) */
 } 

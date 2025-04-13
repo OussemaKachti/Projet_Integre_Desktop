@@ -42,7 +42,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">
@@ -90,7 +90,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">
@@ -138,7 +138,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">

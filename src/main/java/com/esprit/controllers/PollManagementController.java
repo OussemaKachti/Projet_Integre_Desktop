@@ -300,7 +300,7 @@ public class PollManagementController implements Initializable {
                 controller.setOnSaveHandler(() -> {
                     try {
                         loadPolls("all");
-                        showCustomAlert("Success", "Poll operation completed successfully!", "success");
+                        // showCustomAlert("Success", "Poll operation completed successfully!", "success");
                     } catch (SQLException e) {
                         showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
                     }
