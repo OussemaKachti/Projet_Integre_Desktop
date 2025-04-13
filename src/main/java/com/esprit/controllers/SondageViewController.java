@@ -14,6 +14,7 @@ import com.esprit.services.UserService;
 import com.esprit.services.ClubService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
+import com.esprit.utils.NavigationManager;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -114,7 +115,7 @@ public class SondageViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         try {
             // Récupérer l'utilisateur connecté
-            currentUser = userService.getById(2); // Utilisateur par défaut pour les tests (ID 2)
+            currentUser = userService.getById(1); // Utilisateur par défaut pour les tests (ID 2)
             if (currentUser == null) {
                 AlertUtils.showError("Error", "User with ID=2 does not exist in the database.");
                 return;
@@ -137,7 +138,7 @@ public class SondageViewController implements Initializable {
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
         }
     }
-
+ 
     private void setupClubFilter() throws SQLException {
         // Ajouter l'option pour tous les clubs
         clubsList.add("all");
@@ -916,76 +917,44 @@ public class SondageViewController implements Initializable {
     
     @FXML
     private void handleCreatePoll() {
-        // Reset validation error messages
-        questionErrorLabel.setVisible(false);
-        optionsErrorLabel.setVisible(false);
-        
+        // Validate form
         String question = pollQuestionField.getText().trim();
-        boolean hasError = false;
-        
-        // Validate question
-        if (question.isEmpty()) {
-            questionErrorLabel.setText("Question cannot be empty.");
-            questionErrorLabel.setVisible(true);
-            hasError = true;
-        } else if (!question.endsWith("?")) {
-            questionErrorLabel.setText("Question must end with a question mark (?).");
-            questionErrorLabel.setVisible(true);
-            hasError = true;
-        } else if (question.length() < 5) {
-            questionErrorLabel.setText("Question must be at least 5 characters long.");
-            questionErrorLabel.setVisible(true);
-            hasError = true;
-        }
-        
-        // Collect options
         List<String> options = new ArrayList<>();
-        boolean hasEmptyOption = false;
-        boolean hasInvalidOption = false;
-        Pattern validOptionPattern = Pattern.compile(".*[a-zA-Z0-9].*"); // Must contain at least one alphanumeric char
         
+        // Get options from option fields
         for (Node node : pollOptionsContainer.getChildren()) {
             if (node instanceof TextField) {
-                TextField optionField = (TextField) node;
-                String optionText = optionField.getText().trim();
-                if (optionText.isEmpty()) {
-                    hasEmptyOption = true;
-                } else if (!validOptionPattern.matcher(optionText).matches()) {
-                    hasInvalidOption = true;
-                } else {
+                String optionText = ((TextField) node).getText().trim();
+                if (!optionText.isEmpty()) {
                     options.add(optionText);
                 }
             }
         }
         
-        // Validate options
-        if (hasEmptyOption) {
-            optionsErrorLabel.setText("All options must have content.");
-            optionsErrorLabel.setVisible(true);
-            hasError = true;
-        } else if (hasInvalidOption) {
-            optionsErrorLabel.setText("Options must contain at least one letter or number.");
-            optionsErrorLabel.setVisible(true);
-            hasError = true;
-        } else if (options.size() < 2) {
-            optionsErrorLabel.setText("Please add at least 2 options for the poll.");
-            optionsErrorLabel.setVisible(true);
-            hasError = true;
+        // Validate question
+        if (question.isEmpty()) {
+            questionErrorLabel.setVisible(true);
+            return;
         } else {
-            // Check for duplicate options
-            Set<String> uniqueOptions = new HashSet<>(options.stream().map(String::toLowerCase).collect(Collectors.toList()));
-            if (uniqueOptions.size() != options.size()) {
-                optionsErrorLabel.setText("Duplicate options are not allowed.");
-                optionsErrorLabel.setVisible(true);
-                hasError = true;
-            }
+            questionErrorLabel.setVisible(false);
         }
         
-        if (hasError) {
+        // Validate options (at least 2 non-empty options)
+        if (options.size() < 2) {
+            optionsErrorLabel.setVisible(true);
             return;
+        } else {
+            optionsErrorLabel.setVisible(false);
         }
         
         try {
+            // Get static user with ID 2
+            User currentUser = userService.getById(2);
+            if (currentUser == null) {
+                showCustomAlert("Error", "Static user with ID 2 not found.", "error");
+                return;
+            }
+
             // Create poll object
             Sondage sondage = new Sondage();
             sondage.setQuestion(question);
@@ -993,6 +962,7 @@ public class SondageViewController implements Initializable {
             
             // Find the club associated with the current user (president)
             Club userClub = clubService.findByPresident(currentUser.getId());
+
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
                 return;
@@ -1047,36 +1017,42 @@ public class SondageViewController implements Initializable {
      */
     private void handleViewAllPolls() {
         try {
-            // Trouver le club dont l'utilisateur est président
-            Club userClub = clubService.findByPresident(currentUser.getId());
-            if (userClub == null) {
-                AlertUtils.showInformation("Information", "You are not the president of any club.");
-                return;
+            // Utiliser un utilisateur statique avec ID=2 pour les tests
+            // au lieu de l'utilisateur de la session
+            // if (currentUser != null) {
+            User staticUser = userService.getById(2);
+            Club userClub = clubService.findByPresident(staticUser.getId());
+            
+            // Si l'utilisateur est président d'un club, on ouvre la vue PollManagement
+            if (userClub != null) {
+                // Charger la vue PollManagement
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
+                Parent root = loader.load();
+                
+                PollManagementController controller = loader.getController();
+                controller.setPreviousScene(viewAllPollsButton.getScene());
+                
+                Scene scene = new Scene(root);
+                Stage stage = (Stage) viewAllPollsButton.getScene().getWindow();
+                stage.setScene(scene);
+                
+                // Maximiser la fenêtre sans mode plein écran
+                stage.setMaximized(true);
+                
+            } else {
+                // Si l'utilisateur n'est pas président, afficher une alerte
+                showCustomAlert(
+                    "Access Restricted", 
+                    "You must be a club president to access poll management.", 
+                    "warning"
+                );
             }
-            
-            // Charger la vue PollManagementView
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
-            Parent root = loader.load();
-            
-            // Récupérer le contrôleur
-            PollManagementController controller = loader.getController();
-            
-            // Sauvegarder la scène actuelle pour pouvoir revenir
-            Scene currentScene = viewAllPollsButton.getScene();
-            controller.setPreviousScene(currentScene);
-            
-            // Définir le filtre pour afficher tous les sondages, puis naviguer vers la scène
-            // On montrera tous les sondages plutôt que de filtrer par club pour éviter l'erreur
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) viewAllPollsButton.getScene().getWindow();
-            stage.setScene(scene);
-            
-        } catch (IOException e) {
+            // } else {
+            //     AlertUtils.showError("Error", "User session not found.");
+            // }
+        } catch (SQLException | IOException e) {
+            AlertUtils.showError("Error", "Could not open Poll Management: " + e.getMessage());
             e.printStackTrace();
-            AlertUtils.showError("Error", "Error loading Poll Management view: " + e.getMessage());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Error", "Database error: " + e.getMessage());
         }
     }
 

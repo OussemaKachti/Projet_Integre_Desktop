@@ -27,7 +27,36 @@ public class NavigationManager {
      */
     public static void navigateTo(Scene scene) {
         if (mainStage != null) {
+            // Preserve maximized state
+            boolean wasMaximized = mainStage.isMaximized();
             mainStage.setScene(scene);
+            if (wasMaximized) {
+                mainStage.setMaximized(true);
+            }
+        } else {
+            throw new IllegalStateException("Le stage principal n'a pas été configuré. Appelez setMainStage() d'abord.");
+        }
+    }
+    
+    /**
+     * Ensures a stage is displayed in maximized mode
+     * @param stage the stage to maximize
+     */
+    public static void ensureFullScreen(Stage stage) {
+        if (stage != null) {
+            stage.setMaximized(true);
+        }
+    }
+    
+    /**
+     * Navigue vers une nouvelle scène et force le plein écran
+     * 
+     * @param scene La scène vers laquelle naviguer
+     */
+    public static void navigateToFullScreen(Scene scene) {
+        if (mainStage != null) {
+            mainStage.setScene(scene);
+            mainStage.setMaximized(true);
         } else {
             throw new IllegalStateException("Le stage principal n'a pas été configuré. Appelez setMainStage() d'abord.");
         }

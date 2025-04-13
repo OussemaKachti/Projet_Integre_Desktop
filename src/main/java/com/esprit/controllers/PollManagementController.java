@@ -30,6 +30,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -82,6 +83,14 @@ public class PollManagementController implements Initializable {
             
             // Configurer l'animation du toast
             setupToast();
+            
+            // Set stage to maximized mode after a small delay to ensure UI is fully loaded
+            javafx.application.Platform.runLater(() -> {
+                Stage stage = (Stage) pollsTable.getScene().getWindow();
+                if (stage != null) {
+                    stage.setMaximized(true);
+                }
+            });
             
         } catch (SQLException e) {
             AlertUtils.showError("Erreur d'initialisation", "Une erreur est survenue: " + e.getMessage());
@@ -257,29 +266,29 @@ public class PollManagementController implements Initializable {
      */
     private void openPollModal(Sondage sondage) {
         try {
-            // Charger la vue de la modale
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
             VBox modalContent = loader.load();
             
-            // Récupérer le contrôleur
-            EditPollModalController controller = loader.getController();
-            
-            // Créer la scène et la fenêtre modale
+            // Create scene first before setting the stage
             Scene modalScene = new Scene(modalContent);
+            
+            // Add stylesheet to scene
+            modalScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/poll-management-style.css").toExternalForm());
+            
             Stage modalStage = new Stage();
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(sondage == null ? "Create Poll" : "Edit Poll");
+            
+            // Set scene to stage before passing it to the controller
             modalStage.setScene(modalScene);
             
-            // Transmettre la référence du stage au contrôleur
+            EditPollModalController controller = loader.getController();
             controller.setModalStage(modalStage);
             
-            // Configurer le contrôleur selon le mode (création ou édition)
             try {
                 if (sondage == null) {
                     controller.setCreateMode(currentUser);
                 } else {
-                    // Ensure we have the most up-to-date sondage object
                     Sondage refreshedSondage = sondageService.getById(sondage.getId());
                     if (refreshedSondage != null) {
                         controller.setEditMode(refreshedSondage, currentUser);
@@ -288,26 +297,25 @@ public class PollManagementController implements Initializable {
                     }
                 }
                 
-                // Configurer le gestionnaire après sauvegarde
                 controller.setOnSaveHandler(() -> {
                     try {
                         loadPolls("all");
-                        showToast("Poll operation successfully completed!", "success");
+                        showCustomAlert("Success", "Poll operation completed successfully!", "success");
                     } catch (SQLException e) {
-                        AlertUtils.showError("Erreur", "Impossible de recharger les sondages: " + e.getMessage());
+                        showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
                     }
                 });
+                
+                // Show the modal window
+                modalStage.showAndWait();
+                
             } catch (SQLException e) {
-                AlertUtils.showError("Error", "Failed to prepare poll data: " + e.getMessage());
+                showCustomAlert("Error", "Failed to prepare poll data: " + e.getMessage(), "error");
                 e.printStackTrace();
-                return; // Don't show the modal if data preparation failed
             }
             
-            // Afficher la modale
-            modalStage.showAndWait();
-            
         } catch (IOException e) {
-            AlertUtils.showError("Erreur", "Impossible d'ouvrir la fenêtre modale: " + e.getMessage());
+            showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
             e.printStackTrace();
         }
     }
@@ -316,21 +324,19 @@ public class PollManagementController implements Initializable {
      * Demande confirmation avant de supprimer un sondage
      */
     private void confirmDeletePoll(Sondage sondage) {
-        boolean confirm = AlertUtils.showConfirmation("Confirmation", 
-                "Are you sure you want to delete this poll?");
+        boolean confirm = showCustomConfirmDialog(
+            "Delete Poll",
+            "Are you sure you want to delete this poll?",
+            "This action cannot be undone. All responses and comments will also be deleted."
+        );
         
         if (confirm) {
             try {
-                // First check and delete all related records
                 deletePollWithDependencies(sondage.getId());
-                
-                // Show success message
-                showToast("Poll deleted successfully!", "success");
-                
-                // Reload the polls
+                showCustomAlert("Success", "Poll deleted successfully!", "success");
                 loadPolls("all");
             } catch (SQLException e) {
-                AlertUtils.showError("Error", "Unable to delete poll: " + e.getMessage());
+                showCustomAlert("Error", "Unable to delete poll: " + e.getMessage(), "error");
                 e.printStackTrace();
             }
         }
@@ -396,8 +402,73 @@ public class PollManagementController implements Initializable {
         if (previousScene != null) {
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(previousScene);
+            
+            // Maximiser la fenêtre précédente
+            stage.setMaximized(true);
         } else {
             AlertUtils.showWarning("Navigation", "Impossible de revenir à la vue précédente.");
         }
+    }
+
+    private void showCustomAlert(String title, String message, String type) {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        
+        // Set the alert type
+        ButtonType buttonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().add(buttonType);
+        
+        // Apply custom styling
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/alert-style.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-alert");
+        
+        // Add specific style class based on alert type
+        switch (type.toLowerCase()) {
+            case "success":
+                dialogPane.getStyleClass().add("custom-alert-success");
+                break;
+            case "warning":
+                dialogPane.getStyleClass().add("custom-alert-warning");
+                break;
+            case "error":
+                dialogPane.getStyleClass().add("custom-alert-error");
+                break;
+        }
+        
+        // Style the button
+        Button okButton = (Button) dialogPane.lookupButton(buttonType);
+        okButton.getStyleClass().add("custom-alert-button");
+        
+        alert.showAndWait();
+    }
+
+    private boolean showCustomConfirmDialog(String title, String message, String details) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(message);
+        alert.setContentText(details);
+        
+        // Set custom buttons
+        ButtonType deleteButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(deleteButton, cancelButton);
+        
+        // Apply custom styling
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/alert-style.css").toExternalForm());
+        dialogPane.getStyleClass().addAll("custom-alert", "custom-alert-warning");
+        
+        // Style the buttons
+        Button confirmButton = (Button) dialogPane.lookupButton(deleteButton);
+        confirmButton.getStyleClass().addAll("custom-alert-button", "confirm-button");
+        
+        Button cancelBtn = (Button) dialogPane.lookupButton(cancelButton);
+        cancelBtn.getStyleClass().addAll("custom-alert-button", "cancel-button");
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == deleteButton;
     }
 }

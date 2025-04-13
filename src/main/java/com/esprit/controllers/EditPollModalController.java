@@ -61,13 +61,13 @@ public class EditPollModalController implements Initializable {
         closeButton.setOnAction(e -> closeModal());
         addOptionButton.setOnAction(this::handleAddOption);
         
-        // Add initial option fields in create mode
-        if (isCreateMode) {
-            Platform.runLater(() -> {
-                addOptionField("", true);
-                addOptionField("", true);
-            });
-        }
+        // Add two empty option fields by default for new polls
+        Platform.runLater(() -> {
+            if (optionsContainer.getChildren().isEmpty()) {
+                addOptionField("", false);
+                addOptionField("", false);
+            }
+        });
         
         // Add validation for poll question
         pollQuestionInput.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -90,11 +90,23 @@ public class EditPollModalController implements Initializable {
     public void setModalStage(Stage stage) {
         this.modalStage = stage;
         
-        // Add fade-in animation when showing the modal
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), stage.getScene().getRoot());
-        fadeIn.setFromValue(0.5);
-        fadeIn.setToValue(1.0);
-        fadeIn.play();
+        // Make sure the stage is not null and has a scene
+        if (stage != null && stage.getScene() != null && stage.getScene().getRoot() != null) {
+            // Add fade-in animation when showing the modal
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), stage.getScene().getRoot());
+            fadeIn.setFromValue(0.5);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
+        
+        // Set minimum size for better visibility
+        if (stage != null) {
+            stage.setMinWidth(650);
+            stage.setMinHeight(550);
+            
+            // Center on screen
+            stage.centerOnScreen();
+        }
     }
     
     /**
