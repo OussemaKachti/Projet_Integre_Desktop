@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/15" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AdminEvent" stylesheets="/styles/AdminEventStyle.css">
+    <children>
+        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #061567; -fx-padding: 15;">
+                    <children>
+                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" style="-fx-background-color: transparent; -fx-text-fill: white;" text="← Back">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
+                        <Label text="Event Management" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Button fx:id="addEventButton" mnemonicParsing="false" onAction="#handleAddEvent" style="-fx-background-color: white; -fx-text-fill: #061567;" text="+ Add New Event">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <!-- Filter and Search Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #f9f9f9; -fx-padding: 15;">
+                    <children>
+                        <Label text="Filters:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <ComboBox fx:id="categoryFilter" prefWidth="150.0" promptText="Category" />
+                        <ComboBox fx:id="clubFilter" prefWidth="150.0" promptText="Club" />
+                        <ComboBox fx:id="statusFilter" prefWidth="120.0" promptText="Status" />
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <HBox alignment="CENTER" spacing="5.0">
+                            <children>
+                                <TextField fx:id="searchField" prefHeight="30.0" prefWidth="250.0" promptText="Search events...">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </TextField>
+                                <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#handleRefresh" style="-fx-background-color: #f0f0f0;" text="↻">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <!-- Table View -->
+                <TableView fx:id="eventTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="60.0" text="ID" />
+                        <TableColumn fx:id="nameColumn" prefWidth="180.0" text="Event Name" />
+                        <TableColumn fx:id="typeColumn" prefWidth="100.0" text="Status" />
+                        <TableColumn fx:id="categoryColumn" prefWidth="120.0" text="Category" />
+                        <TableColumn fx:id="clubColumn" prefWidth="120.0" text="Club" />
+                        <TableColumn fx:id="locationColumn" prefWidth="140.0" text="Location" />
+                        <TableColumn fx:id="startDateColumn" prefWidth="120.0" text="Start Date" />
+                        <TableColumn fx:id="endDateColumn" prefWidth="120.0" text="End Date" />
+                        <TableColumn fx:id="actionsColumn" prefWidth="240.0" text="Actions" />
+                    </columns>
+                </TableView>
+
+                <!-- Footer -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #f0f0f0; -fx-padding: 10;">
+                    <children>
+                        <Label fx:id="totalEventsLabel" text="Total Events: 0">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+
+</AnchorPane>

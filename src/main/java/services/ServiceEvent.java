@@ -149,4 +149,81 @@ public class ServiceEvent {
         }
         return categoryName;
     }
+    // Méthode pour récupérer un événement par son ID
+    public Evenement getOne(int id) {
+        Evenement event = null;
+
+        try {
+            String query = "SELECT * FROM evenement WHERE id = ?";
+            PreparedStatement pst = conn.prepareStatement(query);
+            pst.setInt(1, id);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                event = new Evenement();
+                event.setId(rs.getInt("id"));
+                event.setNom_event(rs.getString("nom_event"));
+                event.setType(rs.getString("type"));
+                event.setDesc_event(rs.getString("desc_event"));
+                event.setImage_description(rs.getString("image_description"));
+                event.setLieux(rs.getString("lieux"));
+                event.setClub_id(rs.getInt("club_id"));
+                event.setCategorie_id(rs.getInt("categorie_id"));
+                event.setStart_date(rs.getDate("start_date"));
+                event.setEnd_date(rs.getDate("end_date"));
+            }
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la récupération de l'événement: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return event;
+    }
+    // Add this method to your ServiceEvent class
+    public boolean supprimerEvenement(int eventId) {
+        String query = "DELETE FROM evenement WHERE id = ?";
+
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setInt(1, eventId);
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la suppression de l'événement: " + ex.getMessage());
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    // Méthode pour modifier un événement existant
+    public void modifier(Evenement e) throws SQLException {
+        String query = "UPDATE evenement SET nom_event = ?, type = ?, desc_event = ?, image_description = ?, " +
+                "lieux = ?, club_id = ?, categorie_id = ?, start_date = ?, end_date = ? " +
+                "WHERE id = ?";
+
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setString(1, e.getNom_event());
+
+            // Gérer le type comme dans la méthode ajouter
+            String type = e.getType();
+            if (type == null || type.isEmpty()) {
+                type = "default_type";
+            }
+            pst.setString(2, type);
+
+            pst.setString(3, e.getDesc_event());
+            pst.setString(4, e.getImage_description());
+            pst.setString(5, e.getLieux());
+            pst.setInt(6, e.getClub_id());
+            pst.setInt(7, e.getCategorie_id());
+            pst.setDate(8, new java.sql.Date(e.getStart_date().getTime()));
+            pst.setDate(9, new java.sql.Date(e.getEnd_date().getTime()));
+            pst.setInt(10, e.getId());
+
+            pst.executeUpdate();
+            System.out.println("Événement mis à jour avec succès");
+        } catch (SQLException ex) {
+            System.err.println("Erreur lors de la mise à jour de l'événement: " + ex.getMessage());
+            throw ex;
+        }
+    }
 }

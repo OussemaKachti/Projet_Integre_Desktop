@@ -13,6 +13,13 @@ import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 import models.Evenement;
 import services.ServiceEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import java.io.IOException;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class DetailsEvent implements Initializable {
 
@@ -35,8 +42,6 @@ public class DetailsEvent implements Initializable {
 
     @FXML
     private ImageView eventImageView;
-    @FXML
-    private ImageView clubLogoImageView;
 
     @FXML
     private Button backButton;
@@ -46,6 +51,8 @@ public class DetailsEvent implements Initializable {
     private Button editButton;
     @FXML
     private Button shareButton;
+    @FXML
+    private Button presidentButton1; // Your delete button
 
     private Evenement currentEvent;
     private ServiceEvent serviceEvent = new ServiceEvent();
@@ -54,8 +61,11 @@ public class DetailsEvent implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Désactiver les boutons non implémentés pour l'instant
         registerButton.setVisible(false);
-        editButton.setVisible(false);
+        editButton.setVisible(true); // Modifié pour rendre le bouton Edit visible
         shareButton.setVisible(false);
+
+        // Configure delete button handler
+        presidentButton1.setOnAction(event -> handleDelete());
     }
 
     /**
@@ -86,11 +96,7 @@ public class DetailsEvent implements Initializable {
 
         // Charger l'image de l'événement si disponible
         loadEventImage(event.getImage_description());
-
-        // Charger le logo du club (utilisation d'un placeholder pour le moment)
-        loadClubLogo(event.getClub_id());
     }
-
 
     /**
      * Charge l'image de l'événement
@@ -116,16 +122,6 @@ public class DetailsEvent implements Initializable {
     }
 
     /**
-     * Charge le logo du club
-     * @param clubId l'ID du club
-     */
-    private void loadClubLogo(int clubId) {
-        // Ici, vous pourriez ajouter une logique pour charger le logo du club depuis la base de données
-        // Pour l'instant, on utilise une image par défaut
-        setDefaultClubLogo();
-    }
-
-    /**
      * Définit une image par défaut pour l'événement
      */
     private void setDefaultEventImage() {
@@ -147,27 +143,6 @@ public class DetailsEvent implements Initializable {
     }
 
     /**
-     * Définit un logo par défaut pour le club
-     */
-    private void setDefaultClubLogo() {
-        try {
-            // Essayez d'abord de charger depuis les ressources
-            Image defaultLogo = new Image(getClass().getResourceAsStream("/resources/images/default_club_logo.png"));
-            clubLogoImageView.setImage(defaultLogo);
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement du logo par défaut: " + e.getMessage());
-
-            // Si le chargement depuis les ressources échoue, essayez un chemin alternatif
-            try {
-                Image fallbackLogo = new Image("file:resources/images/default_club_logo.png");
-                clubLogoImageView.setImage(fallbackLogo);
-            } catch (Exception ex) {
-                System.err.println("Impossible de charger le logo par défaut: " + ex.getMessage());
-            }
-        }
-    }
-
-    /**
      * Gère l'action du bouton Retour
      */
     @FXML
@@ -175,5 +150,94 @@ public class DetailsEvent implements Initializable {
         // Fermer la fenêtre actuelle
         Stage stage = (Stage) backButton.getScene().getWindow();
         stage.close();
+    }
+
+    /**
+     * Gère l'action du bouton Edit
+     */
+    @FXML
+    private void handleEdit() {
+        try {
+            // Charger le FXML ModifierEvent
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ModifierEvent.fxml"));
+            Parent root = loader.load();
+
+            // Obtenir le contrôleur et lui passer l'ID de l'événement à modifier
+            ModifierEvent modifierController = loader.getController();
+            modifierController.setEventId(currentEvent.getId()); // Assurez-vous que cette méthode existe dans votre Evenement
+
+            // Créer une nouvelle scène pour la vue ModifierEvent
+            Stage stage = new Stage();
+            stage.setTitle("Modifier l'événement");
+            stage.setScene(new Scene(root));
+
+            // Afficher la scène
+            stage.show();
+
+            // Optionnellement, fermer la fenêtre actuelle des détails
+            // Stage currentStage = (Stage) editButton.getScene().getWindow();
+            // currentStage.close();
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors du chargement de la page de modification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Gère l'action du bouton Delete
+     */
+    @FXML
+    private void handleDelete() {
+        if (currentEvent == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement à supprimer",
+                    "Impossible de supprimer l'événement car aucun événement n'est sélectionné.");
+            return;
+        }
+
+        // Afficher une confirmation avant de supprimer
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirmation de suppression");
+        confirmDialog.setHeaderText("Supprimer l'événement");
+        confirmDialog.setContentText("Êtes-vous sûr de vouloir supprimer l'événement \"" +
+                currentEvent.getNom_event() + "\" ? Cette action est irréversible.");
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Appeler le service pour supprimer l'événement
+                boolean deleted = serviceEvent.supprimerEvenement(currentEvent.getId());
+
+                if (deleted) {
+                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement supprimé",
+                            "L'événement a été supprimé avec succès.");
+
+                    // Fermer la fenêtre des détails après suppression
+                    Stage stage = (Stage) presidentButton1.getScene().getWindow();
+                    stage.close();
+
+                    // Optionnellement, vous pouvez rafraîchir la liste des événements dans la vue principale
+                    // si vous avez accès à cette vue
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression",
+                            "La suppression de l'événement a échoué. Veuillez réessayer.");
+                }
+            } catch (Exception e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression",
+                        "Une erreur s'est produite lors de la suppression: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Affiche une boîte de dialogue d'alerte
+     */
+    private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

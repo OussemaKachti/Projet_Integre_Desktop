@@ -15,6 +15,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.geometry.Insets?>
+<?import java.lang.String?>
 
 <AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DetailsEvent">
 
@@ -63,53 +64,80 @@
                                 <!-- Enhanced Event Image and Title Section -->
                                 <StackPane>
                                     <!-- Hero Image Container with Enhanced Shadow -->
-                                    <BorderPane style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);">
+                                    <BorderPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 25, 0, 0, 7);">
                                         <!-- Image with Clip Path for rounded corners -->
                                         <center>
                                             <StackPane>
                                                 <!-- Rectangle clip for the image -->
-                                                <ImageView fx:id="eventImageView" fitHeight="350.0" fitWidth="960.0" preserveRatio="true">
+                                                <ImageView fx:id="eventImageView" fitHeight="380.0" fitWidth="960.0" preserveRatio="true">
                                                     <effect>
-                                                        <ColorAdjust brightness="-0.1" contrast="0.1" />
+                                                        <ColorAdjust brightness="-0.05" contrast="0.15" saturation="0.1" />
                                                     </effect>
                                                     <clip>
-                                                        <Rectangle width="960.0" height="350.0" arcWidth="12.0" arcHeight="12.0" />
+                                                        <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0" />
                                                     </clip>
                                                 </ImageView>
 
-                                                <!-- Subtle border highlight -->
-                                                <Rectangle width="960.0" height="350.0" arcWidth="12.0" arcHeight="12.0" fill="transparent"
-                                                           stroke="#ffffff33" strokeWidth="1.5" />
+                                                <!-- Subtle image border highlight -->
+                                                <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0" fill="transparent"
+                                                           stroke="#ffffff44" strokeWidth="2.0" />
 
-                                                <!-- Subtle image overlay gradient -->
-                                                <Rectangle width="960.0" height="350.0" arcWidth="12.0" arcHeight="12.0"
-                                                           style="-fx-fill: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.1), rgba(0,0,0,0.5));" />
+                                                <!-- Enhanced image overlay gradient -->
+                                                <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0"
+                                                           style="-fx-fill: linear-gradient(to bottom,
+                                                                  rgba(0,0,0,0.0) 0%,
+                                                                  rgba(0,0,0,0.0) 40%,
+                                                                  rgba(0,0,0,0.3) 70%,
+                                                                  rgba(0,0,0,0.7) 100%);" />
                                             </StackPane>
                                         </center>
 
-                                        <!-- Enhanced Event Title Overlay with better gradient -->
+                                        <!-- Enhanced Event Title Overlay with better gradient and positioning -->
                                         <bottom>
                                             <StackPane>
-                                                <VBox spacing="15" style="-fx-background-color: linear-gradient(from 0% 30% to 0% 100%, transparent, rgba(0,0,0,0.85)); -fx-padding: 30 35 35 35;">
-                                                    <Label fx:id="eventTitleLabel" textFill="WHITE" wrapText="true">
+                                                <VBox spacing="18" style="-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, transparent, rgba(0,0,0,0.90)); -fx-padding: 40 40 45 40;">
+                                                    <!-- Enhanced title with better text effects -->
+                                                    <Label fx:id="eventTitleLabel" textFill="WHITE" wrapText="true" style="-fx-font-smoothing-type: lcd;">
                                                         <font>
-                                                            <Font name="Arial Bold" size="36" />
+                                                            <Font name="Arial Bold" size="40" />
                                                         </font>
                                                         <effect>
-                                                            <DropShadow color="#00000080" radius="3" spread="0.1" />
+                                                            <DropShadow color="#000000cc" radius="4" spread="0.15" offsetX="0" offsetY="1" />
                                                         </effect>
                                                     </Label>
-                                                    <HBox alignment="CENTER_LEFT" spacing="15">
-                                                        <Label fx:id="eventTypeLabel" style="-fx-background-color: #2979ff; -fx-background-radius: 20; -fx-padding: 6 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);" textFill="WHITE">
+
+                                                    <!-- Enhanced category display with animation prep -->
+                                                    <HBox alignment="CENTER_LEFT" spacing="18">
+                                                        <!-- Event Type Badge with enhanced styling -->
+                                                        <Label fx:id="eventTypeLabel"
+                                                               style="-fx-background-color: linear-gradient(to right, #1565C0, #42a5f5);
+                                                                      -fx-background-radius: 22;
+                                                                      -fx-padding: 8 22;
+                                                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                                                               textFill="WHITE">
                                                             <font>
-                                                                <Font name="Arial Bold" size="14" />
+                                                                <Font name="Arial Bold" size="15" />
                                                             </font>
+                                                            <!-- Optional: Add hover effect with JavaFX CSS -->
+                                                            <styleClass>
+                                                                <String fx:value="badge-hover" />
+                                                            </styleClass>
                                                         </Label>
-                                                        <Label fx:id="eventCategoryLabel" style="-fx-background-color: #43a047; -fx-background-radius: 20; -fx-padding: 6 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);" textFill="WHITE">
+
+                                                        <!-- Event Category Badge with enhanced styling -->
+                                                        <Label fx:id="eventCategoryLabel"
+                                                               style="-fx-background-color: linear-gradient(to right, #2e7d32, #66bb6a);
+                                                                      -fx-background-radius: 22;
+                                                                      -fx-padding: 8 22;
+                                                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
+                                                               textFill="WHITE">
                                                             <font>
-                                                                <Font name="Arial Bold" size="14" />
+                                                                <Font name="Arial Bold" size="15" />
                                                             </font>
+
                                                         </Label>
+
+
                                                     </HBox>
                                                 </VBox>
                                             </StackPane>
@@ -313,7 +341,7 @@
                                                 </Button>
 
                                                 <!-- Update Button -->
-                                                <Button fx:id="presidentButton2" style="-fx-background-color: #e66f25; -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
+                                                <Button fx:id="editButton" onAction="#handleEdit" style="-fx-background-color: linear-gradient(to right, #e65100, #f57c00); -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="🔄" style="-fx-text-fill: white;">
@@ -331,7 +359,7 @@
                                                 </Button>
 
                                                 <!-- View Participants Button -->
-                                                <Button fx:id="presidentButton3" style="-fx-background-color: #7B1FA2; -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
+                                                <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="👥" style="-fx-text-fill: white;">
@@ -368,12 +396,7 @@
 
                                 <!-- Action Buttons -->
                                 <HBox alignment="CENTER" spacing="25" style="-fx-padding: 10 0 20 0;">
-                                    <Button fx:id="editButton" style="-fx-background-color: #f5f5f5; -fx-text-fill: #424242; -fx-background-radius: 25; -fx-border-color: #e0e0e0; -fx-border-radius: 25; -fx-padding: 14 25;" text="✏️ Edit Event">
-                                        <font>
-                                            <Font name="Arial Bold" size="14" />
-                                        </font>
-                                    </Button>
-                                    <Button fx:id="shareButton" style="-fx-background-color: #43a047; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 14 25;" text="🔗 Share Event">
+                                    <Button fx:id="shareButton" style="-fx-background-color: linear-gradient(to right, #2e7d32, #43a047); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 14 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0, 0, 2);" text="🔗 Share Event">
                                         <font>
                                             <Font name="Arial Bold" size="14" />
                                         </font>

@@ -1,0 +1,130 @@
+/* Main table styling */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #061567;
+    -fx-padding: 0 0 5px 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-size: 35px;
+    -fx-border-width: 0 0 1px 0;
+    -fx-background-color: transparent;
+    -fx-border-color: #e0e0e0;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 5px;
+}
+
+/* Table row styling */
+.table-row-cell {
+    -fx-cell-size: 40px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #e6f2ff;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #b3d9ff;
+}
+
+/* Table cell styling */
+.table-cell {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 5px;
+    -fx-border-color: transparent;
+    -fx-text-fill: #333333;
+}
+
+/* Button styling */
+.button {
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 5 10;
+}
+
+.edit-button {
+    -fx-background-color: #ffc107;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-min-width: 60px;
+}
+
+.edit-button:hover {
+    -fx-background-color: #e0a800;
+}
+
+.delete-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-min-width: 60px;
+}
+
+.delete-button:hover {
+    -fx-background-color: #c82333;
+}
+
+.view-button {
+    -fx-background-color: #1e90ff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-min-width: 60px;
+}
+
+.view-button:hover {
+    -fx-background-color: #0066cc;
+}
+
+/* Combo box styling */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.combo-box:hover {
+    -fx-border-color:#061567 ;
+}
+
+/* Text field styling */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.text-field:focused {
+    -fx-border-color: #1e90ff;
+}
+
+/* Status colors */
+.status-open {
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+.status-closed {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
