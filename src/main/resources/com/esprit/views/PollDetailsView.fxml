@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Pagination?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -17,31 +18,153 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefHeight="900.0" prefWidth="1200.0" 
-            styleClass="main-container" stylesheets="@../styles/poll-details-style.css" xmlns="http://javafx.com/javafx/17" 
+            styleClass="main-container" stylesheets="@../styles/poll-details-style.css,@../styles/uniclubs.css" 
+            xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.PollDetailsController">
-   <top>
-      <HBox alignment="CENTER_LEFT" prefHeight="80.0" styleClass="header-section">
-         <children>
-            <Button fx:id="backButton" mnemonicParsing="false" styleClass="header-back-button" text="← Back" onAction="#onBackButtonClick" />
-            <Label styleClass="header-title" text="Poll Details Dashboard" HBox.hgrow="ALWAYS">
-               <font>
-                  <Font name="System Bold" size="28.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="20.0" />
-               </HBox.margin>
-            </Label>
-         </children>
+   
+   <left>
+      <!-- Sidebar Navigation -->
+      <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
          <padding>
-            <Insets left="20.0" right="20.0" />
+            <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
          </padding>
-      </HBox>
-   </top>
+         
+         <!-- Application Logo -->
+         <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+            <Label text="UNICLUBS" styleClass="logo-text">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </HBox>
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Admin Info -->
+         <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+            <font>
+               <Font name="System Bold" size="16.0" />
+            </font>
+         </Label>
+         <Label text="Administrator" styleClass="admin-role" />
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Menu Items -->
+         <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+            <Button fx:id="userManagementBtn" styleClass="sidebar-button" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="clubManagementBtn" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏛️" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="📅" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="productOrdersBtn" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🛒" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="competitionBtn" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏆" />
+               </graphic>
+            </Button>
+            
+            <!-- Survey Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="surveyManagementBtn" styleClass="sidebar-button, active" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📊" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Survey Management -->
+               <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;">
+                  <Button fx:id="pollsManagementBtn" styleClass="sidebar-button, active" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📋" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button fx:id="commentsManagementBtn" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="💬" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
+            
+            <VBox.margin>
+               <Insets bottom="20.0" />
+            </VBox.margin>
+         </VBox>
+         
+         <!-- Bottom Menu Options -->
+         <VBox spacing="5.0">
+            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🚪" />
+               </graphic>
+            </Button>
+         </VBox>
+      </VBox>
+   </left>
+   
    <center>
-      <ScrollPane fitToWidth="true" styleClass="content-section">
-         <content>
-            <VBox spacing="20.0">
-               <children>
+      <VBox>
+         <!-- Header avec fond violet comme dans l'image 2 -->
+         <HBox alignment="CENTER" style="-fx-background-color: #8000ff;" prefHeight="60.0">
+            <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
+               <Button fx:id="backButton" mnemonicParsing="false" styleClass="header-back-button" text="← Back" onAction="#onBackButtonClick" />
+               <Label text="Poll Details" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+            </HBox>
+            <padding>
+               <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+            </padding>
+         </HBox>
+         
+         <HBox alignment="CENTER" style="-fx-background-color: #8000ff;">
+            <HBox alignment="CENTER_LEFT" style="-fx-text-fill: white;">
+               <Label text="Dashboard" style="-fx-text-fill: white;" />
+               <Label text=" > " style="-fx-text-fill: white;" />
+               <Label text="Polls Management" style="-fx-text-fill: white;" />
+               <Label text=" > " style="-fx-text-fill: white;" />
+               <Label text="Poll Details" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+            </HBox>
+            <padding>
+               <Insets bottom="10.0" left="20.0" right="20.0" top="5.0" />
+            </padding>
+         </HBox>
+         
+         <ScrollPane fitToWidth="true" styleClass="content-section" VBox.vgrow="ALWAYS">
+            <content>
+               <VBox spacing="20.0">
                   <!-- Poll Information Card -->
                   <VBox styleClass="admin-container">
                      <children>
@@ -60,26 +183,32 @@
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="800.0" />
                            </columnConstraints>
                            <children>
-                              <Label text="Question:" styleClass="detail-label" GridPane.rowIndex="0" GridPane.halignment="RIGHT">
-                                 <GridPane.margin>
-                                    <Insets right="10.0" />
-                                 </GridPane.margin>
-                              </Label>
-                              <Label fx:id="questionLabel" text="" wrapText="true" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                              <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.rowIndex="0" GridPane.columnSpan="2">
+                                 <Label text="Question:" styleClass="detail-label">
+                                    <HBox.margin>
+                                       <Insets left="25.0" />
+                                    </HBox.margin>
+                                 </Label>
+                                 <Label fx:id="questionLabel" text="" wrapText="true" styleClass="detail-value" />
+                              </HBox>
                               
-                              <Label text="Club:" styleClass="detail-label" GridPane.rowIndex="1" GridPane.halignment="RIGHT">
-                                 <GridPane.margin>
-                                    <Insets right="10.0" />
-                                 </GridPane.margin>
-                              </Label>
-                              <Label fx:id="clubLabel" text="" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                 <Label text="Club:" styleClass="detail-label">
+                                    <HBox.margin>
+                                       <Insets left="25.0" />
+                                    </HBox.margin>
+                                 </Label>
+                                 <Label fx:id="clubLabel" text="" styleClass="detail-value" />
+                              </HBox>
                               
-                              <Label text="Created At:" styleClass="detail-label" GridPane.rowIndex="2" GridPane.halignment="RIGHT">
-                                 <GridPane.margin>
-                                    <Insets right="10.0" />
-                                 </GridPane.margin>
-                              </Label>
-                              <Label fx:id="createdAtLabel" text="" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <HBox spacing="10.0" alignment="CENTER_LEFT" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                 <Label text="Created At:" styleClass="detail-label">
+                                    <HBox.margin>
+                                       <Insets left="25.0" />
+                                    </HBox.margin>
+                                 </Label>
+                                 <Label fx:id="createdAtLabel" text="" styleClass="detail-value" />
+                              </HBox>
                            </children>
                            <VBox.margin>
                               <Insets bottom="10.0" />
@@ -189,12 +318,20 @@
                         <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
                      </padding>
                   </VBox>
-               </children>
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-            </VBox>
-         </content>
-      </ScrollPane>
+                  <padding>
+                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  </padding>
+               </VBox>
+            </content>
+         </ScrollPane>
+         
+         <!-- Footer -->
+         <HBox alignment="CENTER" styleClass="dashboard-footer">
+            <padding>
+               <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+            </padding>
+            <Label text="© 2024 UNICLUBS - Admin Dashboard v1.0" styleClass="footer-text" />
+         </HBox>
+      </VBox>
    </center>
 </BorderPane> 
