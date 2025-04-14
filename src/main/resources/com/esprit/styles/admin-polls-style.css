@@ -153,45 +153,86 @@
 /* Table Styles */
 .polls-table {
     -fx-background-color: white;
-    -fx-table-cell-border-color: #ddd;
-    -fx-border-color: #ddd;
+    -fx-table-cell-border-color: #e6e6e6;
+    -fx-border-color: #e6e6e6;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
     -fx-font-size: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
 }
 
+/* Header style */
 .polls-table .column-header {
-    -fx-background-color: #f0f0f0;
-    -fx-padding: 12px;
+    -fx-background-color: #8000ff;
+    -fx-padding: 10px;
+    -fx-border-color: #7000e0;
+    -fx-border-width: 0 1px 1px 0;
 }
 
 .polls-table .column-header .label {
     -fx-text-fill: black;
     -fx-font-weight: bold;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER;
 }
 
+/* Cell style */
 .polls-table .table-row-cell {
     -fx-background-color: white;
     -fx-border-color: #f1f1f1;
-    -fx-table-cell-border-color: #f1f1f1;
-    -fx-padding: 10px;
-    -fx-cell-size: 60px;
+    -fx-border-width: 0 0 1px 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-padding: 5px;
+    -fx-cell-size: 45px;
+}
+
+.polls-table .table-row-cell:odd {
+    -fx-background-color: #f8f8f8;
 }
 
 .polls-table .table-row-cell:hover {
-    -fx-background-color: #f5f5f5;
+    -fx-background-color: #f0f0ff;
 }
 
-.polls-table .table-row-cell .text {
-    -fx-fill: #333333;
+.polls-table .table-row-cell:selected {
+    -fx-background-color: #e3e3ff;
 }
 
-.polls-table .table-row-cell:empty {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
+/* Cell content alignment */
+.polls-table .table-cell {
+    -fx-alignment: CENTER;
+    -fx-padding: 8px;
+    -fx-border-width: 0;
 }
 
-.polls-table .table-row-cell:empty .table-cell {
-    -fx-border-width: 0px;
+/* Column specific styles - both for headers and cells */
+#idColumn, .id-column {
+    -fx-alignment: CENTER;
+}
+
+#questionColumn, .question-column {
+    -fx-alignment: CENTER_LEFT;
+}
+
+#optionsColumn, .options-column {
+    -fx-alignment: CENTER_LEFT;
+}
+
+#clubColumn, .club-column {
+    -fx-alignment: CENTER;
+}
+
+#createdAtColumn, .date-column {
+    -fx-alignment: CENTER;
+}
+
+#actionsColumn, .actions-column {
+    -fx-alignment: CENTER;
+}
+
+/* Button cell in the actions column */
+.polls-table .button-cell {
+    -fx-alignment: CENTER;
 }
 
 /* Delete Button Style */
@@ -200,12 +241,19 @@
     -fx-text-fill: white;
     -fx-background-radius: 5px;
     -fx-cursor: hand;
-    -fx-font-size: 13px;
+
+    /* Amélioration de la lisibilité */
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
-    -fx-padding: 8px 15px;
+
+    -fx-padding: 8px 12px;
     -fx-border-color: transparent;
-    -fx-min-width: 80px;
+
+    /* Largeur optimale */
+    -fx-min-width: 100px;
     -fx-max-width: 100px;
+    -fx-alignment: CENTER;
+
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);
 }
 
@@ -220,12 +268,19 @@
     -fx-text-fill: white;
     -fx-background-radius: 5px;
     -fx-cursor: hand;
-    -fx-padding: 8px 15px;
-    -fx-font-size: 13px;
+
+    /* Amélioration de la lisibilité */
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
+
+    -fx-padding: 8px 12px;
     -fx-border-color: transparent;
+
+    /* Largeur optimale */
     -fx-min-width: 100px;
-    -fx-max-width: 120px;
+    -fx-max-width: 100px;
+    -fx-alignment: CENTER;
+
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);
 }
 
@@ -570,15 +625,16 @@
 }
 
 .comments-table .column-header {
-    -fx-background-color: rgb(6, 65, 128);
-    -fx-padding: 8px 15px;
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 12px 15px;
     -fx-alignment: CENTER-LEFT;
     -fx-border-width: 0 1px 0 0;
-    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: rgba(200, 200, 200, 0.3);
+    -fx-min-height: 40px;
 }
 
 .comments-table .column-header .label {
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-alignment: CENTER-LEFT;
@@ -614,21 +670,70 @@
     -fx-border-width: 0;
 }
 
-/* Style pour le bouton Delete */
+/* Style spécifique pour la colonne de commentaires */
+.comments-table .comment-cell {
+    -fx-wrap-text: true;
+    -fx-text-overrun: ellipsis;
+    -fx-max-height: 60px;
+    -fx-padding: 8px 10px;
+}
+
+/* Style pour le bouton de suppression dans la colonne d'actions */
+.comments-table .action-cell {
+    -fx-alignment: CENTER;
+    -fx-padding: 8px 10px;
+}
+
+/* Style pour les commentaires tronqués avec indicateur de clic */
+.clickable-comment {
+    -fx-cursor: hand;
+    -fx-text-fill: #0066cc;
+    -fx-underline: true;
+}
+
+/* Style pour la boîte de dialogue des commentaires complets */
+.comment-dialog {
+    -fx-padding: 10px;
+}
+
+.comment-dialog .dialog-pane {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+}
+
+.comment-dialog .content-text {
+    -fx-font-size: 14px;
+    -fx-wrap-text: true;
+}
+
+.comment-textarea {
+    -fx-font-size: 14px;
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4px;
+    -fx-padding: 10px;
+}
+
 .delete-button {
     -fx-background-color: #dc3545;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 5px 10px;
+    -fx-padding: 8px 12px;
     -fx-background-radius: 4px;
     -fx-cursor: hand;
-    -fx-min-width: 70px;
-    -fx-max-width: 70px;
+
+    /* Amélioration de la lisibilité */
+    -fx-font-size: 12px;
+    
+    /* Largeur optimale */
+    -fx-min-width: 90px;
+    -fx-max-width: 90px;
+    -fx-alignment: CENTER;
 }
 
 .delete-button:hover {
     -fx-background-color: #c82333;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);
 }
 
 /* Masquer les lignes vides */
@@ -751,7 +856,7 @@
 
 .club-filter-combo .list-cell {
     -fx-padding: 8px 16px;
-    -fx-text-fill: #5a5c69;
+    -fx-text-fill: #333333;
 }
 
 .club-filter-combo .list-view {
@@ -767,8 +872,8 @@
 }
 
 .club-filter-combo .list-view .list-cell:selected {
-    -fx-background-color: #4e73df;
-    -fx-text-fill: white;
+    -fx-background-color: #f8f9fc;
+    -fx-text-fill: #333333;
 }
 
 /* Warning count styling for flagged comments */
@@ -825,4 +930,48 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-padding: 20px;
+}
+
+/* Styles pour les boutons à icônes */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+    -fx-content-display: graphic-only;
+}
+
+.view-button {
+    -fx-background-color: rgba(24, 144, 255, 0.1);
+    -fx-border-color: rgba(24, 144, 255, 0.3);
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+}
+
+.view-button:hover {
+    -fx-background-color: rgba(24, 144, 255, 0.2);
+    -fx-effect: dropshadow(three-pass-box, rgba(24, 144, 255, 0.3), 3, 0, 0, 0);
+}
+
+.delete-icon-button {
+    -fx-background-color: rgba(245, 34, 45, 0.1);
+    -fx-border-color: rgba(245, 34, 45, 0.3);
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+}
+
+.delete-icon-button:hover {
+    -fx-background-color: rgba(245, 34, 45, 0.2);
+    -fx-effect: dropshadow(three-pass-box, rgba(245, 34, 45, 0.3), 3, 0, 0, 0);
+}
+
+/* Style pour le conteneur des boutons d'action */
+.action-buttons-container {
+    -fx-spacing: 8;
+    -fx-alignment: CENTER;
 } 

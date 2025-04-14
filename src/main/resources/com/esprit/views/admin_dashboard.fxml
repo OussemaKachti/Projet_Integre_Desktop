@@ -136,6 +136,7 @@
                </HBox>
             </HBox>
          </top>
+    
          
          <center>
             <!-- Content Stack Pane - Different views will be loaded here -->

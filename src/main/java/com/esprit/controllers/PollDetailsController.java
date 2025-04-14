@@ -55,6 +55,19 @@ public class PollDetailsController implements Initializable {
     @FXML private StackPane noCommentsPane;
     @FXML private Button backButton;
     @FXML private Pagination commentsPagination;
+    
+    // Sidebar navigation buttons
+    @FXML private Button userManagementBtn;
+    @FXML private Button clubManagementBtn;
+    @FXML private Button eventManagementBtn;
+    @FXML private Button productOrdersBtn;
+    @FXML private Button competitionBtn;
+    @FXML private Button surveyManagementBtn;
+    @FXML private Button pollsManagementBtn;
+    @FXML private Button commentsManagementBtn;
+    @FXML private Button profileBtn;
+    @FXML private Button logoutBtn;
+    @FXML private Label adminNameLabel;
 
     private Sondage currentSondage;
     private final SondageService sondageService = new SondageService();
@@ -80,12 +93,96 @@ public class PollDetailsController implements Initializable {
         commentsPagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) -> {
             updateCommentsTable(newIndex.intValue());
         });
+        
+        // Setup navigation buttons
+        setupNavigationEvents();
+        
+        // Setup admin info
+        setupAdminInfo();
     }
 
     public void setSondage(Sondage sondage) {
         System.out.println("Setting sondage: " + sondage.getId() + " - " + sondage.getQuestion());
         this.currentSondage = sondage;
         loadSondageDetails();
+    }
+
+    private void setupNavigationEvents() {
+        // Navigation pour les boutons du sidebar
+        pollsManagementBtn.setOnAction(event -> navigateToView("/com/esprit/views/AdminPollsView.fxml"));
+        commentsManagementBtn.setOnAction(event -> navigateToView("/com/esprit/views/AdminCommentsView.fxml"));
+        
+        // Autres événements de navigation si nécessaire
+        userManagementBtn.setOnAction(event -> showNotImplementedMessage("User Management"));
+        clubManagementBtn.setOnAction(event -> showNotImplementedMessage("Club Management"));
+        eventManagementBtn.setOnAction(event -> showNotImplementedMessage("Event Management"));
+        productOrdersBtn.setOnAction(event -> showNotImplementedMessage("Products & Orders"));
+        competitionBtn.setOnAction(event -> showNotImplementedMessage("Competition & Season"));
+        profileBtn.setOnAction(event -> showNotImplementedMessage("Profile"));
+        logoutBtn.setOnAction(event -> handleLogout());
+    }
+    
+    private void setupAdminInfo() {
+        try {
+            // Simuler un admin connecté pour l'exemple
+            adminNameLabel.setText("Admin User");
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la configuration des informations admin: " + e.getMessage());
+        }
+    }
+    
+    private void navigateToView(String fxmlPath) {
+        try {
+            URL fxmlUrl = getClass().getResource(fxmlPath);
+            if (fxmlUrl == null) {
+                System.err.println("FXML file not found: " + fxmlPath);
+                AlertUtils.showError("Error", "Fichier FXML introuvable: " + fxmlPath);
+                return;
+            }
+            
+            // Charger le CSS approprié
+            URL cssUrl = getClass().getResource("/com/esprit/styles/admin-polls-style.css");
+            
+            // Créer le loader
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+            
+            // Récupérer les dimensions de la fenêtre actuelle
+            double width = backButton.getScene().getWindow().getWidth();
+            double height = backButton.getScene().getWindow().getHeight();
+            
+            // Créer la scène avec les mêmes dimensions
+            Scene scene = new Scene(root, width, height);
+            
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+            
+            // Utiliser NavigationManager pour naviguer vers la vue
+            NavigationManager.navigateTo(scene);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Error", "Erreur lors de la navigation: " + e.getMessage());
+        }
+    }
+    
+    private void showNotImplementedMessage(String feature) {
+        AlertUtils.showInformation("Information", "La fonctionnalité '" + feature + "' n'est pas implémentée dans cette démo.");
+    }
+    
+    private void handleLogout() {
+        try {
+            // Simuler une déconnexion
+            AlertUtils.showInformation("Déconnexion", "Vous avez été déconnecté avec succès.");
+            
+            // Rediriger vers la page de connexion ou fermer l'application
+            // Pour cet exemple, on navigue simplement vers la vue des sondages
+            navigateToView("/com/esprit/views/AdminPollsView.fxml");
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Error", "Erreur lors de la déconnexion: " + e.getMessage());
+        }
     }
 
     private void loadSondageDetails() {

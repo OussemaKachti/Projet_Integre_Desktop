@@ -92,11 +92,29 @@
                </graphic>
             </Button>
             
-            <Button fx:id="surveyManagementBtn" styleClass="sidebar-button, active" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-               <graphic>
-                  <Label text="📊" />
-               </graphic>
-            </Button>
+            <!-- Survey Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="surveyManagementBtn" styleClass="sidebar-button, active" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📊" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Survey Management -->
+               <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;">
+                  <Button fx:id="pollsManagementBtn" styleClass="sidebar-button, active" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📋" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button fx:id="commentsManagementBtn" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="💬" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
             
             <VBox.margin>
                <Insets bottom="20.0" />
@@ -230,36 +248,12 @@
                         <!-- Tableau comme dans l'image 2 avec en-têtes bleu foncé -->
                         <TableView fx:id="pollsTable" prefHeight="250.0" styleClass="polls-table">
                            <columns>
-                              <TableColumn fx:id="idColumn" prefWidth="60.0" text="ID">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
-                              <TableColumn fx:id="questionColumn" prefWidth="300.0" text="Question">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
-                              <TableColumn fx:id="optionsColumn" prefWidth="250.0" text="Options">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
-                              <TableColumn fx:id="clubColumn" prefWidth="150.0" text="Club Name">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
-                              <TableColumn fx:id="createdAtColumn" prefWidth="150.0" text="Created At">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
-                              <TableColumn fx:id="actionsColumn" prefWidth="200.0" text="Actions">
-                                 <style>
-                                    -fx-text-fill: black;
-                                 </style>
-                              </TableColumn>
+                              <TableColumn fx:id="idColumn" prefWidth="60.0" text="ID" styleClass="id-column" />
+                              <TableColumn fx:id="questionColumn" prefWidth="300.0" text="Question" styleClass="question-column" />
+                              <TableColumn fx:id="optionsColumn" prefWidth="250.0" text="Options" styleClass="options-column" />
+                              <TableColumn fx:id="clubColumn" prefWidth="150.0" text="Club Name" styleClass="club-column" />
+                              <TableColumn fx:id="createdAtColumn" prefWidth="150.0" text="Created At" styleClass="date-column" />
+                              <TableColumn fx:id="actionsColumn" prefWidth="150.0" text="Actions" styleClass="actions-column" />
                            </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

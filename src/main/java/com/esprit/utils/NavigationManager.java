@@ -73,4 +73,13 @@ public class NavigationManager {
         }
         return null;
     }
+    
+    /**
+     * Obtient le stage principal de l'application
+     * 
+     * @return Le stage principal
+     */
+    public static Stage getMainStage() {
+        return mainStage;
+    }
 } 
