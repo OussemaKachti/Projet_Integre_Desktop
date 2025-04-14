@@ -43,9 +43,9 @@ public class AdminPollsApplication extends Application {
     /**
      * Point d'entrée principal de l'application
      */
-    // public static void main(String[] args) {
-    // launch(args);
-    // }
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
 
 // FASAKHNI

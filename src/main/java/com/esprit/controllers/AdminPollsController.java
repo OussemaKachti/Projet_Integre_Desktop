@@ -588,32 +588,77 @@ public class AdminPollsController implements Initializable {
     private void deletePoll(Sondage sondage) {
         try {
             // Create a custom confirmation dialog
-            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            Alert confirmDialog = new Alert(Alert.AlertType.NONE);
             confirmDialog.setTitle("Confirmation");
-            confirmDialog.setHeaderText("Supprimer le sondage");
-            confirmDialog.setContentText("Êtes-vous sûr de vouloir supprimer ce sondage ?");
+            confirmDialog.setHeaderText("Supprimer le sondage ?");
+            confirmDialog.setContentText("Cette action supprimera définitivement le sondage \"" + sondage.getQuestion() + 
+                                        "\" ainsi que tous ses votes et commentaires associés. Cette action est irréversible.");
             
             // Customize the dialog
             DialogPane dialogPane = confirmDialog.getDialogPane();
+            
+            // Add icon to header
+            Label headerIcon = new Label("⚠️");
+            headerIcon.setStyle("-fx-font-size: 24px; -fx-text-fill: #e74c3b;");
+            
+            HBox headerLayout = new HBox(10);
+            headerLayout.setAlignment(Pos.CENTER_LEFT);
+            
+            Label headerLabel = new Label("Supprimer le sondage ?");
+            headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3b;");
+            
+            headerLayout.getChildren().addAll(headerIcon, headerLabel);
+            dialogPane.setHeader(headerLayout);
+            
+            // Style for content text
+            Label contentLabel = new Label(confirmDialog.getContentText());
+            contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+            contentLabel.setWrapText(true);
+            contentLabel.setPrefWidth(400);
+            dialogPane.setContent(contentLabel);
+            
+            // Add buttons
+            ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+            ButtonType confirmButtonType = new ButtonType("Supprimer", ButtonBar.ButtonData.OK_DONE);
+            confirmDialog.getButtonTypes().addAll(cancelButtonType, confirmButtonType);
+            
+            // Apply CSS styling
             dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
             dialogPane.getStyleClass().add("custom-alert");
+            dialogPane.setPrefWidth(450);
+            dialogPane.setPrefHeight(200);
+            
+            // Add some style to dialog background
+            dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);");
             
             // Get the confirm and cancel buttons
-            Button confirmButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-            Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+            Button confirmButton = (Button) dialogPane.lookupButton(confirmButtonType);
+            Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
             
             if (confirmButton != null) {
-                confirmButton.setText("Oui");
-                confirmButton.getStyleClass().add("delete-confirm-button");
+                confirmButton.getStyleClass().add("delete-confirm-button"); 
+                confirmButton.setStyle("-fx-background-color: #e74c3b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
+                
+                // Add icon to delete button
+                HBox btnContent = new HBox(5);
+                btnContent.setAlignment(Pos.CENTER);
+                
+                Label iconLabel = new Label("🗑️");
+                Label textLabel = new Label("Supprimer");
+                textLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+                
+                btnContent.getChildren().addAll(iconLabel, textLabel);
+                confirmButton.setGraphic(btnContent);
+                confirmButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             }
             
             if (cancelButton != null) {
-                cancelButton.setText("Non");
-                cancelButton.getStyleClass().add("cancel-button");
+                cancelButton.getStyleClass().add("cancel-button"); 
+                cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-border-color: #dee2e6; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
             }
             
             // Show dialog and process result
-            if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
+            if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
                 try {
                     // D'abord supprimer les commentaires liés à ce sondage
                     sondageService.deleteCommentsByPollId(sondage.getId());
@@ -627,7 +672,8 @@ public class AdminPollsController implements Initializable {
                     // Enfin, supprimer le sondage lui-même
                     sondageService.delete(sondage.getId());
                     
-                    showToast("Sondage supprimé avec succès", "success");
+                    // Afficher une confirmation de succès plus visible
+                    showToast("✅ Le sondage a été supprimé avec succès", "success");
                     loadData();
                 } catch (SQLException e) {
                     e.printStackTrace();
