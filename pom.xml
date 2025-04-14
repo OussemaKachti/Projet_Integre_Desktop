@@ -77,8 +77,8 @@
     <!-- <mainClass>com.esprit.AdminCommentsApplication</mainClass> -->
     <!-- <mainClass>com.esprit.tests.TestAdminCommentsView</mainClass> -->
     <!-- <mainClass>com.esprit.tests.TestAdminViews</mainClass> -->
-    <mainClass>com.esprit.SondageApplication</mainClass>
-    <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
+    <!-- <mainClass>com.esprit.SondageApplication</mainClass> -->
+    <mainClass>com.esprit.AdminApplication</mainClass>
 </configuration>
             </plugin>
             
