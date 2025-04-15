@@ -55,7 +55,7 @@ public class CommentsModalController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Récupérer l'utilisateur connecté
-        currentUser = SessionManager.getCurrentUser();
+        currentUser = SessionManager.getInstance().getCurrentUser();        ////////////  AAAAAAAAAAAAAAA TESSSSSSSSTIIIIIIII /////////////////////////////
         if (currentUser == null) {
             // Utilisateur par défaut pour les tests
             currentUser = new User();
@@ -197,7 +197,7 @@ public class CommentsModalController implements Initializable {
         VBox userInfo = new VBox();
 
         // Username
-        Label username = new Label(comment.getUser().getNom() + " " + comment.getUser().getPrenom());
+        Label username = new Label(comment.getUser().getFirstName() + " " + comment.getUser().getLastName());
         username.getStyleClass().add("comment-user");
 
         // Comment date

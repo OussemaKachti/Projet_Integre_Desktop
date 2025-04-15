@@ -126,7 +126,7 @@ public class CommentaireController implements Initializable {
         colUser.setCellValueFactory(cellData -> {
             User user = cellData.getValue().getUser();
             return new SimpleStringProperty(user != null ? 
-                user.getPrenom() + " " + user.getNom() : "Anonyme");
+                user.getLastName() + " " + user.getFirstName() : "Anonyme");
         });
         
         colDate.setCellValueFactory(cellData -> 
@@ -166,34 +166,23 @@ public class CommentaireController implements Initializable {
                     // Vérifier si l'utilisateur courant est l'auteur du commentaire
                     Commentaire commentaire = getTableView().getItems().get(getIndex());
                     User currentUser = null;
-                    try {
-                        currentUser = userService.getById(1); // Utilisateur statique ID=1
+                    currentUser = userService.getById(1); // Utilisateur statique ID=1
+               
+                    boolean isAuthor = (commentaire.getUser() != null && 
+                                      commentaire.getUser().getId() == currentUser.getId());
                     
-                        boolean isAuthor = (commentaire.getUser() != null && 
-                                          commentaire.getUser().getId() == currentUser.getId());
-                        
-                        HBox buttons = new HBox(5);
-                        
-                        // L'utilisateur ne peut éditer que ses propres commentaires
-                        editButton.setDisable(!isAuthor);
-                        buttons.getChildren().add(editButton);
-                        
-                        // L'utilisateur ne peut supprimer que ses propres commentaires
-                        deleteButton.setDisable(!isAuthor);
-                        buttons.getChildren().add(deleteButton);
-                        
-                        buttons.setPadding(new Insets(0, 0, 0, 5));
-                        setGraphic(buttons);
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        // En cas d'erreur, désactiver les boutons
-                        editButton.setDisable(true);
-                        deleteButton.setDisable(true);
-                        
-                        HBox buttons = new HBox(5, editButton, deleteButton);
-                        buttons.setPadding(new Insets(0, 0, 0, 5));
-                        setGraphic(buttons);
-                    }
+                    HBox buttons = new HBox(5);
+                    
+                    // L'utilisateur ne peut éditer que ses propres commentaires
+                    editButton.setDisable(!isAuthor);
+                    buttons.getChildren().add(editButton);
+                    
+                    // L'utilisateur ne peut supprimer que ses propres commentaires
+                    deleteButton.setDisable(!isAuthor);
+                    buttons.getChildren().add(deleteButton);
+                    
+                    buttons.setPadding(new Insets(0, 0, 0, 5));
+                    setGraphic(buttons);
                 }
             }
         });
@@ -318,34 +307,27 @@ public class CommentaireController implements Initializable {
      * Prépare le formulaire pour modifier un commentaire existant
      */
     private void editCommentaire(Commentaire commentaire) {
-        // Vérifier si l'utilisateur est l'auteur du commentaire
-        try {
-            User currentUser = userService.getById(1);
-            if (currentUser == null || commentaire.getUser() == null || 
-                commentaire.getUser().getId() != currentUser.getId()) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", 
-                         "Non autorisé", "Vous ne pouvez modifier que vos propres commentaires.");
-                return;
-            }
-            
-            currentCommentaire = commentaire;
-            txtContenu.setText(commentaire.getContenuComment());
-            
-            // Sélectionner le sondage correspondant
-            cbSondages.getSelectionModel().select(commentaire.getSondage());
-            
-            // Passer en mode édition
-            editMode = true;
-            btnSave.setVisible(false);
-            btnUpdate.setVisible(true);
-            
-            // Désactiver la sélection du sondage
-            cbSondages.setDisable(true);
-            
-        } catch (SQLException e) {
+        User currentUser = userService.getById(1);
+        if (currentUser == null || commentaire.getUser() == null || 
+            commentaire.getUser().getId() != currentUser.getId()) {
             showAlert(Alert.AlertType.ERROR, "Erreur", 
-                     "Erreur lors du chargement de l'utilisateur", e.getMessage());
+                     "Non autorisé", "Vous ne pouvez modifier que vos propres commentaires.");
+            return;
         }
+        
+        currentCommentaire = commentaire;
+        txtContenu.setText(commentaire.getContenuComment());
+        
+        // Sélectionner le sondage correspondant
+        cbSondages.getSelectionModel().select(commentaire.getSondage());
+        
+        // Passer en mode édition
+        editMode = true;
+        btnSave.setVisible(false);
+        btnUpdate.setVisible(true);
+        
+        // Désactiver la sélection du sondage
+        cbSondages.setDisable(true);
     }
     
     /**

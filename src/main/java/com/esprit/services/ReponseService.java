@@ -36,9 +36,9 @@ public class ReponseService {
         String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            // Conversion de LocalDate en Timestamp pour la BDD
-            LocalDate date = reponse.getDateReponse();
-            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date.atStartOfDay()) : Timestamp.valueOf(LocalDate.now().atStartOfDay()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
             
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
@@ -55,9 +55,9 @@ public class ReponseService {
         String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            // Conversion de LocalDate en Timestamp pour la BDD
-            LocalDate date = reponse.getDateReponse();
-            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date.atStartOfDay()) : Timestamp.valueOf(LocalDate.now().atStartOfDay()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
             
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
@@ -79,9 +79,9 @@ public class ReponseService {
         String query = "UPDATE reponse SET date_reponse = ?, choix_sondage_id = ? WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            // Conversion de LocalDate en Timestamp pour la BDD
-            LocalDate date = reponse.getDateReponse();
-            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date.atStartOfDay()) : Timestamp.valueOf(LocalDate.now().atStartOfDay()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
             
             pst.setInt(2, reponse.getChoixSondage().getId());
             pst.setInt(3, reponse.getId());

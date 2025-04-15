@@ -155,7 +155,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.esprit.SondageApplication</mainClass>
-                    <!-- <mainClass>com.esprit.AdminCommentsApplication</mainClass> -->
+                    <!-- <mainClass>com.esprit.MainApp</mainClass> -->
  
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
                     <options>
