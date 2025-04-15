@@ -16,6 +16,10 @@ public class Categorie {
         this.nom_cat = nom_cat;
     }
 
+    public Categorie() {
+
+    }
+
     public int getId() {
         return id;
     }

@@ -7,9 +7,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import models.Evenement;
 import services.ServiceEvent;
@@ -22,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,34 +31,7 @@ import java.util.ResourceBundle;
 public class AdminEvent implements Initializable {
 
     @FXML
-    private TableView<Evenement> eventTable;
-
-    @FXML
-    private TableColumn<Evenement, Integer> idColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> nameColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> typeColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> locationColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> categoryColumn;
-
-    @FXML
-    private TableColumn<Evenement, String> clubColumn;
-
-    @FXML
-    private TableColumn<Evenement, Date> startDateColumn;
-
-    @FXML
-    private TableColumn<Evenement, Date> endDateColumn;
-
-    @FXML
-    private TableColumn<Evenement, Void> actionsColumn;
+    private ListView<Evenement> eventListView;
 
     @FXML
     private TextField searchField;
@@ -77,23 +52,37 @@ public class AdminEvent implements Initializable {
     private Button refreshButton;
 
     @FXML
-    private Button backButton;
+    private Label totalEventsLabel;
 
     @FXML
-    private Label totalEventsLabel;
+    private Label openEventsLabel;
+
+    @FXML
+    private Label upcomingEventsLabel;
+
+    @FXML
+    private Label dateLabel;
+
+    @FXML
+    private Label paginationInfoLabel;
 
     private ServiceEvent serviceEvent;
     private ObservableList<Evenement> eventsList = FXCollections.observableArrayList();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         serviceEvent = new ServiceEvent();
 
+        // Set current date
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+        dateLabel.setText("Today: " + fullDateFormat.format(new Date()));
+
         // Initialize filters
         initializeFilters();
 
-        // Configure table columns
-        configureTableColumns();
+        // Configure list view with custom cell factory
+        configureListView();
 
         // Load events
         loadEvents();
@@ -121,101 +110,103 @@ public class AdminEvent implements Initializable {
         statusFilter.setOnAction(e -> applyFilters());
     }
 
-    private void configureTableColumns() {
-        // Set cell value factories
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("nom_event"));
-        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        locationColumn.setCellValueFactory(new PropertyValueFactory<>("lieux"));
-
-        // Custom cell factories for displaying category and club names
-        categoryColumn.setCellValueFactory(cellData -> {
-            int categoryId = cellData.getValue().getCategorie_id();
-            String categoryName = serviceEvent.getCategoryNameById(categoryId);
-            return javafx.beans.binding.Bindings.createStringBinding(() -> categoryName);
-        });
-
-        clubColumn.setCellValueFactory(cellData -> {
-            int clubId = cellData.getValue().getClub_id();
-            String clubName = serviceEvent.getClubNameById(clubId);
-            return javafx.beans.binding.Bindings.createStringBinding(() -> clubName);
-        });
-
-        // Date columns
-        startDateColumn.setCellValueFactory(new PropertyValueFactory<>("start_date"));
-        endDateColumn.setCellValueFactory(new PropertyValueFactory<>("end_date"));
-
-        // Format dates
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
-
-        startDateColumn.setCellFactory(column -> new TableCell<Evenement, Date>() {
-            @Override
-            protected void updateItem(Date item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(dateFormat.format(item));
-                }
-            }
-        });
-
-        endDateColumn.setCellFactory(column -> new TableCell<Evenement, Date>() {
-            @Override
-            protected void updateItem(Date item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(dateFormat.format(item));
-                }
-            }
-        });
-
-        // Configure actions column
-        configureActionsColumn();
-    }
-
-    private void configureActionsColumn() {
-        actionsColumn.setCellFactory(param -> new TableCell<>() {
+    private void configureListView() {
+        eventListView.setCellFactory(param -> new ListCell<Evenement>() {
+            private final HBox content = new HBox(15);
+            private final VBox eventInfo = new VBox(5);
+            private final Label nameLabel = new Label();
+            private final Label detailsLabel = new Label();
+            private final Label dateLabel = new Label();
+            private final Label statusLabel = new Label();
+            private final HBox buttonsBox = new HBox(5);
+            private final Button viewButton = new Button("View");
             private final Button editButton = new Button("Edit");
             private final Button deleteButton = new Button("Delete");
-            private final Button viewButton = new Button("View");
-            private final HBox buttonsBox = new HBox(5);
+            private final Region spacer = new Region();
 
             {
-                // Styling the buttons
-                editButton.getStyleClass().add("edit-button");
-                deleteButton.getStyleClass().add("delete-button");
+                // Setting up cell styling
+                content.setStyle("-fx-padding: 10px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 5px;");
+                content.setPrefWidth(1150);
+
+                // Configure labels
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+                detailsLabel.setStyle("-fx-font-size: 14px;");
+                dateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #555555;");
+                statusLabel.setStyle("-fx-font-size: 14px; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
+
+                // Set up buttons with consistent styling
                 viewButton.getStyleClass().add("view-button");
+                viewButton.setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-background-radius: 3px;");
+
+                editButton.getStyleClass().add("edit-button");
+                editButton.setStyle("-fx-background-color: #e6e6f7; -fx-text-fill: #4169e1; -fx-background-radius: 3px;");
+
+                deleteButton.getStyleClass().add("delete-button");
+                deleteButton.setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-background-radius: 3px;");
 
                 buttonsBox.getChildren().addAll(viewButton, editButton, deleteButton);
 
-                // Action handlers
+                // Configure action handlers
+                viewButton.setOnAction(event -> {
+                    Evenement evenement = getItem();
+                    if (evenement != null) {
+                        handleViewEvent(evenement);
+                    }
+                });
+
                 editButton.setOnAction(event -> {
-                    Evenement evenement = getTableView().getItems().get(getIndex());
-                    handleEditEvent(evenement);
+                    Evenement evenement = getItem();
+                    if (evenement != null) {
+                        handleEditEvent(evenement);
+                    }
                 });
 
                 deleteButton.setOnAction(event -> {
-                    Evenement evenement = getTableView().getItems().get(getIndex());
-                    handleDeleteEvent(evenement);
+                    Evenement evenement = getItem();
+                    if (evenement != null) {
+                        handleDeleteEvent(evenement);
+                    }
                 });
 
-                viewButton.setOnAction(event -> {
-                    Evenement evenement = getTableView().getItems().get(getIndex());
-                    handleViewEvent(evenement);
-                });
+                // Build layout
+                eventInfo.getChildren().addAll(nameLabel, detailsLabel, dateLabel);
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                VBox rightSide = new VBox(10);
+                rightSide.getChildren().addAll(statusLabel, buttonsBox);
+                rightSide.setStyle("-fx-alignment: center-right;");
+
+                content.getChildren().addAll(eventInfo, spacer, rightSide);
             }
 
             @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
+            protected void updateItem(Evenement event, boolean empty) {
+                super.updateItem(event, empty);
 
-                if (empty) {
+                if (empty || event == null) {
                     setGraphic(null);
                 } else {
-                    setGraphic(buttonsBox);
+                    // Set event data
+                    nameLabel.setText(event.getNom_event());
+
+                    String categoryName = serviceEvent.getCategoryNameById(event.getCategorie_id());
+                    String clubName = serviceEvent.getClubNameById(event.getClub_id());
+                    detailsLabel.setText(categoryName + " • " + clubName + " • " + event.getLieux());
+
+                    // Format dates
+                    dateLabel.setText(dateFormat.format(event.getStart_date()) + " - " +
+                            dateFormat.format(event.getEnd_date()));
+
+                    // Set status style
+                    statusLabel.setText(event.getType());
+                    if ("Open".equals(event.getType())) {
+                        statusLabel.setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
+                    } else {
+                        statusLabel.setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
+                    }
+
+                    setGraphic(content);
                 }
             }
         });
@@ -247,12 +238,51 @@ public class AdminEvent implements Initializable {
                 eventsList.add(event);
             }
 
-            eventTable.setItems(eventsList);
-            updateTotalEventsLabel();
+            eventListView.setItems(eventsList);
+            updateStatistics();
 
         } catch (SQLException ex) {
             System.err.println("Error loading events: " + ex.getMessage());
             showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load events", ex.getMessage());
+        }
+    }
+
+    private void updateStatistics() {
+        int totalCount = eventsList.size();
+        int openCount = 0;
+        int upcomingThisMonth = 0;
+
+        // Get current date and end of month
+        Calendar cal = Calendar.getInstance();
+        Date currentDate = cal.getTime();
+
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date endOfMonth = cal.getTime();
+
+        for (Evenement event : eventsList) {
+            // Count open events
+            if ("Open".equals(event.getType())) {
+                openCount++;
+            }
+
+            // Count upcoming events this month (start date between now and end of month)
+            Date startDate = event.getStart_date();
+            if (startDate.after(currentDate) && startDate.before(endOfMonth)) {
+                upcomingThisMonth++;
+            }
+        }
+
+        // Update labels
+        totalEventsLabel.setText(String.valueOf(totalCount));
+        openEventsLabel.setText(String.valueOf(openCount));
+        upcomingEventsLabel.setText(String.valueOf(upcomingThisMonth));
+
+        // Update pagination info
+        int displayedCount = eventListView.getItems().size();
+        if (displayedCount == totalCount) {
+            paginationInfoLabel.setText("Showing all events");
+        } else {
+            paginationInfoLabel.setText("Showing " + displayedCount + " of " + totalCount + " events");
         }
     }
 
@@ -289,18 +319,16 @@ public class AdminEvent implements Initializable {
             }
         }
 
-        eventTable.setItems(filteredEvents);
-        updateTotalEventsLabel();
-    }
+        eventListView.setItems(filteredEvents);
 
-    private void updateTotalEventsLabel() {
-        int displayedCount = eventTable.getItems().size();
+        // Update pagination info
+        int displayedCount = filteredEvents.size();
         int totalCount = eventsList.size();
 
         if (displayedCount == totalCount) {
-            totalEventsLabel.setText("Total Events: " + totalCount);
+            paginationInfoLabel.setText("Showing all events");
         } else {
-            totalEventsLabel.setText("Displaying " + displayedCount + " of " + totalCount + " events");
+            paginationInfoLabel.setText("Showing " + displayedCount + " of " + totalCount + " events");
         }
     }
 
@@ -362,7 +390,8 @@ public class AdminEvent implements Initializable {
 
                 if (rowsAffected > 0) {
                     eventsList.remove(event);
-                    applyFilters(); // Reapply filters to update table
+                    applyFilters(); // Reapply filters to update list
+                    updateStatistics(); // Update statistics after deletion
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Event Deleted",
                             "The event has been successfully deleted.");
                 } else {
@@ -393,14 +422,59 @@ public class AdminEvent implements Initializable {
         }
     }
 
+    // Added methods referenced in the FXML file
     @FXML
-    private void handleBack() {
+    private void navigateToDashboard() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
-            backButton.getScene().setRoot(root);
+            eventListView.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to return to dashboard", e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Dashboard", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void navigateToCategories() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Categories.fxml"));
+            eventListView.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Categories", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void navigateToMembers() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Members.fxml"));
+            eventListView.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Members", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void navigateToReports() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Reports.fxml"));
+            eventListView.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Reports", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
+            eventListView.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to log out", e.getMessage());
         }
     }
 

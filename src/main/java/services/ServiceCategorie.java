@@ -63,4 +63,5 @@ public class ServiceCategorie implements IService<Categorie> {
 
         return categories;
     }
+
 }
