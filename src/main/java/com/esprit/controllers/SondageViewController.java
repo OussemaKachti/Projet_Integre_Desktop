@@ -120,7 +120,7 @@ public class SondageViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         try {
             // Récupérer l'utilisateur connecté
-            currentUser = userService.getById(1); // Utilisateur par défaut pour les tests (ID 2)
+            currentUser = userService.getById(8); // Utilisateur par défaut pour les tests (ID 2)
             if (currentUser == null) {
                 AlertUtils.showError("Error", "User with ID=2 does not exist in the database.");
                 return;
@@ -366,7 +366,7 @@ public class SondageViewController implements Initializable {
                 addComment(sondage, content);
                 commentTextArea.clear();
                 commentErrorLabel.setVisible(false);
-                    } catch (SQLException ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
             }
@@ -1018,8 +1018,8 @@ public class SondageViewController implements Initializable {
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
-            return;
-        }
+                return;
+            }
             sondage.setClub(userClub);
 
             // Add options to the poll
@@ -1197,91 +1197,92 @@ public class SondageViewController implements Initializable {
             // Get all comments for this poll
             CommentaireService commentaireService = new CommentaireService();
             ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
-            
+
             if (comments.isEmpty()) {
                 showCustomAlert("Info", "There are no comments to summarize for this poll.", "info");
                 return;
             }
-            
+
             // Show loading dialog
             Stage loadingStage = new Stage();
             loadingStage.initModality(Modality.APPLICATION_MODAL);
             loadingStage.initStyle(StageStyle.TRANSPARENT);
-            
+
             VBox loadingBox = new VBox(10);
             loadingBox.setAlignment(Pos.CENTER);
             loadingBox.setPadding(new Insets(20));
             loadingBox.getStyleClass().add("loading-dialog");
-            
+
             Label loadingLabel = new Label("Generating summary...");
             loadingLabel.getStyleClass().add("loading-label");
-            
+
             ProgressIndicator progressIndicator = new ProgressIndicator();
             progressIndicator.setMaxSize(50, 50);
-            
+
             loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
-            
+
             Scene loadingScene = new Scene(loadingBox);
             loadingScene.setFill(Color.TRANSPARENT);
-            loadingScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
-            
+            loadingScene.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
             loadingStage.setScene(loadingScene);
             loadingStage.show();
-            
+
             // Generate summary in a background task
             Task<String> summaryTask = new Task<String>() {
                 @Override
                 protected String call() throws Exception {
                     StringBuilder summary = new StringBuilder();
                     summary.append("Summary of comments for poll: ").append(sondage.getQuestion()).append("\n\n");
-                    
+
                     for (int i = 0; i < comments.size(); i++) {
                         Commentaire comment = comments.get(i);
                         summary.append(i + 1).append(". ")
-                               .append(comment.getUser().getLastName()).append(" ")
-                               .append(comment.getUser().getFirstName()).append(": ")
-                               .append(comment.getContenuComment()).append(" (")
-                               .append(comment.getDateComment()).append(")\n");
+                                .append(comment.getUser().getLastName()).append(" ")
+                                .append(comment.getUser().getFirstName()).append(": ")
+                                .append(comment.getContenuComment()).append(" (")
+                                .append(comment.getDateComment()).append(")\n");
                     }
-                    
+
                     // Add basic statistics
                     summary.append("\n--- Statistics ---\n");
                     summary.append("Total Comments: ").append(comments.size()).append("\n");
-                    
+
                     // Count unique users
                     long uniqueUsers = comments.stream()
-                        .map(c -> c.getUser().getId())
-                        .distinct()
-                        .count();
+                            .map(c -> c.getUser().getId())
+                            .distinct()
+                            .count();
                     summary.append("Unique Commenters: ").append(uniqueUsers).append("\n");
-                    
+
                     // Delay for UX purposes, so loading dialog is visible
                     Thread.sleep(800);
-                    
+
                     return summary.toString();
                 }
             };
-            
+
             summaryTask.setOnSucceeded(event -> {
                 loadingStage.close();
                 String summaryText = summaryTask.getValue();
                 showSummaryDialog(sondage, summaryText);
             });
-            
+
             summaryTask.setOnFailed(event -> {
                 loadingStage.close();
                 Throwable exception = summaryTask.getException();
                 showCustomAlert("Error", "Failed to generate summary: " + exception.getMessage(), "error");
             });
-            
+
             new Thread(summaryTask).start();
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             showCustomAlert("Error", "Failed to load comments: " + e.getMessage(), "error");
         }
     }
-    
+
     /**
      * Shows a dialog with the comments summary
      * 
@@ -1293,27 +1294,27 @@ public class SondageViewController implements Initializable {
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
         dialogStage.setResizable(true);
-        
+
         // Create dialog container
         VBox dialogVBox = new VBox(15);
         dialogVBox.getStyleClass().add("summary-dialog");
         dialogVBox.setPadding(new Insets(20));
-        
+
         // Header with title and close button
         HBox headerBox = new HBox();
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setSpacing(10);
-        
+
         Label titleLabel = new Label("Comments Summary");
         titleLabel.getStyleClass().add("summary-title");
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
-        
+
         Button closeButton = new Button("✕");
         closeButton.getStyleClass().add("close-button");
         closeButton.setOnAction(e -> dialogStage.close());
-        
+
         headerBox.getChildren().addAll(titleLabel, closeButton);
-        
+
         // Summary content area
         TextArea summaryArea = new TextArea(summary);
         summaryArea.setEditable(false);
@@ -1321,14 +1322,14 @@ public class SondageViewController implements Initializable {
         summaryArea.setPrefRowCount(20);
         summaryArea.setPrefColumnCount(60);
         summaryArea.getStyleClass().add("summary-text");
-        
+
         // Add components to dialog
         dialogVBox.getChildren().addAll(headerBox, summaryArea);
-        
+
         // Background with shadow
         StackPane rootPane = new StackPane();
         rootPane.getStyleClass().add("summary-dialog-background");
-        
+
         // Semi-transparent overlay
         Region overlay = new Region();
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
@@ -1337,30 +1338,31 @@ public class SondageViewController implements Initializable {
                 dialogStage.close();
             }
         });
-        
+
         rootPane.getChildren().addAll(overlay, dialogVBox);
-        
+
         // Create scene
         Scene dialogScene = new Scene(rootPane);
         dialogScene.setFill(Color.TRANSPARENT);
-        dialogScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
-        
+        dialogScene.getStylesheets()
+                .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
         dialogStage.setScene(dialogScene);
         dialogStage.setWidth(700);
         dialogStage.setHeight(500);
-        
+
         // Center on screen and show with animation
         dialogStage.setOnShown(e -> {
             dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
             dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
-            
+
             // Fade in animation
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dialogVBox);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
             fadeIn.play();
         });
-        
+
         dialogStage.show();
     }
 
