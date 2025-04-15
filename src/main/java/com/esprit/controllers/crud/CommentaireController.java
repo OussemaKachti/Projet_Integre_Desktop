@@ -19,7 +19,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.Optional;
@@ -131,7 +131,7 @@ public class CommentaireController implements Initializable {
         
         colDate.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getDateComment()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         
         setupActionsColumn();
     }
@@ -165,23 +165,35 @@ public class CommentaireController implements Initializable {
                 } else {
                     // Vérifier si l'utilisateur courant est l'auteur du commentaire
                     Commentaire commentaire = getTableView().getItems().get(getIndex());
-                    User currentUser = userService.getById(1); // Utilisateur statique ID=1
+                    User currentUser = null;
+                    try {
+                        currentUser = userService.getById(1); // Utilisateur statique ID=1
                     
-                    boolean isAuthor = (commentaire.getUser() != null && 
-                                      commentaire.getUser().getId() == currentUser.getId());
-                    
-                    HBox buttons = new HBox(5);
-                    
-                    // L'utilisateur ne peut éditer que ses propres commentaires
-                    editButton.setDisable(!isAuthor);
-                    buttons.getChildren().add(editButton);
-                    
-                    // L'utilisateur ne peut supprimer que ses propres commentaires
-                    deleteButton.setDisable(!isAuthor);
-                    buttons.getChildren().add(deleteButton);
-                    
-                    buttons.setPadding(new Insets(0, 0, 0, 5));
-                    setGraphic(buttons);
+                        boolean isAuthor = (commentaire.getUser() != null && 
+                                          commentaire.getUser().getId() == currentUser.getId());
+                        
+                        HBox buttons = new HBox(5);
+                        
+                        // L'utilisateur ne peut éditer que ses propres commentaires
+                        editButton.setDisable(!isAuthor);
+                        buttons.getChildren().add(editButton);
+                        
+                        // L'utilisateur ne peut supprimer que ses propres commentaires
+                        deleteButton.setDisable(!isAuthor);
+                        buttons.getChildren().add(deleteButton);
+                        
+                        buttons.setPadding(new Insets(0, 0, 0, 5));
+                        setGraphic(buttons);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        // En cas d'erreur, désactiver les boutons
+                        editButton.setDisable(true);
+                        deleteButton.setDisable(true);
+                        
+                        HBox buttons = new HBox(5, editButton, deleteButton);
+                        buttons.setPadding(new Insets(0, 0, 0, 5));
+                        setGraphic(buttons);
+                    }
                 }
             }
         });
@@ -242,7 +254,7 @@ public class CommentaireController implements Initializable {
             
             Commentaire commentaire = new Commentaire();
             commentaire.setContenuComment(txtContenu.getText());
-            commentaire.setDateComment(LocalDateTime.now());
+            commentaire.setDateComment(LocalDate.now());
             commentaire.setUser(currentUser);
             commentaire.setSondage(selectedSondage);
             
@@ -286,7 +298,7 @@ public class CommentaireController implements Initializable {
             }
             
             currentCommentaire.setContenuComment(txtContenu.getText());
-            currentCommentaire.setDateComment(LocalDateTime.now()); // Mettre à jour la date
+            currentCommentaire.setDateComment(LocalDate.now()); // Mettre à jour la date
             
             commentaireService.update(currentCommentaire);
             
