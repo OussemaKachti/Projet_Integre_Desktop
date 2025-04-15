@@ -72,4 +72,16 @@ public class ValidationUtils {
         return message.toLowerCase().contains("unique") && 
                message.toLowerCase().contains(fieldName.toLowerCase());
     }
+
+    /**
+     * Checks if the given text contains profanity
+     * @param text Text to check for profanity
+     * @return True if no profanity is found, false if profanity is detected
+     */
+    public static boolean isCleanText(String text) {
+        if (text == null || text.isEmpty()) {
+            return true;
+        }
+        return !ProfanityFilter.containsProfanity(text);
+    }
 }
