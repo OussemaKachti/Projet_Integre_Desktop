@@ -589,4 +589,194 @@
     -fx-font-size: 13px;
     -fx-padding: 5px 0;
     -fx-font-weight: bold;
+}
+
+/* Table-like ListView Header */
+.table-header {
+    -fx-background-color: #0d47a1; /* Dark blue like in the image */
+    -fx-background-radius: 4px 4px 0 0;
+    -fx-padding: 14px 15px;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 0);
+}
+
+.table-column-header {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 10px;
+    -fx-alignment: center-left;
+}
+
+/* Table container */
+.table-container {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-color: #e3e6f0;
+    -fx-border-width: 1px;
+}
+
+/* ListView Styles for Table-like appearance */
+.polls-list {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-fixed-cell-size: 60; /* Increase row height */
+}
+
+.polls-list .list-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #dee2e6 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 0;
+}
+
+.polls-list .list-cell:hover {
+    -fx-background-color: #e8f0fe;
+}
+
+.polls-list .list-cell:selected {
+    -fx-background-color: #e8f0fe;
+    -fx-text-fill: black;
+}
+
+.polls-list .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+/* Row styles for table-like cells */
+.table-cell-question {
+    -fx-font-weight: normal;
+    -fx-text-fill: #212529;
+    -fx-font-size: 14px;
+    -fx-padding: 0 15px 0 15px;
+}
+
+.table-cell-options {
+    -fx-text-fill: #212529;
+    -fx-font-size: 14px;
+    -fx-padding: 0 15px;
+}
+
+.table-cell-date {
+    -fx-text-fill: #212529;
+    -fx-font-size: 14px;
+    -fx-padding: 0 15px;
+}
+
+.table-cell-actions {
+    -fx-alignment: center;
+    -fx-padding: 0 15px;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1px 0 0 0;
+    -fx-padding: 15px;
+}
+
+.pagination-button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-min-width: 100px;
+}
+
+.pagination-button:hover {
+    -fx-background-color: #0069d9;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 0);
+}
+
+.pagination-button:disabled {
+    -fx-background-color: #6c757d;
+    -fx-opacity: 0.65;
+}
+
+.page-button {
+    -fx-background-color: white;
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 14px;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-color: #dee2e6;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+}
+
+.page-button:hover {
+    -fx-background-color: #e9ecef;
+    -fx-border-color: #dee2e6;
+    -fx-text-fill: #0d6efd;
+}
+
+.page-button-active {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+    -fx-border-color: #0d6efd;
+}
+
+.page-button-active:hover {
+    -fx-background-color: #0b5ed7;
+    -fx-border-color: #0a58ca;
+}
+
+.poll-card {
+    -fx-background-color: white;
+    -fx-border-color: #e3e6f0;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);
+    -fx-padding: 15px;
+    -fx-spacing: 10px;
+}
+
+.poll-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0);
+}
+
+.poll-question {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4e73df;
+}
+
+.poll-options {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5a5c69;
+    -fx-wrap-text: true;
+}
+
+.poll-date {
+    -fx-font-size: 12px;
+    -fx-text-fill: #858796;
+    -fx-font-style: italic;
+}
+
+.action-buttons-box {
+    -fx-alignment: center-right;
+    -fx-spacing: 10px;
+}
+
+.error-message {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 13px;
+    -fx-padding: 5px 0;
+    -fx-font-weight: bold;
 } 

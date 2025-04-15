@@ -279,4 +279,4 @@ public class AlertUtils {
             return durationInSeconds;
         }
     }
-}
+} 

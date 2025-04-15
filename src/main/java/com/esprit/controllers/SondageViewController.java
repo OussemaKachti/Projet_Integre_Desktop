@@ -358,7 +358,7 @@ public class SondageViewController implements Initializable {
                 addComment(sondage, content);
                 commentTextArea.clear();
                 commentErrorLabel.setVisible(false);
-            } catch (SQLException ex) {
+                    } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
             }
@@ -1010,8 +1010,8 @@ public class SondageViewController implements Initializable {
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
-                return;
-            }
+            return;
+        }
             sondage.setClub(userClub);
 
             // Add options to the poll
