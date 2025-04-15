@@ -25,6 +25,7 @@ import javafx.scene.chart.XYChart;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.Map;
@@ -363,7 +364,7 @@ public class ReponseController implements Initializable {
             if (existingReponse != null) {
                 // Mettre à jour la réponse existante
                 existingReponse.setChoixSondage(selectedChoix);
-                existingReponse.setDateReponse(LocalDate.now());
+                existingReponse.setDateReponse(LocalDateTime.now());
                 
                 reponseService.update(existingReponse);
                 
@@ -375,7 +376,7 @@ public class ReponseController implements Initializable {
                 reponse.setUser(currentUser);
                 reponse.setSondage(currentSondage);
                 reponse.setChoixSondage(selectedChoix);
-                reponse.setDateReponse(LocalDate.now());
+                reponse.setDateReponse(LocalDateTime.now());
                 
                 reponseService.add(reponse);
                 
