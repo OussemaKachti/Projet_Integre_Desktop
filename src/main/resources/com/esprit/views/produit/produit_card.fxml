@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.ProduitCardController"
+      spacing="10"
+      style="-fx-background-color: #F5F5F5;">
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <!-- En-tête -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Button fx:id="btnRetour" text="Retour à la gestion" onAction="#retourGestion"/>
+        <Label text="Catalogue des Produits" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <HBox HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="comboFilterClub" promptText="Filtrer par club"/>
+        <TextField fx:id="txtRecherche" promptText="Rechercher un produit" prefWidth="200"/>
+    </HBox>
+
+    <!-- Contenu principal - Affichage des produits -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <FlowPane fx:id="produitContainer" hgap="20" vgap="20">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </FlowPane>
+    </ScrollPane>
+</VBox>

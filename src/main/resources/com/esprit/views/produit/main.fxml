@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.Scene?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.MainController" spacing="20" style="-fx-background-color: #f0f0f0; -fx-padding: 20;">
+    <!-- Title or Header -->
+    <Button text="Ajouter un produit" fx:id="btnAddProduit" onAction="#handleAddProduit" style="-fx-font-size: 16px; -fx-padding: 10px 20px;" />
+
+    <!-- Container for Product Cards -->
+    <HBox fx:id="hboxProduits" spacing="10" style="-fx-alignment: center; -fx-wrap-text: true;">
+        <!-- Dynamically loaded Product Cards will be added here -->
+    </HBox>
+</VBox>

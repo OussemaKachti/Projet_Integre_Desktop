@@ -466,4 +466,30 @@ public class ProduitController implements Initializable {
             txtImage.setText(selectedFile.getAbsolutePath());
         }
     }
+    /**
+     * Ouvre la vue d'affichage des produits en cartes
+     */
+
+    @FXML
+    private void showProductGrid(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit/Produit_card.fxml"));
+            Parent root = loader.load();
+
+            // Remplace la scène actuelle
+            if (ProduitApp.getPrimaryStage() != null) {
+                ProduitApp.getPrimaryStage().getScene().setRoot(root);
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Navigation impossible",
+                        "Impossible d'accéder à la fenêtre principale de l'application.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de navigation",
+                    "Impossible de charger la vue grille des produits : " + e.getMessage());
+        }
+    }
+
+
 }

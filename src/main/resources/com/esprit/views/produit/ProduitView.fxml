@@ -71,6 +71,8 @@
         <Button fx:id="btnUpdate" text="Modifier" onAction="#updateProduit" visible="false"/>
         <Button fx:id="btnCancel" text="Annuler" onAction="#resetForm"/>
         <Button fx:id="btnGoToCommande" text="Vers Commandes" onAction="#goToCommande"/>
+        <Button fx:id="btnShowGrid" text="Vue Grille" onAction="#showProductGrid" />
+
     </HBox>
 
 </VBox>
