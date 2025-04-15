@@ -143,11 +143,11 @@ public class CommentaireService {
         commentaire.setId(rs.getInt("id"));
         commentaire.setContenuComment(rs.getString("contenu_comment"));
         
-        // Conversion de Timestamp en LocalDate
+        // Conversion of Timestamp to LocalDateTime with null check
         Timestamp timestamp = rs.getTimestamp("date_comment");
-        commentaire.setDateComment(timestamp.toLocalDateTime().toLocalDate());
+        commentaire.setDateComment(timestamp != null ? timestamp.toLocalDateTime().toLocalDate() : LocalDate.now());
 
-        // Charger l'utilisateur et le sondage
+        // Load user and poll
         UserService userService = new UserService();
         SondageService sondageService = new SondageService();
 
