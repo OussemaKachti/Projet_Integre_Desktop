@@ -12,13 +12,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -58,7 +56,25 @@ public class AdminCommentsController implements Initializable {
     private ComboBox<String> clubFilterComboBox;
 
     @FXML
-    private ListView<Commentaire> commentsListView;
+    private TableView<Commentaire> commentsTable;
+
+    @FXML
+    private TableColumn<Commentaire, Integer> idColumn;
+
+    @FXML
+    private TableColumn<Commentaire, String> userColumn;
+
+    @FXML
+    private TableColumn<Commentaire, String> commentColumn;
+
+    @FXML
+    private TableColumn<Commentaire, String> clubColumn;
+
+    @FXML
+    private TableColumn<Commentaire, String> createdAtColumn;
+
+    @FXML
+    private TableColumn<Commentaire, Void> actionsColumn;
 
     @FXML
     private HBox paginationContainer;
@@ -125,8 +141,8 @@ public class AdminCommentsController implements Initializable {
         commentaireService = new CommentaireService();
         clubService = new ClubService();
 
-        // Configure the comments list
-        setupCommentsList();
+        // Configuration des colonnes du tableau
+        setupTableColumns();
 
         // Chargement des clubs pour le filtre
         loadClubs();
@@ -150,121 +166,87 @@ public class AdminCommentsController implements Initializable {
         setupAdminInfo();
     }
 
-    private void setupCommentsList() {
-        try {
-            commentsListView.setCellFactory(listView -> new ListCell<Commentaire>() {
-                private final HBox container = new HBox(15);
-                private final VBox contentBox = new VBox(8);
-                private final Label idLabel = new Label();
-                private final Label userLabel = new Label();
-                private final Label commentLabel = new Label();
-                private final Label clubLabel = new Label();
-                private final Label dateLabel = new Label();
-                private final Button deleteButton = new Button("Delete");
-                private final HBox actionBox = new HBox(10);
+    private void setupTableColumns() {
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-                {
-                    // Set up container layout
-                    container.setPadding(new Insets(10, 15, 10, 15));
-                    container.setStyle(
-                            "-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
-                    container.setAlignment(Pos.CENTER_LEFT);
+        userColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getUser() != null) {
+                return new SimpleStringProperty(
+                        cellData.getValue().getUser().getFirstName() + " "
+                                + cellData.getValue().getUser().getLastName());
+            } else {
+                return new SimpleStringProperty("Unknown");
+            }
+        });
 
-                    // ID Label setup
-                    idLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #455a64; -fx-min-width: 40px;");
+        commentColumn.setCellValueFactory(cellData -> {
+            String commentText = cellData.getValue().getContenuComment();
+            if (commentText == null) {
+                return new SimpleStringProperty("N/A");
+            }
 
-                    // User Label setup
-                    userLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #455a64;");
+            // Traiter les commentaires longs : limiter à environ 30 caractères
+            if (commentText.length() > 30) {
+                return new SimpleStringProperty(commentText.substring(0, 30) + "...");
+            } else {
+                return new SimpleStringProperty(commentText);
+            }
+        });
 
-                    // Comment Label setup
-                    commentLabel.setWrapText(true);
-                    commentLabel.setMaxWidth(350);
-
-                    // Club Label setup
-                    clubLabel.setStyle("-fx-text-fill: #1976d2;");
-
-                    // Date Label setup
-                    dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #78909c;");
-
-                    // Create info HBox
-                    HBox infoBox = new HBox(10, idLabel, userLabel);
-                    infoBox.setAlignment(Pos.CENTER_LEFT);
-
-                    // Set up content box
-                    contentBox.getChildren().addAll(infoBox, commentLabel, clubLabel, dateLabel);
-                    contentBox.setAlignment(Pos.CENTER_LEFT);
-                    HBox.setHgrow(contentBox, Priority.ALWAYS);
-
-                    // Delete button setup
-                    deleteButton.getStyleClass().add("bin-button");
-                    deleteButton.setStyle(
-                            "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;");
-
-                    // Add delete button to action box
-                    actionBox.getChildren().add(deleteButton);
-                    actionBox.setAlignment(Pos.CENTER);
-
-                    // Add content and action boxes to container
-                    container.getChildren().addAll(contentBox, actionBox);
-                }
-
+        // Ajouter la gestion des commentaires longs avec fenêtre popup
+        commentColumn.setCellFactory(col -> {
+            return new TableCell<Commentaire, String>() {
                 @Override
-                protected void updateItem(Commentaire comment, boolean empty) {
-                    super.updateItem(comment, empty);
-
-                    if (empty || comment == null) {
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
                         setText(null);
                         setGraphic(null);
                     } else {
-                        // Set ID
-                        idLabel.setText(String.valueOf(comment.getId()));
+                        // Limiter l'affichage à une hauteur maximale
+                        setMaxHeight(60);
+                        setPrefHeight(50);
 
-                        // Set user name
-                        userLabel.setText(comment.getUser() != null
-                                ? comment.getUser().getFirstName() + " " + comment.getUser().getLastName()
-                                : "Unknown");
+                        // Forcer le texte à revenir à la ligne
+                        setWrapText(true);
 
-                        // Set comment text (truncate if too long)
-                        String commentText = comment.getContenuComment();
-                        if (commentText == null) {
-                            commentText = "N/A";
-                        } else if (commentText.length() > 100) {
-                            commentText = commentText.substring(0, 100) + "...";
+                        // Formater le texte pour ajouter des retours à la ligne après environ 5 mots
+                        String formattedText = item;
+                        if (!item.endsWith("...")) {
+                            String[] words = item.split(" ");
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 0; i < words.length; i++) {
+                                sb.append(words[i]).append(" ");
+                                if ((i + 1) % 5 == 0 && i < words.length - 1) {
+                                    sb.append("\n");
+                                }
+                            }
+                            formattedText = sb.toString();
                         }
-                        commentLabel.setText(commentText);
 
-                        // Set club name
-                        clubLabel.setText(
-                                "Club: " + (comment.getSondage() != null && comment.getSondage().getClub() != null
-                                        ? comment.getSondage().getClub().getNom()
-                                        : "Unknown"));
+                        setText(formattedText);
 
-                        // Set date
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                        dateLabel.setText("Posted on: "
-                                + (comment.getDateComment() != null ? comment.getDateComment().format(formatter)
-                                        : "N/A"));
+                        // Ajouter un gestionnaire de clic pour les commentaires tronqués
+                        if (item.endsWith("...")) {
+                            // Mettre en style avec curseur pointer pour indiquer qu'il est cliquable
+                            setStyle("-fx-cursor: hand; -fx-text-fill: #0066cc; -fx-underline: true;");
 
-                        // Set delete button action
-                        deleteButton.setOnAction(e -> deleteComment(comment));
+                            this.setOnMouseClicked(event -> {
+                                // Récupérer le commentaire complet
+                                Commentaire commentaire = getTableView().getItems().get(getIndex());
+                                String fullComment = commentaire.getContenuComment();
 
-                        // Add hover effect
-                        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle(
-                                "-fx-background-color: #c82333; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;"));
-                        deleteButton.setOnMouseExited(e -> deleteButton.setStyle(
-                                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;"));
-
-                        // Set clickable for the comment text to show full content
-                        if (comment.getContenuComment() != null && comment.getContenuComment().length() > 100) {
-                            commentLabel.setStyle("-fx-cursor: hand; -fx-text-fill: #0066cc; -fx-underline: true;");
-
-                            commentLabel.setOnMouseClicked(event -> {
-                                // Create dialog to display full comment
+                                // Créer une boîte de dialogue pour afficher le texte complet
                                 Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-                                dialog.setTitle("Full Comment");
-                                dialog.setHeaderText("Comment from " + userLabel.getText());
+                                dialog.setTitle("Commentaire complet");
+                                dialog.setHeaderText("Commentaire de " +
+                                        (commentaire.getUser() != null
+                                                ? (commentaire.getUser().getFirstName() + " "
+                                                        + commentaire.getUser().getLastName())
+                                                : "Utilisateur inconnu"));
 
-                                TextArea textArea = new TextArea(comment.getContenuComment());
+                                // Utiliser un TextArea pour permettre le défilement si nécessaire
+                                TextArea textArea = new TextArea(fullComment);
                                 textArea.setEditable(false);
                                 textArea.setWrapText(true);
                                 textArea.setPrefWidth(480);
@@ -272,28 +254,104 @@ public class AdminCommentsController implements Initializable {
 
                                 dialog.getDialogPane().setContent(textArea);
 
-                                // Style the dialog
+                                // Styliser la boîte de dialogue
                                 DialogPane dialogPane = dialog.getDialogPane();
                                 dialogPane.setPrefWidth(500);
                                 dialogPane.getStylesheets().add(getClass()
                                         .getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
 
+                                // Ajouter un bouton de fermeture uniquement
                                 dialog.getButtonTypes().setAll(ButtonType.CLOSE);
+
+                                // Afficher la boîte de dialogue
                                 dialog.showAndWait();
                             });
                         } else {
-                            commentLabel.setStyle("-fx-text-fill: #333333;");
-                            commentLabel.setOnMouseClicked(null);
+                            // Style normal pour les commentaires courts
+                            setStyle("-fx-text-fill: #333333;");
+                            this.setOnMouseClicked(null);
                         }
-
-                        setGraphic(container);
                     }
                 }
-            });
-        } catch (Exception e) {
-            System.err.println("Error setting up comments list: " + e.getMessage());
-            e.printStackTrace();
-        }
+            };
+        });
+
+        clubColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getSondage() != null && cellData.getValue().getSondage().getClub() != null) {
+                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNom());
+            } else {
+                return new SimpleStringProperty("Unknown");
+            }
+        });
+
+        createdAtColumn.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getDateComment() != null) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                return new SimpleStringProperty(cellData.getValue().getDateComment().format(formatter));
+            } else {
+                return new SimpleStringProperty("N/A");
+            }
+        });
+
+        // Configuration de la colonne d'actions
+        actionsColumn.setCellFactory(createActionButtonCellFactory());
+    }
+
+    private Callback<TableColumn<Commentaire, Void>, TableCell<Commentaire, Void>> createActionButtonCellFactory() {
+        return new Callback<>() {
+            @Override
+            public TableCell<Commentaire, Void> call(final TableColumn<Commentaire, Void> param) {
+                return new TableCell<>() {
+                    private final Button deleteButton = new Button("Delete");
+
+                    {
+                        // Configure delete button with a proper styling
+                        deleteButton.getStyleClass().addAll("btn", "btn-danger", "delete-button");
+                        deleteButton.setTooltip(new Tooltip("Delete this comment"));
+                        deleteButton.setStyle(
+                                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;");
+
+                        // Add hover effect
+                        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle(
+                                "-fx-background-color: #c82333; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;"));
+                        deleteButton.setOnMouseExited(e -> deleteButton.setStyle(
+                                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-min-width: 80px;"));
+
+                        // Configure click handler
+                        deleteButton.setOnAction(event -> {
+                            Commentaire commentaire = getTableView().getItems().get(getIndex());
+                            deleteComment(commentaire);
+                        });
+                    }
+
+                    @Override
+                    protected void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            // Check if the comment is flagged and highlight
+                            Commentaire comment = getTableView().getItems().get(getIndex());
+                            if (comment.getContenuComment() != null &&
+                                    comment.getContenuComment().contains("⚠️")) {
+                                // Visual indicator for flagged comments
+                                HBox container = new HBox(5);
+                                container.setAlignment(Pos.CENTER);
+
+                                // Label flagIndicator = new Label("⚠️");
+                                // flagIndicator.setTooltip(new Tooltip("This comment was flagged"));
+                                // flagIndicator.setStyle("-fx-font-size: 18px;");
+
+                                container.getChildren().addAll(deleteButton);
+                                setGraphic(container);
+                            } else {
+                                setGraphic(deleteButton);
+                            }
+                        }
+                    }
+                };
+            }
+        };
     }
 
     private void loadClubs() {
@@ -400,8 +458,8 @@ public class AdminCommentsController implements Initializable {
 
     private void loadComments() {
         try {
-            // Show a loading indicator
-            commentsListView.setPlaceholder(new Label("Loading comments..."));
+            // Show a loading indicator (can be implemented later)
+            commentsTable.setPlaceholder(new Label("Loading comments..."));
 
             List<Commentaire> comments;
 
@@ -425,12 +483,12 @@ public class AdminCommentsController implements Initializable {
             commentsList.clear();
 
             if (comments.isEmpty()) {
-                commentsListView.setVisible(true);
-                commentsListView.setPlaceholder(new Label("No comments found for the selected filter"));
+                commentsTable.setVisible(true);
+                commentsTable.setPlaceholder(new Label("No comments found for the selected filter"));
                 noCommentsContainer.setVisible(true);
                 paginationContainer.setVisible(false);
             } else {
-                commentsListView.setVisible(true);
+                commentsTable.setVisible(true);
                 noCommentsContainer.setVisible(false);
                 paginationContainer.setVisible(true);
 
@@ -445,13 +503,13 @@ public class AdminCommentsController implements Initializable {
                 totalPages = (int) Math.ceil((double) comments.size() / PAGE_SIZE);
             }
 
-            commentsListView.setItems(commentsList);
+            commentsTable.setItems(commentsList);
 
             // Update pagination
             setupPagination();
 
         } catch (SQLException e) {
-            commentsListView.setPlaceholder(new Label("Error loading comments: " + e.getMessage()));
+            commentsTable.setPlaceholder(new Label("Error loading comments: " + e.getMessage()));
             AlertUtils.showError("Error", "Unable to load comments: " + e.getMessage());
             e.printStackTrace();
         }
