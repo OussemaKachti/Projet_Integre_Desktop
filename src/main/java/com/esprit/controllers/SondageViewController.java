@@ -65,6 +65,7 @@ import java.util.HashSet;
 import javafx.scene.Node;
 import java.util.regex.Pattern;
 import java.util.Arrays;
+import javafx.concurrent.Task;
 
 public class SondageViewController implements Initializable {
 
@@ -243,6 +244,13 @@ public class SondageViewController implements Initializable {
             userInfoBox.getChildren().add(clubLabel);
         }
         userInfoBox.getStyleClass().add("user-info");
+
+        // Add View Summary button
+        Button viewSummaryButton = new Button("View Summary");
+        viewSummaryButton.getStyleClass().add("view-summary-button");
+        viewSummaryButton.setOnAction(e -> showCommentsSummary(sondage));
+        userInfoBox.getChildren().add(viewSummaryButton);
+        HBox.setMargin(viewSummaryButton, new Insets(0, 0, 0, 10));
 
         // Poll question
         Label questionLabel = new Label(sondage.getQuestion());
@@ -1177,6 +1185,183 @@ public class SondageViewController implements Initializable {
             e.printStackTrace();
             AlertUtils.showError("Error", "Failed to open comments modal: " + e.getMessage());
         }
+    }
+
+    /**
+     * Show a summary of all comments for a poll
+     * 
+     * @param sondage The poll to show comments summary for
+     */
+    private void showCommentsSummary(Sondage sondage) {
+        try {
+            // Get all comments for this poll
+            CommentaireService commentaireService = new CommentaireService();
+            ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
+            
+            if (comments.isEmpty()) {
+                showCustomAlert("Info", "There are no comments to summarize for this poll.", "info");
+                return;
+            }
+            
+            // Show loading dialog
+            Stage loadingStage = new Stage();
+            loadingStage.initModality(Modality.APPLICATION_MODAL);
+            loadingStage.initStyle(StageStyle.TRANSPARENT);
+            
+            VBox loadingBox = new VBox(10);
+            loadingBox.setAlignment(Pos.CENTER);
+            loadingBox.setPadding(new Insets(20));
+            loadingBox.getStyleClass().add("loading-dialog");
+            
+            Label loadingLabel = new Label("Generating summary...");
+            loadingLabel.getStyleClass().add("loading-label");
+            
+            ProgressIndicator progressIndicator = new ProgressIndicator();
+            progressIndicator.setMaxSize(50, 50);
+            
+            loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
+            
+            Scene loadingScene = new Scene(loadingBox);
+            loadingScene.setFill(Color.TRANSPARENT);
+            loadingScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+            
+            loadingStage.setScene(loadingScene);
+            loadingStage.show();
+            
+            // Generate summary in a background task
+            Task<String> summaryTask = new Task<String>() {
+                @Override
+                protected String call() throws Exception {
+                    StringBuilder summary = new StringBuilder();
+                    summary.append("Summary of comments for poll: ").append(sondage.getQuestion()).append("\n\n");
+                    
+                    for (int i = 0; i < comments.size(); i++) {
+                        Commentaire comment = comments.get(i);
+                        summary.append(i + 1).append(". ")
+                               .append(comment.getUser().getPrenom()).append(" ")
+                               .append(comment.getUser().getNom()).append(": ")
+                               .append(comment.getContenuComment()).append(" (")
+                               .append(comment.getDateComment()).append(")\n");
+                    }
+                    
+                    // Add basic statistics
+                    summary.append("\n--- Statistics ---\n");
+                    summary.append("Total Comments: ").append(comments.size()).append("\n");
+                    
+                    // Count unique users
+                    long uniqueUsers = comments.stream()
+                        .map(c -> c.getUser().getId())
+                        .distinct()
+                        .count();
+                    summary.append("Unique Commenters: ").append(uniqueUsers).append("\n");
+                    
+                    // Delay for UX purposes, so loading dialog is visible
+                    Thread.sleep(800);
+                    
+                    return summary.toString();
+                }
+            };
+            
+            summaryTask.setOnSucceeded(event -> {
+                loadingStage.close();
+                String summaryText = summaryTask.getValue();
+                showSummaryDialog(sondage, summaryText);
+            });
+            
+            summaryTask.setOnFailed(event -> {
+                loadingStage.close();
+                Throwable exception = summaryTask.getException();
+                showCustomAlert("Error", "Failed to generate summary: " + exception.getMessage(), "error");
+            });
+            
+            new Thread(summaryTask).start();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showCustomAlert("Error", "Failed to load comments: " + e.getMessage(), "error");
+        }
+    }
+    
+    /**
+     * Shows a dialog with the comments summary
+     * 
+     * @param sondage The poll
+     * @param summary The generated summary text
+     */
+    private void showSummaryDialog(Sondage sondage, String summary) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+        dialogStage.setResizable(true);
+        
+        // Create dialog container
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.getStyleClass().add("summary-dialog");
+        dialogVBox.setPadding(new Insets(20));
+        
+        // Header with title and close button
+        HBox headerBox = new HBox();
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setSpacing(10);
+        
+        Label titleLabel = new Label("Comments Summary");
+        titleLabel.getStyleClass().add("summary-title");
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+        
+        Button closeButton = new Button("✕");
+        closeButton.getStyleClass().add("close-button");
+        closeButton.setOnAction(e -> dialogStage.close());
+        
+        headerBox.getChildren().addAll(titleLabel, closeButton);
+        
+        // Summary content area
+        TextArea summaryArea = new TextArea(summary);
+        summaryArea.setEditable(false);
+        summaryArea.setWrapText(true);
+        summaryArea.setPrefRowCount(20);
+        summaryArea.setPrefColumnCount(60);
+        summaryArea.getStyleClass().add("summary-text");
+        
+        // Add components to dialog
+        dialogVBox.getChildren().addAll(headerBox, summaryArea);
+        
+        // Background with shadow
+        StackPane rootPane = new StackPane();
+        rootPane.getStyleClass().add("summary-dialog-background");
+        
+        // Semi-transparent overlay
+        Region overlay = new Region();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                dialogStage.close();
+            }
+        });
+        
+        rootPane.getChildren().addAll(overlay, dialogVBox);
+        
+        // Create scene
+        Scene dialogScene = new Scene(rootPane);
+        dialogScene.setFill(Color.TRANSPARENT);
+        dialogScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+        
+        dialogStage.setScene(dialogScene);
+        dialogStage.setWidth(700);
+        dialogStage.setHeight(500);
+        
+        // Center on screen and show with animation
+        dialogStage.setOnShown(e -> {
+            dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
+            dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+            
+            // Fade in animation
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dialogVBox);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        });
+        
+        dialogStage.show();
     }
 
     // Méthode appelée par d'autres contrôleurs pour rafraîchir les données
