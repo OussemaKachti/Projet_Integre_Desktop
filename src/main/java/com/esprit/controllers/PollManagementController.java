@@ -9,6 +9,7 @@ import com.esprit.services.SondageService;
 import com.esprit.services.UserService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.NavigationManager;
+import com.esprit.utils.SessionManager;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -66,8 +67,20 @@ public class PollManagementController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            // Récupérer l'utilisateur actuel (pour les tests, ID=2)
-            currentUser = userService.getById(2);
+            // Get the logged-in user from SessionManager
+            currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                AlertUtils.showError("Error", "No user is currently logged in.");
+                return;
+            }
+
+            // Get the club where the user is president
+            Club userClub = clubService.findByPresident(currentUser.getId());
+            if (userClub == null) {
+                AlertUtils.showError("Access Denied", "You must be a club president to access this view.");
+                navigateBack();
+                return;
+            }
             
             // Configure list appearance
             pollsListView.setPlaceholder(new Label("No polls available"));
@@ -75,16 +88,16 @@ public class PollManagementController implements Initializable {
             // Setup ListView with custom cell factory
             setupListView();
             
-            // Configurer la recherche
+            // Configure search
             setupSearch();
             
-            // Charger les sondages
-            loadPolls("all");
+            // Load polls for the user's club only
+            loadPolls(userClub.getId());
             
-            // Configurer les boutons
+            // Configure buttons
             backButton.setOnAction(e -> navigateBack());
             
-            // Configurer l'animation du toast
+            // Configure toast animation
             setupToast();
             
             // Set stage to maximized mode after a small delay to ensure UI is fully loaded
@@ -96,7 +109,7 @@ public class PollManagementController implements Initializable {
             });
             
         } catch (SQLException e) {
-            AlertUtils.showError("Erreur d'initialisation", "Une erreur est survenue: " + e.getMessage());
+            AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -216,16 +229,15 @@ public class PollManagementController implements Initializable {
         String searchTerm = searchField.getText().toLowerCase().trim();
         
         if (searchTerm.isEmpty()) {
-            this.allPolls = FXCollections.observableArrayList(this.allPolls);
+            filteredPolls = null;
         } else {
             filteredPolls = new FilteredList<>(this.allPolls, sondage -> 
                 sondage.getQuestion().toLowerCase().contains(searchTerm));
-            this.allPolls = FXCollections.observableArrayList(filteredPolls);
         }
         
         // Reset to first page and update pagination
         currentPage = 1;
-        totalPages = (int) Math.ceil((double) this.allPolls.size() / ITEMS_PER_PAGE);
+        totalPages = (int) Math.ceil((double) (filteredPolls != null ? filteredPolls.size() : allPolls.size()) / ITEMS_PER_PAGE);
         updatePagination();
         showCurrentPage();
     }
@@ -264,33 +276,29 @@ public class PollManagementController implements Initializable {
     /**
      * Charge les sondages dans la liste avec filtre optionnel
      */
-    private void loadPolls(String clubFilter) throws SQLException {
-        ObservableList<Sondage> polls;
+   private void loadPolls(int clubId) throws SQLException {
+    try {
+        // Get polls for the specific club
+        List<Sondage> sondagesList = sondageService.getAll().stream()
+            .filter(sondage -> sondage.getClub() != null && sondage.getClub().getId() == clubId)
+            .collect(Collectors.toList());
         
-        try {
-            if ("all".equals(clubFilter)) {
-                polls = sondageService.getAll();
-            } else {
-                List<Sondage> sondagesList = sondageService.getByClub(clubFilter);
-                polls = FXCollections.observableArrayList(sondagesList);
-            }
-            
-            this.allPolls = polls;
-            
-            // Calculate total pages
-            totalPages = (int) Math.ceil((double) polls.size() / ITEMS_PER_PAGE);
-            
-            // Update pagination
-            updatePagination();
-            
-            // Show current page
-            showCurrentPage();
-            
-        } catch (SQLException e) {
-            AlertUtils.showError("Error", "Failed to load polls: " + e.getMessage());
-            throw e;
-        }
+        this.allPolls = FXCollections.observableArrayList(sondagesList);
+        
+        // Calculate total pages
+        totalPages = (int) Math.ceil((double) allPolls.size() / ITEMS_PER_PAGE);
+        
+        // Update pagination
+        updatePagination();
+        
+        // Show current page
+        showCurrentPage();
+        
+    } catch (SQLException e) {
+        AlertUtils.showError("Error", "Failed to load polls: " + e.getMessage());
+        throw e;
     }
+}
     
     private void updatePagination() {
         pageButtonsContainer.getChildren().clear();
@@ -315,76 +323,87 @@ public class PollManagementController implements Initializable {
     }
     
     private void showCurrentPage() {
+        ObservableList<Sondage> currentList = filteredPolls != null ? filteredPolls : allPolls;
         int fromIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, allPolls.size());
+        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, currentList.size());
         
-        ObservableList<Sondage> currentPageItems = FXCollections.observableArrayList(
-            allPolls.subList(fromIndex, toIndex)
-        );
-        
-        pollsListView.setItems(currentPageItems);
-        
-        if (currentPageItems.isEmpty()) {
-            pollsListView.setPlaceholder(new Label("No polls found for the selected criteria"));
+        if (fromIndex >= currentList.size()) {
+            pollsListView.setItems(FXCollections.observableArrayList());
         } else {
-            pollsListView.setPlaceholder(new Label("No polls available"));}}
+            ObservableList<Sondage> currentPageItems = FXCollections.observableArrayList(
+                currentList.subList(fromIndex, toIndex)
+            );
+            pollsListView.setItems(currentPageItems);
+        }
+        
+        if (currentList.isEmpty()) {
+            pollsListView.setPlaceholder(new Label("No polls found for your club"));
+        }
+    }
+    
     /**
      * Ouvre la fenêtre modale pour créer ou modifier un sondage
      */
     private void openPollModal(Sondage sondage) {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
+        VBox modalContent = loader.load();
+        
+        // Create scene first before setting the stage
+        Scene modalScene = new Scene(modalContent);
+        
+        // Add stylesheet to scene
+        modalScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/poll-management-style.css").toExternalForm());
+        
+        Stage modalStage = new Stage();
+        modalStage.initModality(Modality.APPLICATION_MODAL);
+        modalStage.setTitle(sondage == null ? "Create Poll" : "Edit Poll");
+        
+        // Set scene to stage before passing it to the controller
+        modalStage.setScene(modalScene);
+        
+        EditPollModalController controller = loader.getController();
+        controller.setModalStage(modalStage);
+        
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
-            VBox modalContent = loader.load();
-            
-            // Create scene first before setting the stage
-            Scene modalScene = new Scene(modalContent);
-            
-            // Add stylesheet to scene
-            modalScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/poll-management-style.css").toExternalForm());
-            
-            Stage modalStage = new Stage();
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle(sondage == null ? "Create Poll" : "Edit Poll");
-            
-            // Set scene to stage before passing it to the controller
-            modalStage.setScene(modalScene);
-            
-            EditPollModalController controller = loader.getController();
-            controller.setModalStage(modalStage);
-            
-            try {
-                if (sondage == null) {
-                    controller.setCreateMode(currentUser);
-                } else {
-                    Sondage refreshedSondage = sondageService.getById(sondage.getId());
-                    if (refreshedSondage != null) {
-                        controller.setEditMode(refreshedSondage, currentUser);
-                    } else {
-                        controller.setEditMode(sondage, currentUser);
-                    }
-                }
-                
-                controller.setOnSaveHandler(() -> {
-                    try {
-                        loadPolls("all");
-                        // showCustomAlert("Success", "Poll operation completed successfully!", "success");
-                    } catch (SQLException e) {
-                        showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
-                    }
-                });
-                
-                // Show the modal window
-                modalStage.showAndWait();
-                
-            } catch (SQLException e) {
-                showCustomAlert("Error", "Failed to prepare poll data: " + e.getMessage(), "error");
-                e.printStackTrace();
+            // Get the user's club
+            Club userClub = clubService.findByPresident(currentUser.getId());
+            if (userClub == null) {
+                throw new IllegalStateException("User is not a president of any club");
             }
             
-        } catch (IOException e) {
-            showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
+            if (sondage == null) {
+                controller.setCreateMode(currentUser);
+            } else {
+                Sondage refreshedSondage = sondageService.getById(sondage.getId());
+                if (refreshedSondage != null) {
+                    controller.setEditMode(refreshedSondage, currentUser);
+                } else {
+                    controller.setEditMode(sondage, currentUser);
+                }
+            }
+            
+            controller.setOnSaveHandler(() -> {
+                try {
+                    loadPolls(userClub.getId()); // Use userClub.getId() instead of currentUser.getClub()
+                    // showCustomAlert("Success", "Poll operation completed successfully!", "success");
+                } catch (SQLException e) {
+                    showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
+                }
+            });
+            
+            // Show the modal window
+            modalStage.showAndWait();
+            
+        } catch (SQLException e) {
+            showCustomAlert("Error", "Failed to prepare poll data: " + e.getMessage(), "error");
             e.printStackTrace();
         }
+        
+    } catch (IOException e) {
+        showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
+        e.printStackTrace();
+    }
     }
     
     /**
@@ -401,7 +420,14 @@ public class PollManagementController implements Initializable {
             try {
                 deletePollWithDependencies(sondage.getId());
                 showCustomAlert("Success", "Poll deleted successfully!", "success");
-                loadPolls("all");
+                
+                // Get the user's club using ClubService
+                Club userClub = clubService.findByPresident(currentUser.getId());
+                if (userClub != null) {
+                    loadPolls(userClub.getId());
+                } else {
+                    showCustomAlert("Error", "Could not find user's club", "error");
+                }
             } catch (SQLException e) {
                 showCustomAlert("Error", "Unable to delete poll: " + e.getMessage(), "error");
                 e.printStackTrace();
@@ -437,29 +463,6 @@ public class PollManagementController implements Initializable {
      */
     public void setPreviousScene(Scene scene) {
         this.previousScene = scene;
-    }
-    
-    /**
-     * Filtre les sondages pour afficher uniquement ceux d'un club spécifique
-     * @param clubName Nom du club à filtrer
-     */
-    public void filterByClub(String clubName) {
-        // Ne filtre plus par club directement, mais utilise la recherche
-        if (clubName != null && !clubName.isEmpty() && !"all".equals(clubName)) {
-            try {
-                // Charge d'abord tous les sondages
-                loadPolls("all");
-                
-                // Filtre les sondages du club spécifié
-                filteredPolls = new FilteredList<>(allPolls, sondage -> 
-                    sondage.getClub().getNom().equals(clubName));
-                
-                pollsListView.setItems(filteredPolls);
-            } catch (SQLException e) {
-                AlertUtils.showError("Erreur", "Impossible de charger les sondages du club: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
     }
     
     /**

@@ -154,10 +154,10 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <!-- <mainClass>com.esprit.SondageApplication</mainClass>
-                    <mainClass>com.esprit.MainApp</mainClass> -->
+          <!-- <mainClass>com.esprit.SondageApplication</mainClass> -->
+                    <mainClass>com.esprit.MainApp</mainClass>
  
-    <mainClass>com.esprit.AdminApplication</mainClass>
+    <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
                     <options>
                         <option>--add-opens</option>
                         <option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
