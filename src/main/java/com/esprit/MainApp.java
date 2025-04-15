@@ -6,15 +6,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class MainApp extends Application {
     
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(
-            getClass().getResource("/com/esprit/views/sondage/MainSondage.fxml"));
+                Objects.requireNonNull(getClass().getResource("/com/esprit/views/AdminSaisons.fxml")));
         
         Scene scene = new Scene(root);
-        primaryStage.setTitle("Gestion des Sondages");
+        primaryStage.setTitle("Gestion des Saison");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

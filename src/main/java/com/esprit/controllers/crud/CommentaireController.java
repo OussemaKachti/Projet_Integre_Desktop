@@ -165,8 +165,13 @@ public class CommentaireController implements Initializable {
                 } else {
                     // Vérifier si l'utilisateur courant est l'auteur du commentaire
                     Commentaire commentaire = getTableView().getItems().get(getIndex());
-                    User currentUser = userService.getById(1); // Utilisateur statique ID=1
-                    
+                    User currentUser = null; // Utilisateur statique ID=1
+                    try {
+                        currentUser = userService.getById(1);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     boolean isAuthor = (commentaire.getUser() != null && 
                                       commentaire.getUser().getId() == currentUser.getId());
                     

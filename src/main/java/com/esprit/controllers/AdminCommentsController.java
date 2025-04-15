@@ -1,11 +1,12 @@
 package com.esprit.controllers;
 
-import com.esprit.entities.Commentaire;
-import com.esprit.entities.Club;
+import com.esprit.models.Commentaire;
+import com.esprit.models.Club;
 import com.esprit.services.CommentaireService;
 import com.esprit.services.ClubService;
 import com.esprit.utils.AlertUtils;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -99,14 +101,26 @@ public class AdminCommentsController implements Initializable {
         setupTableColumns();
         
         // Chargement des clubs pour le filtre
-        loadClubs();
-        
+        try {
+            loadClubs();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         // Chargement des commentaires
-        loadComments();
-        
+        try {
+            loadComments();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         // Calcul des statistiques
-        calculateStats();
-        
+        try {
+            calculateStats();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         // Configuration des événements
         setupEventHandlers();
         
@@ -129,7 +143,7 @@ public class AdminCommentsController implements Initializable {
         
         clubColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getSondage() != null && cellData.getValue().getSondage().getClub() != null) {
-                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNomC());
+                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNom());
             } else {
                 return new SimpleStringProperty("Unknown");
             }
@@ -161,7 +175,11 @@ public class AdminCommentsController implements Initializable {
                         deleteButton.setPrefWidth(25);
                         deleteButton.setOnAction(event -> {
                             Commentaire commentaire = getTableView().getItems().get(getIndex());
-                            deleteComment(commentaire);
+                            try {
+                                deleteComment(commentaire);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
                         });
                     }
                     
@@ -179,21 +197,19 @@ public class AdminCommentsController implements Initializable {
         };
     }
     
-    private void loadClubs() {
-        List<Club> clubs = clubService.readAll();
+    private void loadClubs() throws SQLException {
+        List<Club> clubs = clubService.getAll();
         clubsList.add("all");
-        clubsList.addAll(clubs.stream().map(Club::getNomC).collect(Collectors.toList()));
+        clubsList.addAll(clubs.stream().map(Club::getNom).collect(Collectors.toList()));
         clubFilterComboBox.setItems(clubsList);
         clubFilterComboBox.getSelectionModel().selectFirst();
     }
     
-    private void loadComments() {
-        List<Commentaire> comments;
+    private void loadComments() throws SQLException {
+        List<Commentaire> comments = List.of();
         
         if ("all".equals(selectedClub)) {
-            comments = commentaireService.readAll();
-        } else {
-            comments = commentaireService.getByClub(selectedClub);
+            comments = commentaireService.getAllComments();
         }
         
         commentsList.clear();
@@ -219,15 +235,15 @@ public class AdminCommentsController implements Initializable {
         commentsTable.setItems(commentsList);
     }
     
-    private void calculateStats() {
+    private void calculateStats() throws SQLException {
         // Dans un cas réel, ces valeurs viendraient du service ou de la base de données
-        List<Commentaire> allComments = commentaireService.readAll();
+        List<Commentaire> allComments = commentaireService.getAllComments();
         LocalDate today = LocalDate.now();
         
         totalComments = allComments.size();
         
         todayComments = (int) allComments.stream()
-                .filter(c -> c.getDateComment() != null && c.getDateComment().isEqual(today))
+                .filter(c -> c.getDateComment() != null && c.getDateComment().isEqual(today.atStartOfDay()))
                 .count();
         
         // Pour cet exemple, on considère les commentaires flaggés comme ceux ayant un contenu avec "flag" ou "report"
@@ -247,7 +263,11 @@ public class AdminCommentsController implements Initializable {
         clubFilterComboBox.setOnAction(event -> {
             selectedClub = clubFilterComboBox.getValue();
             currentPage = 1; // Réinitialiser à la première page
-            loadComments();
+            try {
+                loadComments();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             setupPagination();
         });
     }
@@ -266,7 +286,11 @@ public class AdminCommentsController implements Initializable {
         prevButton.setOnAction(e -> {
             if (currentPage > 1) {
                 currentPage--;
-                loadComments();
+                try {
+                    loadComments();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
                 setupPagination();
             }
         });
@@ -283,7 +307,11 @@ public class AdminCommentsController implements Initializable {
             final int pageNum = i;
             pageButton.setOnAction(e -> {
                 currentPage = pageNum;
-                loadComments();
+                try {
+                    loadComments();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
                 setupPagination();
             });
             paginationContainer.getChildren().add(pageButton);
@@ -296,7 +324,11 @@ public class AdminCommentsController implements Initializable {
         nextButton.setOnAction(e -> {
             if (currentPage < totalPages) {
                 currentPage++;
-                loadComments();
+                try {
+                    loadComments();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
                 setupPagination();
             }
         });
@@ -304,7 +336,7 @@ public class AdminCommentsController implements Initializable {
         paginationContainer.getChildren().add(nextButton);
     }
     
-    private void deleteComment(Commentaire commentaire) {
+    private void deleteComment(Commentaire commentaire) throws SQLException {
         if (AlertUtils.showConfirmation("Confirmation", "Êtes-vous sûr de vouloir supprimer ce commentaire ?")) {
             boolean success = commentaireService.delete(commentaire.getId());
             
@@ -336,7 +368,7 @@ public class AdminCommentsController implements Initializable {
         new Thread(() -> {
             try {
                 Thread.sleep(3000);
-                javafx.application.Platform.runLater(() -> toastContainer.setVisible(false));
+                Platform.runLater(() -> toastContainer.setVisible(false));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -344,7 +376,7 @@ public class AdminCommentsController implements Initializable {
     }
     
     // Méthode pour rafraîchir les données
-    public void refreshData() {
+    public void refreshData() throws SQLException {
         loadComments();
         calculateStats();
         setupPagination();

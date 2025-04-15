@@ -6,6 +6,7 @@ import com.esprit.services.ChoixSondageService;
 import com.esprit.services.SondageService;
 import com.esprit.services.ReponseService;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -117,19 +118,18 @@ public class ChoixSondageController implements Initializable {
      * Configure les colonnes du tableau
      */
     private void setupTable() {
-        colContenu.setCellValueFactory(cellData -> 
+        colContenu.setCellValueFactory(cellData ->
             new SimpleStringProperty(cellData.getValue().getContenu()));
-            
+
         // Colonne pour afficher le nombre de réponses
         colReponses.setCellValueFactory(cellData -> {
             try {
                 int count = choixService.getResponseCount(cellData.getValue().getId());
-                return javafx.beans.property.SimpleIntegerProperty.valueOf(count).asObject();
-            } catch (SQLException e) {
-                return javafx.beans.property.SimpleIntegerProperty.valueOf(0).asObject();
+                return new SimpleIntegerProperty(count).asObject();            } catch (SQLException e) {
+                return new SimpleIntegerProperty(0).asObject();      // Fallback value
             }
         });
-        
+
         setupActionsColumn();
     }
     
