@@ -50,7 +50,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>test.MainApp</mainClass>
+                    <mainClass>com.esprit.test.MainApp</mainClass>
                     <executable>C:\Users\user\zulu17.56.15-ca-fx-jdk17.0.14-win_i686\bin\java.exe</executable>
 
                 </configuration>
