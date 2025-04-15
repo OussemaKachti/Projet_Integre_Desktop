@@ -107,7 +107,8 @@ private void handleLogin(ActionEvent event) {
         SessionManager.getInstance().setCurrentUser(user);
         
         // Navigate to appropriate view based on role
-        loadDashboard(user);
+        // loadDashboard(user);
+        handleUserNavigation(user);
     } catch (Exception e) {
         e.printStackTrace();
         errorLabel.setText("Authentication error: " + e.getMessage());
@@ -200,10 +201,10 @@ private void handleLogin(ActionEvent event) {
     }
 }
     
-    // Navigate to profile page
    private void navigateToProfile() {
     try {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/profile.fxml"));
+
         Parent root = loader.load();
         
         Stage stage = (Stage) emailField.getScene().getWindow();
@@ -215,6 +216,35 @@ private void handleLogin(ActionEvent event) {
     } catch (IOException e) {
         e.printStackTrace();
         showError("Error navigating to profile: " + e.getMessage());
+    }
+}
+private void handleUserNavigation(User user) {
+    try {
+        // Navigate based on user role
+        if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
+            navigateToAdminDashboard();
+        } else {
+            navigateToSondageView();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        errorLabel.setText("Error navigating after login: " + e.getMessage());
+        errorLabel.setVisible(true);
+    }
+}
+
+private void navigateToSondageView() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        MainApp.setupStage(stage, root, "Polls - UNICLUBS", false);
+        stage.setMaximized(true);
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to polls view: " + e.getMessage());
     }
 }
     
