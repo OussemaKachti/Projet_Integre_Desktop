@@ -360,8 +360,8 @@ public class SondageController implements Initializable {
         content.getChildren().add(new Label("Club: " + 
             (sondage.getClub() != null ? sondage.getClub().getNom() : "N/A")));
         content.getChildren().add(new Label("Créé par: " + 
-            (sondage.getUser() != null ? sondage.getUser().getPrenom() + " " + 
-                                       sondage.getUser().getNom() : "N/A")));
+            (sondage.getUser() != null ? sondage.getUser().getLastName() + " " + 
+                                       sondage.getUser().getFirstName() : "N/A")));
         
         content.getChildren().add(new Separator());
         content.getChildren().add(new Label("Choix:"));

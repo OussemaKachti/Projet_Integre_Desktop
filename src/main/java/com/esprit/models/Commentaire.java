@@ -5,18 +5,45 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+@Entity
+@Table(name = "commentaire")
 public class Commentaire {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    
+    @Column(name = "contenu_comment")
     private String contenuComment;
+    
+    @Column(name = "date_comment")
     private LocalDate dateComment;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sondage_id")
     private Sondage sondage;
 
     // Liste de mots inappropriés à filtrer
+    @Transient
     private static final List<String> MOTS_INAPPROPRIES = Arrays.asList(
             "insulte", "grossier", "offensive", "vulgar", "idiot", "stupid");
 
     // Regex pour vérifier si le contenu contient au moins un mot
+    @Transient
     private static final Pattern PATTERN_CONTENU_VALIDE = Pattern.compile("^.*[a-zA-Z0-9]+.*$");
 
     public Commentaire() {

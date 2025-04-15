@@ -134,7 +134,7 @@ public class ReponseController implements Initializable {
         colUser.setCellValueFactory(cellData -> {
             User user = cellData.getValue().getUser();
             return new SimpleStringProperty(user != null ? 
-                user.getPrenom() + " " + user.getNom() : "Anonyme");
+                user.getLastName() + " " + user.getFirstName() : "Anonyme");
         });
         
         colChoix.setCellValueFactory(cellData -> {
@@ -173,26 +173,16 @@ public class ReponseController implements Initializable {
                     // Vérifier si l'utilisateur courant est l'auteur de la réponse ou un admin
                     Reponse reponse = getTableView().getItems().get(getIndex());
                     User currentUser = null;
-                    try {
-                        currentUser = userService.getById(1);
-                        
-                        boolean canDelete = (reponse.getUser() != null && 
-                                          reponse.getUser().getId() == currentUser.getId());
-                        
-                        deleteButton.setDisable(!canDelete);
-                        
-                        HBox buttons = new HBox(5, deleteButton);
-                        buttons.setPadding(new Insets(0, 0, 0, 5));
-                        setGraphic(buttons);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        // En cas d'erreur, désactiver le bouton
-                        deleteButton.setDisable(true);
-                        
-                        HBox buttons = new HBox(5, deleteButton);
-                        buttons.setPadding(new Insets(0, 0, 0, 5));
-                        setGraphic(buttons);
-                    }
+                    currentUser = userService.getById(1);
+                    
+                    boolean canDelete = (reponse.getUser() != null && 
+                                      reponse.getUser().getId() == currentUser.getId());
+                    
+                    deleteButton.setDisable(!canDelete);
+                    
+                    HBox buttons = new HBox(5, deleteButton);
+                    buttons.setPadding(new Insets(0, 0, 0, 5));
+                    setGraphic(buttons);
                 }
             }
         });

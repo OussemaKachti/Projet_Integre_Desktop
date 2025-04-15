@@ -35,6 +35,30 @@ public class UserService implements Service<User> {
         }
     }
 
+    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
+
+    private static UserService instance;
+
+    // public UserService() {
+    // conn = DataSource.getInstance().getCnx();
+    // }
+
+    public static UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
+    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+
     @Override
     public void ajouter(User user) {
         try {
@@ -42,12 +66,11 @@ public class UserService implements Service<User> {
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             Validator validator = factory.getValidator();
             Set<ConstraintViolation<User>> violations = validator.validate(user);
-            
+
             if (!violations.isEmpty()) {
                 for (ConstraintViolation<User> v : violations) {
                     System.err.println(
-                        "Validation Error: " + v.getPropertyPath() + " " + v.getMessage()
-                    );
+                            "Validation Error: " + v.getPropertyPath() + " " + v.getMessage());
                 }
                 throw new ConstraintViolationException(violations);
             }
@@ -55,7 +78,7 @@ public class UserService implements Service<User> {
             // Proceed with persistence
             executeInTransaction(() -> {
                 em.persist(user);
-                em.flush();  // Force immediate insert to verify operation
+                em.flush(); // Force immediate insert to verify operation
                 System.out.println("Persisted: " + user.getId());
             });
         } catch (Exception e) {
@@ -101,19 +124,17 @@ public class UserService implements Service<User> {
 
     public List<User> rechercherParNom(String keyword) {
         TypedQuery<User> query = em.createQuery(
-            "SELECT u FROM User u WHERE u.lastName LIKE :keyword OR u.firstName LIKE :keyword", 
-            User.class
-        );
+                "SELECT u FROM User u WHERE u.lastName LIKE :keyword OR u.firstName LIKE :keyword",
+                User.class);
         query.setParameter("keyword", "%" + keyword + "%");
         return query.getResultList();
     }
-    
+
     public User findByEmail(String email) {
         try {
             TypedQuery<User> query = em.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", 
-                User.class
-            );
+                    "SELECT u FROM User u WHERE u.email = :email",
+                    User.class);
             query.setParameter("email", email);
             List<User> result = query.getResultList();
             return result.isEmpty() ? null : result.get(0);
@@ -144,15 +165,18 @@ public class UserService implements Service<User> {
     }
 
     public void close() {
-        if (em != null && em.isOpen()) em.close();
-        if (emf != null && emf.isOpen()) emf.close();
+        if (em != null && em.isOpen())
+            em.close();
+        if (emf != null && emf.isOpen())
+            emf.close();
     }
+
     public void updateLastLoginTime(int userId) {
-    executeInTransaction(() -> {
-        em.createQuery("UPDATE User u SET u.lastLoginAt = :now WHERE u.id = :id")
-            .setParameter("now", LocalDateTime.now())
-            .setParameter("id", userId)
-            .executeUpdate();
-    });
-}
+        executeInTransaction(() -> {
+            em.createQuery("UPDATE User u SET u.lastLoginAt = :now WHERE u.id = :id")
+                    .setParameter("now", LocalDateTime.now())
+                    .setParameter("id", userId)
+                    .executeUpdate();
+        });
+    }
 }

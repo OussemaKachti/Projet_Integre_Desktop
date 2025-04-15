@@ -1,4 +1,3 @@
-
 package com.esprit.models;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -81,19 +81,20 @@ public class User {
 
     @Column(name = "warning_count")
     private int warningCount = 0;
+
     @Column(name = "verification_attempts")
     private Integer verificationAttempts = 0;
 
     @Column(name = "last_code_sent_time")
     private LocalDateTime lastCodeSentTime;
-    // Collections
+
+    // Collections with proper JPA annotations
+    @OneToMany(mappedBy = "user")
     private List<Sondage> sondages = new ArrayList<>();
-    // private List<ParticipationMembre> participations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
     private List<Commentaire> commentaires = new ArrayList<>();
 
-    // private List<Like> likes = new ArrayList<>();
-    // private List<ParticipationEvent> participationEvents = new ArrayList<>();
-    // private List<Commande> commandes = new ArrayList<>();
     // Constructors
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -130,6 +131,10 @@ public class User {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
     }
 
     public void setLastName(String lastName) {
@@ -248,13 +253,21 @@ public class User {
         this.lastCodeSentTime = lastCodeSentTime;
     }
 
-    // Collections getters and setters
+    // Updated collection getters and setters
     public List<Sondage> getSondages() {
         return sondages;
     }
 
     public void setSondages(List<Sondage> sondages) {
         this.sondages = sondages;
+    }
+
+    public List<Commentaire> getCommentaires() {
+        return commentaires;
+    }
+
+    public void setCommentaires(List<Commentaire> commentaires) {
+        this.commentaires = commentaires;
     }
 
     public boolean isAdmin() {

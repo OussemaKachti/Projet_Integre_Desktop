@@ -682,7 +682,6 @@
     -fx-background-color: #f8f9fa;
     -fx-border-color: #dee2e6;
     -fx-border-width: 1px 0 0 0;
-    -fx-padding: 15px;
 }
 
 .pagination-button {
@@ -707,34 +706,32 @@
 
 .page-button {
     -fx-background-color: white;
-    -fx-text-fill: #6c757d;
+    -fx-text-fill: #007bff;
     -fx-font-size: 14px;
-    -fx-min-width: 35px;
-    -fx-min-height: 35px;
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
     -fx-border-color: #dee2e6;
     -fx-cursor: hand;
     -fx-padding: 0;
     -fx-alignment: center;
-    -fx-font-weight: bold;
 }
 
 .page-button:hover {
     -fx-background-color: #e9ecef;
     -fx-border-color: #dee2e6;
-    -fx-text-fill: #0d6efd;
 }
 
 .page-button-active {
-    -fx-background-color: #0d6efd;
+    -fx-background-color: #007bff;
     -fx-text-fill: white;
-    -fx-border-color: #0d6efd;
+    -fx-border-color: #007bff;
 }
 
 .page-button-active:hover {
-    -fx-background-color: #0b5ed7;
-    -fx-border-color: #0a58ca;
+    -fx-background-color: #0069d9;
+    -fx-border-color: #0062cc;
 }
 
 .poll-card {

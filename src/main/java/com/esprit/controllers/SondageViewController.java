@@ -217,7 +217,7 @@ public class SondageViewController implements Initializable {
         avatar.getStyleClass().add("comment-avatar");
 
         // User name
-        Label userName = new Label(sondage.getUser().getNom() + " " + sondage.getUser().getPrenom());
+        Label userName = new Label(sondage.getUser().getFirstName() + " " + sondage.getUser().getLastName());
         userName.getStyleClass().add("user-name");
 
         // Date separator
@@ -1238,8 +1238,8 @@ public class SondageViewController implements Initializable {
                     for (int i = 0; i < comments.size(); i++) {
                         Commentaire comment = comments.get(i);
                         summary.append(i + 1).append(". ")
-                               .append(comment.getUser().getPrenom()).append(" ")
-                               .append(comment.getUser().getNom()).append(": ")
+                               .append(comment.getUser().getLastName()).append(" ")
+                               .append(comment.getUser().getFirstName()).append(": ")
                                .append(comment.getContenuComment()).append(" (")
                                .append(comment.getDateComment()).append(")\n");
                     }
@@ -1483,7 +1483,7 @@ public class SondageViewController implements Initializable {
                     // Créer le contenu HTML personnalisé
                     String emailContent = emailService.createNewPollEmailTemplate(
                             club.getNom(),
-                            member.getPrenom(),
+                            member.getLastName(),
                             sondage.getQuestion(),
                             optionsArray);
 

@@ -1,11 +1,15 @@
 package com.esprit.models;
 
+import jakarta.persistence.*;
 import javafx.beans.property.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "club")
 public class Club {
+    // JavaFX properties for UI binding
     private final IntegerProperty id = new SimpleIntegerProperty();
     private final StringProperty nom = new SimpleStringProperty();
     private final StringProperty description = new SimpleStringProperty();
@@ -13,7 +17,11 @@ public class Club {
     private final ObjectProperty<LocalDateTime> dateCreation = new SimpleObjectProperty<>();
     private final ObjectProperty<User> president = new SimpleObjectProperty<>();
     private final StringProperty status = new SimpleStringProperty();
+    
+    // JPA relationships
     private List<User> membres = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "club", fetch = FetchType.EAGER)
     private List<Sondage> sondages = new ArrayList<>();
 
     public Club() {
@@ -21,6 +29,8 @@ public class Club {
     }
 
     // Getters and Setters with Properties
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id.get();
     }
@@ -33,6 +43,7 @@ public class Club {
         this.id.set(id);
     }
 
+    @Column(name = "nom")
     public String getNom() {
         return nom.get();
     }
@@ -45,6 +56,7 @@ public class Club {
         this.nom.set(nom);
     }
 
+    @Column(name = "description")
     public String getDescription() {
         return description.get();
     }
@@ -57,6 +69,7 @@ public class Club {
         this.description.set(description);
     }
 
+    @Column(name = "logo")
     public String getLogo() {
         return logo.get();
     }
@@ -69,6 +82,7 @@ public class Club {
         this.logo.set(logo);
     }
 
+    @Column(name = "date_creation")
     public LocalDateTime getDateCreation() {
         return dateCreation.get();
     }
@@ -81,6 +95,8 @@ public class Club {
         this.dateCreation.set(date);
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "president_id")
     public User getPresident() {
         return president.get();
     }
@@ -93,6 +109,7 @@ public class Club {
         this.president.set(president);
     }
 
+    @Column(name = "status")
     public String getStatus() {
         return status.get();
     }
@@ -106,6 +123,7 @@ public class Club {
     }
 
     // List management
+    @Transient
     public List<User> getMembres() {
         return membres;
     }
@@ -133,5 +151,10 @@ public class Club {
             this.sondages.add(sondage);
             sondage.setClub(this);
         }
+    }
+    
+    @Override
+    public String toString() {
+        return this.getNom();
     }
 }
