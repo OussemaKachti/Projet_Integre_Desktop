@@ -180,7 +180,7 @@ public class CommandeController implements Initializable {
     @FXML
     private void goToProduit(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit/ProduitView.fxml"));
             Parent root = loader.load();
 
             ProduitApp.getPrimaryStage().getScene().setRoot(root);

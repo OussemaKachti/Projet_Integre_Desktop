@@ -1,7 +1,9 @@
 package com.esprit.controllers.crud;
 
 import com.esprit.ProduitApp;
+import com.esprit.models.Club;
 import com.esprit.models.Produit;
+import com.esprit.services.ClubService;
 import com.esprit.services.ProduitService;
 
 import javafx.fxml.FXML;
@@ -17,33 +19,46 @@ import javafx.geometry.Insets;
 import javafx.beans.property.SimpleStringProperty;
 
 import javafx.event.ActionEvent;
+import javafx.stage.FileChooser;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Contrôleur pour la gestion des produits (CRUD)
  */
 public class ProduitController implements Initializable {
 
-    // Composants de l'interface utilisateur
+    // Composants de l'interface utilisateur - AJOUT DES NOUVEAUX CHAMPS
     @FXML private TableView<Produit> tableProduits;
     @FXML private TableColumn<Produit, String> colNom;
     @FXML private TableColumn<Produit, String> colPrix;
     @FXML private TableColumn<Produit, String> colDescription;
+    @FXML private TableColumn<Produit, String> colQuantity;
+    @FXML private TableColumn<Produit, String> colImage;
+    @FXML private TableColumn<Produit, String> colClub;
     @FXML private TableColumn<Produit, String> colActions;
 
     @FXML private TextField txtNom;
     @FXML private TextField txtPrix;
+    @FXML private TextField txtQuantity;
+    @FXML private TextField txtImage;
     @FXML private TextArea txtDescription;
+    @FXML private ComboBox<Club> comboClub;
     @FXML private Button btnSave;
     @FXML private Button btnUpdate;
     @FXML private Button btnCancel;
+    @FXML private Button btnBrowse;
 
     // Services
     private final ProduitService produitService;
+    private ClubService clubService; // Ajout du service pour les clubs
 
     // État du contrôleur
     private Produit currentProduit;
@@ -54,6 +69,11 @@ public class ProduitController implements Initializable {
      */
     public ProduitController() {
         this.produitService = ProduitService.getInstance();
+        try {
+            this.clubService = ClubService.getInstance(); // Initialisez votre service de club ici
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'initialisation du service de club: " + e.getMessage());
+        }
     }
 
     @Override
@@ -61,6 +81,46 @@ public class ProduitController implements Initializable {
         setupTable();
         setupButtons();
         loadProduits();
+        loadClubs(); // Charger les clubs dans le ComboBox
+    }
+
+    /**
+     * Charge les clubs dans le ComboBox
+     */
+    private void loadClubs() {
+        try {
+            if (clubService != null) {
+                ObservableList<Club> clubs = FXCollections.observableArrayList(clubService.getAll());
+                comboClub.setItems(clubs);
+
+                // Définissez comment les clubs seront affichés dans le ComboBox
+                comboClub.setCellFactory(cell -> new ListCell<Club>() {
+                    @Override
+                    protected void updateItem(Club club, boolean empty) {
+                        super.updateItem(club, empty);
+                        if (empty || club == null) {
+                            setText(null);
+                        } else {
+                            setText(club.getNom()); // Utilisez la propriété appropriée du club
+                        }
+                    }
+                });
+
+                comboClub.setButtonCell(new ListCell<Club>() {
+                    @Override
+                    protected void updateItem(Club club, boolean empty) {
+                        super.updateItem(club, empty);
+                        if (empty || club == null) {
+                            setText(null);
+                        } else {
+                            setText(club.getNom()); // Utilisez la propriété appropriée du club
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors du chargement des clubs", e.getMessage());
+        }
     }
 
     /**
@@ -73,6 +133,16 @@ public class ProduitController implements Initializable {
                 new SimpleStringProperty(String.valueOf(cellData.getValue().getPrix())));
         colDescription.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getDescProd()));
+
+        // Ajout des nouvelles colonnes
+        colQuantity.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getQuantity()));
+        colImage.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getImgProd()));
+        colClub.setCellValueFactory(cellData -> {
+            Club club = cellData.getValue().getClub();
+            return new SimpleStringProperty(club != null ? club.getNom() : "");
+        });
 
         setupActionsColumn();
     }
@@ -152,8 +222,47 @@ public class ProduitController implements Initializable {
             // Créer un produit
             Produit produit = new Produit();
             produit.setNomProd(txtNom.getText());
-            produit.setPrix((float) Double.parseDouble(txtPrix.getText()));
+
+            try {
+                produit.setPrix(Float.parseFloat(txtPrix.getText()));
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Format de prix invalide", "Veuillez saisir un nombre valide pour le prix.");
+                return;
+            }
+
             produit.setDescProd(txtDescription.getText());
+
+            // Ajouter les nouveaux champs
+            produit.setQuantity(txtQuantity.getText());
+
+            // Gérer l'image sélectionnée
+            if (txtImage.getText() != null && !txtImage.getText().isEmpty()) {
+                String imagePath = txtImage.getText();
+                String fileName = new File(imagePath).getName();
+                String targetDirectory = "src/main/resources/images/";
+                File targetDir = new File(targetDirectory);
+
+                if (!targetDir.exists()) {
+                    targetDir.mkdirs();
+                }
+
+                File sourceFile = new File(imagePath);
+                File targetFile = new File(targetDir, fileName);
+
+                try {
+                    Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    produit.setImgProd("images/" + fileName);
+                } catch (IOException e) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la copie de l'image", e.getMessage());
+                    return;
+                }
+            }
+
+            // Ajouter le club sélectionné
+            Club selectedClub = comboClub.getValue();
+            if (selectedClub != null) {
+                produit.setClub(selectedClub);
+            }
 
             // Sauvegarder le produit
             produitService.insertProduit(produit);
@@ -164,6 +273,7 @@ public class ProduitController implements Initializable {
 
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Produit créé", "Le produit a été créé avec succès.");
         } catch (SQLException e) {
+            e.printStackTrace(); // Pour voir l'erreur dans la console
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la création du produit", e.getMessage());
         }
     }
@@ -186,8 +296,45 @@ public class ProduitController implements Initializable {
 
             // Mettre à jour le produit
             currentProduit.setNomProd(txtNom.getText());
-            currentProduit.setPrix((float) Double.parseDouble(txtPrix.getText()));
+
+            try {
+                currentProduit.setPrix(Float.parseFloat(txtPrix.getText()));
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Format de prix invalide", "Veuillez saisir un nombre valide pour le prix.");
+                return;
+            }
+
             currentProduit.setDescProd(txtDescription.getText());
+            currentProduit.setQuantity(txtQuantity.getText());
+
+            // Gérer l'image sélectionnée
+            if (txtImage.getText() != null && !txtImage.getText().isEmpty()) {
+                String imagePath = txtImage.getText();
+                String fileName = new File(imagePath).getName();
+                String targetDirectory = "src/main/resources/images/";
+                File targetDir = new File(targetDirectory);
+
+                if (!targetDir.exists()) {
+                    targetDir.mkdirs();
+                }
+
+                File sourceFile = new File(imagePath);
+                File targetFile = new File(targetDir, fileName);
+
+                try {
+                    Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    currentProduit.setImgProd("images/" + fileName);
+                } catch (IOException e) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la copie de l'image", e.getMessage());
+                    return;
+                }
+            }
+
+            // Mettre à jour le club
+            Club selectedClub = comboClub.getValue();
+            if (selectedClub != null) {
+                currentProduit.setClub(selectedClub);
+            }
 
             // Sauvegarder les changements
             produitService.updateProduit(currentProduit);
@@ -198,6 +345,7 @@ public class ProduitController implements Initializable {
 
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Produit modifié", "Le produit a été modifié avec succès.");
         } catch (SQLException e) {
+            e.printStackTrace(); // Pour voir l'erreur dans la console
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la modification du produit", e.getMessage());
         }
     }
@@ -210,6 +358,18 @@ public class ProduitController implements Initializable {
         txtNom.setText(produit.getNomProd());
         txtPrix.setText(String.valueOf(produit.getPrix()));
         txtDescription.setText(produit.getDescProd());
+        txtQuantity.setText(produit.getQuantity());
+        txtImage.setText(produit.getImgProd());
+
+        // Sélectionner le club du produit
+        if (produit.getClub() != null) {
+            for (Club club : comboClub.getItems()) {
+                if (club.getId() == produit.getClub().getId()) {
+                    comboClub.setValue(club);
+                    break;
+                }
+            }
+        }
 
         // Passer en mode édition
         editMode = true;
@@ -234,6 +394,7 @@ public class ProduitController implements Initializable {
 
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Produit supprimé", "Le produit a été supprimé avec succès.");
             } catch (SQLException e) {
+                e.printStackTrace(); // Pour voir l'erreur dans la console
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de la suppression", e.getMessage());
             }
         }
@@ -242,10 +403,14 @@ public class ProduitController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
-    private void resetForm() {
+    @FXML
+    public void resetForm() {
         txtNom.clear();
         txtPrix.clear();
         txtDescription.clear();
+        txtQuantity.clear();
+        txtImage.clear();
+        comboClub.setValue(null);
 
         // Réinitialiser l'état
         currentProduit = null;
@@ -266,19 +431,39 @@ public class ProduitController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     @FXML
     private void goToCommande(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/CommandeView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit/Commandeview.fxml"));
             Parent root = loader.load();
 
             // Remplace la scène actuelle
-            ProduitApp.getPrimaryStage().getScene().setRoot(root);
-            ProduitApp.adjustStageSize(false); // Optionnel : met en plein écran si tu veux
+            if (ProduitApp.getPrimaryStage() != null) {
+                ProduitApp.getPrimaryStage().getScene().setRoot(root);
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Navigation impossible",
+                        "Impossible d'accéder à la fenêtre principale de l'application.");
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de navigation",
+                    "Impossible de charger la vue des commandes: " + e.getMessage());
         }
     }
 
+    @FXML
+    private void browseImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner une image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(txtImage.getScene().getWindow());
+        if (selectedFile != null) {
+            txtImage.setText(selectedFile.getAbsolutePath());
+        }
+    }
 }

@@ -3,6 +3,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.Region?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
@@ -17,30 +19,58 @@
     <Label text="Gestion des Produits" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
     <!-- Table des Produits -->
-    <TableView fx:id="tableProduits" prefWidth="600">
+    <TableView fx:id="tableProduits" prefWidth="700">
         <columns>
-            <TableColumn fx:id="colNom" text="Nom" prefWidth="200"/>
-            <TableColumn fx:id="colPrix" text="Prix" prefWidth="100"/>
-            <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
+            <TableColumn fx:id="colNom" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="colPrix" text="Prix" prefWidth="80"/>
+            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="80"/>
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="150"/>
+            <TableColumn fx:id="colImage" text="Image" prefWidth="100"/>
+            <TableColumn fx:id="colClub" text="Club" prefWidth="80"/>
             <TableColumn fx:id="colActions" text="Actions" prefWidth="100"/>
         </columns>
     </TableView>
 
     <!-- Formulaire de Saisie -->
-    <VBox spacing="10" alignment="CENTER" prefWidth="600">
-        <TextField fx:id="txtNom" promptText="Nom du produit" prefWidth="400"/>
-        <TextField fx:id="txtPrix" promptText="Prix du produit" prefWidth="400"/>
-        <TextArea fx:id="txtDescription" promptText="Description du produit" prefWidth="400" wrapText="true" />
+    <GridPane hgap="10" vgap="10" alignment="CENTER">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
 
+        <columnConstraints>
+            <ColumnConstraints minWidth="100" />
+            <ColumnConstraints minWidth="300" />
+        </columnConstraints>
 
-        <!-- Boutons de sauvegarde et de mise à jour -->
-        <HBox spacing="10" alignment="CENTER">
-            <Button fx:id="btnSave" text="Ajouter" />
-            <Button fx:id="btnUpdate" text="Modifier" visible="false"/>
-            <Button fx:id="btnCancel" text="Annuler"/>
-            <Button fx:id="btnGoToCommande" text="Vers Commandes" onAction="#goToCommande" />
+        <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <TextField fx:id="txtNom" promptText="Nom du produit" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
+        <Label text="Prix:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="txtPrix" promptText="Prix du produit" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <TextField fx:id="txtQuantity" promptText="Quantité disponible" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+        <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+        <TextArea fx:id="txtDescription" promptText="Description du produit" prefHeight="80" wrapText="true"
+                  GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+        <Label text="Image:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+        <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <TextField fx:id="txtImage" promptText="Chemin de l'image" HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnBrowse" text="Parcourir" onAction="#browseImage" />
         </HBox>
-    </VBox>
+
+        <Label text="Club:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+        <ComboBox fx:id="comboClub" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+    </GridPane>
+
+    <!-- Boutons de sauvegarde et de mise à jour -->
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnSave" text="Ajouter" onAction="#saveProduit"/>
+        <Button fx:id="btnUpdate" text="Modifier" onAction="#updateProduit" visible="false"/>
+        <Button fx:id="btnCancel" text="Annuler" onAction="#resetForm"/>
+        <Button fx:id="btnGoToCommande" text="Vers Commandes" onAction="#goToCommande"/>
+    </HBox>
 
 </VBox>

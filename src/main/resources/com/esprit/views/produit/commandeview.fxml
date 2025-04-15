@@ -6,7 +6,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.esprit.controllers.crud.CommandeController"
-      spacing="15" padding="20">
+      spacing="15" padding="Insets(20)">
+
 
     <!-- Formulaire -->
     <HBox spacing="10">
