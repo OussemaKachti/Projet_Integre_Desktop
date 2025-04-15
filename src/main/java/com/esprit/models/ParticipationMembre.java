@@ -2,16 +2,41 @@ package com.esprit.models;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 /**
  * Modèle pour la participation d'un membre à un club
  * Équivalent de l'entité ParticipationMembre dans Symfony
  */
+@Entity
+@Table(name = "participation_membre")
 public class ParticipationMembre {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    
+    @Column(name = "date_request")
     private LocalDateTime dateRequest;
+    
+    @Column(name = "statut")
     private String statut; // Valeurs possibles : enAttente, accepte, refuse
+    
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
+    
+    @ManyToOne
+    @JoinColumn(name = "club_id")
     private Club club;
+    
+    @Column(name = "description")
     private String description;
     
     public ParticipationMembre() {
