@@ -1,0 +1,73 @@
+/* Header Styles */
+.header {
+    -fx-background-color: white;
+    -fx-spacing: 10;
+    -fx-padding: 10;
+}
+
+.header-top {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 5 15;
+    -fx-spacing: 10;
+}
+
+.header-info {
+    -fx-spacing: 20;
+}
+
+.header-user {
+    -fx-spacing: 10;
+    -fx-alignment: center-right;
+}
+
+/* Main Menu Styles */
+.main-menu {
+    -fx-spacing: 10;
+    -fx-padding: 10;
+}
+
+.main-menu .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333333;
+}
+
+.main-menu .button:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Footer Styles */
+.footer {
+    -fx-background-color: #2b4eff;
+    -fx-padding: 20;
+}
+
+.footer-content {
+    -fx-spacing: 30;
+    -fx-padding: 20;
+}
+
+.footer-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.footer-links {
+    -fx-spacing: 10;
+}
+
+.footer-links .hyperlink {
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+/* Buttons */
+.btn-subscribe {
+    -fx-background-color: #2b4eff;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+}
+
+.btn-subscribe:hover {
+    -fx-background-color: #1e3acc;
+}

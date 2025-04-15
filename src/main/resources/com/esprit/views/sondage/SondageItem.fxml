@@ -1,0 +1,45 @@
+<VBox xmlns="http://javafx.com/javafx" spacing="10" 
+      style="-fx-background-color: white; -fx-border-color: #dee2e6; 
+             -fx-border-radius: 5; -fx-padding: 15;">
+             
+    <!-- En-tête du sondage -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <ImageView fx:id="imgUser" fitHeight="40" fitWidth="40"/>
+        <VBox>
+            <Label fx:id="lblUserName" style="-fx-font-weight: bold;"/>
+            <Label fx:id="lblDate" style="-fx-text-fill: #6c757d;"/>
+        </VBox>
+        <Button fx:id="btnViewSummary" text="View Summary" 
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white;"/>
+    </HBox>
+    
+    <!-- Question -->
+    <Label fx:id="lblQuestion" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+    
+    <!-- Options avec barres de progression -->
+    <VBox fx:id="vboxOptions" spacing="10">
+        <!-- Les options seront ajoutées dynamiquement -->
+    </VBox>
+    
+    <!-- Bouton de vote -->
+    <Button fx:id="btnSubmitVote" text="Submit Vote"
+            style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+            
+    <!-- Section commentaires -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label fx:id="lblCommentCount" text="0 Comments"/>
+        <Button fx:id="btnShowComments" text="Show Comments"
+                style="-fx-background-color: transparent; -fx-text-fill: #0d6efd;"/>
+    </HBox>
+    
+    <!-- Zone de commentaire -->
+    <VBox fx:id="vboxCommentSection" visible="false" spacing="10">
+        <TextArea fx:id="txtComment" promptText="Write a comment..."
+                  prefRowCount="3"/>
+        <Button fx:id="btnPostComment" text="Post Comment"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white;"/>
+        <VBox fx:id="vboxComments" spacing="10">
+            <!-- Les commentaires seront ajoutés dynamiquement -->
+        </VBox>
+    </VBox>
+</VBox> 

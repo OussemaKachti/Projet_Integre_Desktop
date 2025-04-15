@@ -1,0 +1,73 @@
+.sondage-container {
+    -fx-background-color: white;
+}
+
+.header-banner {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);
+}
+
+.banner-title {
+    -fx-font-size: 48px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.poll-item {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-background-radius: 5;
+}
+
+.poll-header {
+    -fx-alignment: center-left;
+}
+
+.profile-pic {
+    -fx-background-radius: 20;
+}
+
+.poll-question {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0;
+}
+
+.btn-summary {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.poll-progress {
+    -fx-pref-height: 20;
+}
+
+.btn-submit {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+}
+
+.create-poll-section {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-background-radius: 5;
+}
+
+.section-title {
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.question-input, .option-input {
+    -fx-pref-height: 40;
+    -fx-background-radius: 5;
+}
+
+.btn-create {
+    -fx-background-color: #2b4eff;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+}

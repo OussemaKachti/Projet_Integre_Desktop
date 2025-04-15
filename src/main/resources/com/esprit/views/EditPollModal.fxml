@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" styleClass="modal-dialog" stylesheets="@../styles/poll-management-style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER_LEFT" prefWidth="600.0" styleClass="modal-header">
+         <children>
+            <Label styleClass="modal-title" text="Edit Poll">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <HBox HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" styleClass="close-button" text="×">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+         </padding>
+      </HBox>
+      <ScrollPane fitToWidth="true" prefHeight="400.0" prefWidth="600.0" styleClass="modal-body">
+         <content>
+            <VBox prefWidth="578.0" spacing="15.0" styleClass="modal-content">
+               <children>
+                  <Label styleClass="form-label" text="Question">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="pollQuestionInput" prefWidth="578.0" promptText="Poll Question" styleClass="form-control" />
+                  <Label styleClass="form-label" text="Options">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <VBox fx:id="optionsContainer" prefWidth="578.0" spacing="10.0">
+                     <children>
+                        <TextField prefWidth="578.0" promptText="Option 1" styleClass="form-control" />
+                        <TextField prefWidth="578.0" promptText="Option 2" styleClass="form-control" />
+                     </children>
+                  </VBox>
+                  <Button mnemonicParsing="false" styleClass="add-option-button" text="+ Add option">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
+      <HBox alignment="CENTER_RIGHT" prefWidth="600.0" spacing="10.0" styleClass="modal-footer">
+         <children>
+            <Button mnemonicParsing="false" styleClass="cancel-button" text="Cancel" />
+            <Button mnemonicParsing="false" styleClass="save-button" text="Save Changes" />
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+         </padding>
+      </HBox>
+   </children>
+</VBox> 

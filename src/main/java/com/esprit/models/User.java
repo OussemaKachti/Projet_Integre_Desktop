@@ -1,8 +1,9 @@
 
-
 package com.esprit.models;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.esprit.models.enums.RoleEnum;
 
@@ -18,6 +19,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 @Entity
 @Table(name = "user")
 public class User {
@@ -44,8 +46,7 @@ public class User {
     private String email;
 
     @NotBlank(message = "Password cannot be empty")
-    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$",
-            message = "Password must include uppercase, lowercase, numbers, and special characters")
+    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", message = "Password must include uppercase, lowercase, numbers, and special characters")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -53,8 +54,7 @@ public class User {
     private RoleEnum role;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$",
-            message = "Invalid Tunisian phone number format")
+    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$", message = "Invalid Tunisian phone number format")
     @Column(name = "tel", unique = true)
     private String phone;
 
@@ -86,7 +86,14 @@ public class User {
 
     @Column(name = "last_code_sent_time")
     private LocalDateTime lastCodeSentTime;
+    // Collections
+    private List<Sondage> sondages = new ArrayList<>();
+    // private List<ParticipationMembre> participations = new ArrayList<>();
+    private List<Commentaire> commentaires = new ArrayList<>();
 
+    // private List<Like> likes = new ArrayList<>();
+    // private List<ParticipationEvent> participationEvents = new ArrayList<>();
+    // private List<Commande> commandes = new ArrayList<>();
     // Constructors
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -239,6 +246,19 @@ public class User {
 
     public void setLastCodeSentTime(LocalDateTime lastCodeSentTime) {
         this.lastCodeSentTime = lastCodeSentTime;
+    }
+
+    // Collections getters and setters
+    public List<Sondage> getSondages() {
+        return sondages;
+    }
+
+    public void setSondages(List<Sondage> sondages) {
+        this.sondages = sondages;
+    }
+
+    public boolean isAdmin() {
+        return getRole() == RoleEnum.ADMINISTRATEUR;
     }
 
     @Override

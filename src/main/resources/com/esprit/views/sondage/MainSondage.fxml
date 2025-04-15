@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.sondage.SondageController">
+           
+    <VBox spacing="20">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        
+        <!-- Sondage -->
+        <VBox style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);                      -fx-background-radius: 5; -fx-padding: 20;">
+            
+            <!-- En-tête avec avatar et date -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <ImageView fitHeight="40" fitWidth="40">
+                    <Image url="@/images/avatar.png" />
+                </ImageView>
+                <VBox>
+                    <Label style="-fx-font-weight: bold;" text="pres iee" />
+                    <Label style="-fx-text-fill: #6c757d;" text="06 Mar 2025" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnViewSummary" style="-fx-background-color: #0d6efd; -fx-text-fill: white;                                -fx-background-radius: 5;" text="View Summary" />
+            </HBox>
+            
+            <!-- Question -->
+            <Label style="-fx-font-size: 16; -fx-font-weight: bold;                          -fx-padding: 10 0;" text="tunisia / algeria ?" />
+            
+            <!-- Options avec radio buttons et progress bars -->
+            <VBox fx:id="vboxOptions" spacing="15">
+                <VBox spacing="5">
+                    <RadioButton selected="true" text="tunis" />
+                    <StackPane>
+                        <ProgressBar maxWidth="Infinity" progress="0.75" style="-fx-accent: #28a745;" />
+                        <Label style="-fx-text-fill: #6c757d;" text="75%" StackPane.alignment="CENTER_RIGHT">
+                            <padding>
+                                <Insets right="10" />
+                            </padding>
+                        </Label>
+                    </StackPane>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <RadioButton text="al" />
+                    <StackPane>
+                        <ProgressBar maxWidth="Infinity" progress="0.25" style="-fx-accent: #28a745;" />
+                        <Label style="-fx-text-fill: #6c757d;" text="25%" StackPane.alignment="CENTER_RIGHT">
+                            <padding>
+                                <Insets right="10" />
+                            </padding>
+                        </Label>
+                    </StackPane>
+                </VBox>
+            </VBox>
+            
+            <!-- Bouton de vote -->
+            <Button fx:id="btnSubmitVote" alignment="CENTER" maxWidth="100.0" style="-fx-background-color: #6c757d; -fx-text-fill: white;                            -fx-background-radius: 5; -fx-padding: 8 16;" text="Submit Vote" translateY="15.0">
+                <VBox.margin>
+                    <Insets top="10" />
+                </VBox.margin>
+            </Button>
+             <Label alignment="TOP_RIGHT" style="-fx-text-fill: #6c757d;" text="Votre choix : No vote" translateX="169.0" translateY="-15.0">
+            <padding>
+               <Insets top="5.0" />
+            </padding>
+            <VBox.margin>
+               <Insets />
+            </VBox.margin>
+         </Label>
+
+          <Button fx:id="btnSubmitVote" alignment="CENTER" maxWidth="100.0" style="-fx-background-color: #6c757d; -fx-text-fill: white;  -fx-background-radius: 5; -fx-padding: 8 16;" text="Delete Vote" translateX="380.0" translateY="-48.0">
+                <VBox.margin>
+                    <Insets top="10" />
+                </VBox.margin>
+            </Button>
+            
+            <!-- Section commentaires -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label style="-fx-text-fill: #6c757d;" text="2 Comments" translateY="-35.0" />
+                <VBox.margin>
+                    <Insets top="20" />
+                </VBox.margin>
+            </HBox>
+            
+            <!-- Zone de commentaire -->
+            <TextArea fx:id="txtComment" prefRowCount="3" promptText="Enter your comment ..." style="-fx-background-radius: 5;                                              -fx-border-radius: 5;" translateY="-35.0" />
+            <Button fx:id="btnPostComment" maxWidth="150" style="-fx-background-color: #0d6efd; -fx-text-fill: white;                            -fx-background-radius: 5; -fx-padding: 8 16;" text="Post Comment" translateY="-35.0">
+                <VBox.margin>
+                    <Insets top="10" />
+                </VBox.margin>
+            </Button>
+        </VBox>
+    </VBox>
+</ScrollPane>
