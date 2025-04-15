@@ -24,7 +24,7 @@ import javafx.scene.chart.XYChart;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.Map;
@@ -175,19 +175,24 @@ public class ReponseController implements Initializable {
                     User currentUser = null;
                     try {
                         currentUser = userService.getById(1);
+                        
+                        boolean canDelete = (reponse.getUser() != null && 
+                                          reponse.getUser().getId() == currentUser.getId());
+                        
+                        deleteButton.setDisable(!canDelete);
+                        
+                        HBox buttons = new HBox(5, deleteButton);
+                        buttons.setPadding(new Insets(0, 0, 0, 5));
+                        setGraphic(buttons);
                     } catch (SQLException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
-                    } // Utilisateur statique ID=1
-                    
-                    boolean canDelete = (reponse.getUser() != null && 
-                                        reponse.getUser().getId() == currentUser.getId());
-                    
-                    deleteButton.setDisable(!canDelete);
-                    
-                    HBox buttons = new HBox(5, deleteButton);
-                    buttons.setPadding(new Insets(0, 0, 0, 5));
-                    setGraphic(buttons);
+                        // En cas d'erreur, désactiver le bouton
+                        deleteButton.setDisable(true);
+                        
+                        HBox buttons = new HBox(5, deleteButton);
+                        buttons.setPadding(new Insets(0, 0, 0, 5));
+                        setGraphic(buttons);
+                    }
                 }
             }
         });
@@ -235,8 +240,8 @@ public class ReponseController implements Initializable {
             }
             
             // Vérifier si l'utilisateur a déjà voté
-            User currentUser = userService.getById(1); // Utilisateur statique ID=1
             try {
+                User currentUser = userService.getById(1); // Utilisateur statique ID=1
                 Reponse existingReponse = reponseService.getUserResponseForPoll(currentUser.getId(), sondage.getId());
                 
                 if (existingReponse != null) {
@@ -257,9 +262,10 @@ public class ReponseController implements Initializable {
                 } else {
                     btnVote.setText("Voter");
                 }
-                
             } catch (SQLException e) {
                 // Ignorer l'erreur et continuer
+                e.printStackTrace();
+                btnVote.setText("Voter");
             }
             
         } catch (SQLException e) {
@@ -367,7 +373,7 @@ public class ReponseController implements Initializable {
             if (existingReponse != null) {
                 // Mettre à jour la réponse existante
                 existingReponse.setChoixSondage(selectedChoix);
-                existingReponse.setDateReponse(LocalDateTime.now());
+                existingReponse.setDateReponse(LocalDate.now());
                 
                 reponseService.update(existingReponse);
                 
@@ -379,7 +385,7 @@ public class ReponseController implements Initializable {
                 reponse.setUser(currentUser);
                 reponse.setSondage(currentSondage);
                 reponse.setChoixSondage(selectedChoix);
-                reponse.setDateReponse(LocalDateTime.now());
+                reponse.setDateReponse(LocalDate.now());
                 
                 reponseService.add(reponse);
                 

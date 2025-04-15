@@ -105,6 +105,46 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
+        
+        <!-- Jakarta Mail for sending emails -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        
+        <!-- FontAwesomeFX -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
+        
+        <!-- Additional FontAwesomeFX Dependencies -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-commons</artifactId>
+            <version>9.1.2</version>
+        </dependency>
+
+        <!-- JFoenix Material Design Library -->
+        <dependency>
+            <groupId>com.jfoenix</groupId>
+            <artifactId>jfoenix</artifactId>
+            <version>9.0.10</version>
+        </dependency>
+        
+        <!-- JSON Library -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,7 +154,16 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.esprit.MainApp</mainClass>
+                    <mainClass>com.esprit.SondageApplication</mainClass>
+                    <!-- <mainClass>com.esprit.AdminCommentsApplication</mainClass> -->
+ 
+    <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
+                    <options>
+                        <option>--add-opens</option>
+                        <option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.graphics/javafx.scene=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
             <plugin>

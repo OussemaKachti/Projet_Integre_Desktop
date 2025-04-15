@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="750.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/poll-management-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Pane prefHeight="150.0" prefWidth="1200.0" styleClass="header-section" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="469.0" layoutY="51.0" styleClass="header-title" text="Poll Statistics">
+               <font>
+                  <Font name="System Bold" size="36.0" />
+               </font>
+            </Label>
+            <HBox alignment="CENTER" layoutX="419.0" layoutY="105.0" spacing="10.0" styleClass="breadcrumb">
+               <children>
+                  <Label styleClass="breadcrumb-item" text="Home" />
+                  <Label styleClass="breadcrumb-separator" text="&gt;" />
+                  <Label styleClass="breadcrumb-item" text="Polls" />
+                  <Label styleClass="breadcrumb-separator" text="&gt;" />
+                  <Label styleClass="breadcrumb-item-active" text="Statistics" />
+               </children>
+            </HBox>
+         </children>
+      </Pane>
+   </top>
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="content-section" BorderPane.alignment="CENTER">
+         <content>
+            <VBox prefWidth="1180.0" styleClass="admin-container">
+               <children>
+                  <Label styleClass="section-title" text="Poll Statistics and Analytics">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="15.0">
+                     <children>
+                        <Button mnemonicParsing="false" styleClass="back-button" text="Back">
+                           <HBox.margin>
+                              <Insets bottom="10.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Label text="Select Poll:">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="pollSelector" prefHeight="25.0" prefWidth="400.0" promptText="Select a poll to view statistics" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  
+                  <!-- Poll Information Section -->
+                  <VBox fx:id="pollInfoSection" spacing="10.0" styleClass="poll-info-section">
+                     <children>
+                        <Label fx:id="pollQuestionLabel" styleClass="poll-question" text="What is your favorite programming language?">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <HBox spacing="20.0">
+                           <children>
+                              <Label text="Created on:">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="pollDateLabel" text="2023-06-15" />
+                              <Label text="Total Votes:">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label fx:id="totalVotesLabel" text="125" />
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" />
+                     </padding>
+                  </VBox>
+                  
+                  <!-- Chart Section -->
+                  <HBox spacing="20.0">
+                     <children>
+                        <!-- Pie Chart -->
+                        <VBox alignment="TOP_CENTER" prefHeight="300.0" prefWidth="550.0" styleClass="chart-container">
+                           <children>
+                              <Label styleClass="chart-title" text="Vote Distribution">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <PieChart fx:id="voteDistributionChart" prefHeight="250.0" prefWidth="550.0" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                        
+                        <!-- Bar Chart -->
+                        <VBox alignment="TOP_CENTER" prefHeight="300.0" prefWidth="550.0" styleClass="chart-container">
+                           <children>
+                              <Label styleClass="chart-title" text="Votes by Option">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <BarChart fx:id="votesByOptionChart" prefHeight="250.0" prefWidth="550.0">
+                                 <xAxis>
+                                    <CategoryAxis side="BOTTOM" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis side="LEFT" />
+                                 </yAxis>
+                              </BarChart>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </HBox>
+                  
+                  <!-- Detailed Results Table -->
+                  <Label styleClass="section-subtitle" text="Detailed Results">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TableView fx:id="detailedResultsTable" prefHeight="200.0" prefWidth="1140.0" styleClass="results-table">
+                     <columns>
+                        <TableColumn prefWidth="500.0" text="Option" />
+                        <TableColumn prefWidth="150.0" text="Votes" />
+                        <TableColumn prefWidth="150.0" text="Percentage" />
+                     </columns>
+                  </TableView>
+                  
+                  <!-- Export Options -->
+                  <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" styleClass="export-button" text="Export to CSV" />
+                        <Button mnemonicParsing="false" styleClass="export-button" text="Export to PDF" />
+                     </children>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane> 
