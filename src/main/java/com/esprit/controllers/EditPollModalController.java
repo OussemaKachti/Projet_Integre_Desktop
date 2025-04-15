@@ -113,7 +113,7 @@ public class EditPollModalController implements Initializable {
             stage.centerOnScreen();
         }
     }
-    
+
     /**
      * Set edit mode with existing poll
      */
@@ -348,12 +348,12 @@ public class EditPollModalController implements Initializable {
             
             if (options.size() < 2) {
                 AlertUtils.showWarning("Entrée invalide", "Veuillez saisir au moins 2 options.");
-                return;
-            }
-            
+            return;
+        }
+
             // Set poll data
             currentPoll.setQuestion(question);
-            
+
             if (isCreateMode) {
                 // Create new poll
                 sondageService.add(currentPoll);
@@ -440,7 +440,7 @@ public class EditPollModalController implements Initializable {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Set handler to be called after saving
      */
