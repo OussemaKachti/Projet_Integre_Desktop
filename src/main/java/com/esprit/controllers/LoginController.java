@@ -172,8 +172,8 @@ private void handleLogin(ActionEvent event) {
                 // For admin users, go to admin dashboard
                 navigateToAdminDashboard();
             } else {
-                // For all other users, navigate to profile page
-                navigateToProfile();
+                // For all other users, navigate to home page
+                navigateToHome();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,23 +200,23 @@ private void handleLogin(ActionEvent event) {
     }
 }
     
-    // Navigate to profile page
-   private void navigateToProfile() {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/profile.fxml"));
-        Parent root = loader.load();
-        
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        
-        // Use the utility method for consistent setup
-        MainApp.setupStage(stage, root, "My Profile - UNICLUBS", false);
-        
-        stage.show();
-    } catch (IOException e) {
-        e.printStackTrace();
-        showError("Error navigating to profile: " + e.getMessage());
+    // Method to navigate to home page
+    private void navigateToHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/home.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
+            
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error navigating to home: " + e.getMessage());
+        }
     }
-}
     
     // Helper method for navigation
     private void navigateToView(String viewPath, String title) {

@@ -35,6 +35,12 @@
                </HBox.margin>
             </Button>
             
+            <Button fx:id="homeButton" onAction="#navigateToHome" style="-fx-background-color: transparent; -fx-text-fill: white;" text="Home">
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin>
+            </Button>
+            
             <Button fx:id="logoutButton" onAction="#handleLogout" style="-fx-background-color: white; -fx-text-fill: #00A0E3;" text="Logout" />
          </HBox>
       </HBox>
