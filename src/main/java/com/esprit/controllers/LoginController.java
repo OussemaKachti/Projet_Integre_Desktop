@@ -107,8 +107,8 @@ private void handleLogin(ActionEvent event) {
         SessionManager.getInstance().setCurrentUser(user);
         
         // Navigate to appropriate view based on role
-        // loadDashboard(user);
-        handleUserNavigation(user);
+         loadDashboard(user);
+        //handleUserNavigation(user);
     } catch (Exception e) {
         e.printStackTrace();
         errorLabel.setText("Authentication error: " + e.getMessage());
@@ -173,8 +173,8 @@ private void handleLogin(ActionEvent event) {
                 // For admin users, go to admin dashboard
                 navigateToAdminDashboard();
             } else {
-                // For all other users, navigate to profile page
-                navigateToProfile();
+                // For all other users, navigate to home page
+                navigateToHome();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,7 +224,7 @@ private void handleUserNavigation(User user) {
         if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
             navigateToAdminPolls();
         } else {
-            navigateToSondageView();
+            navigateToHome();
         }
     } catch (Exception e) {
         e.printStackTrace();
@@ -320,6 +320,14 @@ private void navigateToForgotPassword(ActionEvent event) throws IOException {
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
+    }
+
+    private void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
+        stage.show();
     }
 }
 

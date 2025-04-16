@@ -175,6 +175,7 @@
                      <mainClass>com.esprit.MainApp</mainClass> 
  
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
+    <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
                     <options>
                         <option>--add-opens</option>
                         <option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>

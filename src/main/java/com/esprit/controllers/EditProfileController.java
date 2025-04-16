@@ -2,15 +2,16 @@
 package com.esprit.controllers;
 
 import com.esprit.models.User;
+import com.esprit.services.AuthService;
+import com.esprit.utils.ValidationHelper;
+import com.esprit.utils.ValidationUtils;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import com.esprit.services.AuthService;
-import com.esprit.utils.ValidationHelper;
-import com.esprit.utils.ValidationUtils;
 
 public class EditProfileController {
 
@@ -109,11 +110,21 @@ public class EditProfileController {
             validator.showError(firstNameField, "First name must be at least 2 characters");
             isFirstNameValid = false;
         }
+        // Check for profanity in first name
+        if (isFirstNameValid && !ValidationUtils.isCleanText(firstName)) {
+            validator.showError(firstNameField, "First name contains inappropriate language");
+            isFirstNameValid = false;
+        }
         
         // Validate last name
         boolean isLastNameValid = validator.validateRequired(lastNameField, "Last name is required");
         if (isLastNameValid && lastName.length() < 2) {
             validator.showError(lastNameField, "Last name must be at least 2 characters");
+            isLastNameValid = false;
+        }
+        // Check for profanity in last name
+        if (isLastNameValid && !ValidationUtils.isCleanText(lastName)) {
+            validator.showError(lastNameField, "Last name contains inappropriate language");
             isLastNameValid = false;
         }
         
