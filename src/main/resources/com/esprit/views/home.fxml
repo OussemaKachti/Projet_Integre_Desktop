@@ -21,7 +21,19 @@
         
         <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
             <Button text="Home" styleClass="nav-button-selected"/>
-            <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
+            
+            <!-- Clubs dropdown container -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                
+                <!-- Clubs Dropdown Menu - Initially hidden -->
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubPollsItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubPolls">
+                        <Label fx:id="clubPollsLabel" text="Polls" styleClass="dropdown-item-text"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+            
             <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
             <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
             <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>

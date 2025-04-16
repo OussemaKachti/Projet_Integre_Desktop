@@ -22,9 +22,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -43,12 +45,26 @@ import java.util.stream.Collectors;
  */
 public class PollManagementController implements Initializable {
 
-    @FXML private ListView<Sondage> pollsListView;
     @FXML private Button backButton;
     @FXML private Button searchButton;
     @FXML private TextField searchField;
     @FXML private Pane toastContainer;
     @FXML private HBox pageButtonsContainer;
+    
+    // Navbar components
+    @FXML private StackPane clubsContainer;
+    @FXML private Button clubsButton;
+    @FXML private VBox clubsDropdown;
+    @FXML private HBox clubPollsItem;
+    @FXML private Label clubPollsLabel;
+    @FXML private StackPane userProfileContainer;
+    @FXML private ImageView userProfilePic;
+    @FXML private Label userNameLabel;
+    @FXML private VBox profileDropdown;
+    
+    // New UI components
+    @FXML private VBox pollsTableContent;
+    @FXML private StackPane emptyStateContainer;
     
     private final int ITEMS_PER_PAGE = 3;
     private int currentPage = 1;
@@ -74,6 +90,21 @@ public class PollManagementController implements Initializable {
                 return;
             }
 
+            // Set user name in navbar
+            if (userNameLabel != null) {
+                userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            }
+
+            // Initially hide the dropdowns
+            if (profileDropdown != null) {
+                profileDropdown.setVisible(false);
+                profileDropdown.setManaged(false);
+            }
+            if (clubsDropdown != null) {
+                clubsDropdown.setVisible(false);
+                clubsDropdown.setManaged(false);
+            }
+            
             // Get the club where the user is president
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
@@ -81,12 +112,6 @@ public class PollManagementController implements Initializable {
                 navigateBack();
                 return;
             }
-            
-            // Configure list appearance
-            pollsListView.setPlaceholder(new Label("No polls available"));
-            
-            // Setup ListView with custom cell factory
-            setupListView();
             
             // Configure search
             setupSearch();
@@ -102,7 +127,7 @@ public class PollManagementController implements Initializable {
             
             // Set stage to maximized mode after a small delay to ensure UI is fully loaded
             javafx.application.Platform.runLater(() -> {
-                Stage stage = (Stage) pollsListView.getScene().getWindow();
+                Stage stage = (Stage) backButton.getScene().getWindow();
                 if (stage != null) {
                     stage.setMaximized(true);
                 }
@@ -114,102 +139,188 @@ public class PollManagementController implements Initializable {
         }
     }
     
+    // Navigation methods for navbar
+    
+    @FXML
+    public void showProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(true);
+            profileDropdown.setManaged(true);
+        }
+    }
+    
+    @FXML
+    public void hideProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+    
+    @FXML
+    public void showClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(true);
+            clubsDropdown.setManaged(true);
+        }
+    }
+    
+    @FXML
+    public void hideClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(false);
+            clubsDropdown.setManaged(false);
+        }
+    }
+    
+    @FXML
+    public void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/home.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setMaximized(true);
+    }
+    
+    @FXML
+    public void navigateToPolls() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setMaximized(true);
+    }
+    
+    @FXML
+    public void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/profile.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setMaximized(true);
+    }
+    
+    @FXML
+    public void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+        
+        // Navigate to login screen
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+    }
+    
+    @FXML
+    public void navigateToEvents() throws IOException {
+        // Navigate to events page
+        AlertUtils.showInformation("Navigation", "Events page is not yet implemented.");
+    }
+    
+    @FXML
+    public void navigateToProducts() throws IOException {
+        // Navigate to products page
+        AlertUtils.showInformation("Navigation", "Products page is not yet implemented.");
+    }
+    
+    @FXML
+    public void navigateToCompetition() throws IOException {
+        // Navigate to competition page
+        AlertUtils.showInformation("Navigation", "Competition page is not yet implemented.");
+    }
+    
+    @FXML
+    public void navigateToContact() throws IOException {
+        // Navigate to contact page
+        AlertUtils.showInformation("Navigation", "Contact page is not yet implemented.");
+    }
+    
     /**
-     * Configure ListView with custom cell factory
+     * Builds and adds a table row for a single poll
      */
-    private void setupListView() {
-        pollsListView.setCellFactory(listView -> new ListCell<Sondage>() {
-            private final HBox rowContainer = new HBox();
-            private final Label questionLabel = new Label();
-            private final Label optionsLabel = new Label();
-            private final Label dateLabel = new Label();
-            private final Button editButton = new Button("Edit");
-            private final Button deleteButton = new Button("Delete");
-            private final HBox actionsBox = new HBox(10, editButton, deleteButton);
-            
-            {
-                // Configure container to look like a table row
-                rowContainer.setAlignment(Pos.CENTER_LEFT);
-                rowContainer.setPadding(new Insets(0, 5, 0, 5));
-                
-                // Question column
-                questionLabel.setPrefWidth(500);
-                questionLabel.setMaxWidth(500);
-                questionLabel.setWrapText(true);
-                questionLabel.getStyleClass().add("table-cell-question");
-                
-                // Options column
-                optionsLabel.setPrefWidth(400);
-                optionsLabel.setMaxWidth(400);
-                optionsLabel.setWrapText(true);
-                optionsLabel.getStyleClass().add("table-cell-options");
-                
-                // Date column
-                dateLabel.setPrefWidth(180);
-                dateLabel.setMaxWidth(180);
-                dateLabel.getStyleClass().add("table-cell-date");
-                
-                // Configure action buttons to match the image
-                editButton.getStyleClass().add("edit-button");
-                editButton.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
-                
-                deleteButton.getStyleClass().add("delete-button");
-                deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
-
-                // Actions column
-                actionsBox.setAlignment(Pos.CENTER);
-                actionsBox.setPrefWidth(180);
-                actionsBox.setMaxWidth(180);
-                actionsBox.getStyleClass().add("table-cell-actions");
-                
-                // Add all elements to the row container with exact spacing as in image
-                rowContainer.getChildren().addAll(questionLabel, optionsLabel, dateLabel, actionsBox);
-                rowContainer.setMinHeight(40);
-                rowContainer.setMaxHeight(40);
-            }
-            
-            @Override
-            protected void updateItem(Sondage poll, boolean empty) {
-                super.updateItem(poll, empty);
-                
-                if (empty || poll == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    // Set question text
-                    questionLabel.setText(poll.getQuestion());
-                    
-                    // Set options text (without prefix, just like in the image)
-                    try {
-                        List<ChoixSondage> options = sondageService.getChoixBySondage(poll.getId());
-                        String optionsText = options.stream()
-                            .map(ChoixSondage::getContenu)
-                            .collect(Collectors.joining(", "));
-                        optionsLabel.setText(optionsText);
-                    } catch (SQLException e) {
-                        optionsLabel.setText("Error loading options");
-                    }
-                    
-                    // Set date text in the format from the image
-                    dateLabel.setText(poll.getCreatedAt().format(dateFormatter));
-                    
-                    // Configure the edit button's action
-                    editButton.setOnAction(e -> openPollModal(poll));
-                    
-                    // Configure the delete button's action
-                    deleteButton.setOnAction(e -> confirmDeletePoll(poll));
-                    
-                    setGraphic(rowContainer);
-                    
-                    // Set row style based on even/odd to match the image
-                    if (getIndex() % 2 == 0) {
-                        rowContainer.setStyle("-fx-background-color: white;");
-                    } else {
-                        rowContainer.setStyle("-fx-background-color: #f8f9fa;");
-                    }
-                }
-            }
+    private void addPollRow(Sondage poll, int index) {
+        // Create the main row container
+        HBox rowContainer = new HBox();
+        rowContainer.getStyleClass().add("modern-table-row");
+        
+        // Add alternating row styles
+        if (index % 2 == 0) {
+            rowContainer.getStyleClass().add("modern-table-row-even");
+        } else {
+            rowContainer.getStyleClass().add("modern-table-row-odd");
+        }
+        
+        // Create the question cell
+        Label questionLabel = new Label(poll.getQuestion());
+        questionLabel.setPrefWidth(450);
+        questionLabel.setMaxWidth(450);
+        questionLabel.setWrapText(true);
+        questionLabel.getStyleClass().add("modern-table-cell");
+        questionLabel.getStyleClass().add("question-cell");
+        
+        // Create the options cell
+        Label optionsLabel = new Label();
+        optionsLabel.setPrefWidth(350);
+        optionsLabel.setMaxWidth(350);
+        optionsLabel.setWrapText(true);
+        optionsLabel.getStyleClass().add("modern-table-cell");
+        optionsLabel.getStyleClass().add("options-cell");
+        
+        // Load options
+        try {
+            List<ChoixSondage> options = sondageService.getChoixBySondage(poll.getId());
+            String optionsText = options.stream()
+                .map(ChoixSondage::getContenu)
+                .collect(Collectors.joining(", "));
+            optionsLabel.setText(optionsText);
+        } catch (SQLException e) {
+            optionsLabel.setText("Error loading options");
+        }
+        
+        // Create the date cell
+        Label dateLabel = new Label(poll.getCreatedAt().format(dateFormatter));
+        dateLabel.setPrefWidth(180);
+        dateLabel.setMaxWidth(180);
+        dateLabel.getStyleClass().add("modern-table-cell");
+        dateLabel.getStyleClass().add("date-cell");
+        
+        // Create the actions cell
+        HBox actionsBox = new HBox(10);
+        actionsBox.setAlignment(Pos.CENTER);
+        actionsBox.setPrefWidth(180);
+        actionsBox.setMaxWidth(180);
+        actionsBox.getStyleClass().add("modern-table-cell");
+        actionsBox.getStyleClass().add("actions-cell");
+        
+        // Create action buttons
+        Button editButton = new Button("Edit");
+        editButton.getStyleClass().add("edit-button");
+        
+        Button deleteButton = new Button("Delete");
+        deleteButton.getStyleClass().add("delete-button");
+        
+        // Set button actions
+        editButton.setOnAction(e -> openPollModal(poll));
+        deleteButton.setOnAction(e -> confirmDeletePoll(poll));
+        
+        // Add buttons to actions box
+        actionsBox.getChildren().addAll(editButton, deleteButton);
+        
+        // Add all elements to row
+        rowContainer.getChildren().addAll(questionLabel, optionsLabel, dateLabel, actionsBox);
+        
+        // Add hover effect - using JavaFX fade transitions for subtle effect
+        rowContainer.setOnMouseEntered(e -> {
+            rowContainer.getStyleClass().add("modern-table-row-hover");
         });
+        
+        rowContainer.setOnMouseExited(e -> {
+            rowContainer.getStyleClass().remove("modern-table-row-hover");
+        });
+        
+        // Add row to table content
+        pollsTableContent.getChildren().add(rowContainer);
     }
     
     /**
@@ -240,6 +351,12 @@ public class PollManagementController implements Initializable {
         totalPages = (int) Math.ceil((double) (filteredPolls != null ? filteredPolls.size() : allPolls.size()) / ITEMS_PER_PAGE);
         updatePagination();
         showCurrentPage();
+        
+        // Show visual feedback for search results
+        if (filteredPolls != null && filteredPolls.isEmpty()) {
+            emptyStateContainer.setVisible(true);
+            emptyStateContainer.setManaged(true);
+        }
     }
     
     /**
@@ -276,29 +393,36 @@ public class PollManagementController implements Initializable {
     /**
      * Charge les sondages dans la liste avec filtre optionnel
      */
-   private void loadPolls(int clubId) throws SQLException {
-    try {
-        // Get polls for the specific club
-        List<Sondage> sondagesList = sondageService.getAll().stream()
-            .filter(sondage -> sondage.getClub() != null && sondage.getClub().getId() == clubId)
-            .collect(Collectors.toList());
-        
-        this.allPolls = FXCollections.observableArrayList(sondagesList);
-        
-        // Calculate total pages
-        totalPages = (int) Math.ceil((double) allPolls.size() / ITEMS_PER_PAGE);
-        
-        // Update pagination
-        updatePagination();
-        
-        // Show current page
-        showCurrentPage();
-        
-    } catch (SQLException e) {
-        AlertUtils.showError("Error", "Failed to load polls: " + e.getMessage());
-        throw e;
+    private void loadPolls(int clubId) throws SQLException {
+        try {
+            // Clear existing content
+            pollsTableContent.getChildren().clear();
+            
+            // Get polls for the specific club
+            List<Sondage> sondagesList = sondageService.getAll().stream()
+                .filter(sondage -> sondage.getClub() != null && sondage.getClub().getId() == clubId)
+                .collect(Collectors.toList());
+            
+            this.allPolls = FXCollections.observableArrayList(sondagesList);
+            
+            // Calculate total pages
+            totalPages = (int) Math.ceil((double) allPolls.size() / ITEMS_PER_PAGE);
+            
+            // Update pagination
+            updatePagination();
+            
+            // Show current page
+            showCurrentPage();
+            
+            // Show/hide empty state
+            emptyStateContainer.setVisible(allPolls.isEmpty());
+            emptyStateContainer.setManaged(allPolls.isEmpty());
+            
+        } catch (SQLException e) {
+            AlertUtils.showError("Error", "Failed to load polls: " + e.getMessage());
+            throw e;
+        }
     }
-}
     
     private void updatePagination() {
         pageButtonsContainer.getChildren().clear();
@@ -327,17 +451,23 @@ public class PollManagementController implements Initializable {
         int fromIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, currentList.size());
         
-        if (fromIndex >= currentList.size()) {
-            pollsListView.setItems(FXCollections.observableArrayList());
-        } else {
-            ObservableList<Sondage> currentPageItems = FXCollections.observableArrayList(
-                currentList.subList(fromIndex, toIndex)
-            );
-            pollsListView.setItems(currentPageItems);
-        }
+        // Clear existing content
+        pollsTableContent.getChildren().clear();
         
-        if (currentList.isEmpty()) {
-            pollsListView.setPlaceholder(new Label("No polls found for your club"));
+        if (fromIndex >= currentList.size()) {
+            // No items to display
+            emptyStateContainer.setVisible(true);
+            emptyStateContainer.setManaged(true);
+        } else {
+            // Create and add rows for current page items
+            List<Sondage> currentPageItems = currentList.subList(fromIndex, toIndex);
+            
+            for (int i = 0; i < currentPageItems.size(); i++) {
+                addPollRow(currentPageItems.get(i), i);
+            }
+            
+            emptyStateContainer.setVisible(false);
+            emptyStateContainer.setManaged(false);
         }
     }
     
@@ -349,59 +479,59 @@ public class PollManagementController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
             VBox modalContent = loader.load();
             
-        // Create scene first before setting the stage
-        Scene modalScene = new Scene(modalContent);
-        
-        // Add stylesheet to scene
-        modalScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/poll-management-style.css").toExternalForm());
-        
-        Stage modalStage = new Stage();
-        modalStage.initModality(Modality.APPLICATION_MODAL);
-        modalStage.setTitle(sondage == null ? "Create Poll" : "Edit Poll");
-        
-        // Set scene to stage before passing it to the controller
-        modalStage.setScene(modalScene);
-        
+            // Create scene first before setting the stage
+            Scene modalScene = new Scene(modalContent);
+            
+            // Add stylesheet to scene
+            modalScene.getStylesheets().add(getClass().getResource("/com/esprit/styles/poll-management-style.css").toExternalForm());
+            
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle(sondage == null ? "Create Poll" : "Edit Poll");
+            
+            // Set scene to stage before passing it to the controller
+            modalStage.setScene(modalScene);
+            
             EditPollModalController controller = loader.getController();
-        controller.setModalStage(modalStage);
-        
-        try {
-            // Get the user's club
-            Club userClub = clubService.findByPresident(currentUser.getId());
-            if (userClub == null) {
-                throw new IllegalStateException("User is not a president of any club");
-            }
+            controller.setModalStage(modalStage);
             
-            if (sondage == null) {
-                controller.setCreateMode(currentUser);
-            } else {
-                Sondage refreshedSondage = sondageService.getById(sondage.getId());
-                if (refreshedSondage != null) {
-                    controller.setEditMode(refreshedSondage, currentUser);
-            } else {
-                controller.setEditMode(sondage, currentUser);
+            try {
+                // Get the user's club
+                Club userClub = clubService.findByPresident(currentUser.getId());
+                if (userClub == null) {
+                    throw new IllegalStateException("User is not a president of any club");
                 }
-            }
-            
-            controller.setOnSaveHandler(() -> {
-                try {
-                    loadPolls(userClub.getId()); // Use userClub.getId() instead of currentUser.getClub()
-                    // showCustomAlert("Success", "Poll operation completed successfully!", "success");
-                } catch (SQLException e) {
-                    showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
+                
+                if (sondage == null) {
+                    controller.setCreateMode(currentUser);
+                } else {
+                    Sondage refreshedSondage = sondageService.getById(sondage.getId());
+                    if (refreshedSondage != null) {
+                        controller.setEditMode(refreshedSondage, currentUser);
+                    } else {
+                        controller.setEditMode(sondage, currentUser);
+                    }
                 }
-            });
-            
-            // Show the modal window
+                
+                controller.setOnSaveHandler(() -> {
+                    try {
+                        loadPolls(userClub.getId()); // Use userClub.getId() instead of currentUser.getClub()
+                        // showCustomAlert("Success", "Poll operation completed successfully!", "success");
+                    } catch (SQLException e) {
+                        showCustomAlert("Error", "Unable to reload polls: " + e.getMessage(), "error");
+                    }
+                });
+                
+                // Show the modal window
             modalStage.showAndWait();
+                
+            } catch (SQLException e) {
+                showCustomAlert("Error", "Failed to prepare poll data: " + e.getMessage(), "error");
+                e.printStackTrace();
+            }
             
-        } catch (SQLException e) {
-            showCustomAlert("Error", "Failed to prepare poll data: " + e.getMessage(), "error");
-            e.printStackTrace();
-        }
-        
-    } catch (IOException e) {
-        showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
+        } catch (IOException e) {
+            showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
             e.printStackTrace();
         }
     }
@@ -476,7 +606,7 @@ public class PollManagementController implements Initializable {
             // Maximiser la fenêtre précédente
             stage.setMaximized(true);
         } else {
-            AlertUtils.showWarning("Navigation", "Impossible de revenir à la vue précédente.");
+            AlertUtils.showInformation("Navigation", "Impossible de revenir à la vue précédente.");
         }
     }
 

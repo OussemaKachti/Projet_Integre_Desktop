@@ -35,7 +35,7 @@
                   <Font name="System Bold" size="20.0" />
                </font>
             </Label>
-         </HBox>
+            </HBox>
          
          <Separator>
             <VBox.margin>
@@ -161,51 +161,51 @@
          </HBox>
          
          <ScrollPane fitToWidth="true" styleClass="content-section" VBox.vgrow="ALWAYS" style="-fx-background-color: #f5f5f5;">
-            <content>
-               <VBox spacing="20.0">
+         <content>
+            <VBox spacing="20.0">
                   <padding>
                      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                   </padding>
                   
                   <!-- Stats Cards with modern shadow and hover effects -->
                   <HBox spacing="15.0">
-                     <!-- Total Polls Card -->
+                        <!-- Total Polls Card -->
                      <VBox styleClass="stat-card" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3); -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #007bff; -fx-border-width: 0 0 0 5;">
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <VBox HBox.hgrow="ALWAYS">
+                                    <VBox HBox.hgrow="ALWAYS">
                               <Label text="TOTAL POLLS" style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
                               <Label fx:id="totalPollsLabel" text="7" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
-                           </VBox>
+                                    </VBox>
                            <Label text="📊" style="-fx-font-size: 28px;" />
-                        </HBox>
+                              </HBox>
                         <padding>
                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
                         <HBox.hgrow>ALWAYS</HBox.hgrow>
-                     </VBox>
-                     
-                     <!-- Total Votes Card -->
+                        </VBox>
+                        
+                        <!-- Total Votes Card -->
                      <VBox styleClass="stat-card" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3); -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #28a745; -fx-border-width: 0 0 0 5;">
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <VBox HBox.hgrow="ALWAYS">
+                                    <VBox HBox.hgrow="ALWAYS">
                               <Label text="TOTAL VOTES" style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
                               <Label fx:id="totalVotesLabel" text="8" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
-                           </VBox>
+                                    </VBox>
                            <Label text="🗳️" style="-fx-font-size: 28px;" />
-                        </HBox>
+                              </HBox>
                         <padding>
                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
                         <HBox.hgrow>ALWAYS</HBox.hgrow>
-                     </VBox>
-                     
-                     <!-- Active Polls Card -->
+                        </VBox>
+                        
+                        <!-- Active Polls Card -->
                      <VBox styleClass="stat-card" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3); -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #17a2b8; -fx-border-width: 0 0 0 5;">
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <VBox HBox.hgrow="ALWAYS">
+                                    <VBox HBox.hgrow="ALWAYS">
                               <Label text="ACTIVE POLLS" style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
                               <Label fx:id="activePollsLabel" text="5" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
-                              <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                          <HBox alignment="CENTER_LEFT" spacing="5.0">
                                  <ProgressBar fx:id="activePollsProgressBar" progress="0.71" style="-fx-accent: #17a2b8; -fx-pref-height: 8;" prefWidth="150.0" />
                                  <Label fx:id="activePollsPercentLabel" text="71%" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" />
                               </HBox>
@@ -216,29 +216,29 @@
                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
                         <HBox.hgrow>ALWAYS</HBox.hgrow>
-                     </VBox>
-                     
-                     <!-- Most Active Club Card -->
+                        </VBox>
+                        
+                        <!-- Most Active Club Card -->
                      <VBox styleClass="stat-card" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3); -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ffc107; -fx-border-width: 0 0 0 5;">
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
-                           <VBox HBox.hgrow="ALWAYS">
+                                    <VBox HBox.hgrow="ALWAYS">
                               <Label text="MOST ACTIVE CLUB" style="-fx-text-fill: #6c757d; -fx-font-size: 14px;" />
                               <Label fx:id="mostActiveClubLabel" text="IEEE" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
                               <Label fx:id="mostActiveClubPollsLabel" text="1 polls" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" />
-                           </VBox>
+                                    </VBox>
                            <Label text="🏆" style="-fx-font-size: 28px;" />
-                        </HBox>
+                              </HBox>
                         <padding>
                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                         </padding>
                         <HBox.hgrow>ALWAYS</HBox.hgrow>
-                     </VBox>
+                        </VBox>
                   </HBox>
                   
                   <!-- Polls Management Title with Search Bar -->
                   <HBox alignment="CENTER_LEFT" spacing="20.0">
                      <Label text="Polls Management" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
-                     <Pane HBox.hgrow="ALWAYS" />
+                              <Pane HBox.hgrow="ALWAYS" />
                      <HBox alignment="CENTER_RIGHT" spacing="10.0">
                         <TextField fx:id="searchInput" promptText="Search polls..." prefWidth="300.0" style="-fx-background-color: white; -fx-background-radius: 20px; -fx-padding: 8px 15px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 2);" />
                         <Button text="Search" styleClass="button-primary" style="-fx-background-radius: 20px;">
@@ -246,9 +246,9 @@
                               <Label text="🔍" style="-fx-text-fill: white;" />
                            </graphic>
                         </Button>
-                     </HBox>
-                  </HBox>
-
+                        </HBox>
+                        </HBox>
+                        
                   <!-- Polls Table with improved styling -->
                   <VBox styleClass="admin-container" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 3);">
                      <padding>
@@ -292,13 +292,13 @@
                      <Label text="Polls Activity Overview" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
                      
                      <LineChart fx:id="activityChart" prefHeight="280.0" style="-fx-background-color: transparent;">
-                        <xAxis>
-                           <CategoryAxis side="BOTTOM" />
-                        </xAxis>
-                        <yAxis>
-                           <NumberAxis side="LEFT" />
-                        </yAxis>
-                     </LineChart>
+                           <xAxis>
+                              <CategoryAxis side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis side="LEFT" />
+                           </yAxis>
+                        </LineChart>
                   </VBox>
                   
                </VBox>
@@ -328,6 +328,6 @@
             </padding>
             <Label text="© 2024 UNICLUBS - Admin Dashboard v1.0" styleClass="footer-text" />
          </HBox>
-      </VBox>
+            </VBox>
    </center>
-</BorderPane>
+</BorderPane> 

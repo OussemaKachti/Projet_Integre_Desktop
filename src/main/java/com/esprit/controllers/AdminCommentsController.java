@@ -344,8 +344,8 @@ public class AdminCommentsController implements Initializable {
 
                                 container.getChildren().addAll(deleteButton);
                                 setGraphic(container);
-                            } else {
-                                setGraphic(deleteButton);
+                        } else {
+                            setGraphic(deleteButton);
                             }
                         }
                     }
@@ -473,10 +473,10 @@ public class AdminCommentsController implements Initializable {
                 // Filter by club name
                 ObservableList<Commentaire> allComments = commentaireService.getAllComments();
                 comments = allComments.stream()
-                        .filter(comment -> comment.getSondage() != null &&
-                                comment.getSondage().getClub() != null &&
-                                comment.getSondage().getClub().getNom().equals(selectedClub))
-                        .collect(Collectors.toList());
+                    .filter(comment -> comment.getSondage() != null && 
+                             comment.getSondage().getClub() != null && 
+                             comment.getSondage().getClub().getNom().equals(selectedClub))
+                    .collect(Collectors.toList());
                 System.out.println("Loaded " + comments.size() + " comments for club: " + selectedClub);
             }
 

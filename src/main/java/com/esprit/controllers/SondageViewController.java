@@ -49,7 +49,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import com.esprit.MainApp;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -116,6 +118,34 @@ public class SondageViewController implements Initializable {
     private final ObservableList<String> clubsList = FXCollections.observableArrayList();
     private int optionCount = 2; // Commence avec 2 options
 
+    // Add these FXML field declarations at the top of the class with the other declarations
+    @FXML
+    private VBox clubsDropdown;
+
+    @FXML
+    private VBox profileDropdown;
+
+    @FXML
+    private StackPane clubsContainer;
+
+    @FXML
+    private Button clubsButton;
+
+    @FXML
+    private HBox clubPollsItem;
+
+    @FXML
+    private Label clubPollsLabel;
+
+    @FXML
+    private StackPane userProfileContainer;
+
+    @FXML
+    private ImageView userProfilePic;
+
+    @FXML
+    private Label userNameLabel;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
@@ -124,6 +154,46 @@ public class SondageViewController implements Initializable {
             if (currentUser == null) {
                 AlertUtils.showError("Error", "No user is currently logged in.");
                 return;
+            }
+
+            // Set user name in navbar
+            if (userNameLabel != null) {
+                userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            }
+
+            // Load profile picture
+            if (userProfilePic != null) {
+                String profilePicture = currentUser.getProfilePicture();
+                if (profilePicture != null && !profilePicture.isEmpty()) {
+                    try {
+                        File imageFile = new File("uploads/profiles/" + profilePicture);
+                        if (imageFile.exists()) {
+                            Image image = new Image(imageFile.toURI().toString());
+                            userProfilePic.setImage(image);
+                        } else {
+                            loadDefaultProfilePic();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        loadDefaultProfilePic();
+                    }
+                } else {
+                    loadDefaultProfilePic();
+                }
+
+                // Apply circular clip to profile picture
+                double radius = 20;
+                userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+            }
+
+            // Initially hide the dropdowns
+            if (profileDropdown != null) {
+                profileDropdown.setVisible(false);
+                profileDropdown.setManaged(false);
+            }
+            if (clubsDropdown != null) {
+                clubsDropdown.setVisible(false);
+                clubsDropdown.setManaged(false);
             }
 
             // Configure club filter
@@ -157,6 +227,18 @@ public class SondageViewController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load default profile picture when user's profile picture is not available
+     */
+    private void loadDefaultProfilePic() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            userProfilePic.setImage(defaultImage);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -220,17 +302,61 @@ public class SondageViewController implements Initializable {
         sondageBox.getStyleClass().add("sondage-box");
         sondageBox.setPadding(new Insets(20));
 
-        // // User info header
-        // HBox userInfoBox = new HBox(10);
-        // userInfoBox.getStyleClass().add("user-info");
-        // userInfoBox.setPadding(new Insets(10));
-
-        // User avatar
-        ImageView avatar = new ImageView(new Image(getClass().getResourceAsStream("/images/user.png")));
+        // User avatar - create ImageView and load image from user's profilePicture
+        ImageView avatar = new ImageView();
         avatar.setFitHeight(40);
         avatar.setFitWidth(40);
         avatar.setPreserveRatio(true);
         avatar.getStyleClass().add("comment-avatar");
+        
+        // Get user's profile picture path
+        String profilePicPath = sondage.getUser().getProfilePicture();
+        
+        // Debug - print profile pic path to console
+        System.out.println("User ID: " + sondage.getUser().getId() + 
+                          ", Name: " + sondage.getUser().getFirstName() + 
+                          ", Profile Pic Path: " + profilePicPath);
+        
+        try {
+            // Check if user has a profile picture
+            if (profilePicPath != null && !profilePicPath.isEmpty()) {
+                // Use the same approach as CommentsModalController - look in uploads/profiles directory
+                File imageFile = new File("uploads/profiles/" + profilePicPath);
+                System.out.println("Trying to load from: " + imageFile.getAbsolutePath());
+                
+                if (imageFile.exists()) {
+                    System.out.println("File exists, loading image");
+                    avatar.setImage(new Image(imageFile.toURI().toString()));
+                } else {
+                    System.out.println("File does not exist");
+                    
+                    // If file doesn't exist in uploads, try the direct path
+                    File directFile = new File(profilePicPath);
+                    if (directFile.exists()) {
+                        System.out.println("Direct file exists, loading image");
+                        avatar.setImage(new Image(directFile.toURI().toString()));
+                    } else {
+                        System.out.println("Direct file does not exist either");
+                        
+                        // Finally try as a resource path
+                        String resourcePath = "/images/" + profilePicPath;
+                        System.out.println("Trying resource path: " + resourcePath);
+                        
+                        try {
+                            if (getClass().getResourceAsStream(resourcePath) != null) {
+                                avatar.setImage(new Image(getClass().getResourceAsStream(resourcePath)));
+                                System.out.println("Successfully loaded from resources");
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Failed to load from resources: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading profile image: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // User name
         Label userName = new Label(sondage.getUser().getFirstName() + " " + sondage.getUser().getLastName());
@@ -562,14 +688,14 @@ public class SondageViewController implements Initializable {
                         reponseService.deleteUserVote(currentUser.getId(), sondage.getId());
 
                         // Show confirmation
-                        showCustomAlert("Success", "Your vote has been deleted successfully.", "success");
+                        showToast("Your vote has been deleted successfully!", "success");
 
                         // Refresh the view
                         refreshData();
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    showCustomAlert("Error", "Failed to delete vote: " + ex.getMessage(), "error");
+                    showToast("Failed to delete vote: " + ex.getMessage(), "error");
                 }
             });
 
@@ -614,7 +740,7 @@ public class SondageViewController implements Initializable {
 
             // Validate selection
             if (selectedOption == null) {
-                showCustomAlert("Warning", "Please select an option to vote.", "warning");
+                showToast("Please select an option to vote.", "warning");
                 return;
             }
 
@@ -634,7 +760,7 @@ public class SondageViewController implements Initializable {
                 if (confirmed) {
                     // Update existing vote
                     reponseService.updateUserVote(currentUser.getId(), sondage.getId(), choixId);
-                    showCustomAlert("Success", "Your vote has been updated successfully!", "success");
+                    showToast("Your vote has been updated successfully!", "success");
 
                     // Refresh the view
                     refreshData();
@@ -642,7 +768,7 @@ public class SondageViewController implements Initializable {
             } else {
                 // Add new vote
                 reponseService.addVote(currentUser.getId(), sondage.getId(), choixId);
-                showCustomAlert("Success", "Your vote has been recorded successfully!", "success");
+                showToast("Your vote has been recorded successfully!", "success");
 
                 // Refresh the view
                 refreshData();
@@ -650,7 +776,7 @@ public class SondageViewController implements Initializable {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            showCustomAlert("Error", "Failed to record vote: " + e.getMessage(), "error");
+            showToast("Failed to record vote: " + e.getMessage(), "error");
         }
     }
 
@@ -661,7 +787,7 @@ public class SondageViewController implements Initializable {
         // Create a temporary label and validate comment
         Label tempLabel = new Label();
         if (!validateComment(content, tempLabel, null)) {
-            showCustomAlert("Warning", tempLabel.getText(), "warning");
+            showToast(tempLabel.getText(), "warning");
             return;
         }
 
@@ -674,7 +800,7 @@ public class SondageViewController implements Initializable {
 
         commentaireService.add(commentaire);
 
-        showCustomAlert("Success", "Your comment has been added successfully!", "success");
+        showToast("Your comment has been added successfully!", "success");
         refreshData();
     }
 
@@ -1033,7 +1159,7 @@ public class SondageViewController implements Initializable {
             // Find the club associated with the current user (president)
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
-                showCustomAlert("Error", "You must be a club president to create polls.", "error");
+                showToast("You must be a club president to create polls.", "error");
             return;
         }
             sondage.setClub(userClub);
@@ -1048,11 +1174,11 @@ public class SondageViewController implements Initializable {
             // Save the poll
             sondageService.add(sondage);
 
+            // Show success toast
+            showToast("Poll created successfully!", "success");
+
             // Reset form
             resetPollForm();
-
-            // Show success popup
-            showCustomAlert("Success", "Your poll has been created successfully!", "success");
 
             // Reload sondages properly - using "all" as filter to show all polls
             filterClubComboBox.getSelectionModel().select("all");
@@ -1060,7 +1186,7 @@ public class SondageViewController implements Initializable {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            showCustomAlert("Error", "An error occurred while creating the poll: " + e.getMessage(), "error");
+            showToast("An error occurred while creating the poll: " + e.getMessage(), "error");
         }
     }
 
@@ -1108,8 +1234,7 @@ public class SondageViewController implements Initializable {
 
                 } else {
                     // If user is not a president, show alert
-                    showCustomAlert(
-                            "Access Restricted",
+                    showToast(
                             "You must be a club president to access poll management.",
                             "warning");
                 }
@@ -1212,7 +1337,7 @@ public class SondageViewController implements Initializable {
             ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
 
             if (comments.isEmpty()) {
-                showCustomAlert("Info", "There are no comments to summarize for this poll.", "info");
+                showToast("There are no comments to summarize for this poll.", "info");
                 return;
             }
 
@@ -1285,14 +1410,14 @@ public class SondageViewController implements Initializable {
             summaryTask.setOnFailed(event -> {
                 loadingStage.close();
                 Throwable exception = summaryTask.getException();
-                showCustomAlert("Error", "Failed to generate summary: " + exception.getMessage(), "error");
+                showToast("Failed to generate summary: " + exception.getMessage(), "error");
             });
 
             new Thread(summaryTask).start();
 
         } catch (SQLException e) {
             e.printStackTrace();
-            showCustomAlert("Error", "Failed to load comments: " + e.getMessage(), "error");
+            showToast("Failed to load comments: " + e.getMessage(), "error");
         }
     }
 
@@ -1525,8 +1650,7 @@ public class SondageViewController implements Initializable {
 
             // Afficher un résumé des emails envoyés
             if (emailsSent > 0) {
-                showCustomAlert(
-                        "Emails Sent",
+                showToast(
                         String.format("Notification emails sent to %d club members", emailsSent),
                         "success");
             }
@@ -1534,10 +1658,233 @@ public class SondageViewController implements Initializable {
         } catch (SQLException e) {
             System.err.println("Error sending notification emails: " + e.getMessage());
             e.printStackTrace();
-            showCustomAlert(
-                    "Email Notification Error",
+            showToast(
                     "Failed to send notification emails to club members: " + e.getMessage(),
                     "warning");
+        }
+    }
+
+    // Add these methods for the navbar
+    @FXML
+    public void showProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(true);
+            profileDropdown.setManaged(true);
+        }
+    }
+
+    @FXML
+    public void hideProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+
+    @FXML
+    public void showClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(true);
+            clubsDropdown.setManaged(true);
+            clubsDropdown.toFront();
+        }
+    }
+
+    @FXML
+    public void hideClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(false);
+            clubsDropdown.setManaged(false);
+        }
+    }
+
+    @FXML
+    public void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToPolls() throws IOException {
+        // Already in polls view, do nothing or refresh
+        refreshData();
+    }
+
+    @FXML
+    public void navigateToMyClub() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+        
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToEvents() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Events.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Products.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    /**
+     * Shows a professional toast notification that automatically disappears after a few seconds
+     * @param message The message to display
+     * @param type The type of toast (success, error, warning)
+     */
+    private void showToast(String message, String type) {
+        try {
+            // Get the scene's root node
+            StackPane root;
+            if (sondagesContainer.getScene() != null && sondagesContainer.getScene().getRoot() instanceof StackPane) {
+                root = (StackPane) sondagesContainer.getScene().getRoot();
+            } else {
+                // Create a new stack pane to overlay the toast
+                root = new StackPane();
+                if (sondagesContainer.getScene() != null) {
+                    Scene currentScene = sondagesContainer.getScene();
+                    // Create a new scene with StackPane as root that contains the original root
+                    Node originalRoot = currentScene.getRoot();
+                    root.getChildren().add(originalRoot);
+                    currentScene.setRoot(root);
+                } else {
+                    return; // No scene available yet
+                }
+            }
+            
+            // Store the final reference to root for use in lambdas
+            final StackPane finalRoot = root;
+            
+            // Create the toast container
+            HBox toast = new HBox();
+            toast.setMaxWidth(400);
+            toast.setMaxHeight(70);
+            toast.setPrefHeight(60);
+            toast.setMinHeight(60);
+            toast.setAlignment(Pos.CENTER_LEFT);
+            toast.setSpacing(15);
+            toast.setPadding(new Insets(15, 20, 15, 20));
+            toast.setStyle("-fx-background-radius: 8; -fx-background-color: " + 
+                (type.equals("success") ? "#4caf50" : 
+                 type.equals("error") ? "#f44336" : "#ff9800") + ";" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);");
+            
+            // Create icon based on type
+            Label icon = new Label();
+            icon.setTextFill(Color.WHITE);
+            icon.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+            
+            if (type.equals("success")) {
+                icon.setText("✓");
+            } else if (type.equals("error")) {
+                icon.setText("✖");
+            } else {
+                icon.setText("⚠");
+            }
+            
+            // Create message text
+            Label text = new Label(message);
+            text.setTextFill(Color.WHITE);
+            text.setStyle("-fx-font-size: 15px; -fx-font-weight: 500;");
+            text.setWrapText(true);
+            
+            // Add elements to toast
+            toast.getChildren().addAll(icon, text);
+            
+            // Position toast at the bottom center
+            StackPane.setAlignment(toast, Pos.BOTTOM_CENTER);
+            StackPane.setMargin(toast, new Insets(0, 0, 100, 0));
+            
+            // Ensure toast is on top
+            toast.toFront();
+            
+            // Store the final toast reference for lambdas
+            final HBox finalToast = toast;
+            
+            // Scale and fade-in transition
+            ScaleTransition scaleIn = new ScaleTransition(Duration.millis(180), finalToast);
+            scaleIn.setFromX(0.8);
+            scaleIn.setFromY(0.8);
+            scaleIn.setToX(1);
+            scaleIn.setToY(1);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(180), finalToast);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            
+            ParallelTransition parallelIn = new ParallelTransition(scaleIn, fadeIn);
+            
+            // Fade-out transition
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(350), finalToast);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setDelay(Duration.seconds(3));
+            fadeOut.setOnFinished(e -> {
+                finalRoot.getChildren().remove(finalToast);
+            });
+            
+            // Add toast to scene and play animations
+            finalRoot.getChildren().add(finalToast);
+            
+            parallelIn.play();
+            parallelIn.setOnFinished(e -> fadeOut.play());
+            
+        } catch (Exception e) {
+            System.err.println("Error showing toast: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

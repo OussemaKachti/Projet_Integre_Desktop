@@ -34,6 +34,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import java.util.Arrays;
+import java.io.File;
 
 public class CommentsModalController implements Initializable {
 
@@ -179,12 +180,33 @@ public class CommentsModalController implements Initializable {
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
         // User avatar
-        ImageView avatar = new ImageView(new Image(getClass().getResourceAsStream("/images/user.png")));
+        ImageView avatar = new ImageView();
         avatar.setFitHeight(40);
         avatar.setFitWidth(40);
         avatar.setPreserveRatio(true);
         avatar.getStyleClass().add("comment-avatar");
-
+        
+        // Load user profile image with fallback to default
+        try {
+            String profilePicPath = comment.getUser().getProfilePicture();
+            if (profilePicPath != null && !profilePicPath.isEmpty()) {
+                File imageFile = new File("uploads/profiles/" + profilePicPath);
+                if (imageFile.exists()) {
+                    avatar.setImage(new Image(imageFile.toURI().toString()));
+                } else {
+                    // Fall back to default if file doesn't exist
+                    avatar.setImage(new Image(getClass().getResourceAsStream("/images/user.png")));
+                }
+            } else {
+                // Fall back to default if no profile pic
+                avatar.setImage(new Image(getClass().getResourceAsStream("/images/user.png")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fall back to default on any error
+            avatar.setImage(new Image(getClass().getResourceAsStream("/images/user.png")));
+        }
+        
         // Add drop shadow effect to avatar
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(3.0);
