@@ -2,20 +2,20 @@ package com.esprit.models;
 
 import com.esprit.models.enums.GoalTypeEnum;
 import javafx.beans.property.*;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 
 public class Competition {
 
     private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty title = new SimpleStringProperty();
-    private final StringProperty description = new SimpleStringProperty();
+    private final StringProperty nomComp = new SimpleStringProperty();
+    private final StringProperty descComp = new SimpleStringProperty();
     private final IntegerProperty points = new SimpleIntegerProperty();
     private final ObjectProperty<LocalDateTime> startDate = new SimpleObjectProperty<>();
     private final ObjectProperty<LocalDateTime> endDate = new SimpleObjectProperty<>();
     private final ObjectProperty<GoalTypeEnum> goalType = new SimpleObjectProperty<>();
     private final IntegerProperty goalValue = new SimpleIntegerProperty();
-    private final ObjectProperty<Saison> saison = new SimpleObjectProperty<>();
+    private final ObjectProperty<Saison> saisonId = new SimpleObjectProperty<>();
     private final StringProperty status = new SimpleStringProperty("activated"); // default status
 
     public Competition() {
@@ -36,27 +36,27 @@ public class Competition {
     }
 
     // --- Title ---
-    public String getTitle() {
-        return title.get();
+    public String getNomComp() {
+        return nomComp.get();
     }
 
-    public void setTitle(String title) {
-        this.title.set(title);
+    public void setNomComp(String nomComp) {
+        this.nomComp.set(nomComp);
     }
 
-    public StringProperty titleProperty() {
-        return title;
+    public StringProperty nomCompProperty() {
+        return nomComp;
     }
 
     // --- Description ---
-    public String getDescription() {
-        return description.get();
+    public String getDescComp() {
+        return descComp.get();
     }
-    public void setDescription(String description) {
-        this.description.set(description);
+    public void setDescComp(String descComp) {
+        this.descComp.set(descComp);
     }
-    public StringProperty descriptionProperty() {
-        return description;
+    public StringProperty descCompProperty() {
+        return descComp;
     }
     // --- Points ---
     public int getPoints() {
@@ -121,16 +121,16 @@ public class Competition {
     }
 
     // --- Saison ---
-    public Saison getSaison() {
-        return saison.get();
+    public Saison getSaisonId() {
+        return saisonId.get();
     }
 
-    public void setSaison(Saison saison) {
-        this.saison.set(saison);
+    public void setSaisonId(Saison saisonId) {
+        this.saisonId.set(saisonId);
     }
 
-    public ObjectProperty<Saison> saisonProperty() {
-        return saison;
+    public ObjectProperty<Saison> saisonIdProperty() {
+        return saisonId;
     }
 
     // --- Status ---

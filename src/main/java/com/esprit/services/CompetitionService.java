@@ -6,7 +6,6 @@ import com.esprit.utils.DatabaseConnection;
 import com.esprit.models.enums.GoalTypeEnum;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,18 +19,18 @@ public class CompetitionService implements IService<Competition> {
 
     @Override
     public void add(Competition competition) throws SQLException {
-        String sql = "INSERT INTO competition (title, description, points, startDate, endDate, goalType, goalValue, saison) " +
+        String sql = "INSERT INTO competition (nom_comp, desc_comp, points, start_date, end_date, goal_type, goal_value, saison_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, competition.getTitle());
-            ps.setString(2, competition.getDescription());
+            ps.setString(1, competition.getNomComp());
+            ps.setString(2, competition.getDescComp());
             ps.setInt(3, competition.getPoints());
             ps.setTimestamp(4, Timestamp.valueOf(competition.getStartDate()));
             ps.setTimestamp(5, Timestamp.valueOf(competition.getEndDate()));
             ps.setString(6, competition.getGoalType().name());
             ps.setInt(7, competition.getGoalValue());
-            ps.setInt(8, competition.getSaison().getId());
+            ps.setInt(8, competition.getSaisonId().getId());
 
             ps.executeUpdate();
         }
@@ -39,18 +38,18 @@ public class CompetitionService implements IService<Competition> {
 
     @Override
     public void update(Competition competition) throws SQLException {
-        String sql = "UPDATE competition SET title = ?, description = ?, points = ?, startDate = ?, endDate = ?, " +
-                "goalType = ?, goalValue = ?, saison = ? WHERE id = ?";
+        String sql = "UPDATE competition SET nom_comp = ?, desc_comp = ?, points = ?, start_date = ?, end_date = ?, " +
+                "goal_type = ?, goal_value = ?, saison_id = ? WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, competition.getTitle());
-            ps.setString(2, competition.getDescription());
+            ps.setString(1, competition.getNomComp());
+            ps.setString(2, competition.getDescComp());
             ps.setInt(3, competition.getPoints());
             ps.setTimestamp(4, Timestamp.valueOf(competition.getStartDate()));
             ps.setTimestamp(5, Timestamp.valueOf(competition.getEndDate()));
             ps.setString(6, competition.getGoalType().name());
             ps.setInt(7, competition.getGoalValue());
-            ps.setInt(8, competition.getSaison().getId());
+            ps.setInt(8, competition.getSaisonId().getId());
             ps.setInt(9, competition.getId());
 
             ps.executeUpdate();
@@ -103,18 +102,18 @@ public class CompetitionService implements IService<Competition> {
     private Competition extractCompetition(ResultSet rs) throws SQLException {
         Competition c = new Competition();
         c.setId(rs.getInt("id"));
-        c.setTitle(rs.getString("title"));
-        c.setDescription(rs.getString("description"));
+        c.setNomComp(rs.getString("nom_comp"));
+        c.setDescComp(rs.getString("desc_comp"));
         c.setPoints(rs.getInt("points"));
-        c.setStartDate(rs.getTimestamp("startDate").toLocalDateTime());
-        c.setEndDate(rs.getTimestamp("endDate").toLocalDateTime());
-        c.setGoalType(GoalTypeEnum.valueOf(rs.getString("goalType")));
-        c.setGoalValue(rs.getInt("goalValue"));
+        c.setStartDate(rs.getTimestamp("start_date").toLocalDateTime());
+        c.setEndDate(rs.getTimestamp("end_date").toLocalDateTime());
+        c.setGoalType(GoalTypeEnum.fromString(rs.getString("goal_type")));
+        c.setGoalValue(rs.getInt("goal_value"));
 
         // Mocked Saison with only id (you can improve this with a SaisonService)
         Saison saison = new Saison();
-        saison.setId(rs.getInt("saison"));
-        c.setSaison(saison);
+        saison.setId(rs.getInt("saison_id"));
+        c.setSaisonId(saison);
 
         return c;
     }

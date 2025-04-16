@@ -114,14 +114,14 @@ public class Saison {
     public void addCompetition(Competition competition) {
         if (!this.competitions.contains(competition)) {
             this.competitions.add(competition);
-            competition.setSaison(this);
+            competition.setSaisonId(this);
         }
     }
 
     public void removeCompetition(Competition competition) {
         this.competitions.remove(competition);
-        if (competition.getSaison() == this) {
-            competition.setSaison(null);
+        if (competition.getSaisonId() == this) {
+            competition.setSaisonId(null);
         }
     }
     @Override
