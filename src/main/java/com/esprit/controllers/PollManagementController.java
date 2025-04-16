@@ -345,10 +345,10 @@ public class PollManagementController implements Initializable {
      * Ouvre la fenêtre modale pour créer ou modifier un sondage
      */
     private void openPollModal(Sondage sondage) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
-        VBox modalContent = loader.load();
-        
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
+            VBox modalContent = loader.load();
+            
         // Create scene first before setting the stage
         Scene modalScene = new Scene(modalContent);
         
@@ -362,7 +362,7 @@ public class PollManagementController implements Initializable {
         // Set scene to stage before passing it to the controller
         modalStage.setScene(modalScene);
         
-        EditPollModalController controller = loader.getController();
+            EditPollModalController controller = loader.getController();
         controller.setModalStage(modalStage);
         
         try {
@@ -378,8 +378,8 @@ public class PollManagementController implements Initializable {
                 Sondage refreshedSondage = sondageService.getById(sondage.getId());
                 if (refreshedSondage != null) {
                     controller.setEditMode(refreshedSondage, currentUser);
-                } else {
-                    controller.setEditMode(sondage, currentUser);
+            } else {
+                controller.setEditMode(sondage, currentUser);
                 }
             }
             
@@ -402,8 +402,8 @@ public class PollManagementController implements Initializable {
         
     } catch (IOException e) {
         showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
-        e.printStackTrace();
-    }
+            e.printStackTrace();
+        }
     }
     
     /**

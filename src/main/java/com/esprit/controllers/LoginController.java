@@ -222,7 +222,7 @@ private void handleUserNavigation(User user) {
     try {
         // Navigate based on user role
         if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
-            navigateToAdminDashboard();
+            navigateToAdminPolls();
         } else {
             navigateToSondageView();
         }
@@ -230,6 +230,21 @@ private void handleUserNavigation(User user) {
         e.printStackTrace();
         errorLabel.setText("Error navigating after login: " + e.getMessage());
         errorLabel.setVisible(true);
+    }
+}
+
+private void navigateToAdminPolls() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        MainApp.setupStage(stage, root, "Polls Management - UNICLUBS", false);
+        stage.setMaximized(true);
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to polls management: " + e.getMessage());
     }
 }
 
