@@ -312,4 +312,40 @@
 
 .separator {
     -fx-padding: 5 0;
+}
+
+/* Navigation Dropdown Styles */
+.nav-dropdown-container {
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.nav-dropdown-menu {
+    -fx-background-color: white;
+    -fx-padding: 8 0;
+    -fx-spacing: 0;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 4);
+    -fx-min-width: 160;
+    -fx-translate-y: 40;
+    -fx-z-index: 1000;
+    -fx-alignment: center-left;
+}
+
+.dropdown-item {
+    -fx-padding: 10 16;
+    -fx-background-radius: 0;
+    -fx-cursor: hand;
+    -fx-min-width: 160;
+    -fx-alignment: center-left;
+    -fx-background-color: transparent;
+}
+
+.dropdown-item:hover {
+    -fx-background-color: #f0f3f5;
+}
+
+.dropdown-item-text {
+    -fx-text-fill: #4B535A;
+    -fx-font-size: 14px;
 } 
