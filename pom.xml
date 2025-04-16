@@ -182,7 +182,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.esprit.MainApp2</mainClass>
+                    <mainClass>com.esprit.MainApp</mainClass>
                     <options>
                         <option>--add-opens</option>
                         <option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
