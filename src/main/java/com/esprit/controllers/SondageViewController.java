@@ -134,7 +134,7 @@ public class SondageViewController implements Initializable {
             sondagesContainer.setSpacing(20);
 
             // Check if user is a club president
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             boolean isPresident = userClub != null;
 
             // Show/hide elements based on user role
@@ -1031,7 +1031,7 @@ public class SondageViewController implements Initializable {
             sondage.setUser(currentUser);
 
             // Find the club associated with the current user (president)
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
             return;
@@ -1088,7 +1088,7 @@ public class SondageViewController implements Initializable {
     private void handleViewAllPolls() {
         try {
             if (currentUser != null) {
-                Club userClub = clubService.findByPresident(currentUser.getId());
+                Club userClub = clubService.findFirstByPresident(currentUser.getId());
 
                 // If user is a club president, open PollManagement view
                 if (userClub != null) {
@@ -1116,7 +1116,7 @@ public class SondageViewController implements Initializable {
             } else {
                 AlertUtils.showError("Error", "User session not found.");
             }
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
             AlertUtils.showError("Error", "Could not open Poll Management: " + e.getMessage());
             e.printStackTrace();
         }
@@ -1407,137 +1407,20 @@ public class SondageViewController implements Initializable {
 
         // Check minimum length (2 characters)
         if (content.trim().length() < 2) {
-            commentErrorLabel.setText("Comment is too short. Minimum 2 characters required.");
+            commentErrorLabel.setText("Comment must be at least 2 characters long.");
             commentErrorLabel.setVisible(true);
             return false;
         }
 
-        // Check maximum length (20 characters)
-        if (content.trim().length() > 20) {
-            commentErrorLabel.setText("Comment is too long. Maximum 20 characters allowed.");
+        // Check maximum length (500 characters)
+        if (content.trim().length() > 500) {
+            commentErrorLabel.setText("Comment cannot exceed 500 characters.");
             commentErrorLabel.setVisible(true);
             return false;
         }
 
-        // Check for inappropriate words
-        List<String> inappropriateWords = Arrays.asList(
-                "insulte", "grossier", "offensive", "vulgar", "idiot", "stupid");
-
-        // Highlight inappropriate words in the textarea and show error message
-        String lowercaseContent = content.toLowerCase();
-        for (String word : inappropriateWords) {
-            if (lowercaseContent.contains(word.toLowerCase())) {
-                // Create a styled text version to highlight the inappropriate word
-                String errorMessage = "Comment contains inappropriate word: \"" + word + "\"";
-                commentErrorLabel.setText(errorMessage);
-                commentErrorLabel.setVisible(true);
-
-                // Mark the inappropriate word in the textarea by using CSS
-                int startIndex = lowercaseContent.indexOf(word.toLowerCase());
-                int endIndex = startIndex + word.length();
-
-                // We can't directly style parts of TextArea, but we can show the validation
-                // error
-                return false;
-            }
-        }
-
-        // Check for too many uppercase letters (more than 50% of alphabetic characters)
-        int uppercaseCount = 0;
-        int lowercaseCount = 0;
-
-        for (char c : content.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                uppercaseCount++;
-            } else if (Character.isLowerCase(c)) {
-                lowercaseCount++;
-            }
-        }
-
-        if (uppercaseCount + lowercaseCount > 0 &&
-                (double) uppercaseCount / (uppercaseCount + lowercaseCount) > 0.5) {
-            commentErrorLabel.setText("Too many uppercase letters. Please avoid shouting.");
-            commentErrorLabel.setVisible(true);
-            return false;
-        }
-
-        // If all validations pass, hide the error message and return true
+        // If we get here, the comment is valid
         commentErrorLabel.setVisible(false);
         return true;
-    }
-
-    /**
-     * Envoie des emails aux membres du club pour les informer du nouveau sondage
-     * 
-     * @param sondage le sondage créé
-     * @param club    le club auquel appartient le sondage
-     */
-    private void sendEmailsToClubMembers(Sondage sondage, Club club) {
-        try {
-            // Récupérer les membres actifs du club (statut "accepte")
-            List<ParticipationMembre> clubMembers = participationService.getParticipationsByClubAndStatut(
-                    club.getId(), "accepte");
-
-            // Préparer les options pour le template d'email
-            String[] optionsArray = sondage.getChoix().stream()
-                    .map(ChoixSondage::getContenu)
-                    .toArray(String[]::new);
-
-            int emailsSent = 0;
-            int emailErrors = 0;
-
-            // Journaliser le nombre de membres
-            System.out.println("Sending emails to " + clubMembers.size() + " club members");
-
-            // Envoyer un email à chaque membre
-            for (ParticipationMembre participation : clubMembers) {
-                User member = participation.getUser();
-
-                // Vérifier que le membre a un email valide
-                if (member != null && member.getEmail() != null && !member.getEmail().isEmpty()) {
-                    // Créer le contenu HTML personnalisé
-                    String emailContent = emailService.createNewPollEmailTemplate(
-                            club.getNom(),
-                            member.getLastName(),
-                            sondage.getQuestion(),
-                            optionsArray);
-
-                    // Envoyer l'email de manière asynchrone
-                    emailService.sendEmailAsync(
-                            member.getEmail(),
-                            "Nouveau sondage dans votre club: " + club.getNom(),
-                            emailContent)
-                            .thenAccept(success -> {
-                                if (success) {
-                                    System.out.println("Email sent successfully to: " + member.getEmail());
-                                } else {
-                                    System.err.println("Failed to send email to: " + member.getEmail());
-                                }
-                            });
-
-                    emailsSent++;
-                } else {
-                    System.out.println("Member doesn't have a valid email: " +
-                            (member != null ? member.getFullName() : "null"));
-                    emailErrors++;
-                }
-            }
-
-            // Afficher un résumé des emails envoyés
-            if (emailsSent > 0) {
-                showCustomAlert(
-                        "Emails Sent",
-                        String.format("Notification emails sent to %d club members", emailsSent),
-                        "success");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Error sending notification emails: " + e.getMessage());
-            e.printStackTrace();
-            showCustomAlert(
-                    "Email Notification Error",
-                    "Failed to send notification emails to club members: " + e.getMessage(),
-                    "warning");
-        }
     }
 }

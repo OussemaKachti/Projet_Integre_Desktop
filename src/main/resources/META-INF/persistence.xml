@@ -6,6 +6,7 @@
              version="3.0">
     <persistence-unit name="uniclubsPU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>com.esprit.models.Club</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dbpi?useUnicode=true&amp;characterEncoding=UTF-8"/>
