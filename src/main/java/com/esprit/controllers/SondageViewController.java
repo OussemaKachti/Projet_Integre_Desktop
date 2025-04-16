@@ -119,24 +119,40 @@ public class SondageViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            // Récupérer l'utilisateur connecté
-            currentUser = userService.getById(8); // Utilisateur par défaut pour les tests (ID 2)
+            // Get the logged-in user from SessionManager
+            currentUser = SessionManager.getInstance().getCurrentUser();
             if (currentUser == null) {
-                AlertUtils.showError("Error", "User with ID=2 does not exist in the database.");
+                AlertUtils.showError("Error", "No user is currently logged in.");
                 return;
             }
 
-            // Configurer le filtre par club
+            // Configure club filter
             setupClubFilter();
 
-            // Appliquer les styles CSS aux composants
+            // Apply CSS styles to components
             sondagesContainer.getStyleClass().add("polls-section");
             sondagesContainer.setSpacing(20);
 
-            // Configurer le bouton View All Polls
-            viewAllPollsButton.setOnAction(e -> handleViewAllPolls());
+            // Check if user is a club president
+            Club userClub = clubService.findByPresident(currentUser.getId());
+            boolean isPresident = userClub != null;
 
-            // Charger les sondages
+            // Show/hide elements based on user role
+            VBox pollCreationContainer = (VBox) viewAllPollsButton.getParent().lookup(".poll-creation-container");
+            if (pollCreationContainer != null) {
+                pollCreationContainer.setVisible(isPresident);
+                pollCreationContainer.setManaged(isPresident);
+            }
+
+            viewAllPollsButton.setVisible(isPresident);
+            viewAllPollsButton.setManaged(isPresident);
+
+            // Configure View All Polls button if user is president
+            if (isPresident) {
+                viewAllPollsButton.setOnAction(e -> handleViewAllPolls());
+            }
+
+            // Load polls
             loadSondages("all");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1071,38 +1087,35 @@ public class SondageViewController implements Initializable {
      */
     private void handleViewAllPolls() {
         try {
-            // Utiliser un utilisateur statique avec ID=2 pour les tests
-            // au lieu de l'utilisateur de la session
-            // if (currentUser != null) {
-            User staticUser = userService.getById(2);
-            Club userClub = clubService.findByPresident(staticUser.getId());
+            if (currentUser != null) {
+                Club userClub = clubService.findByPresident(currentUser.getId());
 
-            // Si l'utilisateur est président d'un club, on ouvre la vue PollManagement
-            if (userClub != null) {
-                // Charger la vue PollManagement
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
-                Parent root = loader.load();
+                // If user is a club president, open PollManagement view
+                if (userClub != null) {
+                    // Load PollManagement view
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
+                    Parent root = loader.load();
 
-                PollManagementController controller = loader.getController();
-                controller.setPreviousScene(viewAllPollsButton.getScene());
+                    PollManagementController controller = loader.getController();
+                    controller.setPreviousScene(viewAllPollsButton.getScene());
 
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) viewAllPollsButton.getScene().getWindow();
-                stage.setScene(scene);
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage) viewAllPollsButton.getScene().getWindow();
+                    stage.setScene(scene);
 
-                // Maximiser la fenêtre sans mode plein écran
-                stage.setMaximized(true);
+                    // Maximize window without fullscreen
+                    stage.setMaximized(true);
 
+                } else {
+                    // If user is not a president, show alert
+                    showCustomAlert(
+                            "Access Restricted",
+                            "You must be a club president to access poll management.",
+                            "warning");
+                }
             } else {
-                // Si l'utilisateur n'est pas président, afficher une alerte
-                showCustomAlert(
-                        "Access Restricted",
-                        "You must be a club president to access poll management.",
-                        "warning");
+                AlertUtils.showError("Error", "User session not found.");
             }
-            // } else {
-            // AlertUtils.showError("Error", "User session not found.");
-            // }
         } catch (SQLException | IOException e) {
             AlertUtils.showError("Error", "Could not open Poll Management: " + e.getMessage());
             e.printStackTrace();
