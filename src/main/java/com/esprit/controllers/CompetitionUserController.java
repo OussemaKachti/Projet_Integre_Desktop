@@ -169,7 +169,7 @@ public class CompetitionUserController {
 
                 // Try database folder convention if exists
                 if (!imageLoaded && !imagePath.startsWith("/") && !imagePath.contains(":")) {
-                    String dbImagePath = "/com/esprit/uploads/" + imagePath;
+                    String dbImagePath = "/com/esprit/images/" + imagePath;
                     Image img = new Image(getClass().getResourceAsStream(dbImagePath));
                     if (!img.isError()) {
                         seasonIcon.setImage(img);

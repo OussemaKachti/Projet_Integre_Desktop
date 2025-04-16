@@ -87,10 +87,10 @@ public class ClubService {
             pst.setString(1, club.getNomC());
             pst.setString(2, club.getDescription());
             pst.setString(3, club.getLogo());
-            pst.setInt(7, club.getPoints());
-            pst.setString(4, club.getStatus());
-            pst.setInt(5, club.getPresident().getId());
-            pst.setInt(6, club.getId());
+            pst.setInt(4, club.getPoints());
+            pst.setString(5, club.getStatus());
+            pst.setInt(6, club.getPresident().getId());
+            pst.setInt(7, club.getId());
 
             
             pst.executeUpdate();
@@ -121,6 +121,12 @@ public class ClubService {
             club.setLogo(rs.getString("logo"));
         } catch (SQLException e) {
             // Ignorer si la colonne n'existe pas
+        }
+        try {
+            club.setPoints(rs.getInt("points"));
+        } catch (SQLException e) {
+            // Default to 0 if column doesn't exist
+            club.setPoints(0);
         }
         
         try {
