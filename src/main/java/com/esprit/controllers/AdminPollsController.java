@@ -560,9 +560,10 @@ public class AdminPollsController implements Initializable {
                 
                 controller.setSondage(sondage);
                 
-                // Récupérer les dimensions de la fenêtre actuelle
-                double width = NavigationManager.getCurrentScene().getWindow().getWidth();
-                double height = NavigationManager.getCurrentScene().getWindow().getHeight();
+                // Get current stage directly from a scene component
+                Stage currentStage = (Stage) pollsTable.getScene().getWindow();
+                double width = currentStage.getWidth();
+                double height = currentStage.getHeight();
                 
                 // Créer la scène avec les dimensions de la fenêtre actuelle
                 Scene scene = new Scene(root, width, height);
@@ -578,8 +579,9 @@ public class AdminPollsController implements Initializable {
                     }
                 }
                 
-                // Utiliser NavigationManager pour naviguer vers la nouvelle vue
-                NavigationManager.navigateTo(scene);
+                // Appliquer la scène directement au stage
+                currentStage.setScene(scene);
+                currentStage.show();
                 
             } catch (Exception e) {
                 System.err.println("Error during loading or showing the view: " + e.getMessage());
@@ -842,6 +844,9 @@ public class AdminPollsController implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
                 Parent root = loader.load();
                 
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) commentsManagementBtn.getScene().getWindow();
+                
                 // Configurer la scène
                 Scene scene = new Scene(root);
                 
@@ -849,8 +854,7 @@ public class AdminPollsController implements Initializable {
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
                 
-                // Utiliser le NavigationManager pour obtenir et configurer la scène
-                Stage stage = NavigationManager.getMainStage();
+                // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
                 stage.show();
@@ -871,7 +875,26 @@ public class AdminPollsController implements Initializable {
         });
         
         // Configurer les autres boutons de navigation si nécessaire
-        userManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des utilisateurs", "info"));
+        userManagementBtn.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+                Parent root = loader.load();
+                
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) userManagementBtn.getScene().getWindow();
+                
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+                
+                // Appliquer la scène au stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to user management: " + e.getMessage(), "error");
+            }
+        });
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
         eventManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
         productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
