@@ -5,6 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.HomeController" 
       styleClass="main-container" stylesheets="@../styles/home.css">
@@ -29,21 +30,23 @@
         
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <!-- User Profile Section -->
-            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
-                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
-                    <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
-                        <Image url="@../images/default-profile.png"/>
-                    </ImageView>
-                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
-                </HBox>
-                
-                <!-- Dropdown Menu -->
-                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
-                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
-                    <Separator/>
-                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
-                </VBox>
-            </StackPane>
+            <Group>
+                <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                    <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                        <StackPane styleClass="profile-pic-container">
+                            <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" preserveRatio="true" styleClass="profile-pic" />
+                        </StackPane>
+                        <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                    </HBox>
+                    
+                    <!-- Dropdown Menu -->
+                    <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                        <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                        <Separator/>
+                        <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                    </VBox>
+                </StackPane>
+            </Group>
             
             <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
         </HBox>

@@ -132,12 +132,19 @@ public class ForgotPasswordController implements Initializable {
             VerifyResetCodeController controller = loader.getController();
             controller.setUserEmail(email);
             
-            Stage stage = (Stage) emailField.getScene().getWindow();
+            // Create a new stage instead of reusing the current one
+            Stage newStage = new Stage();
             
-            // Use consistent naming with the RegisterController
-            MainApp.setupStage(stage, root, "Verify Reset Code - UNICLUBS", true, 700, 700);
+            // Set up the new stage
+            MainApp.setupStage(newStage, root, "Verify Reset Code - UNICLUBS", true, 700, 700);
             
-            stage.show();
+            // Get the current stage to hide it
+            Stage currentStage = (Stage) emailField.getScene().getWindow();
+            currentStage.hide();
+            
+            // Show the new stage and ensure it's centered
+            newStage.show();
+            MainApp.ensureCentered(newStage);
         } catch (IOException e) {
             e.printStackTrace();
             showStatus("Error navigating to verification page: " + e.getMessage(), true);
@@ -150,12 +157,19 @@ public class ForgotPasswordController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
             Parent root = loader.load();
             
-            Stage stage = (Stage) emailField.getScene().getWindow();
+            // Create a new stage instead of reusing the current one
+            Stage newStage = new Stage();
             
-            // Use the overloaded method with appropriate dimensions for login
-            MainApp.setupStage(stage, root, "Login - UNICLUBS", true, 700, 700);
+            // Set up the new stage
+            MainApp.setupStage(newStage, root, "Login - UNICLUBS", true, 700, 700);
             
-            stage.show();
+            // Get the current stage to hide it
+            Stage currentStage = (Stage) emailField.getScene().getWindow();
+            currentStage.hide();
+            
+            // Show the new stage and ensure it's centered
+            newStage.show();
+            MainApp.ensureCentered(newStage);
         } catch (IOException e) {
             e.printStackTrace();
             showStatus("Error loading login page: " + e.getMessage(), true);

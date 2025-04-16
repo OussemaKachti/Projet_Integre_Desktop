@@ -306,15 +306,30 @@ private void navigateToRegister(ActionEvent event) throws IOException {
     
    @FXML
 private void navigateToForgotPassword(ActionEvent event) throws IOException {
+    String email = emailField.getText().trim();
+    
     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/forgot_password.fxml"));
     Parent root = loader.load();
     
-    Stage stage = (Stage) emailField.getScene().getWindow();
+    // Set email if provided
+    if (email != null && !email.isEmpty()) {
+        com.esprit.controllers.ForgotPasswordController controller = loader.getController();
+        controller.setEmailField(email);
+    }
     
-    // Use the utility method for consistent setup
-    MainApp.setupStage(stage, root, "Forgot Password", true);
+    // Create a new stage instead of reusing the current one
+    Stage newStage = new Stage();
     
-    stage.show();
+    // Set up the new stage
+    MainApp.setupStage(newStage, root, "Forgot Password - UNICLUBS", true, 700, 700);
+    
+    // Get the current stage to hide it
+    Stage currentStage = (Stage) emailField.getScene().getWindow();
+    currentStage.hide();
+    
+    // Show the new stage
+    newStage.show();
+    MainApp.ensureCentered(newStage);
 }
     
     private void showError(String message) {

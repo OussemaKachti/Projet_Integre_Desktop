@@ -125,12 +125,19 @@ public class VerifyResetCodeController implements Initializable {
             CreateNewPasswordController controller = loader.getController();
             controller.setResetInfo(code, email);
             
-            Stage stage = (Stage) codeField.getScene().getWindow();
+            // Create a new stage instead of reusing the current one
+            Stage newStage = new Stage();
             
-            // Use consistent naming with the RegisterController
-            MainApp.setupStage(stage, root, "Create New Password - UNICLUBS", true, 700, 700);
+            // Set up the new stage with increased height to show all elements
+            MainApp.setupStage(newStage, root, "Create New Password - UNICLUBS", true, 700, 800);
             
-            stage.show();
+            // Get the current stage to hide it
+            Stage currentStage = (Stage) codeField.getScene().getWindow();
+            currentStage.hide();
+            
+            // Show the new stage and ensure it's centered
+            newStage.show();
+            MainApp.ensureCentered(newStage);
         } catch (IOException e) {
             e.printStackTrace();
             showStatus("Error navigating to password creation page: " + e.getMessage(), true);
@@ -143,12 +150,19 @@ public class VerifyResetCodeController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
             Parent root = loader.load();
             
-            Stage stage = (Stage) codeField.getScene().getWindow();
+            // Create a new stage instead of reusing the current one
+            Stage newStage = new Stage();
             
-            // Use the overloaded method with appropriate dimensions for login
-            MainApp.setupStage(stage, root, "Login - UNICLUBS", true, 700, 700);
+            // Set up the new stage
+            MainApp.setupStage(newStage, root, "Login - UNICLUBS", true, 700, 700);
             
-            stage.show();
+            // Get the current stage to hide it
+            Stage currentStage = (Stage) codeField.getScene().getWindow();
+            currentStage.hide();
+            
+            // Show the new stage and ensure it's centered
+            newStage.show();
+            MainApp.ensureCentered(newStage);
         } catch (IOException e) {
             e.printStackTrace();
             showStatus("Error loading login page: " + e.getMessage(), true);
