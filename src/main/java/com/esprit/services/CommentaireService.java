@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class CommentaireService {
     private Connection connection;
@@ -29,7 +30,11 @@ public class CommentaireService {
 
         try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, commentaire.getContenuComment());
-            pst.setTimestamp(2, Timestamp.valueOf(commentaire.getDateComment()));
+            
+            // Conversion de LocalDate en Timestamp pour la base de données
+            LocalDate date = commentaire.getDateComment();
+            pst.setTimestamp(2, date != null ? Timestamp.valueOf(date.atStartOfDay()) : Timestamp.valueOf(LocalDate.now().atStartOfDay()));
+            
             pst.setInt(3, commentaire.getUser().getId());
             pst.setInt(4, commentaire.getSondage().getId());
 
@@ -52,7 +57,11 @@ public class CommentaireService {
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setString(1, commentaire.getContenuComment());
-            pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            
+            // Conversion de LocalDate en Timestamp pour la base de données
+            LocalDate now = LocalDate.now();
+            pst.setTimestamp(2, Timestamp.valueOf(now.atStartOfDay()));
+            
             pst.setInt(3, commentaire.getId());
             pst.executeUpdate();
         }
@@ -133,9 +142,12 @@ public class CommentaireService {
         Commentaire commentaire = new Commentaire();
         commentaire.setId(rs.getInt("id"));
         commentaire.setContenuComment(rs.getString("contenu_comment"));
-        commentaire.setDateComment(rs.getTimestamp("date_comment").toLocalDateTime());
+        
+        // Conversion of Timestamp to LocalDateTime with null check
+        Timestamp timestamp = rs.getTimestamp("date_comment");
+        commentaire.setDateComment(timestamp != null ? timestamp.toLocalDateTime().toLocalDate() : LocalDate.now());
 
-        // Charger l'utilisateur et le sondage
+        // Load user and poll
         UserService userService = new UserService();
         SondageService sondageService = new SondageService();
 

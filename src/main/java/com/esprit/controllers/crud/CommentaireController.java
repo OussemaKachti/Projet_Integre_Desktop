@@ -19,7 +19,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.Optional;
@@ -126,12 +126,12 @@ public class CommentaireController implements Initializable {
         colUser.setCellValueFactory(cellData -> {
             User user = cellData.getValue().getUser();
             return new SimpleStringProperty(user != null ? 
-                user.getPrenom() + " " + user.getNom() : "Anonyme");
+                user.getLastName() + " " + user.getFirstName() : "Anonyme");
         });
         
         colDate.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getDateComment()
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         
         setupActionsColumn();
     }
@@ -165,13 +165,9 @@ public class CommentaireController implements Initializable {
                 } else {
                     // Vérifier si l'utilisateur courant est l'auteur du commentaire
                     Commentaire commentaire = getTableView().getItems().get(getIndex());
-                    User currentUser = null; // Utilisateur statique ID=1
-                    try {
-                        currentUser = userService.getById(1);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-
+                    User currentUser = null;
+                    currentUser = userService.getById(1); // Utilisateur statique ID=1
+               
                     boolean isAuthor = (commentaire.getUser() != null && 
                                       commentaire.getUser().getId() == currentUser.getId());
                     
@@ -247,7 +243,7 @@ public class CommentaireController implements Initializable {
             
             Commentaire commentaire = new Commentaire();
             commentaire.setContenuComment(txtContenu.getText());
-            commentaire.setDateComment(LocalDateTime.now());
+            commentaire.setDateComment(LocalDate.now());
             commentaire.setUser(currentUser);
             commentaire.setSondage(selectedSondage);
             
@@ -291,7 +287,7 @@ public class CommentaireController implements Initializable {
             }
             
             currentCommentaire.setContenuComment(txtContenu.getText());
-            currentCommentaire.setDateComment(LocalDateTime.now()); // Mettre à jour la date
+            currentCommentaire.setDateComment(LocalDate.now()); // Mettre à jour la date
             
             commentaireService.update(currentCommentaire);
             
@@ -311,34 +307,27 @@ public class CommentaireController implements Initializable {
      * Prépare le formulaire pour modifier un commentaire existant
      */
     private void editCommentaire(Commentaire commentaire) {
-        // Vérifier si l'utilisateur est l'auteur du commentaire
-        try {
-            User currentUser = userService.getById(1);
-            if (currentUser == null || commentaire.getUser() == null || 
-                commentaire.getUser().getId() != currentUser.getId()) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", 
-                         "Non autorisé", "Vous ne pouvez modifier que vos propres commentaires.");
-                return;
-            }
-            
-            currentCommentaire = commentaire;
-            txtContenu.setText(commentaire.getContenuComment());
-            
-            // Sélectionner le sondage correspondant
-            cbSondages.getSelectionModel().select(commentaire.getSondage());
-            
-            // Passer en mode édition
-            editMode = true;
-            btnSave.setVisible(false);
-            btnUpdate.setVisible(true);
-            
-            // Désactiver la sélection du sondage
-            cbSondages.setDisable(true);
-            
-        } catch (SQLException e) {
+        User currentUser = userService.getById(1);
+        if (currentUser == null || commentaire.getUser() == null || 
+            commentaire.getUser().getId() != currentUser.getId()) {
             showAlert(Alert.AlertType.ERROR, "Erreur", 
-                     "Erreur lors du chargement de l'utilisateur", e.getMessage());
+                     "Non autorisé", "Vous ne pouvez modifier que vos propres commentaires.");
+            return;
         }
+        
+        currentCommentaire = commentaire;
+        txtContenu.setText(commentaire.getContenuComment());
+        
+        // Sélectionner le sondage correspondant
+        cbSondages.getSelectionModel().select(commentaire.getSondage());
+        
+        // Passer en mode édition
+        editMode = true;
+        btnSave.setVisible(false);
+        btnUpdate.setVisible(true);
+        
+        // Désactiver la sélection du sondage
+        cbSondages.setDisable(true);
     }
     
     /**

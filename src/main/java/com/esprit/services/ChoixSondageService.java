@@ -9,6 +9,8 @@ import javafx.collections.ObservableList;
 import com.esprit.utils.DataSource;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChoixSondageService {
     private Connection connection;
@@ -146,5 +148,34 @@ public class ChoixSondageService {
 
         int responses = getResponseCount(choixId);
         return (responses * 100.0) / totalResponses;
+    }
+
+    public List<ChoixSondage> getBySondageId(int sondageId) throws SQLException {
+        List<ChoixSondage> options = new ArrayList<>();
+        String query = "SELECT * FROM choix_sondage WHERE sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, sondageId);
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    options.add(mapResultSetToOption(rs));
+                }
+            }
+        }
+        
+        return options;
+    }
+
+    private ChoixSondage mapResultSetToOption(ResultSet rs) throws SQLException {
+        ChoixSondage option = new ChoixSondage();
+        option.setId(rs.getInt("id"));
+        option.setContenu(rs.getString("contenu"));
+        
+        // Load the related sondage (more efficient to do this separately when needed)
+        SondageService sondageService = new SondageService();
+        option.setSondage(sondageService.getById(rs.getInt("sondage_id")));
+        
+        return option;
     }
 }

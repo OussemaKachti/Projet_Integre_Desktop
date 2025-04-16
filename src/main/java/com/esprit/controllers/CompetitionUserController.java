@@ -491,10 +491,15 @@ public class CompetitionUserController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-        // Apply custom styling to the dialog
+        // Apply custom styling to the dialog - use an existing CSS file
         DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/competition-user.css").toExternalForm());
-        dialogPane.getStyleClass().add("custom-alert");
+        try {
+            dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            dialogPane.getStyleClass().add("custom-alert");
+        } catch (Exception e) {
+            // Fallback if CSS file cannot be loaded - just show the alert without styling
+            System.err.println("Could not load CSS file: " + e.getMessage());
+        }
 
         alert.showAndWait();
     }

@@ -2,7 +2,7 @@ package com.esprit.services;
 
 import com.esprit.models.Competition;
 import com.esprit.models.Saison;
-import com.esprit.utils.DatabaseConnection;
+import com.esprit.utils.DataSource;
 import com.esprit.models.enums.GoalTypeEnum;
 
 import java.sql.*;
@@ -14,7 +14,7 @@ public class CompetitionService implements IService<Competition> {
     private final Connection connection;
 
     public CompetitionService() {
-        this.connection = DatabaseConnection.getInstance().getCnx();
+        this.connection = DataSource.getInstance().getCnx();
     }
 
     @Override
@@ -105,15 +105,47 @@ public class CompetitionService implements IService<Competition> {
         c.setNomComp(rs.getString("nom_comp"));
         c.setDescComp(rs.getString("desc_comp"));
         c.setPoints(rs.getInt("points"));
-        c.setStartDate(rs.getTimestamp("start_date").toLocalDateTime());
-        c.setEndDate(rs.getTimestamp("end_date").toLocalDateTime());
-        c.setGoalType(GoalTypeEnum.fromString(rs.getString("goal_type")));
-        c.setGoalValue(rs.getInt("goal_value"));
+        
+        // Handle timestamps that might be null
+        java.sql.Timestamp startTimestamp = rs.getTimestamp("start_date");
+        if (startTimestamp != null) {
+            c.setStartDate(startTimestamp.toLocalDateTime());
+        }
+        
+        java.sql.Timestamp endTimestamp = rs.getTimestamp("end_date");
+        if (endTimestamp != null) {
+            c.setEndDate(endTimestamp.toLocalDateTime());
+        }
+        
+        // Handle goal_type and goal_value columns that might not exist
+        try {
+            String goalType = rs.getString("goal_type");
+            if (goalType != null) {
+                c.setGoalType(GoalTypeEnum.fromString(goalType));
+            } else {
+                c.setGoalType(GoalTypeEnum.NONE); // Provide a default value
+            }
+        } catch (SQLException e) {
+            // Column doesn't exist, set a default
+            c.setGoalType(GoalTypeEnum.NONE);
+        }
+        
+        try {
+            c.setGoalValue(rs.getInt("goal_value"));
+        } catch (SQLException e) {
+            // Column doesn't exist, set a default value of 0
+            c.setGoalValue(0);
+        }
 
-        // Mocked Saison with only id (you can improve this with a SaisonService)
-        Saison saison = new Saison();
-        saison.setId(rs.getInt("saison_id"));
-        c.setSaisonId(saison);
+        // Mocked Saison with only id
+        try {
+            Saison saison = new Saison();
+            saison.setId(rs.getInt("saison_id"));
+            c.setSaisonId(saison);
+        } catch (SQLException e) {
+            // If saison_id doesn't exist, set null
+            c.setSaisonId(null);
+        }
 
         return c;
     }

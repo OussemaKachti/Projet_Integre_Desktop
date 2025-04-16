@@ -1,150 +1,111 @@
 package com.esprit.models;
 
-import javafx.beans.property.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
+@Entity
+@Table(name = "club")
 public class Club {
-    private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty nomC = new SimpleStringProperty();
-    private final StringProperty description = new SimpleStringProperty();
-    private final StringProperty logo = new SimpleStringProperty();
-    private final ObjectProperty<LocalDateTime> dateCreation = new SimpleObjectProperty<>();
-    private final ObjectProperty<User> president = new SimpleObjectProperty<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    public int getPoints() {
-        return points.get();
-    }
+    @Column(name = "nom", nullable = false)
+    private String nom;
 
-    public IntegerProperty pointsProperty() {
-        return points;
-    }
-    public void setPoints(int points) {
-        this.points.set(points);
-    }
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-    private final IntegerProperty points = new SimpleIntegerProperty();
-    private final StringProperty status = new SimpleStringProperty();
-    private List<User> membres = new ArrayList<>();
-    private List<Sondage> sondages = new ArrayList<>();
+    @Column(name = "date_creation")
+    private LocalDate dateCreation;
+    
+    @Column(name = "logo")
+    private String logo;
+    
+    @Column(name = "points")
+    private int points;
 
     public Club() {
-        this.dateCreation.set(LocalDateTime.now());
     }
 
-    // Getters and Setters with Properties
+    public Club(int id, String nom, String description, LocalDate dateCreation) {
+        this.id = id;
+        this.nom = nom;
+        this.description = description;
+        this.dateCreation = dateCreation;
+    }
+    
+    public Club(int id, String nom, String description, LocalDate dateCreation, String logo, int points) {
+        this.id = id;
+        this.nom = nom;
+        this.description = description;
+        this.dateCreation = dateCreation;
+        this.logo = logo;
+        this.points = points;
+    }
+
     public int getId() {
-        return id.get();
-    }
-
-    public IntegerProperty idProperty() {
         return id;
     }
 
     public void setId(int id) {
-        this.id.set(id);
+        this.id = id;
     }
 
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+    
+    // Method needed by other parts of the application
     public String getNomC() {
-        return nomC.get();
-    }
-
-    public StringProperty nomCProperty() {
-        return nomC;
-    }
-
-    public void setNomC(String nomC) {
-        this.nomC.set(nomC);
+        return nom;
     }
 
     public String getDescription() {
-        return description.get();
-    }
-
-    public StringProperty descriptionProperty() {
         return description;
     }
 
     public void setDescription(String description) {
-        this.description.set(description);
+        this.description = description;
     }
 
-    public String getLogo() {
-        return logo.get();
-    }
-
-    public StringProperty logoProperty() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo.set(logo);
-    }
-
-    public LocalDateTime getDateCreation() {
-        return dateCreation.get();
-    }
-
-    public ObjectProperty<LocalDateTime> dateCreationProperty() {
+    public LocalDate getDateCreation() {
         return dateCreation;
     }
 
-    public void setDateCreation(LocalDateTime date) {
-        this.dateCreation.set(date);
+    public void setDateCreation(LocalDate dateCreation) {
+        this.dateCreation = dateCreation;
+    }
+    
+    public String getLogo() {
+        return logo;
+    }
+    
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+    
+    public int getPoints() {
+        return points;
+    }
+    
+    public void setPoints(int points) {
+        this.points = points;
     }
 
-    public User getPresident() {
-        return president.get();
-    }
-
-    public ObjectProperty<User> presidentProperty() {
-        return president;
-    }
-
-    public void setPresident(User president) {
-        this.president.set(president);
-    }
-
-    public String getStatus() {
-        return status.get();
-    }
-
-    public StringProperty statusProperty() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status.set(status);
-    }
-
-    // List management
-    public List<User> getMembres() {
-        return membres;
-    }
-
-    public void setMembres(List<User> membres) {
-        this.membres = membres;
-    }
-
-    public List<Sondage> getSondages() {
-        return sondages;
-    }
-
-    public void setSondages(List<Sondage> sondages) {
-        this.sondages = sondages;
-    }
-
-    public void addMembre(User membre) {
-        if (!this.membres.contains(membre)) {
-            this.membres.add(membre);
-        }
-    }
-
-    public void addSondage(Sondage sondage) {
-        if (!this.sondages.contains(sondage)) {
-            this.sondages.add(sondage);
-            sondage.setClub(this);
-        }
+    @Override
+    public String toString() {
+        return "Club{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", description='" + description + '\'' +
+                ", dateCreation=" + dateCreation +
+                ", logo='" + logo + '\'' +
+                ", points=" + points +
+                '}';
     }
 }
