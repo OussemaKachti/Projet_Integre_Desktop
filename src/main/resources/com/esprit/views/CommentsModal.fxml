@@ -11,17 +11,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" styleClass="comments-modal" stylesheets="@../styles/sondage-style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" styleClass="comments-modal" stylesheets="@../styles/sondage-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CommentsModalController">
    <children>
       <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0" styleClass="modal-header">
          <children>
-            <Label styleClass="modal-title" text="All Comments">
+            <Label fx:id="modalTitle" styleClass="modal-title" text="All Comments">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
             <HBox HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" styleClass="close-button" text="×">
+            <Button fx:id="closeButton" mnemonicParsing="false" styleClass="close-button" text="×">
                <font>
                   <Font size="18.0" />
                </font>
@@ -33,7 +33,7 @@
       </HBox>
       <ScrollPane fitToWidth="true" prefHeight="450.0" prefWidth="800.0" styleClass="comments-container">
          <content>
-            <VBox prefWidth="780.0" spacing="10.0" styleClass="comments-list">
+            <VBox fx:id="commentsListContainer" prefWidth="780.0" spacing="10.0" styleClass="comments-list">
                <children>
                   <!-- Comment 1 -->
                   <VBox prefWidth="100.0" styleClass="comment-box">
@@ -42,7 +42,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">
@@ -90,7 +90,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">
@@ -138,7 +138,7 @@
                            <children>
                               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" styleClass="comment-avatar">
                                  <image>
-                                    <Image url="@../images/avatar.png" />
+                                    <Image url="@/images/user.png" />
                                  </image>
                               </ImageView>
                               <VBox prefHeight="42.0" prefWidth="168.0">
@@ -187,7 +187,7 @@
       </ScrollPane>
       <HBox alignment="CENTER_RIGHT" prefWidth="200.0">
          <children>
-            <Button mnemonicParsing="false" styleClass="close-modal-button" text="Close">
+            <Button fx:id="closeModalButton" mnemonicParsing="false" styleClass="close-modal-button" text="Close">
                <HBox.margin>
                   <Insets right="20.0" />
                </HBox.margin>

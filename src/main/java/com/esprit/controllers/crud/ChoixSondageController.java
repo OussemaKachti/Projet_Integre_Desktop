@@ -125,8 +125,10 @@ public class ChoixSondageController implements Initializable {
         colReponses.setCellValueFactory(cellData -> {
             try {
                 int count = choixService.getResponseCount(cellData.getValue().getId());
-                return new SimpleIntegerProperty(count).asObject();            } catch (SQLException e) {
-                return new SimpleIntegerProperty(0).asObject();      // Fallback value
+                return new javafx.beans.property.SimpleIntegerProperty(count).asObject();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return new javafx.beans.property.SimpleIntegerProperty(0).asObject();
             }
         });
 

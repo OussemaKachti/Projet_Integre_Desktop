@@ -13,6 +13,8 @@ import javafx.collections.ObservableList;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ReponseService {
     private Connection connection;
@@ -34,7 +36,10 @@ public class ReponseService {
         String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setTimestamp(1, Timestamp.valueOf(reponse.getDateReponse()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
+            
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
             pst.setInt(4, reponse.getSondage().getId());
@@ -50,7 +55,10 @@ public class ReponseService {
         String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setTimestamp(1, Timestamp.valueOf(reponse.getDateReponse()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
+            
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
             pst.setInt(4, reponse.getSondage().getId());
@@ -71,7 +79,10 @@ public class ReponseService {
         String query = "UPDATE reponse SET date_reponse = ?, choix_sondage_id = ? WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setTimestamp(1, Timestamp.valueOf(reponse.getDateReponse()));
+            // Conversion de LocalDateTime en Timestamp pour la BDD
+            LocalDateTime date = reponse.getDateReponse();
+            pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
+            
             pst.setInt(2, reponse.getChoixSondage().getId());
             pst.setInt(3, reponse.getId());
             
@@ -207,14 +218,37 @@ public class ReponseService {
         }
         return reponses;
     }
+    
+    /**
+     * Compte le nombre de votes pour un choix spécifique
+     * @param choixId ID du choix dont on veut compter les votes
+     * @return Le nombre de votes pour ce choix
+     */
+    public int getVotesByChoix(int choixId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM reponse WHERE choix_sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, choixId);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        
+        return 0;
+    }
 
     /**
-     * Convertit un ResultSet en objet Reponse (méthode déjà existante)
+     * Convertit un ResultSet en objet Reponse
      */
     private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
         Reponse reponse = new Reponse();
         reponse.setId(rs.getInt("id"));
-        reponse.setDateReponse(rs.getTimestamp("date_reponse").toLocalDateTime());
+        
+        // Conversion de Timestamp en LocalDate
+        Timestamp timestamp = rs.getTimestamp("date_reponse");
+        reponse.setDateReponse(timestamp.toLocalDateTime().toLocalDate());
 
         // Charger les relations
         UserService userService = new UserService();
@@ -226,5 +260,103 @@ public class ReponseService {
         reponse.setSondage(sondageService.getById(rs.getInt("sondage_id")));
 
         return reponse;
+    }
+
+    /**
+     * Get user's response for a specific poll
+     */
+    public ChoixSondage getUserResponse(int userId, int sondageId) throws SQLException {
+        String query = "SELECT cs.* FROM reponse r " +
+                       "JOIN choix_sondage cs ON r.choix_sondage_id = cs.id " +
+                       "WHERE r.user_id = ? AND r.sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, userId);
+            pst.setInt(2, sondageId);
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    ChoixSondage choix = new ChoixSondage();
+                    choix.setId(rs.getInt("id"));
+                    choix.setContenu(rs.getString("contenu"));
+                    
+                    Sondage sondage = new Sondage();
+                    sondage.setId(sondageId);
+                    choix.setSondage(sondage);
+                    
+                    return choix;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Add a new vote
+     */
+    public void addVote(int userId, int sondageId, int choixId) throws SQLException {
+        String query = "INSERT INTO reponse (user_id, sondage_id, choix_sondage_id, date_reponse) VALUES (?, ?, ?, ?)";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, userId);
+            pst.setInt(2, sondageId);
+            pst.setInt(3, choixId);
+            pst.setDate(4, Date.valueOf(LocalDate.now()));
+            
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Update a user's existing vote
+     */
+    public void updateUserVote(int userId, int sondageId, int newChoixId) throws SQLException {
+        String query = "UPDATE reponse SET choix_sondage_id = ?, date_reponse = ? WHERE user_id = ? AND sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, newChoixId);
+            pst.setDate(2, Date.valueOf(LocalDate.now()));
+            pst.setInt(3, userId);
+            pst.setInt(4, sondageId);
+            
+            pst.executeUpdate();
+        }
+    }
+    
+    /**
+     * Get total votes for a poll
+     */
+    public int getTotalVotesForPoll(int sondageId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM reponse WHERE sondage_id = ?";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, sondageId);
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Get total votes for all polls
+     */
+    public int getTotalVotesForAllPolls() throws SQLException {
+        String query = "SELECT COUNT(*) FROM reponse";
+        
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        
+        return 0;
     }
 }

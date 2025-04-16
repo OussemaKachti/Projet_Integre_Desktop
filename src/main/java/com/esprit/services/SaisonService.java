@@ -1,7 +1,7 @@
 package com.esprit.services;
 
 import com.esprit.models.Saison;
-import com.esprit.utils.DatabaseConnection;
+import com.esprit.utils.DataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class SaisonService {
     private Connection connection;
 
     public SaisonService() {
-        connection = DatabaseConnection.getInstance().getCnx();
+        connection = DataSource.getInstance().getCnx();
     }
 
     public List<Saison> getAll() throws SQLException {

@@ -226,7 +226,7 @@ public class SondageController implements Initializable {
             }
             
             // Récupérer le club où l'utilisateur est président
-            Club club = clubService.findByPresident(user.getId());
+            Club club = clubService.findFirstByPresident(user.getId());
             if (club == null) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", 
                          "Club non trouvé", "L'utilisateur n'est pas président d'un club.");
@@ -359,8 +359,8 @@ public class SondageController implements Initializable {
         content.getChildren().add(new Label("Club: " + 
             (sondage.getClub() != null ? sondage.getClub().getNomC() : "N/A")));
         content.getChildren().add(new Label("Créé par: " + 
-            (sondage.getUser() != null ? sondage.getUser().getPrenom() + " " + 
-                                       sondage.getUser().getNom() : "N/A")));
+            (sondage.getUser() != null ? sondage.getUser().getLastName() + " " + 
+                                       sondage.getUser().getFirstName() : "N/A")));
         
         content.getChildren().add(new Separator());
         content.getChildren().add(new Label("Choix:"));
