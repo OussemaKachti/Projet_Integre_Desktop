@@ -1,155 +1,113 @@
 package com.esprit.services;
 
 import com.esprit.models.Club;
-import com.esprit.utils.DataSource;
+import com.esprit.utils.DatabaseConnection;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
 
 public class ClubService {
-    private Connection connection;
-    private static ClubService instance;
 
+    private final Connection cnx;
+
+    // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
-        connection = DataSource.getInstance().getCnx();
+        cnx = DatabaseConnection.getInstance().getCnx();
     }
 
-    public static ClubService getInstance() {
-        if (instance == null) {
-            instance = new ClubService();
-        }
-        return instance;
-    }
+    // Ajouter un club
+    public void ajouter(Club club) {
+        String query = "INSERT INTO club (president_id, nom_c, description, status, image, points) VALUES (?, ?, ?, ?, ?, ?)";
 
-    public void add(Club club) throws SQLException {
-        String query = "INSERT INTO club (nom, description, logo, date_creation, president_id, status) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setString(1, club.getNom());
-            pst.setString(2, club.getDescription());
-            pst.setString(3, club.getLogo());
-            pst.setTimestamp(4, Timestamp.valueOf(club.getDateCreation()));
-            pst.setInt(5, club.getPresident().getId());
-            pst.setString(6, club.getStatus());
-            
-            pst.executeUpdate();
-            
-            try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    club.setId(generatedKeys.getInt(1));
-                }
-            }
+        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
+            stmt.setInt(1, club.getPresidentId());
+            stmt.setString(2, club.getNomC());
+            stmt.setString(3, club.getDescription());
+            stmt.setString(4, club.getStatus());
+            stmt.setString(5, club.getImage());
+            stmt.setInt(6, club.getPoints());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public Club getById(int id) throws SQLException {
-        String query = "SELECT * FROM club WHERE id = ?";
-        try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToClub(rs);
-                }
-            }
+    // Modifier un club
+    public void modifier(Club club) {
+        String query = "UPDATE club SET president_id = ?, nom_c = ?, description = ?, status = ?, image = ?, points = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
+            stmt.setInt(1, club.getPresidentId());
+            stmt.setString(2, club.getNomC());
+            stmt.setString(3, club.getDescription());
+            stmt.setString(4, club.getStatus());
+            stmt.setString(5, club.getImage());
+            stmt.setInt(6, club.getPoints());
+            stmt.setInt(7, club.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return null;
     }
 
-    public Club findByPresident(int presidentId) throws SQLException {
-        String query = "SELECT * FROM club WHERE president_id = ?";
-        try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setInt(1, presidentId);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToClub(rs);
-                }
-            }
+    // Supprimer un club
+    public void supprimer(int id) {
+        String query = "DELETE FROM club WHERE id = ?";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return null;
     }
 
-    public List<Club> getAll() throws SQLException {
+    // Afficher tous les clubs
+    public List<Club> afficher() {
         List<Club> clubs = new ArrayList<>();
         String query = "SELECT * FROM club";
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
+
+        try (Statement stmt = cnx.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                clubs.add(mapResultSetToClub(rs));
+                Club club = new Club();
+                club.setId(rs.getInt("id"));
+                club.setPresidentId(rs.getInt("president_id"));
+                club.setNomC(rs.getString("nom_c"));
+                club.setDescription(rs.getString("description"));
+                club.setStatus(rs.getString("status"));
+                club.setImage(rs.getString("image"));
+                club.setPoints(rs.getInt("points"));
+                clubs.add(club);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return clubs;
     }
 
-    public void update(Club club) throws SQLException {
-        String query = "UPDATE club SET nom=?, description=?, logo=?, status=?, president_id=? WHERE id=?";
-        try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setString(1, club.getNom());
-            pst.setString(2, club.getDescription());
-            pst.setString(3, club.getLogo());
-            pst.setString(4, club.getStatus());
-            pst.setInt(5, club.getPresident().getId());
-            pst.setInt(6, club.getId());
-            
-            pst.executeUpdate();
-        }
-    }
+    // Afficher un club par ID
+    public Club getClubById(int id) {
+        Club club = null;
+        String query = "SELECT * FROM club WHERE id = ?";
 
-    private Club mapResultSetToClub(ResultSet rs) throws SQLException {
-        Club club = new Club();
-        club.setId(rs.getInt("id"));
-        
-        // Adaptation aux noms de colonnes de Symfony
-        try {
-            // Essayer d'abord avec les noms de colonnes Java
-            club.setNom(rs.getString("nom"));
-        } catch (SQLException e) {
-            // Si échec, essayer avec les noms de colonnes Symfony
-            club.setNom(rs.getString("nom_c"));
-        }
-        
-        try {
-            club.setDescription(rs.getString("description"));
-        } catch (SQLException e) {
-            // Si échec, essayer avec les noms de colonnes Symfony
-            club.setDescription(rs.getString("description_c"));
-        }
-        
-        try {
-            club.setLogo(rs.getString("logo"));
-        } catch (SQLException e) {
-            // Ignorer si la colonne n'existe pas
-        }
-        
-        try {
-            club.setDateCreation(rs.getTimestamp("date_creation").toLocalDateTime());
-        } catch (SQLException e) {
-            // Si échec, essayer avec un autre format ou définir une date par défaut
-            try {
-                club.setDateCreation(rs.getDate("date_creation").toLocalDate().atStartOfDay());
-            } catch (SQLException ex) {
-                // Si toujours échec, utiliser la date actuelle
-                club.setDateCreation(LocalDateTime.now());
+        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    club = new Club();
+                    club.setId(rs.getInt("id"));
+                    club.setPresidentId(rs.getInt("president_id"));
+                    club.setNomC(rs.getString("nom_c"));
+                    club.setDescription(rs.getString("description"));
+                    club.setStatus(rs.getString("status"));
+                    club.setImage(rs.getString("image"));
+                    club.setPoints(rs.getInt("points"));
+                }
             }
-        }
-        
-        try {
-            club.setStatus(rs.getString("status"));
         } catch (SQLException e) {
-            // Ignorer si la colonne n'existe pas
+            e.printStackTrace();
         }
-        
-        // Get president - adapter au nom de colonne correct
-        UserService userService = UserService.getInstance();
-        int presidentId;
-        try {
-            presidentId = rs.getInt("president_id");
-        } catch (SQLException e) {
-            // Si échec, essayer d'autres noms possibles
-            presidentId = rs.getInt("user_id");
-        }
-        
-        club.setPresident(userService.getById(presidentId));
-        
         return club;
     }
 }

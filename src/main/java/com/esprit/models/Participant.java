@@ -1,95 +1,87 @@
 package com.esprit.models;
 
-import javafx.beans.property.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-    public class Participant {
-        private final IntegerProperty id = new SimpleIntegerProperty();
-        private final ObjectProperty<User> user = new SimpleObjectProperty<>();
-        private final ObjectProperty<Club> club = new SimpleObjectProperty<>();
-        private final StringProperty description = new SimpleStringProperty();
-        private final StringProperty status = new SimpleStringProperty("en_attente"); // valeur par défaut
+public class Participant {
+    private int id;
+    private int user_id;
+    private int club_id;
+    private LocalDateTime date_request;
+    private String statut;
+    private String description;
 
-        // Constructeurs
-        public Participant() {}
-
-        public Participant(User user, Club club, String description) {
-            this.user.set(user);
-            this.club.set(club); 
-            this.description.set(description);
-            this.status.set("en_attente");
-        }
-
-        // Getters et Setters
-        public int getId() {
-            return id.get();
-        }
-
-        public IntegerProperty idProperty() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id.set(id);
-        }
-
-        public User getUser() {
-            return user.get();
-        }
-
-        public ObjectProperty<User> userProperty() {
-            return user;
-        }
-
-        public void setUser(User user) {
-            this.user.set(user);
-        }
-
-        public Club getClub() {
-            return club.get();
-        }
-
-        public ObjectProperty<Club> clubProperty() {
-            return club;
-        }
-
-        public void setClub(Club club) {
-            this.club.set(club);
-        }
-
-        public String getDescription() {
-            return description.get();
-        }
-
-        public StringProperty descriptionProperty() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            if (description == null || description.trim().isEmpty()) {
-                throw new IllegalArgumentException("La description ne peut pas être vide.");
-            }
-            if (description.length() > 500) {
-                throw new IllegalArgumentException("La description est trop longue.");
-            }
-            this.description.set(description);
-        }
-
-
-        public String getStatus() {
-            return status.get();
-        }
-
-        public StringProperty statusProperty() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status.set(status);
-        }
+    // Constructeurs
+    public Participant() {
+        this.date_request = LocalDateTime.now();
+        this.statut = "en_attente";
     }
 
+    public Participant(int user_id, int club_id, String description) {
+        this.user_id = user_id;
+        this.club_id = club_id;
+        this.description = description;
+        this.date_request = LocalDateTime.now();
+        this.statut = "en_attente";
+    }
 
+    public Participant(int user_id, int club_id, String description, String statut) {
+        this.user_id = user_id;
+        this.club_id = club_id;
+        this.description = description;
+       // this.date_request = LocalDateTime.now();
+        this.statut = "en_attente";
+    }
 
+    // Getters & Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
+
+    public int getClub_id() {
+        return club_id;
+    }
+
+    public void setClub_id(int club_id) {
+        this.club_id = club_id;
+    }
+
+    public LocalDateTime getDate_request() {
+        return date_request;
+    }
+
+    public void setDate_request(LocalDateTime date_request) {
+        this.date_request = date_request;
+    }
+
+    public String getStatut() {
+        return statut;
+    }
+
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    @Override
+    public String toString() {
+        return "ID: " + id + ", User ID: " + user_id + ", Club ID: " + club_id + ", Statut: " + statut;
+    }
+}

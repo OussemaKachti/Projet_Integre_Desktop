@@ -1,137 +1,90 @@
 package com.esprit.models;
 
-import javafx.beans.property.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Club {
-    private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty nom = new SimpleStringProperty();
-    private final StringProperty description = new SimpleStringProperty();
-    private final StringProperty logo = new SimpleStringProperty();
-    private final ObjectProperty<LocalDateTime> dateCreation = new SimpleObjectProperty<>();
-    private final ObjectProperty<User> president = new SimpleObjectProperty<>();
-    private final StringProperty status = new SimpleStringProperty();
-    private List<User> membres = new ArrayList<>();
-    private List<Sondage> sondages = new ArrayList<>();
 
-    public Club() {
-        this.dateCreation.set(LocalDateTime.now());
+    private int id; // id Primaire
+    private int presidentId; // president_id Index
+    private String nomC; // nom_c
+    private String description; // description
+    private String status; // status
+    private String image; // image
+    private int points; // points
+
+    // Constructeur par défaut
+    public Club() {}
+
+    // Constructeur avec tous les paramètres
+    public Club(int id, int presidentId, String nomC, String description, String status, String image, int points) {
+        this.id = id;
+        this.presidentId = presidentId;
+        this.nomC = nomC;
+        this.description = description;
+        this.status = status;
+        this.image = image;
+        this.points = points;
     }
 
-    // Getters and Setters with Properties
+    // Getters et Setters
+
     public int getId() {
-        return id.get();
-    }
-
-    public IntegerProperty idProperty() {
         return id;
     }
 
     public void setId(int id) {
-        this.id.set(id);
+        this.id = id;
     }
 
-    public String getNom() {
-        return nom.get();
+    public int getPresidentId() {
+        return presidentId;
     }
 
-    public StringProperty nomProperty() {
-        return nom;
+    public void setPresidentId(int presidentId) {
+        this.presidentId = presidentId;
     }
 
-    public void setNom(String nom) {
-        this.nom.set(nom);
+    public String getNomC() {
+        return nomC;
+    }
+
+    public void setNomC(String nomC) {
+        this.nomC = nomC;
     }
 
     public String getDescription() {
-        return description.get();
-    }
-
-    public StringProperty descriptionProperty() {
         return description;
     }
 
     public void setDescription(String description) {
-        this.description.set(description);
-    }
-
-    public String getLogo() {
-        return logo.get();
-    }
-
-    public StringProperty logoProperty() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo.set(logo);
-    }
-
-    public LocalDateTime getDateCreation() {
-        return dateCreation.get();
-    }
-
-    public ObjectProperty<LocalDateTime> dateCreationProperty() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDateTime date) {
-        this.dateCreation.set(date);
-    }
-
-    public User getPresident() {
-        return president.get();
-    }
-
-    public ObjectProperty<User> presidentProperty() {
-        return president;
-    }
-
-    public void setPresident(User president) {
-        this.president.set(president);
+        this.description = description;
     }
 
     public String getStatus() {
-        return status.get();
-    }
-
-    public StringProperty statusProperty() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status.set(status);
+        this.status = status;
     }
 
-    // List management
-    public List<User> getMembres() {
-        return membres;
+    public String getImage() {
+        return image;
     }
 
-    public void setMembres(List<User> membres) {
-        this.membres = membres;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public List<Sondage> getSondages() {
-        return sondages;
+    public int getPoints() {
+        return points;
     }
 
-    public void setSondages(List<Sondage> sondages) {
-        this.sondages = sondages;
+    public void setPoints(int points) {
+        this.points = points;
     }
 
-    public void addMembre(User membre) {
-        if (!this.membres.contains(membre)) {
-            this.membres.add(membre);
-        }
-    }
-
-    public void addSondage(Sondage sondage) {
-        if (!this.sondages.contains(sondage)) {
-            this.sondages.add(sondage);
-            sondage.setClub(this);
-        }
+    @Override
+    public String toString() {
+        return "Club [id=" + id + ", presidentId=" + presidentId + ", nomC=" + nomC + ", description=" + description
+                + ", status=" + status + ", image=" + image + ", points=" + points + "]";
     }
 }

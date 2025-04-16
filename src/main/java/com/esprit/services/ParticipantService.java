@@ -1,116 +1,82 @@
 package com.esprit.services;
 
-import com.esprit.models.Club;
 import com.esprit.models.Participant;
-import com.esprit.models.User;
-import com.esprit.utils.DataSource;
+import com.esprit.utils.DatabaseConnection;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParticipantService {
-    private Connection conn;
-    private static ParticipantService instance;
+
+    private final Connection cnx;
 
     public ParticipantService() {
-        conn = DataSource.getInstance().getCnx();
+        cnx = DatabaseConnection.getInstance().getCnx();
     }
-
-    public static ParticipantService getInstance() {
-        if (instance == null) {
-            instance = new ParticipantService();
-        }
-        return instance;
-    }
-
-    // Add a new participant request (User wants to join a club)
-    public void add(Participant participant) throws SQLException {
-        String query = "INSERT INTO participant (user_id, club_id, status) VALUES (?, ?, ?)";
-        try (PreparedStatement pst = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setInt(1, participant.getUser().getId());
-            pst.setInt(2, participant.getClub().getId());
-            pst.setString(3, participant.getStatus()); // "pending", "accepted", "rejected"
-
+    public void ajouter(Participant p) {
+        String req = "INSERT INTO participation_membre(user_id, club_id, date_request, statut, description) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = cnx.prepareStatement(req)) {
+            pst.setInt(1, p.getUser_id());
+            pst.setInt(2, p.getUser_id());
+            pst.setTimestamp(3, Timestamp.valueOf(p.getDate_request()));
+            pst.setString(4, p.getStatut());
+            pst.setString(5, p.getDescription());
             pst.executeUpdate();
-
-            // Retrieve generated ID for participant if necessary
-            try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    participant.setId(generatedKeys.getInt(1));
-                }
-            }
+            System.out.println("Participant ajouté avec succès !");
+        } catch (SQLException e) {
+            System.err.println("Erreur d'ajout : " + e.getMessage());
         }
     }
 
-    // Get a participant request by its ID
-    public Participant getById(int id) throws SQLException {
-        String query = "SELECT * FROM participant WHERE id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
+    public void modifier(Participant p) {
+        String req = "UPDATE participation_membre SET user_id=?, club_id=?, date_request=?, statut=?, description=? WHERE id=?";
+        try (PreparedStatement pst = cnx.prepareStatement(req)) {
+            pst.setInt(1, p.getUser_id());
+            pst.setInt(2, p.getClub_id());
+            pst.setTimestamp(3, Timestamp.valueOf(p.getDate_request()));
+            pst.setString(4, p.getStatut());
+            pst.setString(5, p.getDescription());
+            pst.setInt(6, p.getId());
+            pst.executeUpdate();
+            System.out.println("Participant modifié avec succès !");
+        } catch (SQLException e) {
+            System.err.println("Erreur de modification : " + e.getMessage());
+        }
+    }
+
+    public void supprimer(int id) {
+        String req = "DELETE FROM participation_membre WHERE id=?";
+        try (PreparedStatement pst = cnx.prepareStatement(req)) {
             pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToParticipant(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    // Get all participants for a specific club
-    public List<Participant> getAllByClub(int clubId) throws SQLException {
-        List<Participant> participants = new ArrayList<>();
-        String query = "SELECT * FROM participant WHERE club_id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setInt(1, clubId);
-            try (ResultSet rs = pst.executeQuery()) {
-                while (rs.next()) {
-                    participants.add(mapResultSetToParticipant(rs));
-                }
-            }
-        }
-        return participants;
-    }
-
-    // Accept or reject a participant request (Admin decision)
-    public void updateStatus(int participantId, String status) throws SQLException {
-        String query = "UPDATE participant SET status = ? WHERE id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setString(1, status); // "accepted", "rejected"
-            pst.setInt(2, participantId);
             pst.executeUpdate();
+            System.out.println("Participant supprimé avec succès !");
+        } catch (SQLException e) {
+            System.err.println("Erreur de suppression : " + e.getMessage());
         }
     }
 
-    // Map the ResultSet to a Participant object
-    private Participant mapResultSetToParticipant(ResultSet rs) throws SQLException {
-        Participant participant = new Participant();
-        participant.setId(rs.getInt("id"));
+    public List<Participant> afficher() {
+        List<Participant> list = new ArrayList<>();
+        String req = "SELECT * FROM participation_membre";
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
 
-        // Get user details
-        int userId = rs.getInt("user_id");
-        UserService userService = UserService.getInstance();
-        User user = userService.getById(userId);
-        participant.setUser(user);
+            while (rs.next()) {
+                Participant p = new Participant();
+                p.setId(rs.getInt("id"));
+                p.setUser_id(rs.getInt("user_id"));
+                p.setClub_id(rs.getInt("club_id"));
+                p.setDate_request(rs.getTimestamp("date_request").toLocalDateTime());
+                p.setStatut(rs.getString("statut"));
+                p.setDescription(rs.getString("description"));
+                list.add(p);
+            }
 
-        // Get club details
-        int clubId = rs.getInt("club_id");
-        ClubService clubService = ClubService.getInstance();
-        Club club = clubService.getById(clubId);
-        participant.setClub(club);
-
-        // Set the status of the participant (pending, accepted, or rejected)
-        participant.setStatus(rs.getString("status"));
-
-        return participant;
-    }
-
-    // Delete a participant request
-    public void delete(int participantId) throws SQLException {
-        String query = "DELETE FROM participant WHERE id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setInt(1, participantId);
-            pst.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Erreur d'affichage : " + e.getMessage());
         }
+
+        return list;
     }
 }
-
