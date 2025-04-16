@@ -18,7 +18,7 @@ public class SessionManager {
         // Optionnel : Créer un club statique si nécessaire
         currentClub = new Club();
         currentClub.setId(1);
-        currentClub.setNom("Club Test");
+        currentClub.setNomC("Club Test");
         // currentClub.setPresident(currentUser); // Si besoin de tester en tant que
         // président
     }

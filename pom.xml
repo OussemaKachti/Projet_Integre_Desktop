@@ -53,6 +53,13 @@
             <version>12.3.1</version>
         </dependency>
 
+        <!-- FontAwesome Solid -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+
         <!-- Database -->
         <dependency>
             <groupId>mysql</groupId>

@@ -49,7 +49,7 @@ public class TestSondageCRUD {
             }
             
             System.out.println("Utilisateur: " + user.getPrenom() + " " + user.getNom() + " (ID: " + user.getId() + ")");
-            System.out.println("Club: " + club.getNom() + " (ID: " + club.getId() + ")");
+            System.out.println("Club: " + club.getNomC() + " (ID: " + club.getId() + ")");
             
             boolean continuer = true;
             while (continuer) {

@@ -23,9 +23,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -143,7 +141,7 @@ public class AdminCommentsController implements Initializable {
         
         clubColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getSondage() != null && cellData.getValue().getSondage().getClub() != null) {
-                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNom());
+                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNomC());
             } else {
                 return new SimpleStringProperty("Unknown");
             }
@@ -200,7 +198,7 @@ public class AdminCommentsController implements Initializable {
     private void loadClubs() throws SQLException {
         List<Club> clubs = clubService.getAll();
         clubsList.add("all");
-        clubsList.addAll(clubs.stream().map(Club::getNom).collect(Collectors.toList()));
+        clubsList.addAll(clubs.stream().map(Club::getNomC).collect(Collectors.toList()));
         clubFilterComboBox.setItems(clubsList);
         clubFilterComboBox.getSelectionModel().selectFirst();
     }

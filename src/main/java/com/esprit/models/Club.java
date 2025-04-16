@@ -7,11 +7,24 @@ import java.util.List;
 
 public class Club {
     private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty nom = new SimpleStringProperty();
+    private final StringProperty nomC = new SimpleStringProperty();
     private final StringProperty description = new SimpleStringProperty();
     private final StringProperty logo = new SimpleStringProperty();
     private final ObjectProperty<LocalDateTime> dateCreation = new SimpleObjectProperty<>();
     private final ObjectProperty<User> president = new SimpleObjectProperty<>();
+
+    public int getPoints() {
+        return points.get();
+    }
+
+    public IntegerProperty pointsProperty() {
+        return points;
+    }
+    public void setPoints(int points) {
+        this.points.set(points);
+    }
+
+    private final IntegerProperty points = new SimpleIntegerProperty();
     private final StringProperty status = new SimpleStringProperty();
     private List<User> membres = new ArrayList<>();
     private List<Sondage> sondages = new ArrayList<>();
@@ -33,16 +46,16 @@ public class Club {
         this.id.set(id);
     }
 
-    public String getNom() {
-        return nom.get();
+    public String getNomC() {
+        return nomC.get();
     }
 
-    public StringProperty nomProperty() {
-        return nom;
+    public StringProperty nomCProperty() {
+        return nomC;
     }
 
-    public void setNom(String nom) {
-        this.nom.set(nom);
+    public void setNomC(String nomC) {
+        this.nomC.set(nomC);
     }
 
     public String getDescription() {

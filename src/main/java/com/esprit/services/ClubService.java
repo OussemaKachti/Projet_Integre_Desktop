@@ -23,14 +23,15 @@ public class ClubService {
     }
 
     public void add(Club club) throws SQLException {
-        String query = "INSERT INTO club (nom, description, logo, date_creation, president_id, status) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO club (nom_c, description, logo, date_creation, president_id, status,points) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setString(1, club.getNom());
+            pst.setString(1, club.getNomC());
             pst.setString(2, club.getDescription());
             pst.setString(3, club.getLogo());
             pst.setTimestamp(4, Timestamp.valueOf(club.getDateCreation()));
             pst.setInt(5, club.getPresident().getId());
             pst.setString(6, club.getStatus());
+            pst.setInt(7, club.getPoints());
             
             pst.executeUpdate();
             
@@ -81,14 +82,16 @@ public class ClubService {
     }
 
     public void update(Club club) throws SQLException {
-        String query = "UPDATE club SET nom=?, description=?, logo=?, status=?, president_id=? WHERE id=?";
+        String query = "UPDATE club SET nom_c=?, description=?, logo=?, points=?, status=?, president_id=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
-            pst.setString(1, club.getNom());
+            pst.setString(1, club.getNomC());
             pst.setString(2, club.getDescription());
             pst.setString(3, club.getLogo());
+            pst.setInt(7, club.getPoints());
             pst.setString(4, club.getStatus());
             pst.setInt(5, club.getPresident().getId());
             pst.setInt(6, club.getId());
+
             
             pst.executeUpdate();
         }
@@ -101,10 +104,10 @@ public class ClubService {
         // Adaptation aux noms de colonnes de Symfony
         try {
             // Essayer d'abord avec les noms de colonnes Java
-            club.setNom(rs.getString("nom"));
+            club.setNomC(rs.getString("nom"));
         } catch (SQLException e) {
             // Si échec, essayer avec les noms de colonnes Symfony
-            club.setNom(rs.getString("nom_c"));
+            club.setNomC(rs.getString("nom_c"));
         }
         
         try {

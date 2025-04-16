@@ -41,7 +41,7 @@ public class TestSondageApp {
                 System.err.println("Erreur: Le club avec ID=1 n'existe pas dans la base de données.");
                 return;
             }
-            System.out.println("Club récupéré: " + club.getNom() + " (ID: " + club.getId() + ")");
+            System.out.println("Club récupéré: " + club.getNomC() + " (ID: " + club.getId() + ")");
             
             // 3. Créer un nouveau sondage avec des entrées utilisateur
             Scanner scanner = new Scanner(System.in);
@@ -87,7 +87,7 @@ public class TestSondageApp {
             System.out.println("ID du sondage: " + sondage.getId());
             System.out.println("Question: " + sondage.getQuestion());
             System.out.println("Créé par: " + user.getPrenom() + " " + user.getNom() + " (ID: " + user.getId() + ")");
-            System.out.println("Club: " + club.getNom() + " (ID: " + club.getId() + ")");
+            System.out.println("Club: " + club.getNomC() + " (ID: " + club.getId() + ")");
             System.out.println("Choix:");
             for (ChoixSondage choix : sondage.getChoix()) {
                 System.out.println("- " + choix.getContenu() + " (ID: " + choix.getId() + ")");

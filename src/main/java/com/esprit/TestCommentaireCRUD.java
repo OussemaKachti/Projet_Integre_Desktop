@@ -107,7 +107,7 @@ public class TestCommentaireCRUD {
         for (Sondage sondage : sondages) {
             System.out.println("ID: " + sondage.getId() + " - Question: " + sondage.getQuestion());
             System.out.println("  Créé le: " + sondage.getCreatedAt().format(formatter));
-            System.out.println("  Club: " + (sondage.getClub() != null ? sondage.getClub().getNom() : "N/A"));
+            System.out.println("  Club: " + (sondage.getClub() != null ? sondage.getClub().getNomC() : "N/A"));
             System.out.println("  Nombre de commentaires: " + commentaireService.getBySondage(sondage.getId()).size());
             System.out.println("-----------------------------------");
         }

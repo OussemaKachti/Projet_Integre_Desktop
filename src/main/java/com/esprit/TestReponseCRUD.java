@@ -119,7 +119,7 @@ public class TestReponseCRUD {
             System.out.println("\nID: " + sondage.getId());
             System.out.println("Question: " + sondage.getQuestion());
             System.out.println("Créé le: " + sondage.getCreatedAt().format(formatter));
-            System.out.println("Club: " + sondage.getClub().getNom());
+            System.out.println("Club: " + sondage.getClub().getNomC());
             
             // Récupérer les résultats du sondage pour afficher les pourcentages
             Map<String, Object> results = reponseService.getPollResults(sondage.getId());

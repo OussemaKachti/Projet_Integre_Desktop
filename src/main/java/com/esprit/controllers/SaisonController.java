@@ -355,14 +355,15 @@ public class SaisonController {
     }
 
     private void createSaison() throws SQLException {
+        // Validate form first
+        if (!validateForm()) {
+            return;
+        }
         String saisonName = saisonNameField.getText();
         String saisonDesc = saisonDescField.getText();
         LocalDate endDate = saisonDateField.getValue();
 
-        if (saisonName == null || saisonName.trim().isEmpty()) {
-            showAlert(AlertType.WARNING, "Form Error", "Please enter a valid season name.");
-            return;
-        }
+
 
         Saison newSaison = new Saison();
         newSaison.setNomSaison(saisonName);
@@ -390,15 +391,15 @@ public class SaisonController {
             showAlert(AlertType.WARNING, "No Season Selected", "Please select a season to update.");
             return;
         }
-
+        // Validate form first
+        if (!validateForm()) {
+            return;
+        }
         String saisonName = saisonNameField.getText();
         String saisonDesc = saisonDescField.getText();
         LocalDate endDate = saisonDateField.getValue();
 
-        if (saisonName == null || saisonName.trim().isEmpty()) {
-            showAlert(AlertType.WARNING, "Form Error", "Please enter a valid season name.");
-            return;
-        }
+
 
         selectedSaison.setNomSaison(saisonName);
         selectedSaison.setDescSaison(saisonDesc);
@@ -469,7 +470,37 @@ public class SaisonController {
         }
         return "";
     }
+    private boolean validateForm() {
+        StringBuilder errorMessage = new StringBuilder();
 
+        // Validate saison name (required field)
+        if (saisonNameField.getText() == null || saisonNameField.getText().trim().isEmpty()) {
+            errorMessage.append("- Please enter a valid season name.\n");
+        }
+
+        // Validate description (optional but good to check if empty)
+        if (saisonDescField.getText() == null || saisonDescField.getText().trim().isEmpty()) {
+            errorMessage.append("- Please enter a season description.\n");
+        }
+
+        // Validate date (not mandatory but if provided, should be valid)
+        if (saisonDateField.getValue() != null) {
+            // Check if date is in the past
+            if (saisonDateField.getValue().isBefore(LocalDate.now())) {
+                // This is just a warning, not an error - uncomment if you want to enforce this
+                // errorMessage.append("- End date is in the past.\n");
+            }
+        }
+
+        // Show validation errors if any
+        if (errorMessage.length() > 0) {
+            showAlert(AlertType.WARNING, "Form Validation Error",
+                    "Please correct the following errors:\n" + errorMessage);
+            return false;
+        }
+
+        return true;
+    }
     private void goBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/dashboard.fxml"));
@@ -509,6 +540,7 @@ public class SaisonController {
                             "-fx-padding: 0 0 10 0;"
             );
         }
+
 
         // Style the buttons
         dialogPane.getButtonTypes().forEach(buttonType -> {
