@@ -490,6 +490,59 @@ public class ProduitController implements Initializable {
                     "Impossible de charger la vue grille des produits : " + e.getMessage());
         }
     }
+    /**
+     * Valide les champs du formulaire produit
+     * @return true si tout est valide, false sinon
+     */
+    private boolean validateForm() {
+        StringBuilder errors = new StringBuilder();
+
+        if (txtNom.getText().isEmpty()) {
+            errors.append("- Le nom du produit est requis.\n");
+        }
+
+        if (txtPrix.getText().isEmpty()) {
+            errors.append("- Le prix est requis.\n");
+        } else {
+            try {
+                float prix = Float.parseFloat(txtPrix.getText());
+                if (prix < 0) {
+                    errors.append("- Le prix ne peut pas être négatif.\n");
+                }
+            } catch (NumberFormatException e) {
+                errors.append("- Le prix doit être un nombre valide.\n");
+            }
+        }
+
+        if (txtDescription.getText().isEmpty()) {
+            errors.append("- La description est requise.\n");
+        }
+
+        if (txtQuantity.getText().isEmpty()) {
+            errors.append("- La quantité est requise.\n");
+        } else {
+            try {
+                int qte = Integer.parseInt(txtQuantity.getText());
+                if (qte < 0) {
+                    errors.append("- La quantité ne peut pas être négative.\n");
+                }
+            } catch (NumberFormatException e) {
+                errors.append("- La quantité doit être un entier.\n");
+            }
+        }
+
+        if (comboClub.getValue() == null) {
+            errors.append("- Un club doit être sélectionné.\n");
+        }
+
+        if (errors.length() > 0) {
+            showAlert(Alert.AlertType.ERROR, "Erreur de validation", "Veuillez corriger les erreurs suivantes :", errors.toString());
+            return false;
+        }
+
+        return true;
+    }
+
 
 
 }

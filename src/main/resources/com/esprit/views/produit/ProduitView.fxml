@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.Region?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.esprit.controllers.crud.ProduitController"
-      spacing="10"
-      alignment="CENTER">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.esprit.controllers.crud.ProduitController">
     <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
+        <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
 
     <!-- Titre -->
-    <Label text="Gestion des Produits" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Gestion des Produits" />
 
     <!-- Table des Produits -->
     <TableView fx:id="tableProduits" prefWidth="700">
         <columns>
-            <TableColumn fx:id="colNom" text="Nom" prefWidth="150"/>
-            <TableColumn fx:id="colPrix" text="Prix" prefWidth="80"/>
-            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="80"/>
-            <TableColumn fx:id="colDescription" text="Description" prefWidth="150"/>
-            <TableColumn fx:id="colImage" text="Image" prefWidth="100"/>
-            <TableColumn fx:id="colClub" text="Club" prefWidth="80"/>
-            <TableColumn fx:id="colActions" text="Actions" prefWidth="100"/>
+            <TableColumn fx:id="colNom" prefWidth="150" text="Nom" />
+            <TableColumn fx:id="colPrix" prefWidth="80" text="Prix" />
+            <TableColumn fx:id="colQuantity" prefWidth="80" text="Quantité" />
+            <TableColumn fx:id="colDescription" prefWidth="150" text="Description" />
+            <TableColumn fx:id="colImage" prefWidth="100" text="Image" />
+            <TableColumn fx:id="colClub" prefWidth="80" text="Club" />
+            <TableColumn fx:id="colActions" prefWidth="100" text="Actions" />
         </columns>
     </TableView>
 
     <!-- Formulaire de Saisie -->
-    <GridPane hgap="10" vgap="10" alignment="CENTER">
+    <GridPane alignment="CENTER" hgap="10" vgap="10">
         <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
+            <Insets bottom="10" left="10" right="10" top="10" />
         </padding>
 
         <columnConstraints>
@@ -42,36 +46,43 @@
             <ColumnConstraints minWidth="300" />
         </columnConstraints>
 
-        <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <Label text="name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
         <TextField fx:id="txtNom" promptText="Nom du produit" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-        <Label text="Prix:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <Label text="price:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
         <TextField fx:id="txtPrix" promptText="Prix du produit" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-        <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <Label text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
         <TextField fx:id="txtQuantity" promptText="Quantité disponible" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
         <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-        <TextArea fx:id="txtDescription" promptText="Description du produit" prefHeight="80" wrapText="true"
-                  GridPane.columnIndex="1" GridPane.rowIndex="3" />
+        <TextArea fx:id="txtDescription" prefHeight="80" promptText="Description du produit" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
         <Label text="Image:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
         <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
             <TextField fx:id="txtImage" promptText="Chemin de l'image" HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnBrowse" text="Parcourir" onAction="#browseImage" />
+            <Button fx:id="btnBrowse" onAction="#browseImage" text="Parcourir" />
         </HBox>
 
         <Label text="Club:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
         <ComboBox fx:id="comboClub" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
     </GridPane>
 
     <!-- Boutons de sauvegarde et de mise à jour -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="btnSave" text="Ajouter" onAction="#saveProduit"/>
-        <Button fx:id="btnUpdate" text="Modifier" onAction="#updateProduit" visible="false"/>
-        <Button fx:id="btnCancel" text="Annuler" onAction="#resetForm"/>
-        <Button fx:id="btnGoToCommande" text="Vers Commandes" onAction="#goToCommande"/>
-        <Button fx:id="btnShowGrid" text="Vue Grille" onAction="#showProductGrid" />
+    <HBox alignment="CENTER" spacing="10">
+        <Button fx:id="btnSave" onAction="#saveProduit" text="Add" />
+        <Button fx:id="btnUpdate" onAction="#updateProduit" text="Modifier" visible="false" />
+        <Button fx:id="btnCancel" onAction="#resetForm" text="Annuler" />
+        <Button fx:id="btnGoToCommande" onAction="#goToCommande" text="Vers Commandes" />
+        <Button fx:id="btnShowGrid" onAction="#showProductGrid" text="Vue Grille" />
 
     </HBox>
 

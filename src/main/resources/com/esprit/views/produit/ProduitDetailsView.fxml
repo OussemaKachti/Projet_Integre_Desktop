@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.ProduitDetailsController"
+      spacing="20" style="-fx-padding: 20;" prefWidth="600">
+
+    <HBox spacing="20">
+        <ImageView fx:id="imgProd" fitWidth="300" fitHeight="300" preserveRatio="true"/>
+
+        <VBox spacing="10" prefWidth="300">
+            <Label fx:id="lblNomProd" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblClub" style="-fx-font-size: 16px; -fx-text-fill: #555;"/>
+            <Label fx:id="lblPrix" style="-fx-font-size: 20px; -fx-text-fill: #4285f4; -fx-font-weight: bold;"/>
+            <Label fx:id="lblQuantity" style="-fx-font-size: 14px;"/>
+
+            <Separator/>
+
+            <Label text="Description:" style="-fx-font-weight: bold;"/>
+            <Label fx:id="lblDescProd" wrapText="true" maxWidth="300"/>
+
+        </VBox>
+    </HBox>
+</VBox>
