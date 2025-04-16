@@ -107,8 +107,8 @@ private void handleLogin(ActionEvent event) {
         SessionManager.getInstance().setCurrentUser(user);
         
         // Navigate to appropriate view based on role
-        // loadDashboard(user);
-        handleUserNavigation(user);
+         loadDashboard(user);
+        //handleUserNavigation(user);
     } catch (Exception e) {
         e.printStackTrace();
         errorLabel.setText("Authentication error: " + e.getMessage());
@@ -224,7 +224,7 @@ private void handleUserNavigation(User user) {
         if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
             navigateToAdminDashboard();
         } else {
-            navigateToSondageView();
+            navigateToHome();
         }
     } catch (Exception e) {
         e.printStackTrace();
