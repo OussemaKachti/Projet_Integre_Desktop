@@ -33,6 +33,9 @@ public class Club {
     @Column(name = "nom")
     private String nom;
     
+    @Column(name = "nom_c")
+    private String nomC;
+    
     @Column(name = "description")
     private String description;
     
@@ -46,8 +49,17 @@ public class Club {
     @JoinColumn(name = "president_id")
     private User president;
     
+    @Column(name = "president_id", insertable = false, updatable = false)
+    private int presidentId;
+    
     @Column(name = "status")
     private String status;
+    
+    @Column(name = "image")
+    private String image;
+    
+    @Column(name = "points")
+    private int points;
     
     // JavaFX properties for UI binding
     @Transient
@@ -83,6 +95,16 @@ public class Club {
         this.dateCreationProperty.set(LocalDateTime.now());
     }
 
+    public Club(int id, int presidentId, String nomC, String description, String status, String image, int points) {
+        this.id = id;
+        this.presidentId = presidentId;
+        this.nomC = nomC;
+        this.description = description;
+        this.status = status;
+        this.image = image;
+        this.points = points;
+    }
+
     // Getters and Setters
     public int getId() {
         return id;
@@ -91,6 +113,22 @@ public class Club {
     public void setId(int id) {
         this.id = id;
         this.idProperty.set(id);
+    }
+
+    public int getPresidentId() {
+        return presidentId;
+    }
+
+    public void setPresidentId(int presidentId) {
+        this.presidentId = presidentId;
+    }
+
+    public String getNomC() {
+        return nomC;
+    }
+    
+    public void setNomC(String nomC) {
+        this.nomC = nomC;
     }
 
     public String getNom() {
@@ -183,21 +221,20 @@ public class Club {
         return statusProperty;
     }
 
-    // List management
-    public List<User> getMembres() {
-        return membres;
+    public String getImage() {
+        return image;
     }
 
-    public void setMembres(List<User> membres) {
-        this.membres = membres;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public List<Sondage> getSondages() {
-        return sondages;
+    public int getPoints() {
+        return points;
     }
 
-    public void setSondages(List<Sondage> sondages) {
-        this.sondages = sondages;
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     public void addMembre(User membre) {

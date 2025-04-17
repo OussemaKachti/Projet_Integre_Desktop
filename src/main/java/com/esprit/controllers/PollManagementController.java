@@ -75,7 +75,7 @@ public class PollManagementController implements Initializable {
             }
 
             // Get the club where the user is president
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
                 AlertUtils.showError("Access Denied", "You must be a club president to access this view.");
                 navigateBack();
@@ -367,7 +367,7 @@ public class PollManagementController implements Initializable {
         
         try {
             // Get the user's club
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
                 throw new IllegalStateException("User is not a president of any club");
             }
@@ -422,7 +422,7 @@ public class PollManagementController implements Initializable {
                 showCustomAlert("Success", "Poll deleted successfully!", "success");
                 
                 // Get the user's club using ClubService
-                Club userClub = clubService.findByPresident(currentUser.getId());
+                Club userClub = clubService.findFirstByPresident(currentUser.getId());
                 if (userClub != null) {
                     loadPolls(userClub.getId());
                 } else {

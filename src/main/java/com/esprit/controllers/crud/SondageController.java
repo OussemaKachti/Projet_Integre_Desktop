@@ -227,7 +227,7 @@ public class SondageController implements Initializable {
             }
             
             // Récupérer le club où l'utilisateur est président
-            Club club = clubService.findByPresident(user.getId());
+            Club club = clubService.findFirstByPresident(user.getId());
             if (club == null) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", 
                          "Club non trouvé", "L'utilisateur n'est pas président d'un club.");

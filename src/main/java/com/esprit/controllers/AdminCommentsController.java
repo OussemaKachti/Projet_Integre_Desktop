@@ -356,87 +356,34 @@ public class AdminCommentsController implements Initializable {
 
     private void loadClubs() {
         try {
-            // Get all clubs from database
-            List<Club> clubsList = clubService.getAll();
-
-            // Create a new ObservableList with "All Clubs" as first option
-            this.clubsList = FXCollections.observableArrayList();
-            this.clubsList.add("All Clubs");
-
-            // Add the actual club names
-            this.clubsList.addAll(clubsList.stream()
-                    .map(Club::getNom)
-                    .sorted() // Sort clubs alphabetically
-                    .collect(Collectors.toList()));
-
-            // Set items to the ComboBox
-            clubFilterComboBox.setItems(this.clubsList);
-
-            // Set custom cell factory for better display
-            clubFilterComboBox.setCellFactory(listView -> new ListCell<String>() {
-                @Override
-                protected void updateItem(String club, boolean empty) {
-                    super.updateItem(club, empty);
-
-                    if (empty || club == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        // Create an HBox for the cell content
-                        HBox cellBox = new HBox(10);
-                        cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                        // Create icon based on whether it's "All Clubs" or a specific club
-                        Label icon = new Label();
-                        if ("All Clubs".equals(club)) {
-                            icon.setText("🌐");
-                        } else {
-                            icon.setText("🏢");
-                        }
-                        icon.setStyle("-fx-font-size: 14px;");
-
-                        // Create label for club name
-                        Label clubLabel = new Label(club);
-                        clubLabel.setStyle("-fx-font-size: 14px;");
-
-                        // Add components to cell
-                        cellBox.getChildren().addAll(icon, clubLabel);
-
-                        setGraphic(cellBox);
-                        setText(null);
-                    }
-                }
+            // Add clubs to combo box
+            clubsList.clear();
+            clubsList.add("All Clubs");
+            
+            // Get all clubs
+            List<Club> clubs = clubService.getAll();
+            for (Club club : clubs) {
+                clubsList.add(club.getNom());
+            }
+            
+            // Sort alphabetically (all clubs always first)
+            clubsList.sort((s1, s2) -> {
+                if (s1.equals("All Clubs")) return -1;
+                if (s2.equals("All Clubs")) return 1;
+                return s1.compareTo(s2);
             });
-
-            // Set custom button cell for the selected value display
-            clubFilterComboBox.setButtonCell(new ListCell<String>() {
+            
+            clubFilterComboBox.setItems(clubsList);
+            
+            // Custom cell factory for styling
+            clubFilterComboBox.setCellFactory(lv -> new ListCell<String>() {
                 @Override
-                protected void updateItem(String club, boolean empty) {
-                    super.updateItem(club, empty);
-
-                    if (empty || club == null) {
-                        setText("All Clubs");
-                        setGraphic(null);
-                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
                     } else {
-                        HBox cellBox = new HBox(10);
-                        cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                        Label icon = new Label();
-                        if ("All Clubs".equals(club)) {
-                            icon.setText("🌐");
-                        } else {
-                            icon.setText("🏢");
-                        }
-                        icon.setStyle("-fx-font-size: 14px;");
-
-                        Label clubLabel = new Label(club);
-                        clubLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;"); // S'assurer que le texte
-                                                                                            // est noir
-
-                        cellBox.getChildren().addAll(icon, clubLabel);
-
-                        setGraphic(cellBox);
+                        setText(item);
                         setText(null);
                         setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
                     }
@@ -450,7 +397,7 @@ public class AdminCommentsController implements Initializable {
             // Add style class for custom styling
             clubFilterComboBox.getStyleClass().add("club-filter-combo");
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             AlertUtils.showError("Error", "Unable to load clubs: " + e.getMessage());
             e.printStackTrace();
         }
@@ -508,7 +455,7 @@ public class AdminCommentsController implements Initializable {
             // Update pagination
             setupPagination();
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             commentsTable.setPlaceholder(new Label("Error loading comments: " + e.getMessage()));
             AlertUtils.showError("Error", "Unable to load comments: " + e.getMessage());
             e.printStackTrace();
@@ -544,7 +491,7 @@ public class AdminCommentsController implements Initializable {
             // Trouver l'utilisateur le plus actif
             findMostActiveUser(allComments);
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Erreur lors du calcul des statistiques : " + e.getMessage());
         }
