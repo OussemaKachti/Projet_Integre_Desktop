@@ -12,7 +12,7 @@ public class ParticipantService {
     private final Connection cnx;
 
     public ParticipantService() {
-        cnx = DatabaseConnection.getInstance().getCnx();
+        cnx = DatabaseConnection.getInstance();
     }
     public void ajouter(Participant p) {
         String req = "INSERT INTO participation_membre(user_id, club_id, date_request, statut, description) VALUES (?, ?, ?, ?, ?)";

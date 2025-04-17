@@ -1,0 +1,40 @@
+/* AdminEventStyle.css */
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8px;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #f0f8ff;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+}
+
+.edit-button {
+    -fx-background-color: #4a86e8;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+    -fx-padding: 5px 10px;
+}
+
+.delete-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+    -fx-padding: 5px 10px;
+}
+
+.view-button {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+    -fx-background-radius: 3px;
+    -fx-padding: 5px 10px;
+}

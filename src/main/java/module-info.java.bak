@@ -10,7 +10,7 @@ module com.esprit {
     requires org.json;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.core;
-    requires jbcrypt;
+    requires static org.mindrot.jbcrypt;
     
     // Open all modules to allow reflection access
     opens com.esprit to javafx.fxml;

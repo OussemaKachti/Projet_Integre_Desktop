@@ -2,6 +2,11 @@
     -fx-background-color: #f8f9fa;
 }
 
+/* Add this for Group to create a proper stacking context */
+Group {
+    -fx-view-order: -2000;
+}
+
 .header {
     -fx-background-color: white;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
@@ -263,26 +268,30 @@
     -fx-background-color: transparent;
 }
 
+/* User Profile Styles */
 .user-profile-container {
-    -fx-padding: 5;
     -fx-cursor: hand;
+    -fx-padding: 5;
+    -fx-background-radius: 5;
+    -fx-position: relative;
 }
 
 .user-profile-content {
     -fx-padding: 5;
-    -fx-spacing: 10;
     -fx-alignment: center;
+    -fx-spacing: 10;
 }
 
 .profile-pic {
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-background-radius: 100%;
+    -fx-border-radius: 100%;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 1);
 }
 
 .user-name {
-    -fx-font-size: 14px;
-    -fx-text-fill: #4B535A;
+    -fx-text-fill: #031220;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
 }
 
 .profile-dropdown {
@@ -290,19 +299,25 @@
     -fx-padding: 10;
     -fx-spacing: 5;
     -fx-background-radius: 5;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 5);
+    -fx-border-radius: 5;
+    -fx-border-color: #e0e0e0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);
     -fx-min-width: 150;
-    -fx-translate-y: 45;
+    -fx-view-order: -1000; /* This ensures it's on top of other elements */
+    -fx-translate-y: 40; /* Push it down below the profile */
+    -fx-background-insets: 0;
+    -fx-opacity: 1.0;
 }
 
 .dropdown-item {
     -fx-background-color: transparent;
     -fx-text-fill: #4B535A;
-    -fx-padding: 8 15;
-    -fx-cursor: hand;
-    -fx-font-size: 14px;
+    -fx-padding: 8 5;
     -fx-alignment: center-left;
-    -fx-min-width: 130;
+    -fx-font-size: 14px;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
 }
 
 .dropdown-item:hover {
@@ -311,5 +326,5 @@
 }
 
 .separator {
-    -fx-padding: 5 0;
+    -fx-padding: 2 0;
 } 

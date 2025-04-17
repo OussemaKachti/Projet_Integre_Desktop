@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<?import java.net.URL?>
+<AnchorPane fx:id="competitionListPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionController" styleClass="content-wrapper">
+    <stylesheets>
+        <URL value="@styles/competitions.css" />
+    </stylesheets>
+
+    <VBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <!-- Header Section -->
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="page-header">
+            <Button fx:id="backButton" styleClass="back-button">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-arrow-left" iconSize="20" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Back to Dashboard" />
+                </tooltip>
+            </Button>
+
+            <Label text="Missions Management" styleClass="page-title" />
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Button fx:id="refreshButton" styleClass="action-button">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-refresh" iconSize="16" />
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Refresh" />
+                </tooltip>
+            </Button>
+
+            <Button fx:id="addButton" styleClass="primary-button">
+                <graphic>
+                    <FontIcon iconLiteral="mdi-plus" iconSize="16" />
+                </graphic>
+                <text>Add Mission</text>
+                <tooltip>
+                    <Tooltip text="Add New Mission" />
+                </tooltip>
+                <HBox.margin>
+                    <Insets right="20" />
+                </HBox.margin>
+            </Button>
+        </HBox>
+
+        <!-- Main Content Card -->
+        <StackPane VBox.vgrow="ALWAYS" styleClass="card">
+            <!-- Header Title -->
+            <VBox VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" styleClass="card-header">
+                    <Label text="Missions" styleClass="card-title" />
+                </HBox>
+
+                <!-- Main Content Area with StackPane for overlaying form -->
+                <StackPane VBox.vgrow="ALWAYS" styleClass="card-body">
+                    <!-- Competition List Container -->
+                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="transparent-background">
+                        <VBox fx:id="missionListContainer" spacing="15" styleClass="mission-list" VBox.vgrow="ALWAYS">
+                            <!-- Mission cards will be added here dynamically -->
+                        </VBox>
+                    </ScrollPane>
+
+                    <!-- Mission Form Container (Initially hidden) -->
+                    <VBox fx:id="missionFormContainer" spacing="15" styleClass="form-container" visible="false" managed="false" VBox.vgrow="NEVER">
+                        <HBox alignment="CENTER_LEFT" styleClass="form-header">
+                            <Label fx:id="formTitleLabel" text="Add Mission" styleClass="form-title" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="closeFormButton" styleClass="close-button">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi-close" iconSize="16" />
+                                </graphic>
+                            </Button>
+                        </HBox>
+
+                        <GridPane vgap="15" hgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="NEVER" minWidth="100" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                            </columnConstraints>
+
+                            <!-- Mission Title -->
+                            <Label text="Mission Title:" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                            <TextField fx:id="missionTitleField" promptText="Enter mission title" styleClass="form-control" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                            <!-- Mission Description -->
+                            <Label text="Description:" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                            <TextArea fx:id="missionDescField" promptText="Enter mission description" wrapText="true" prefRowCount="3" styleClass="form-control" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                            <!-- Points -->
+                            <Label text="Points:" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                            <TextField fx:id="pointsField" promptText="Enter points value" styleClass="form-control" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                            <!-- Start Date -->
+                            <Label text="Start Date:" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                            <DatePicker fx:id="startDateField" promptText="Select start date" styleClass="form-control" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                            <!-- End Date -->
+                            <Label text="End Date:" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                            <DatePicker fx:id="endDateField" promptText="Select end date" styleClass="form-control" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                            <!-- Goal Value -->
+                            <Label text="Goal:" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                            <TextField fx:id="goalValueField" promptText="Enter goal value" styleClass="form-control" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+                            <!-- Goal Type -->
+                            <Label text="Goal Type:" styleClass="form-label" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                            <ComboBox fx:id="goalTypeComboBox" promptText="Select goal type" styleClass="form-control" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+                            <!-- Season -->
+                            <Label text="Season:" styleClass="form-label" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                            <ComboBox fx:id="saisonComboBox" promptText="Select season" styleClass="form-control" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+                            <!-- Status -->
+                            <Label text="Status:" styleClass="form-label" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                            <ComboBox fx:id="statusComboBox" promptText="Select status" styleClass="form-control" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+                        </GridPane>
+
+                        <!-- Form Buttons -->
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button fx:id="cancelButton" text="Cancel" styleClass="btn-outline-secondary" />
+                            <Button fx:id="saveButton" text="Save Mission" styleClass="btn-primary" />
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </VBox>
+        </StackPane>
+    </VBox>
+</AnchorPane>

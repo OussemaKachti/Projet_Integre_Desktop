@@ -1,5 +1,14 @@
 package com.esprit.controllers;
 
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Club;
 import com.esprit.models.Sondage;
@@ -8,10 +17,8 @@ import com.esprit.services.ClubService;
 import com.esprit.services.SondageService;
 import com.esprit.services.UserService;
 import com.esprit.utils.AlertUtils;
-import com.esprit.utils.NavigationManager;
 import com.esprit.utils.SessionManager;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -21,22 +28,20 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 /**
  * Contrôleur pour la gestion des sondages
@@ -74,11 +79,10 @@ public class PollManagementController implements Initializable {
                 return;
             }
 
-            // Get the club where the user is president
+            // Get the club associated with the current user (president)
             Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
-                AlertUtils.showError("Access Denied", "You must be a club president to access this view.");
-                navigateBack();
+                showCustomAlert("Error", "You must be a club president to manage polls.", "error");
                 return;
             }
             
@@ -345,10 +349,10 @@ public class PollManagementController implements Initializable {
      * Ouvre la fenêtre modale pour créer ou modifier un sondage
      */
     private void openPollModal(Sondage sondage) {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
-        VBox modalContent = loader.load();
-        
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
+            VBox modalContent = loader.load();
+            
         // Create scene first before setting the stage
         Scene modalScene = new Scene(modalContent);
         
@@ -362,11 +366,11 @@ public class PollManagementController implements Initializable {
         // Set scene to stage before passing it to the controller
         modalStage.setScene(modalScene);
         
-        EditPollModalController controller = loader.getController();
+            EditPollModalController controller = loader.getController();
         controller.setModalStage(modalStage);
         
         try {
-            // Get the user's club
+            // Get the club associated with the current user (president)
             Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
                 throw new IllegalStateException("User is not a president of any club");
@@ -378,8 +382,8 @@ public class PollManagementController implements Initializable {
                 Sondage refreshedSondage = sondageService.getById(sondage.getId());
                 if (refreshedSondage != null) {
                     controller.setEditMode(refreshedSondage, currentUser);
-                } else {
-                    controller.setEditMode(sondage, currentUser);
+            } else {
+                controller.setEditMode(sondage, currentUser);
                 }
             }
             
@@ -402,8 +406,8 @@ public class PollManagementController implements Initializable {
         
     } catch (IOException e) {
         showCustomAlert("Error", "Unable to open modal window: " + e.getMessage(), "error");
-        e.printStackTrace();
-    }
+            e.printStackTrace();
+        }
     }
     
     /**

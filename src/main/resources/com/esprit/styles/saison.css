@@ -1,0 +1,281 @@
+/* Main styles for Season Management - Matching Skydash Admin Theme */
+
+/* Color variables based on Skydash theme */
+* {
+    -fx-primary: #4B49AC;
+    -fx-primary-light: #7978E9;
+    -fx-primary-dark: #3C3A99;
+    -fx-secondary: #F3F4F6;
+    -fx-success: #1BCFb4;
+    -fx-danger: #FF4747;
+    -fx-warning: #FFC100;
+    -fx-info: #8F5FE8;
+    -fx-light-gray: #f8f9fa;
+    -fx-dark-gray: #6c757d;
+    -fx-text-dark: #343a40;
+    -fx-text-light: #f8f9fa;
+    -fx-border-color: #e4e9f0;
+}
+
+/* Content wrapper - main container */
+.content-wrapper {
+    -fx-background-color: #F5F7FF;
+}
+
+/* Page header */
+.page-header {
+    -fx-padding: 10px 0 20px 0;
+}
+
+.page-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+/* Card styles */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.card-header {
+    -fx-padding: 20px;
+    -fx-border-color: transparent transparent -fx-border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+.card-body {
+    -fx-padding: 20px;
+}
+
+/* Button styles */
+.primary-button {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: -fx-primary-dark;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: rgba(0,0,0,0.05);
+}
+
+.action-button {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-primary;
+    -fx-border-radius: 4px;
+    -fx-text-fill: -fx-primary;
+    -fx-padding: 6px 10px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: rgba(75, 73, 172, 0.1);
+}
+
+.btn-primary {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: -fx-primary-dark;
+}
+
+.btn-outline-primary {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-primary;
+    -fx-text-fill: -fx-primary;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.btn-outline-primary:hover {
+    -fx-background-color: rgba(75, 73, 172, 0.1);
+}
+
+.btn-outline-secondary {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-dark-gray;
+    -fx-text-fill: -fx-dark-gray;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.btn-outline-secondary:hover {
+    -fx-background-color: rgba(108, 117, 125, 0.1);
+}
+
+.close-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.close-button:hover {
+    -fx-background-color: rgba(0,0,0,0.05);
+}
+
+/* Form styles */
+.form-container {
+    -fx-background-color: white;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);
+    -fx-background-radius: 8px;
+    -fx-max-width: 600px;
+    -fx-alignment: center;
+}
+
+.form-header {
+    -fx-padding: 0 0 15px 0;
+    -fx-border-color: transparent transparent -fx-border-color transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+.form-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+.form-control {
+    -fx-background-color: -fx-secondary;
+    -fx-background-radius: 4px;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px;
+}
+
+.form-control:focused {
+    -fx-border-color: -fx-primary;
+    -fx-background-color: white;
+}
+
+.file-label {
+    -fx-text-fill: -fx-dark-gray;
+}
+
+.image-preview {
+    -fx-background-color: -fx-secondary;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 4px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+/* Season card styles - these will be applied programmatically */
+.season-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-border-color: -fx-border-color;
+    -fx-border-radius: 8px;
+    -fx-padding: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);
+    -fx-transition: all 0.3s;
+}
+
+.season-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(75, 73, 172, 0.2), 6, 0, 0, 2);
+    -fx-border-color: -fx-primary-light;
+}
+
+.season-icon {
+    -fx-fill: -fx-primary;
+}
+
+.season-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-dark;
+}
+
+.season-desc {
+    -fx-text-fill: -fx-dark-gray;
+    -fx-wrap-text: true;
+}
+
+.date-badge {
+    -fx-background-color: -fx-primary;
+    -fx-background-radius: 4px;
+    -fx-text-fill: white;
+    -fx-padding: 5px 10px;
+    -fx-font-size: 11px;
+}
+
+.edit-button {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-primary;
+    -fx-text-fill: -fx-primary;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.edit-button:hover {
+    -fx-background-color: rgba(75, 73, 172, 0.1);
+}
+
+.delete-button {
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-danger;
+    -fx-text-fill: -fx-danger;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.delete-button:hover {
+    -fx-background-color: rgba(255, 71, 71, 0.1);
+}
+
+/* Transparent containers */
+.transparent-background {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.transparent-background > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Season list container */
+.season-list {
+    -fx-padding: 5px;
+    -fx-spacing: 15px;
+}
+
+/* No seasons placeholder */
+.no-seasons-placeholder {
+    -fx-padding: 20px;
+    -fx-text-fill: -fx-dark-gray;
+    -fx-font-size: 14px;
+    -fx-alignment: center;
+}

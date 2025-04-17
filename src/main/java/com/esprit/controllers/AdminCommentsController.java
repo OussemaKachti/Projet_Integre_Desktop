@@ -2,11 +2,14 @@ package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Club;
+import com.esprit.models.Commentaire;
+import com.esprit.models.Club;
 import com.esprit.services.CommentaireService;
 import com.esprit.services.ClubService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.NavigationManager;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -138,32 +142,24 @@ public class AdminCommentsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        commentaireService = new CommentaireService();
-        clubService = new ClubService();
+        try {
+            // Initialize services
+            commentaireService = new CommentaireService();
+            clubService = new ClubService();
 
-        // Configuration des colonnes du tableau
-        setupTableColumns();
+            // Setup UI components
+            setupTableColumns();
+            loadClubs();
+            loadComments();
+            setupEventHandlers();
+            setupPagination();
+            setupNavigationEvents();
+            setupAdminInfo();
 
-        // Chargement des clubs pour le filtre
-        loadClubs();
-
-        // Chargement des commentaires
-        loadComments();
-
-        // Calcul des statistiques
-        calculateStats();
-
-        // Configuration des événements
-        setupEventHandlers();
-
-        // Configuration de la pagination
-        setupPagination();
-
-        // Configuration des événements de navigation
-        setupNavigationEvents();
-
-        // Configuration des informations de l'administrateur
-        setupAdminInfo();
+        } catch (SQLException e) {
+            AlertUtils.showError("Error", "Unable to initialize: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void setupTableColumns() {
@@ -320,7 +316,11 @@ public class AdminCommentsController implements Initializable {
                         // Configure click handler
                         deleteButton.setOnAction(event -> {
                             Commentaire commentaire = getTableView().getItems().get(getIndex());
-                            deleteComment(commentaire);
+                            try {
+                                deleteComment(commentaire);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         });
                     }
 
@@ -354,45 +354,77 @@ public class AdminCommentsController implements Initializable {
         };
     }
 
-    private void loadClubs() {
-        try {
-            // Add clubs to combo box
-            clubsList.clear();
-            clubsList.add("All Clubs");
-            
-            // Get all clubs
-            List<Club> clubs = clubService.getAll();
-            for (Club club : clubs) {
-                clubsList.add(club.getNom());
-            }
-            
-            // Sort alphabetically (all clubs always first)
-            clubsList.sort((s1, s2) -> {
-                if (s1.equals("All Clubs")) return -1;
-                if (s2.equals("All Clubs")) return 1;
-                return s1.compareTo(s2);
-            });
-            
-            clubFilterComboBox.setItems(clubsList);
-            
-            // Custom cell factory for styling
-            clubFilterComboBox.setCellFactory(lv -> new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        setText(null);
-                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
-                    }
-                }
-            });
+    private void loadClubs() throws SQLException {
+        // Get all clubs from database
+        List<Club> clubsList = clubService.getAll();
 
-            // Select first item (All Clubs)
-            clubFilterComboBox.getSelectionModel().selectFirst();
-            selectedClub = "all"; // Default value
+        // Create a new ObservableList with "All Clubs" as first option
+        this.clubsList = FXCollections.observableArrayList();
+        this.clubsList.add("All Clubs");
+
+        // Add the actual club names
+        this.clubsList.addAll(clubsList.stream()
+                .map(Club::getNom)
+                .sorted() // Sort clubs alphabetically
+                .collect(Collectors.toList()));
+
+        // Set items to the ComboBox
+        clubFilterComboBox.setItems(this.clubsList);
+
+        // Set custom cell factory for better display
+        clubFilterComboBox.setCellFactory(listView -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String club, boolean empty) {
+                super.updateItem(club, empty);
+
+                if (empty || club == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Create an HBox for the cell content
+                    HBox cellBox = new HBox(10);
+                    cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                    // Create icon based on whether it's "All Clubs" or a specific club
+                    Label icon = new Label();
+                    if ("All Clubs".equals(club)) {
+                        icon.setText("🌐");
+                    } else {
+                        icon.setText("🏢");
+                    }
+                    icon.setStyle("-fx-font-size: 14px;");
+
+                    // Create label for club name
+                    Label clubLabel = new Label(club);
+                    clubLabel.setStyle("-fx-font-size: 14px;");
+
+                    // Add components to cell
+                    cellBox.getChildren().addAll(icon, clubLabel);
+
+                    setGraphic(cellBox);
+                    setText(null);
+                }
+            }
+        });
+
+        // Set custom button cell for the selected value display
+        clubFilterComboBox.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String club, boolean empty) {
+                super.updateItem(club, empty);
+                if (empty || club == null) {
+                    setText(null);
+                    setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                } else {
+                    setText(club);
+                    setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                }
+            }
+        });
+
+        // Select first item (All Clubs)
+        clubFilterComboBox.getSelectionModel().selectFirst();
+        selectedClub = "all"; // Default value
 
             // Add style class for custom styling
             clubFilterComboBox.getStyleClass().add("club-filter-combo");
@@ -598,6 +630,7 @@ public class AdminCommentsController implements Initializable {
             if (currentPage > 1) {
                 currentPage--;
                 loadComments();
+                setupPagination();
             }
         });
 
@@ -621,6 +654,7 @@ public class AdminCommentsController implements Initializable {
             pageButton.setOnAction(e -> {
                 currentPage = pageNum;
                 loadComments();
+                setupPagination();
             });
             paginationContainer.getChildren().add(pageButton);
         }
@@ -633,6 +667,7 @@ public class AdminCommentsController implements Initializable {
             if (currentPage < totalPages) {
                 currentPage++;
                 loadComments();
+                setupPagination();
             }
         });
 
@@ -680,11 +715,8 @@ public class AdminCommentsController implements Initializable {
                 loadComments();
                 calculateStats();
             }
-        } catch (SQLException e) {
-            showToast("Error deleting comment: " + e.getMessage(), "error");
-            e.printStackTrace();
         } catch (Exception e) {
-            showToast("Unexpected error: " + e.getMessage(), "error");
+            showToast("Error deleting comment: " + e.getMessage(), "error");
             e.printStackTrace();
         }
     }
@@ -743,23 +775,24 @@ public class AdminCommentsController implements Initializable {
      * Configure les événements de navigation pour la sidebar
      */
     private void setupNavigationEvents() {
-        // Navigation vers AdminPollsView
+        // Navigation back to AdminPollsView
         pollsManagementBtn.setOnAction(event -> {
             try {
                 // Charger la vue des sondages
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
                 Parent root = loader.load();
-
+                
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
+                
                 // Configurer la scène
                 Scene scene = new Scene(root);
-
+                
                 // S'assurer que les styles sont correctement appliqués
-                scene.getStylesheets()
-                        .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-
-                // Utiliser le NavigationManager pour obtenir et configurer la scène
-                Stage stage = NavigationManager.getMainStage();
+                
+                // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
                 stage.show();
@@ -768,22 +801,40 @@ public class AdminCommentsController implements Initializable {
                 showToast("Erreur lors de la navigation vers la gestion des sondages: " + e.getMessage(), "error");
             }
         });
-
-        // Pour le bouton principal Survey Management, on peut ajouter une animation
-        // pour montrer/cacher le sous-menu
+        
+        // Pour le bouton principal Survey Management, on peut ajouter une animation pour montrer/cacher le sous-menu
         surveyManagementBtn.setOnAction(event -> {
             // Toggle la visibilité du sous-menu
             boolean isVisible = surveySubMenu.isVisible();
             surveySubMenu.setVisible(!isVisible);
             surveySubMenu.setManaged(!isVisible);
         });
-
+        
+        // Navigation vers admin_dashboard
+        userManagementBtn.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+                Parent root = loader.load();
+                
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) userManagementBtn.getScene().getWindow();
+                
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+                
+                // Appliquer la scène au stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to user management: " + e.getMessage(), "error");
+            }
+        });
+        
         // Configurer les autres boutons de navigation si nécessaire
-        userManagementBtn
-                .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des utilisateurs", "info"));
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        eventManagementBtn
-                .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
+        eventManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
         productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
         competitionBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Compétitions", "info"));
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
