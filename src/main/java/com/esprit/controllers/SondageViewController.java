@@ -134,7 +134,7 @@ public class SondageViewController implements Initializable {
             sondagesContainer.setSpacing(20);
 
             // Check if user is a club president
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             boolean isPresident = userClub != null;
 
             // Show/hide elements based on user role
@@ -1031,7 +1031,7 @@ public class SondageViewController implements Initializable {
             sondage.setUser(currentUser);
 
             // Find the club associated with the current user (president)
-            Club userClub = clubService.findByPresident(currentUser.getId());
+            Club userClub = clubService.findFirstByPresident(currentUser.getId());
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
                 return;
@@ -1088,7 +1088,7 @@ public class SondageViewController implements Initializable {
     private void handleViewAllPolls() {
         try {
             if (currentUser != null) {
-                Club userClub = clubService.findByPresident(currentUser.getId());
+                Club userClub = clubService.findFirstByPresident(currentUser.getId());
 
                 // If user is a club president, open PollManagement view
                 if (userClub != null) {
@@ -1116,7 +1116,7 @@ public class SondageViewController implements Initializable {
             } else {
                 AlertUtils.showError("Error", "User session not found.");
             }
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
             AlertUtils.showError("Error", "Could not open Poll Management: " + e.getMessage());
             e.printStackTrace();
         }

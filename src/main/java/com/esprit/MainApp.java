@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+
 public class MainApp extends Application {
     private static final Logger LOGGER = Logger.getLogger(MainApp.class.getName());
     
@@ -197,32 +198,45 @@ private static void configureMainApplicationScreen(Stage stage) {
 
 /**
  * Loads the forgot password UI
- * @param email Optional email to prefill (can be null)
+//  * Optional email to prefill (can be null)
  */
-public static void loadForgotPasswordUI(String email) {
-    try {
-        URL fxmlUrl = MainApp.class.getResource("/com/esprit/views/forgot_password.fxml");
-        if (fxmlUrl == null) {
-            LOGGER.log(Level.SEVERE, "Cannot find /com/esprit/views/forgot_password.fxml");
-            throw new IllegalStateException("Required FXML file not found: /com/esprit/views/forgot_password.fxml");
-        }
+// public static void loadForgotPasswordUI(String email) {
+//     try {
+//         URL fxmlUrl = MainApp.class.getResource("/com/esprit/views/forgot_password.fxml");
+//         if (fxmlUrl == null) {
+//             LOGGER.log(Level.SEVERE, "Cannot find /com/esprit/views/forgot_password.fxml");
+//             throw new IllegalStateException("Required FXML file not found: /com/esprit/views/forgot_password.fxml");
+//         }
         
-        FXMLLoader loader = new FXMLLoader(fxmlUrl);
-        Parent root = loader.load();
+//         FXMLLoader loader = new FXMLLoader(fxmlUrl);
+//         Parent root = loader.load();
         
-        // Set email if provided
-        if (email != null && !email.isEmpty()) {
-            com.esprit.controllers.ForgotPasswordController controller = loader.getController();
-            controller.setEmailField(email);
-        }
+//         // Set email if provided
+//         if (email != null && !email.isEmpty()) {
+//             com.esprit.controllers.ForgotPasswordController controller = loader.getController();
+//             controller.setEmailField(email);
+//         }
         
-        // Use our utility method with explicit dimensions for login-sized screens
-        setupStage(primaryStage, root, "UNICLUBS - Forgot Password", true, LOGIN_WIDTH, LOGIN_HEIGHT);
-        primaryStage.show();
+//         // Create a new Stage instead of reusing primaryStage
+//         Stage stage = new Stage();
         
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Failed to load forgot password UI", e);
-        e.printStackTrace();
-    }
-}
+//         // Use our utility method with explicit dimensions for login-sized screens
+//         setupStage(stage, root, "UNICLUBS - Forgot Password", true, LOGIN_WIDTH, LOGIN_HEIGHT);
+        
+//         // Hide the primary stage before showing the new one
+//         if (primaryStage != null) {
+//             primaryStage.hide();
+//         }
+        
+//         // Show the new stage
+//         stage.show();
+        
+//         // Update the primaryStage reference to the new stage
+//         primaryStage = stage;
+        
+//     } catch (Exception e) {
+//         LOGGER.log(Level.SEVERE, "Failed to load forgot password UI", e);
+//         e.printStackTrace();
+//     }
+// }
 }
