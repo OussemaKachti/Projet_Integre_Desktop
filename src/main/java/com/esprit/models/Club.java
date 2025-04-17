@@ -252,6 +252,11 @@ public class Club {
     
     @Override
     public String toString() {
-        return this.getNom();
+        return "Club{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", description='" + description + '\'' +
+                ", president=" + (president != null ? president.getFirstName() + " " + president.getLastName() : "null") +
+                '}';
     }
 }

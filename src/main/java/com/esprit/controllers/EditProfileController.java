@@ -3,6 +3,8 @@ package com.esprit.controllers;
 
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
+import com.esprit.utils.ProfanityFilter;
+import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.ValidationHelper;
 import com.esprit.utils.ValidationUtils;
 
@@ -110,10 +112,21 @@ public class EditProfileController {
             validator.showError(firstNameField, "First name must be at least 2 characters");
             isFirstNameValid = false;
         }
+        
         // Check for profanity in first name
-        if (isFirstNameValid && !ValidationUtils.isCleanText(firstName)) {
+        if (isFirstNameValid && ProfanityFilter.containsProfanity(firstName)) {
             validator.showError(firstNameField, "First name contains inappropriate language");
             isFirstNameValid = false;
+            
+            // Log the profanity incident and increment warning count
+            String severity = ProfanityLogManager.determineSeverity("First Name");
+            ProfanityLogManager.logProfanityIncident(
+                currentUser, 
+                "First Name", 
+                firstName,
+                severity, 
+                "Profile update rejected"
+            );
         }
         
         // Validate last name
@@ -122,10 +135,21 @@ public class EditProfileController {
             validator.showError(lastNameField, "Last name must be at least 2 characters");
             isLastNameValid = false;
         }
+        
         // Check for profanity in last name
-        if (isLastNameValid && !ValidationUtils.isCleanText(lastName)) {
+        if (isLastNameValid && ProfanityFilter.containsProfanity(lastName)) {
             validator.showError(lastNameField, "Last name contains inappropriate language");
             isLastNameValid = false;
+            
+            // Log the profanity incident and increment warning count
+            String severity = ProfanityLogManager.determineSeverity("Last Name");
+            ProfanityLogManager.logProfanityIncident(
+                currentUser, 
+                "Last Name", 
+                lastName,
+                severity, 
+                "Profile update rejected"
+            );
         }
         
         // Validate email

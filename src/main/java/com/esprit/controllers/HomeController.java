@@ -53,6 +53,11 @@ public class HomeController implements Initializable {
                     if (imageFile.exists()) {
                         Image image = new Image(imageFile.toURI().toString());
                         userProfilePic.setImage(image);
+                        
+                        // Keep aspect ratio
+                        userProfilePic.setPreserveRatio(true);
+                        userProfilePic.setFitHeight(40);
+                        userProfilePic.setFitWidth(40);
                     } else {
                         loadDefaultProfilePic();
                     }
@@ -65,12 +70,18 @@ public class HomeController implements Initializable {
             }
             
             // Apply circular clip to profile picture
-            double radius = 20;
-            userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+            javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
+            userProfilePic.setClip(clip);
             
-            // Initially hide the dropdown
-            profileDropdown.setVisible(false);
-            profileDropdown.setManaged(false);
+            // Ensure dropdown is properly positioned and hidden initially
+            javafx.application.Platform.runLater(() -> {
+                profileDropdown.setVisible(false);
+                profileDropdown.setManaged(false);
+                profileDropdown.toFront();
+                
+                // Position the dropdown properly
+                userProfileContainer.layout(); // Force layout to calculate proper size
+            });
         }
     }
     
@@ -78,6 +89,9 @@ public class HomeController implements Initializable {
         try {
             Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
             userProfilePic.setImage(defaultImage);
+            userProfilePic.setPreserveRatio(true);
+            userProfilePic.setFitHeight(40);
+            userProfilePic.setFitWidth(40);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,8 +99,14 @@ public class HomeController implements Initializable {
     
     @FXML
     private void showProfileDropdown() {
+        // Ensure dropdown is on top of other elements
+        profileDropdown.toFront();
+        profileDropdown.setMouseTransparent(false);
+        
+        // Make it visible
         profileDropdown.setVisible(true);
         profileDropdown.setManaged(true);
+        profileDropdown.setOpacity(1.0);
     }
     
     @FXML

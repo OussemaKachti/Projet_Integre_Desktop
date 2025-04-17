@@ -1,19 +1,31 @@
 package com.esprit.services;
 
-import com.esprit.models.Club;
-import com.esprit.utils.DatabaseConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.esprit.models.Club;
+import com.esprit.utils.DatabaseConnection;
 
 public class ClubService {
 
     private final Connection cnx;
+    private static ClubService instance;
 
     // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
-        cnx = DatabaseConnection.getInstance().getCnx();
+        cnx = DatabaseConnection.getInstance();
+    }
+    
+    public static ClubService getInstance() {
+        if (instance == null) {
+            instance = new ClubService();
+        }
+        return instance;
     }
 
     // Ajouter un club
@@ -83,6 +95,7 @@ public class ClubService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        
         return clubs;
     }
 
@@ -155,5 +168,18 @@ public class ClubService {
             return clubs.get(0);
         }
         return null;
+    }
+    
+    // Helper method to map result set to Club object
+    private Club mapResultSetToClub(ResultSet rs) throws SQLException {
+        Club club = new Club();
+        club.setId(rs.getInt("id"));
+        club.setPresidentId(rs.getInt("president_id"));
+        club.setNomC(rs.getString("nom_c"));
+        club.setDescription(rs.getString("description"));
+        club.setStatus(rs.getString("status"));
+        club.setImage(rs.getString("image"));
+        club.setPoints(rs.getInt("points"));
+        return club;
     }
 }
