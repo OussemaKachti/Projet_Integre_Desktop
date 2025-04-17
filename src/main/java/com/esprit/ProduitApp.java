@@ -26,9 +26,10 @@ public class ProduitApp extends Application {
     public void start(Stage stage) {
         try {
             primaryStage = stage;
+            // Démarrer avec la vue catalogue produits pour les utilisateurs
             navigateTo("/com/esprit/views/produit/ProduitView.fxml");
 
-            primaryStage.setTitle("UNICLUBS - Club Management System");
+            primaryStage.setTitle("UNICLUBS - Boutique en ligne");
             primaryStage.show();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to start application", e);
