@@ -29,7 +29,7 @@
             <top>
                 <BorderPane style="-fx-background-color: #040f71; -fx-padding: 15;">
                     <left>
-                        <Label text="Update Your Event" textFill="WHITE">
+                        <Label text="Organize Your Event" textFill="WHITE">
                             <font>
                                 <Font name="Arial Bold" size="28" />
                             </font>
@@ -53,13 +53,14 @@
             <!-- Main content -->
             <center>
                 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-                    <BorderPane style="-fx-padding: 20;">
+                    <BorderPane style="-fx-padding: 10;">
                         <center>
-                            <VBox alignment="TOP_CENTER" spacing="30">
+                            <!-- Main content container with maxWidth to center the form -->
+                            <VBox alignment="CENTER" maxWidth="1000" spacing="30">
 
                                 <!-- Introduction -->
                                 <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
-                                    <Label style="-fx-text-fill: #555555;" text="Update the information below to modify your event">
+                                    <Label style="-fx-text-fill: #555555;" text="Please fill in the information below to create a new event">
                                         <font>
                                             <Font name="Arial" size="14" />
                                         </font>
@@ -67,9 +68,9 @@
                                 </HBox>
 
                                 <!-- Main section - separated into 2 columns -->
-                                <HBox spacing="40">
+                                <HBox spacing="40" alignment="CENTER">
                                     <!-- Left column -->
-                                    <VBox prefWidth="450" spacing="20" HBox.hgrow="ALWAYS">
+                                    <VBox prefWidth="400" spacing="20" HBox.hgrow="ALWAYS">
                                         <!-- Title -->
                                         <VBox spacing="5">
                                             <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Event Name">
@@ -172,8 +173,8 @@
                                     </VBox>
 
                                     <!-- Right column -->
-                                    <VBox prefWidth="450" spacing="20" HBox.hgrow="ALWAYS">
-                                        <!-- Event Image (avec une seule instance) -->
+                                    <VBox prefWidth="400" spacing="20" HBox.hgrow="ALWAYS">
+                                        <!-- Event Image (taille réduite) -->
                                         <VBox spacing="5">
                                             <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Event Image">
                                                 <font>
@@ -181,10 +182,11 @@
                                                 </font>
                                             </Label>
                                             <VBox alignment="CENTER" spacing="10" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 15;">
-                                                <ImageView fx:id="imageView" fitHeight="150" fitWidth="300" preserveRatio="true" style="-fx-opacity: 0.9;">
+                                                <!-- Taille d'image réduite -->
+                                                <ImageView fx:id="imageView" fitHeight="120" fitWidth="200" preserveRatio="true" style="-fx-opacity: 0.9;">
                                                     <!-- Default image -->
                                                 </ImageView>
-                                                <Button fx:id="chooseImageButton" onAction="#handleChooseImage" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;" text="Choose Image">
+                                                <Button fx:id="chooseImageButton" onAction="#handleChooseImage" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;" text="Choose Image">
                                                     <font>
                                                         <Font name="Arial" size="13" />
                                                     </font>
@@ -247,7 +249,7 @@
                                             <Font name="Arial Bold" size="14" />
                                         </font>
                                     </Button>
-                                    <Button fx:id="addEventButton" onAction="#handleAddEvent" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 12 30;" text="Update Event">
+                                    <Button fx:id="addEventButton" onAction="#handleAddEvent" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 12 30;" text="Add Event">
                                         <font>
                                             <Font name="Arial Bold" size="14" />
                                         </font>
