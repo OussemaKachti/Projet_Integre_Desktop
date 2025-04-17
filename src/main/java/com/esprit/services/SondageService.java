@@ -73,6 +73,11 @@ public class SondageService {
     public Sondage getById(int id) throws SQLException {
         String query = "SELECT * FROM sondage WHERE id = ?";
 
+        // Ensure the connection is valid before executing the query
+        if (connection == null || connection.isClosed()) {
+            connection = DataSource.getInstance().getCnx();
+        }
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
@@ -87,6 +92,11 @@ public class SondageService {
     public ObservableList<Sondage> getAll() throws SQLException {
         ObservableList<Sondage> sondages = FXCollections.observableArrayList();
         String query = "SELECT * FROM sondage ORDER BY created_at DESC";
+
+        // Ensure the connection is valid before executing the query
+        if (connection == null || connection.isClosed()) {
+            connection = DataSource.getInstance().getCnx();
+        }
 
         try (Statement st = connection.createStatement();
                 ResultSet rs = st.executeQuery(query)) {
@@ -152,7 +162,12 @@ public class SondageService {
     public List<Sondage> getByClub(String clubId2) throws SQLException {
         List<Sondage> sondages = new ArrayList<>();
 
-        // Si on recherche par ID (cas où clubNom est un nombre)
+        // Ensure the connection is valid before executing the query
+        if (connection == null || connection.isClosed()) {
+            connection = DataSource.getInstance().getCnx();
+        }
+
+        // If searching by ID (when clubNom is a number)
         if (clubId2.matches("\\d+")) {
             int clubId = Integer.parseInt(clubId2);
             String query = "SELECT * FROM sondage WHERE club_id = ? ORDER BY created_at DESC";
@@ -167,10 +182,10 @@ public class SondageService {
                 }
             }
         }
-        // Si on recherche par nom du club
+        // If searching by club name
         else {
-            // Modifié pour tenir compte de la structure réelle de la table club
-            // qui pourrait avoir soit 'nom' soit 'nom_c' comme nom de colonne
+            // Modified to account for the actual structure of the club table
+            // which might have either 'nom' or 'nom_c' as column name
             String query = "SELECT s.* FROM sondage s " +
                     "INNER JOIN club c ON s.club_id = c.id " +
                     "WHERE c.nom = ? OR c.nom_c = ? " +

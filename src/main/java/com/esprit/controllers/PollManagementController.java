@@ -20,6 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -185,7 +186,13 @@ public class PollManagementController implements Initializable {
     @FXML
     public void navigateToPolls() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
-        Scene scene = new Scene(loader.load());
+        Parent root = loader.load();
+        
+        // Get the controller and make sure it refreshes its data
+        SondageViewController controller = loader.getController();
+        controller.refreshData();
+        
+        Scene scene = new Scene(root);
         Stage stage = (Stage) backButton.getScene().getWindow();
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -601,12 +608,32 @@ public class PollManagementController implements Initializable {
     private void navigateBack() {
         if (previousScene != null) {
             Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.setScene(previousScene);
             
-            // Maximiser la fenêtre précédente
-            stage.setMaximized(true);
+            // If we're returning to SondageView, force a reload by creating a new instance
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
+                Scene scene = new Scene(loader.load());
+                stage.setScene(scene);
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                // Fallback to the previous scene if loading fails
+                stage.setScene(previousScene);
+                stage.setMaximized(true);
+                e.printStackTrace();
+                AlertUtils.showError("Navigation Error", "Failed to reload view: " + e.getMessage());
+            }
         } else {
-            AlertUtils.showInformation("Navigation", "Impossible de revenir à la vue précédente.");
+            // Try to navigate to SondageView directly if previous scene is null
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
+                Scene scene = new Scene(loader.load());
+                Stage stage = (Stage) backButton.getScene().getWindow();
+                stage.setScene(scene);
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                AlertUtils.showInformation("Navigation", "Impossible de revenir à la vue précédente.");
+            }
         }
     }
 

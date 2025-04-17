@@ -589,9 +589,15 @@ public class CommentsModalController implements Initializable {
                 // Refresh comments
                 loadComments();
 
-                // Refresh parent view if available
+                // Safely refresh parent view if available
                 if (parentController != null) {
-                    parentController.refreshData();
+                    try {
+                        parentController.refreshData();
+                    } catch (Exception ex) {
+                        // Log the error but don't show it to the user since the comment was successfully added
+                        System.err.println("Error refreshing parent controller: " + ex.getMessage());
+                        ex.printStackTrace();
+                    }
                 }
 
             } catch (SQLException ex) {
