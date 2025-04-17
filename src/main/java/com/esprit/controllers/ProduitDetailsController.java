@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.io.File;
 
 public class ProduitDetailsController implements Initializable {
 
@@ -91,10 +92,21 @@ public class ProduitDetailsController implements Initializable {
         try {
             String imagePath = selectedProduit.getImgProd();
             if (imagePath != null && !imagePath.isEmpty()) {
+                // Try first as a resource
                 URL imageUrl = getClass().getResource("/" + imagePath);
+                
                 if (imageUrl != null) {
                     Image image = new Image(imageUrl.toString(), true); // Use background loading
                     imgProduit.setImage(image);
+                } else {
+                    // Then try as a file path
+                    File file = new File(imagePath);
+                    if (file.exists()) {
+                        Image image = new Image(file.toURI().toString(), true);
+                        imgProduit.setImage(image);
+                    } else {
+                        System.out.println("Image not found: " + imagePath);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -171,5 +183,30 @@ public class ProduitDetailsController implements Initializable {
     @FXML
     private void retourCatalogue() {
         ProduitApp.navigateTo("/com/esprit/views/produit/ProduitView.fxml");
+    }
+    
+    /**
+     * Increments the quantity spinner value
+     */
+    @FXML
+    private void incrementQuantity() {
+        int currentValue = spinnerQuantity.getValue();
+        int maxValue = ((SpinnerValueFactory.IntegerSpinnerValueFactory)spinnerQuantity.getValueFactory()).getMax();
+        
+        if (currentValue < maxValue) {
+            spinnerQuantity.getValueFactory().setValue(currentValue + 1);
+        }
+    }
+    
+    /**
+     * Decrements the quantity spinner value
+     */
+    @FXML
+    private void decrementQuantity() {
+        int currentValue = spinnerQuantity.getValue();
+        
+        if (currentValue > 1) {
+            spinnerQuantity.getValueFactory().setValue(currentValue - 1);
+        }
     }
 }

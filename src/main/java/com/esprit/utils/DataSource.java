@@ -3,78 +3,110 @@ package com.esprit.utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.Statement;
 
 public class DataSource {
-    private static final Logger LOGGER = Logger.getLogger(DataSource.class.getName());
     private static DataSource instance;
     private Connection cnx;
 
-    private final String url = "jdbc:mysql://localhost:3306/dbpi?serverTimezone=UTC";
+    private final String url = "jdbc:mysql://localhost:3306/dbpi";
     private final String user = "root";
     private final String password = "";
-    private static final int MAX_RETRIES = 3;
-    private static final long RETRY_DELAY = 2000; // 2 seconds
+    
+    // Maximum number of connection attempts
+    private final int MAX_RETRIES = 3;
+    private final int RETRY_DELAY_MS = 2000; // 2 seconds
 
     private DataSource() {
-        initializeConnection();
+        connectWithRetry();
     }
-
-    private void initializeConnection() {
-        int retryCount = 0;
-        while (retryCount < MAX_RETRIES && (cnx == null || !isConnectionValid())) {
+    
+    private void connectWithRetry() {
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                // Load the JDBC driver explicitly
+                // Explicitly load MySQL driver
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 
+                // Connection to database
                 cnx = DriverManager.getConnection(url, user, password);
-                LOGGER.info("Successfully connected to database!");
-            } catch (SQLException ex) {
-                LOGGER.log(Level.SEVERE, "Database connection failed (Attempt " + (retryCount + 1) + "/" + MAX_RETRIES + "): " + ex.getMessage());
-                retryCount++;
-                if (retryCount < MAX_RETRIES) {
-                    try {
-                        Thread.sleep(RETRY_DELAY);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+
+                // Verify connection
+                if (cnx != null && !cnx.isClosed()) {
+                    System.out.println("Connected to Database!");
+                    // Test with a simple query
+                    Statement stmt = cnx.createStatement();
+                    stmt.executeQuery("SELECT 1");
+                    return; // Success, exit the method
                 }
             } catch (ClassNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "MySQL JDBC Driver not found: " + e.getMessage());
-                break;
+                System.err.println("MySQL JDBC driver not found: " + e.getMessage());
+                break; // No need to retry if driver is missing
+            } catch (SQLException ex) {
+                System.err.println("Connection attempt " + attempt + " failed: " + ex.getMessage());
+                if (attempt < MAX_RETRIES) {
+                    System.out.println("Retrying connection in " + (RETRY_DELAY_MS/1000) + " seconds...");
+                    try {
+                        Thread.sleep(RETRY_DELAY_MS);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    System.err.println("Failed to connect to database after " + MAX_RETRIES + " attempts.");
+                }
             }
-        }
-
-        if (cnx == null) {
-            LOGGER.severe("Failed to establish database connection after " + MAX_RETRIES + " attempts");
-            throw new RuntimeException("Unable to establish database connection");
-        }
-    }
-
-    private boolean isConnectionValid() {
-        try {
-            return cnx != null && !cnx.isClosed() && cnx.isValid(5);
-        } catch (SQLException e) {
-            return false;
         }
     }
 
     public static DataSource getInstance() {
         if (instance == null) {
             instance = new DataSource();
-        } else if (!instance.isConnectionValid()) {
-            // If connection is invalid, reinitialize it
-            instance.initializeConnection();
         }
         return instance;
     }
 
     public Connection getCnx() {
-        if (!isConnectionValid()) {
-            initializeConnection();
+        try {
+            // Check if connection is still valid
+            if (cnx == null || cnx.isClosed() || !isConnectionValid()) {
+                System.out.println("Connection is invalid or closed, attempting to reconnect...");
+                connectWithRetry();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking connection: " + e.getMessage());
+            connectWithRetry();
         }
         return cnx;
+    }
+    
+    private boolean isConnectionValid() {
+        try {
+            if (cnx != null) {
+                // Test if connection is valid with 5 second timeout
+                return cnx.isValid(5);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking connection validity: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // Method to check connection
+    public boolean isConnected() {
+        try {
+            return cnx != null && !cnx.isClosed() && isConnectionValid();
+        } catch (SQLException ex) {
+            System.err.println("Error checking connection: " + ex.getMessage());
+            return false;
+        }
+    }
+
+    // Getter for url
+    public String getUrl() {
+        return url;
+    }
+    
+    // Getter for user 
+    public String getUser() {
+        return user;
     }
 }

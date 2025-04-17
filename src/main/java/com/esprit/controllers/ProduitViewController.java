@@ -349,10 +349,21 @@ public class ProduitViewController implements Initializable {
         try {
             String imagePath = produit.getImgProd();
             if (imagePath != null && !imagePath.isEmpty()) {
+                // Try first as a resource
                 URL imageUrl = getClass().getResource("/" + imagePath);
+                
                 if (imageUrl != null) {
                     Image image = new Image(imageUrl.toString(), true); // Use background loading
                     imgProduct.setImage(image);
+                } else {
+                    // Then try as a file path
+                    File file = new File(imagePath);
+                    if (file.exists()) {
+                        Image image = new Image(file.toURI().toString(), true);
+                        imgProduct.setImage(image);
+                    } else {
+                        System.out.println("Image not found: " + imagePath);
+                    }
                 }
             }
         } catch (Exception e) {

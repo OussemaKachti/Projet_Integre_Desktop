@@ -119,7 +119,7 @@ public class UserService {
                     // 3. Traiter les cas spécifiques connus
                     if (roleStr.equalsIgnoreCase("presidentClub") ||
                             roleStr.equalsIgnoreCase("PRESIDENTCLUB")) {
-                        user.setRole(RoleEnum.PRESIDENTCLUB);
+                        user.setRole(RoleEnum.PRESIDENT_CLUB);
                     } else if (roleStr.equalsIgnoreCase("administrateur") ||
                             roleStr.equalsIgnoreCase("admin")) {
                         user.setRole(RoleEnum.ADMINISTRATEUR);
