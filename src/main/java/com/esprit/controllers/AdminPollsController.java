@@ -279,7 +279,7 @@ public class AdminPollsController implements Initializable {
                 deleteButton.setGraphic(trashIcon);
                 deleteButton.getStyleClass().add("icon-button");
                 deleteButton.getStyleClass().add("delete-icon-button");
-                deleteButton.setTooltip(new Tooltip("Supprimer ce sondage"));
+                deleteButton.setTooltip(new Tooltip("Delete this poll"));
 
                 // Ajouter la classe pour centrer les boutons
                 getStyleClass().add("button-cell");
