@@ -107,8 +107,8 @@ public class LoginController {
             SessionManager.getInstance().setCurrentUser(user);
 
             // Navigate to appropriate view based on role
-            // loadDashboard(user);
-            handleUserNavigation(user);
+            loadDashboard(user);
+            // handleUserNavigation(user);
         } catch (Exception e) {
             e.printStackTrace();
             errorLabel.setText("Authentication error: " + e.getMessage());
