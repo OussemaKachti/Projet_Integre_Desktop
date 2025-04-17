@@ -13,7 +13,7 @@ public class MainApp2 extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(
-                Objects.requireNonNull(getClass().getResource("/com/esprit/views/AdminCompetition.fxml")));
+                Objects.requireNonNull(getClass().getResource("/com/esprit/views/ClubView.fxml")));
         
         Scene scene = new Scene(root);
         primaryStage.setTitle("Gestion des Saison");
