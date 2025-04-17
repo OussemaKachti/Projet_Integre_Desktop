@@ -344,8 +344,8 @@ public class AdminCommentsController implements Initializable {
 
                                 container.getChildren().addAll(deleteButton);
                                 setGraphic(container);
-                        } else {
-                            setGraphic(deleteButton);
+                            } else {
+                                setGraphic(deleteButton);
                             }
                         }
                     }
@@ -473,10 +473,10 @@ public class AdminCommentsController implements Initializable {
                 // Filter by club name
                 ObservableList<Commentaire> allComments = commentaireService.getAllComments();
                 comments = allComments.stream()
-                    .filter(comment -> comment.getSondage() != null && 
-                             comment.getSondage().getClub() != null && 
-                             comment.getSondage().getClub().getNom().equals(selectedClub))
-                    .collect(Collectors.toList());
+                        .filter(comment -> comment.getSondage() != null &&
+                                comment.getSondage().getClub() != null &&
+                                comment.getSondage().getClub().getNom().equals(selectedClub))
+                        .collect(Collectors.toList());
                 System.out.println("Loaded " + comments.size() + " comments for club: " + selectedClub);
             }
 
@@ -802,17 +802,18 @@ public class AdminCommentsController implements Initializable {
                 // Charger la vue des sondages
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
-                
+
                 // Configurer la scène
                 Scene scene = new Scene(root);
-                
+
                 // S'assurer que les styles sont correctement appliqués
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+                scene.getStylesheets()
+                        .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -822,27 +823,28 @@ public class AdminCommentsController implements Initializable {
                 showToast("Erreur lors de la navigation vers la gestion des sondages: " + e.getMessage(), "error");
             }
         });
-        
-        // Pour le bouton principal Survey Management, on peut ajouter une animation pour montrer/cacher le sous-menu
+
+        // Pour le bouton principal Survey Management, on peut ajouter une animation
+        // pour montrer/cacher le sous-menu
         surveyManagementBtn.setOnAction(event -> {
             // Toggle la visibilité du sous-menu
             boolean isVisible = surveySubMenu.isVisible();
             surveySubMenu.setVisible(!isVisible);
             surveySubMenu.setManaged(!isVisible);
         });
-        
+
         // Navigation vers admin_dashboard
         userManagementBtn.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) userManagementBtn.getScene().getWindow();
-                
+
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -852,10 +854,11 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to user management: " + e.getMessage(), "error");
             }
         });
-        
+
         // Configurer les autres boutons de navigation si nécessaire
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        eventManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
+        eventManagementBtn
+                .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
         productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
         competitionBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Compétitions", "info"));
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
