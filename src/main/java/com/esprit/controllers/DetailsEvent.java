@@ -212,12 +212,29 @@ public class DetailsEvent implements Initializable {
                     showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement supprimé",
                             "L'événement a été supprimé avec succès.");
 
-                    // Fermer la fenêtre des détails après suppression
-                    Stage stage = (Stage) presidentButton1.getScene().getWindow();
-                    stage.close();
+                    // Fermer la fenêtre actuelle
+                    Stage currentStage = (Stage) presidentButton1.getScene().getWindow();
 
-                    // Optionnellement, vous pouvez rafraîchir la liste des événements dans la vue principale
-                    // si vous avez accès à cette vue
+                    try {
+                        // Charger la page AfficherEvent
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+                        Parent root = loader.load();
+
+                        // Créer une nouvelle scène avec la page AfficherEvent
+                        Scene scene = new Scene(root);
+
+                        // Utiliser la même fenêtre pour afficher la nouvelle scène
+                        currentStage.setScene(scene);
+                        currentStage.setTitle("Liste des événements");
+                        currentStage.show();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        System.err.println("Erreur lors du chargement de la page AfficherEvent: " + e.getMessage());
+                        // En cas d'erreur, fermez simplement la fenêtre actuelle
+                        currentStage.close();
+                    }
+
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression",
                             "La suppression de l'événement a échoué. Veuillez réessayer.");
