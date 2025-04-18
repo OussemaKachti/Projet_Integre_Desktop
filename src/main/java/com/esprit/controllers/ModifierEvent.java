@@ -256,14 +256,17 @@ public class ModifierEvent implements Initializable {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
                 Parent root = loader.load();
+
+                // Utiliser la fenêtre existante au lieu d'en créer une nouvelle
                 Stage stage = (Stage) addEventButton.getScene().getWindow();
+
+                // Remplacer la scène actuelle
                 stage.setScene(new Scene(root));
                 stage.show();
             } catch (IOException ex) {
                 ex.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page de liste des événements: " + ex.getMessage());
             }
-
         } catch (Exception ex) {
             ex.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la mise à jour : " + ex.getMessage());
