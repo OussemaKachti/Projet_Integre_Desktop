@@ -40,7 +40,7 @@ public class Commentaire {
     // Liste de mots inappropriés à filtrer
     @Transient
     private static final List<String> MOTS_INAPPROPRIES = Arrays.asList(
-            "insulte", "grossier", "offensive", "vulgar", "idiot", "stupid");
+            "insulte", "grossier", "offensive", "vulgar", "idiot");
 
     // Regex pour vérifier si le contenu contient au moins un mot
     @Transient

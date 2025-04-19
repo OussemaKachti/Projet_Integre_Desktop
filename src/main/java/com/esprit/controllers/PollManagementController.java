@@ -20,7 +20,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -186,13 +185,7 @@ public class PollManagementController implements Initializable {
     @FXML
     public void navigateToPolls() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/SondageView.fxml"));
-        Parent root = loader.load();
-        
-        // Get the controller and make sure it refreshes its data
-        SondageViewController controller = loader.getController();
-        controller.refreshData();
-        
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(loader.load());
         Stage stage = (Stage) backButton.getScene().getWindow();
         stage.setScene(scene);
         stage.setMaximized(true);

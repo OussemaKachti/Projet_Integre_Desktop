@@ -13,12 +13,14 @@ import com.esprit.models.ParticipationMembre;
 import com.esprit.services.ClubService;
 import com.esprit.services.ParticipationMembreService;
 import com.esprit.utils.SessionManager;
+import com.esprit.utils.DataSource;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -50,12 +52,6 @@ public class HomeController implements Initializable {
 
     @FXML
     private VBox clubsDropdown;
-
-    @FXML
-    private Label clubPollsLabel;
-
-    @FXML
-    private HBox clubPollsItem;
 
     private User currentUser;
     private Club userClub;
@@ -91,7 +87,7 @@ public class HomeController implements Initializable {
             }
 
             // Apply circular clip to profile picture
-            double radius = 20;
+            double radius = 22.5; // Updated to match the new style
             userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
 
             // Initially hide the dropdowns
@@ -113,13 +109,21 @@ public class HomeController implements Initializable {
         // Get all clubs that the user is a member of
         boolean isMemberOfAnyClub = false;
         
-        // For simplicity in demo, always show the dropdown
-        // In production, you'd check actual club membership
+        try {
+            // Check if the user is a president of any club
+            userClub = clubService.findByPresident(currentUser.getId());
+            if (userClub != null) {
+                isMemberOfAnyClub = true;
+            } else {
+                // Check if user is a member of any club
+                isMemberOfAnyClub = !participationService.getParticipationsByClub(currentUser.getId()).isEmpty();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking club membership: " + e.getMessage());
+        }
         
-        // For demo purposes, we'll just show "Polls" instead of club-specific polls
-        clubPollsLabel.setText("Polls");
-        clubPollsItem.setVisible(true);
-        clubPollsItem.setManaged(true);
+        // For simplicity, we keep the clubs dropdown visible regardless of membership
+        // In a production app, you might want to hide it if the user isn't a member of any club
     }
 
     private void loadDefaultProfilePic() {
@@ -158,12 +162,25 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToClubPolls() throws IOException {
-        // Navigate to SondageView
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
-        Parent root = loader.load();
-        
-        Stage stage = (Stage) clubsContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        // Test database connection before attempting to load polls view
+        try {
+          
+            
+            // Navigate to SondageView
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) clubsContainer.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Failed to open Polls view");
+            alert.setContentText("An error occurred while trying to open the Polls view: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+        }
     }
 
     @FXML

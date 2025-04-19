@@ -2,7 +2,6 @@ package com.esprit.services;
 
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Sondage;
-import com.esprit.utils.DatabaseConnection;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -121,7 +120,8 @@ public class ChoixSondageService {
         choix.setContenu(rs.getString("contenu"));
 
         // Charger le sondage associé
-        SondageService sondageService = new SondageService();
+        SondageService sondageService = SondageService.getInstance();
+
         choix.setSondage(sondageService.getById(rs.getInt("sondage_id")));
 
         return choix;
@@ -153,17 +153,17 @@ public class ChoixSondageService {
     public List<ChoixSondage> getBySondageId(int sondageId) throws SQLException {
         List<ChoixSondage> options = new ArrayList<>();
         String query = "SELECT * FROM choix_sondage WHERE sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sondageId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     options.add(mapResultSetToOption(rs));
                 }
             }
         }
-        
+
         return options;
     }
 
@@ -171,11 +171,12 @@ public class ChoixSondageService {
         ChoixSondage option = new ChoixSondage();
         option.setId(rs.getInt("id"));
         option.setContenu(rs.getString("contenu"));
-        
+
         // Load the related sondage (more efficient to do this separately when needed)
-        SondageService sondageService = new SondageService();
+        SondageService sondageService = SondageService.getInstance();
+
         option.setSondage(sondageService.getById(rs.getInt("sondage_id")));
-        
+
         return option;
     }
 }

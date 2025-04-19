@@ -1233,4 +1233,65 @@
 
 .progress-bar-high .bar {
     -fx-background-color: #2e59d9; /* Forest Green - excellente participation (81-100%) */
+}
+
+/* Microphone button styles */
+.voice-input-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-padding: 8px;
+    -fx-border-radius: 50%;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-fill: #6c757d;
+    -fx-border-color: #ced4da;
+    -fx-border-width: 1px;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+}
+
+.voice-input-btn:hover {
+    -fx-background-color: #f8f9fa;
+    -fx-text-fill: #2b4eff;
+    -fx-border-color: #2b4eff;
+}
+
+.voice-input-btn.recording {
+    -fx-background-color: rgba(237, 73, 86, 0.1);
+    -fx-text-fill: #ed4956;
+    -fx-border-color: #ed4956;
+    -fx-effect: dropshadow(three-pass-box, rgba(237, 73, 86, 0.5), 10, 0, 0, 0);
+    -fx-animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+        -fx-opacity: 1;
+    }
+    50% {
+        -fx-scale-x: 1.1;
+        -fx-scale-y: 1.1;
+        -fx-opacity: 0.8;
+    }
+    100% {
+        -fx-scale-x: 1;
+        -fx-scale-y: 1;
+        -fx-opacity: 1;
+    }
+}
+
+/* Comment textarea with mic button position */
+.comment-form-container {
+    -fx-spacing: 10;
+    -fx-padding: 0;
+}
+
+/* Add space for the microphone button */
+.comment-textarea-container {
+    -fx-alignment: center;
+    -fx-spacing: 5;
 } 

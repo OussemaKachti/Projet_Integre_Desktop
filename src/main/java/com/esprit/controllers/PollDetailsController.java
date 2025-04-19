@@ -70,7 +70,7 @@ public class PollDetailsController implements Initializable {
     @FXML private Label adminNameLabel;
 
     private Sondage currentSondage;
-    private final SondageService sondageService = new SondageService();
+    private final SondageService sondageService = SondageService.getInstance();
     private final ChoixSondageService choixSondageService = new ChoixSondageService();
     private final ReponseService reponseService = new ReponseService();
     private final CommentaireService commentaireService = new CommentaireService();

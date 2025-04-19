@@ -114,7 +114,7 @@ public class AdminPollsController implements Initializable {
     private Label adminNameLabel;
 
     // Services
-    private SondageService sondageService;
+    public SondageService sondageService;
     private ClubService clubService;
     private UserService userService;
     private ReponseService reponseService;
