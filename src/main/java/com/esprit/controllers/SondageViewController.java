@@ -95,10 +95,11 @@ import javafx.scene.shape.Rectangle;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import com.esprit.services.AiService;
-import org.json.JSONObject;
-import org.json.JSONArray;
 import java.awt.Desktop;
 import java.net.URI;
+import javafx.scene.layout.GridPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 public class SondageViewController implements Initializable {
 
@@ -1561,343 +1562,154 @@ public class SondageViewController implements Initializable {
      * @param summary The generated summary text
      */
     private void showSummaryDialog(Sondage sondage, String summary) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.setTitle("Poll Insights: " + sondage.getQuestion());
+        dialogStage.setMinWidth(900);
+        dialogStage.setMinHeight(600);
+
+        VBox dialogContainer = new VBox(15);
+        dialogContainer.getStyleClass().add("summary-dialog");
+        dialogContainer.setPadding(new Insets(20));
+
+        // Header
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        
+        Label titleLabel = new Label(StringUtils.truncate(sondage.getQuestion(), 50)); // Truncate title if needed
+        titleLabel.getStyleClass().add("summary-title");
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(800); // Ensure title has enough space
+        
+        headerBox.getChildren().addAll(titleLabel);
+        
+        // Split content into two columns
+        HBox contentBox = new HBox(20);
+        contentBox.setAlignment(Pos.TOP_CENTER);
+        
+        // Left column - Charts
+        VBox chartsColumn = new VBox(25);
+        chartsColumn.setPrefWidth(400);
+        chartsColumn.setAlignment(Pos.TOP_CENTER);
+        
+        // Participation chart
+        VBox participationBox = new VBox(10);
+        participationBox.setAlignment(Pos.TOP_LEFT);
+        
+        Label participationTitle = new Label("USER PARTICIPATION");
+        participationTitle.getStyleClass().add("chart-title");
+        
+        PieChart pieChart = createParticipationChart(sondage);
+        pieChart.setPrefSize(350, 200);
+        
+        participationBox.getChildren().addAll(participationTitle, pieChart);
+        
+        // Sentiment analysis chart
+        VBox sentimentBox = new VBox(10);
+        sentimentBox.setAlignment(Pos.TOP_LEFT);
+        
+        Label sentimentTitle = new Label("SENTIMENT ANALYSIS");
+        sentimentTitle.getStyleClass().add("chart-title");
+        
+        BarChart<String, Number> barChart = createSentimentChart(summary);
+        barChart.setPrefSize(350, 200);
+        
+        sentimentBox.getChildren().addAll(sentimentTitle, barChart);
+        
+        chartsColumn.getChildren().addAll(participationBox, sentimentBox);
+        
+        // Right column - Metrics & Insights
+        VBox metricsColumn = new VBox(25);
+        metricsColumn.setPrefWidth(400);
+        metricsColumn.setAlignment(Pos.TOP_CENTER);
+        
+        // Metrics section
+        VBox metricsBox = new VBox(10);
+        metricsBox.setAlignment(Pos.TOP_LEFT);
+        
+        Label metricsTitle = new Label("KEY METRICS");
+        metricsTitle.getStyleClass().add("chart-title");
+        
+        // Metrics grid
+        GridPane metricsGrid = new GridPane();
+        metricsGrid.setHgap(10);
+        metricsGrid.setVgap(10);
+        
         try {
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.initStyle(StageStyle.TRANSPARENT);
-            dialogStage.setResizable(true);
-            dialogStage.setTitle("AI Summary Analytics");
-
-            // Get comments for statistics
-            ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
-
-            // Extract the main points from the summary and format them as bullet points
-            String processedSummary = processRawSummary(summary);
-
-            // ============= MAIN CONTAINER =============
-            VBox mainContainer = new VBox(0);
-            mainContainer.getStyleClass().add("modern-summary-dialog");
-            mainContainer.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px; " +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);");
-
-            // ============= HEADER SECTION =============
-            HBox headerBox = new HBox();
-            headerBox.setAlignment(Pos.CENTER_LEFT);
-            headerBox.setPadding(new Insets(20, 25, 20, 25));
-            headerBox.setStyle("-fx-background-color: #4B83CD; -fx-background-radius: 10 10 0 0;");
-
-            // Robot icon with glow effect
-            Label aiIcon = new Label("🤖");
-            aiIcon.setStyle(
-                    "-fx-font-size: 28px; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.6), 10, 0, 0, 0);");
-
-            // Title section with main title and subtitle
-            VBox titleBox = new VBox(3);
-            Label titleLabel = new Label("AI INSIGHTS DASHBOARD");
-            titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
-
-            Label subtitleLabel = new Label("Poll: " + sondage.getQuestion());
-            subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.9);");
-            subtitleLabel.setWrapText(true);
-            subtitleLabel.setMaxWidth(450);
-
-            titleBox.getChildren().addAll(titleLabel, subtitleLabel);
-            HBox.setHgrow(titleBox, Priority.ALWAYS);
-            HBox.setMargin(titleBox, new Insets(0, 0, 0, 15));
-
-            // Close button
-            Button closeButton = new Button("✕");
-            closeButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
-            closeButton.setOnAction(e -> dialogStage.close());
-            closeButton.setOnMouseEntered(e -> closeButton.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 16px;"));
-            closeButton.setOnMouseExited(e -> closeButton
-                    .setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;"));
-
-            headerBox.getChildren().addAll(aiIcon, titleBox, closeButton);
-
-            // ============= CONTENT SECTION =============
-            HBox contentBox = new HBox(0);
-            contentBox.setPrefHeight(460);
-
-            // ============= LEFT PANEL - CHARTS =============
-            VBox chartsPanel = new VBox(15);
-            chartsPanel.setPadding(new Insets(20));
-            chartsPanel.setPrefWidth(390);
-            chartsPanel.setMinWidth(390);
-            chartsPanel.setMaxWidth(390);
-            chartsPanel.setStyle("-fx-background-color: #f0f5fa;");
-
-            // User participation chart (Pie chart)
-            VBox userChartContainer = new VBox(5);
-            Label userChartTitle = new Label("USER PARTICIPATION");
-            userChartTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-            Map<String, Integer> userCommentCounts = new HashMap<>();
-            for (Commentaire comment : comments) {
-                String userName = comment.getUser().getFirstName() + " " + comment.getUser().getLastName();
-                userCommentCounts.put(userName, userCommentCounts.getOrDefault(userName, 0) + 1);
-            }
-
-            // Create pie chart data
-            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-            for (Map.Entry<String, Integer> entry : userCommentCounts.entrySet()) {
-                pieChartData.add(new PieChart.Data(entry.getKey(), entry.getValue()));
-            }
-
-            PieChart userPieChart = new PieChart(pieChartData);
-            userPieChart.setTitle("");
-            userPieChart.setLabelsVisible(false);
-            userPieChart.setLegendVisible(true);
-            userPieChart.setLegendSide(Side.RIGHT);
-            userPieChart.setPrefHeight(180);
-            userPieChart.setPrefWidth(370);
-            userPieChart.setMinWidth(370);
-            userPieChart.setMaxWidth(370);
-
-            // Add tooltip to pie chart slices
-            for (final PieChart.Data data : userPieChart.getData()) {
-                Tooltip tooltip = new Tooltip(String.format("%s: %d comments (%.1f%%)",
-                        data.getName(), (int) data.getPieValue(),
-                        (data.getPieValue() / comments.size() * 100)));
-                javafx.scene.control.Tooltip.install(data.getNode(), tooltip);
-
-                // Add animation effect on hover
-                data.getNode().setOnMouseEntered(e -> {
-                    data.getNode().setScaleX(1.1);
-                    data.getNode().setScaleY(1.1);
-                });
-                data.getNode().setOnMouseExited(e -> {
-                    data.getNode().setScaleX(1);
-                    data.getNode().setScaleY(1);
-                });
-            }
-
-            userChartContainer.getChildren().addAll(userChartTitle, userPieChart);
-
-            // Sentiment Analysis Chart
-            VBox sentimentContainer = new VBox(5);
-            Label sentimentTitle = new Label("SENTIMENT ANALYSIS");
-            sentimentTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-            // Extract sentiment from summary (naive approach)
-            Map<String, Double> sentiments = extractSentiment(summary);
-
-            // Create bar chart for sentiment
-            CategoryAxis xAxis = new CategoryAxis();
-            NumberAxis yAxis = new NumberAxis(0, 100, 20);
-            yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
-                @Override
-                public String toString(Number object) {
-                    return object.intValue() + "%";
-                }
-            });
-
-            BarChart<String, Number> sentimentChart = new BarChart<>(xAxis, yAxis);
-            sentimentChart.setTitle("");
-            sentimentChart.setLegendVisible(false);
-            sentimentChart.setAnimated(true);
-            sentimentChart.setPrefHeight(180);
-            sentimentChart.setPrefWidth(370);
-            sentimentChart.setMinWidth(370);
-            sentimentChart.setMaxWidth(370);
-
-            // Hide grid lines for cleaner look
-            sentimentChart.setHorizontalGridLinesVisible(false);
-            sentimentChart.setHorizontalZeroLineVisible(false);
-            sentimentChart.setVerticalGridLinesVisible(false);
-
-            XYChart.Series<String, Number> series = new XYChart.Series<>();
-            sentiments.forEach((sentiment, value) -> {
-                series.getData().add(new XYChart.Data<>(sentiment, value));
-            });
-
-            sentimentChart.getData().add(series);
-
-            // Style the bars with different colors based on sentiment
-            int i = 0;
-            String[] colors = { "#4B83CD", "#47B39C", "#FFC107" };
-            for (XYChart.Data<String, Number> data : series.getData()) {
-                String color = colors[i % colors.length];
-                Node node = data.getNode();
-                node.setStyle("-fx-bar-fill: " + color + ";");
-
-                // Add hover effect
-                javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
-                        data.getXValue() + ": " + String.format("%.1f", data.getYValue().doubleValue()) + "%");
-                javafx.scene.control.Tooltip.install(node, tooltip);
-
-                node.setOnMouseEntered(e -> {
-                    node.setStyle("-fx-bar-fill: " + color
-                            + "; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 0);");
-                });
-                node.setOnMouseExited(e -> {
-                    node.setStyle("-fx-bar-fill: " + color + ";");
-                });
-                i++;
-            }
-
-            sentimentContainer.getChildren().addAll(sentimentTitle, sentimentChart);
-
-            // Add charts to left panel
-            chartsPanel.getChildren().addAll(userChartContainer, sentimentContainer);
-
-            // ============= RIGHT PANEL - SUMMARY AND METRICS =============
-            VBox summaryPanel = new VBox(15);
-            summaryPanel.setPadding(new Insets(20));
-            summaryPanel.setStyle("-fx-background-color: white;");
-            HBox.setHgrow(summaryPanel, Priority.ALWAYS);
-            summaryPanel.setPrefWidth(470);
-            summaryPanel.setMinWidth(470);
-
-            // Key metrics section - card layout with 4 metrics
-            Label metricsTitle = new Label("KEY METRICS");
-            metricsTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-            // Calculate statistics
-            int totalComments = comments.size();
-            long uniqueUsers = comments.stream()
-                    .map(c -> c.getUser().getId())
-                    .distinct()
-                    .count();
-
-            double avgLength = comments.stream()
-                    .mapToInt(c -> c.getContenuComment().length())
-                    .average()
-                    .orElse(0);
-
-            LocalDate mostRecentDate = comments.stream()
-                    .map(Commentaire::getDateComment)
-                    .max(LocalDate::compareTo)
-                    .orElse(LocalDate.now());
-
-            // Create metric cards in a grid layout
-            HBox metricsRowTop = new HBox(15);
-            HBox metricsRowBottom = new HBox(15);
-
-            VBox totalCommentsCard = createMetricCard("TOTAL COMMENTS", String.valueOf(totalComments), "💬", "#4B83CD");
-            VBox uniqueUsersCard = createMetricCard("UNIQUE USERS", String.valueOf(uniqueUsers), "👥", "#47B39C");
-            VBox avgLengthCard = createMetricCard("AVG LENGTH", String.format("%.1f", avgLength), "📏", "#FFC107");
-            VBox recentCard = createMetricCard("LATEST UPDATE",
-                    mostRecentDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")), "📅", "#FF6B6B");
-
-            HBox.setHgrow(totalCommentsCard, Priority.ALWAYS);
-            HBox.setHgrow(uniqueUsersCard, Priority.ALWAYS);
-            HBox.setHgrow(avgLengthCard, Priority.ALWAYS);
-            HBox.setHgrow(recentCard, Priority.ALWAYS);
-
-            metricsRowTop.getChildren().addAll(totalCommentsCard, uniqueUsersCard);
-            metricsRowBottom.getChildren().addAll(avgLengthCard, recentCard);
-
-            VBox metricsGrid = new VBox(15);
-            metricsGrid.getChildren().addAll(metricsRowTop, metricsRowBottom);
-
-            // AI Summary section
-            Label summaryTitle = new Label("AI-GENERATED INSIGHTS");
-            summaryTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-            // Use a text flow for the summary with bullet points
-            TextFlow summaryFlow = new TextFlow();
-            summaryFlow.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8px; -fx-padding: 15px;");
-            summaryFlow.setPrefWidth(430);
-            summaryFlow.setMinWidth(430);
-            summaryFlow.setMaxWidth(430);
-            summaryFlow.setLineSpacing(1.5);
-
-            // Create summary with bullet points if it contains multiple sentences
-            Text summaryText = new Text(processedSummary);
-            summaryText.setStyle("-fx-fill: #333333; -fx-font-size: 14px;");
-            summaryFlow.getChildren().add(summaryText);
-
-            // Wrap TextFlow in a ScrollPane to make it scrollable
-            ScrollPane summaryScrollPane = new ScrollPane(summaryFlow);
-            summaryScrollPane.setFitToWidth(true);
-            summaryScrollPane.setPrefHeight(150);
-            summaryScrollPane.setMinHeight(150);
-            summaryScrollPane.setStyle(
-                    "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
-            summaryScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-            summaryScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-            VBox.setVgrow(summaryScrollPane, Priority.ALWAYS);
-
-            // Footer with copy and download buttons
-            HBox footerBox = new HBox(10);
-            footerBox.setAlignment(Pos.CENTER_RIGHT);
-
-            Button copyButton = new Button("Copy Summary");
-            copyButton.setStyle(
-                    "-fx-background-color: #4B83CD; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 5px;");
-            copyButton.setOnAction(e -> {
-                final javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
-                final javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
-                content.putString(summary);
-                clipboard.setContent(content);
-                showToast("Summary copied to clipboard", "success");
-            });
-
-            // Add a PDF export button
-            Button exportButton = new Button("Download PDF");
-            exportButton.setStyle(
-                    "-fx-background-color: #47B39C; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 5px;");
-            exportButton.setOnAction(e -> {
-                showToast("PDF export simulation - report would be generated here", "success");
-                // In a real implementation, you would generate a PDF with the summary and
-                // charts
-            });
-
-            footerBox.getChildren().addAll(exportButton, copyButton);
-
-            // Add all sections to the summary panel
-            summaryPanel.getChildren().addAll(metricsTitle, metricsGrid, summaryTitle, summaryScrollPane, footerBox);
-
-            // Add both panels to the content box
-            contentBox.getChildren().addAll(chartsPanel, summaryPanel);
-
-            // Assemble all components into the main container
-            mainContainer.getChildren().addAll(headerBox, contentBox);
-
-            // Create scene with transparent background for rounded corners
-            StackPane rootPane = new StackPane();
-
-            // Semi-transparent overlay
-            Region overlay = new Region();
-            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.4);");
-            overlay.setOnMouseClicked(e -> {
-                if (e.getTarget() == overlay) {
-                    dialogStage.close();
-                }
-            });
-
-            rootPane.getChildren().addAll(overlay, mainContainer);
-
-            Scene dialogScene = new Scene(rootPane);
-            dialogScene.setFill(Color.TRANSPARENT);
-            dialogScene.getStylesheets()
-                    .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
-
-            // Set scene and show the dialog
-            dialogStage.setScene(dialogScene);
-            dialogStage.setWidth(870);
-            dialogStage.setHeight(600);
-
-            // Center on screen and show with animation
-            dialogStage.setOnShown(e -> {
-                dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
-                dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
-
-                // Fade in animation
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), mainContainer);
-                fadeIn.setFromValue(0);
-                fadeIn.setToValue(1);
-                fadeIn.play();
-            });
-
-            dialogStage.show();
+            int commentCount = getCommentCount(sondage.getId());
+            int userCount = countUniqueCommenters(sondage.getId());
+            double avgLength = calculateAverageCommentLength(sondage.getId());
+            LocalDate latestDate = getLatestCommentDate(sondage.getId());
+            
+            metricsGrid.add(createMetricCard("TOTAL COMMENTS", String.valueOf(commentCount), "💬", "#4B83CD"), 0, 0);
+            metricsGrid.add(createMetricCard("UNIQUE USERS", String.valueOf(userCount), "👥", "#28a745"), 1, 0);
+            metricsGrid.add(createMetricCard("AVG LENGTH", String.format("%.1f", avgLength), "📏", "#ffc107"), 0, 1);
+            
+            String dateString = latestDate != null ? 
+                    latestDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) : 
+                    "No comments";
+            
+            metricsGrid.add(createMetricCard("LATEST UPDATE", dateString, "📅", "#dc3545"), 1, 1);
         } catch (SQLException e) {
-            e.printStackTrace();
-            showToast("Error loading comment statistics: " + e.getMessage(), "error");
+            System.err.println("Error loading metrics: " + e.getMessage());
         }
+        
+        metricsBox.getChildren().addAll(metricsTitle, metricsGrid);
+        
+        // AI Insights section
+        VBox insightsBox = new VBox(10);
+        insightsBox.setAlignment(Pos.TOP_LEFT);
+        
+        Label insightsTitle = new Label("AI-GENERATED INSIGHTS");
+        insightsTitle.getStyleClass().add("chart-title");
+        
+        // Process and truncate summary for shorter insights
+        String processedSummary = processRawSummary(summary);
+        String shortenedSummary = StringUtils.truncate(processedSummary, 200); // Limit to about 2-3 lines
+        
+        TextFlow insightsText = new TextFlow();
+        insightsText.setMaxWidth(380);
+        insightsText.setPrefHeight(150);
+        
+        Text summaryBullet = new Text("• Summary of comments:\n");
+        summaryBullet.setStyle("-fx-font-weight: bold;");
+        
+        Text summaryText = new Text(shortenedSummary);
+        
+        insightsText.getChildren().addAll(summaryBullet, summaryText);
+        
+        VBox.setVgrow(insightsText, Priority.ALWAYS);
+        insightsBox.getChildren().addAll(insightsTitle, insightsText);
+        
+        metricsColumn.getChildren().addAll(metricsBox, insightsBox);
+        
+        // Combine columns
+        contentBox.getChildren().addAll(chartsColumn, metricsColumn);
+        
+        // Button row at bottom with more space
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.setPadding(new Insets(15, 0, 0, 0));
+        
+        Button exportButton = new Button("Export Insights");
+        exportButton.getStyleClass().add("action-button");
+        exportButton.setOnAction(e -> exportInsights(sondage, summary));
+        
+        Button closeButton = new Button("Close");
+        closeButton.getStyleClass().add("cancel-button");
+        closeButton.setOnAction(e -> dialogStage.close());
+        
+        buttonBox.getChildren().addAll(exportButton, closeButton);
+        
+        // Add all elements to dialog
+        dialogContainer.getChildren().addAll(headerBox, contentBox, buttonBox);
+        
+        Scene scene = new Scene(dialogContainer);
+        String cssPath = getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm();
+        scene.getStylesheets().add(cssPath);
+        
+        dialogStage.setScene(scene);
+        dialogStage.showAndWait();
     }
 
     /**
@@ -2952,5 +2764,187 @@ public class SondageViewController implements Initializable {
 
         iconContainer.getChildren().add(icon);
         return iconContainer;
+    }
+
+    /**
+     * Creates a PieChart showing participation distribution for a poll
+     * @param sondage The poll to create the chart for
+     * @return A configured PieChart
+     */
+    private PieChart createParticipationChart(Sondage sondage) {
+        try {
+            ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
+            Map<String, Integer> userCommentCounts = new HashMap<>();
+            
+            for (Commentaire comment : comments) {
+                String userName = comment.getUser().getFirstName();
+                userCommentCounts.put(userName, userCommentCounts.getOrDefault(userName, 0) + 1);
+            }
+            
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+            for (Map.Entry<String, Integer> entry : userCommentCounts.entrySet()) {
+                pieChartData.add(new PieChart.Data(entry.getKey(), entry.getValue()));
+            }
+            
+            PieChart chart = new PieChart(pieChartData);
+            chart.setTitle("");
+            chart.setLabelsVisible(false);
+            chart.setLegendVisible(true);
+            chart.setLegendSide(Side.RIGHT);
+            
+            // Add tooltips to pie slices
+            for (final PieChart.Data data : chart.getData()) {
+                Tooltip tooltip = new Tooltip(String.format("%s: %d comments", 
+                        data.getName(), (int) data.getPieValue()));
+                Tooltip.install(data.getNode(), tooltip);
+            }
+            
+            return chart;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new PieChart();
+        }
+    }
+
+    /**
+     * Creates a BarChart showing sentiment analysis
+     * @param summary The summary text to analyze
+     * @return A configured BarChart
+     */
+    private BarChart<String, Number> createSentimentChart(String summary) {
+        Map<String, Double> sentiments = extractSentiment(summary);
+        
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis(0, 100, 20);
+        yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
+            @Override
+            public String toString(Number object) {
+                return object.intValue() + "%";
+            }
+        });
+        
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setTitle("");
+        chart.setLegendVisible(false);
+        chart.setAnimated(true);
+        
+        // Hide grid lines for cleaner look
+        chart.setHorizontalGridLinesVisible(false);
+        chart.setVerticalGridLinesVisible(false);
+        
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        sentiments.forEach((sentiment, value) -> {
+            series.getData().add(new XYChart.Data<>(sentiment, value));
+        });
+        
+        chart.getData().add(series);
+        
+        // Style the bars with different colors
+        int i = 0;
+        String[] colors = { "#4B83CD", "#47B39C", "#FFC107" };
+        for (XYChart.Data<String, Number> data : series.getData()) {
+            String color = colors[i % colors.length];
+            data.getNode().setStyle("-fx-bar-fill: " + color + ";");
+            i++;
+        }
+        
+        return chart;
+    }
+
+    /**
+     * Counts the number of unique users who commented on a poll
+     * @param pollId The ID of the poll
+     * @return Count of unique commenters
+     */
+    private int countUniqueCommenters(int pollId) throws SQLException {
+        ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
+        Set<Integer> uniqueUserIds = new HashSet<>();
+        
+        for (Commentaire comment : comments) {
+            uniqueUserIds.add(comment.getUser().getId());
+        }
+        
+        return uniqueUserIds.size();
+    }
+
+    /**
+     * Calculates the average comment length for a poll
+     * @param pollId The ID of the poll
+     * @return Average comment length
+     */
+    private double calculateAverageCommentLength(int pollId) throws SQLException {
+        ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
+        
+        if (comments.isEmpty()) {
+            return 0;
+        }
+        
+        int totalLength = 0;
+        for (Commentaire comment : comments) {
+            totalLength += comment.getContenuComment().length();
+        }
+        
+        return (double) totalLength / comments.size();
+    }
+
+    /**
+     * Gets the date of the most recent comment on a poll
+     * @param pollId The ID of the poll
+     * @return Date of the most recent comment
+     */
+    private LocalDate getLatestCommentDate(int pollId) throws SQLException {
+        ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
+        
+        if (comments.isEmpty()) {
+            return null;
+        }
+        
+        return comments.stream()
+            .map(Commentaire::getDateComment)
+            .max(LocalDate::compareTo)
+            .orElse(null);
+    }
+
+    /**
+     * Exports insights about a poll to a file or clipboard
+     * @param sondage The poll
+     * @param summary The summary text
+     */
+    private void exportInsights(Sondage sondage, String summary) {
+        try {
+            // Create content for export
+            StringBuilder content = new StringBuilder();
+            content.append("# Poll Insights: ").append(sondage.getQuestion()).append("\n\n");
+            content.append("## Summary\n").append(processRawSummary(summary)).append("\n\n");
+            
+            // Add statistics
+            content.append("## Statistics\n");
+            content.append("- Total Comments: ").append(getCommentCount(sondage.getId())).append("\n");
+            content.append("- Unique Commenters: ").append(countUniqueCommenters(sondage.getId())).append("\n");
+            content.append("- Avg Comment Length: ").append(String.format("%.1f", calculateAverageCommentLength(sondage.getId()))).append("\n");
+            
+            // Copy to clipboard
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent clipboardContent = new ClipboardContent();
+            clipboardContent.putString(content.toString());
+            clipboard.setContent(clipboardContent);
+            
+            showToast("Insights copied to clipboard", "success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Error exporting insights: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Truncates a string to a specified length and adds ellipsis if needed
+     */
+    private static class StringUtils {
+        public static String truncate(String text, int maxLength) {
+            if (text == null || text.length() <= maxLength) {
+                return text;
+            }
+            return text.substring(0, maxLength - 3) + "...";
+        }
     }
 }
