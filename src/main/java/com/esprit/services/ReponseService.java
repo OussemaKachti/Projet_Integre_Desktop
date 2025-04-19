@@ -5,7 +5,6 @@ import com.esprit.models.ChoixSondage;
 import com.esprit.models.Sondage;
 import com.esprit.models.User;
 import com.esprit.utils.DataSource;
-import com.esprit.utils.DatabaseConnection;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,7 +38,7 @@ public class ReponseService {
             // Conversion de LocalDateTime en Timestamp pour la BDD
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
-            
+
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
             pst.setInt(4, reponse.getSondage().getId());
@@ -47,7 +46,7 @@ public class ReponseService {
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Ajoute une réponse à un sondage
      */
@@ -58,20 +57,20 @@ public class ReponseService {
             // Conversion de LocalDateTime en Timestamp pour la BDD
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
-            
+
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
             pst.setInt(4, reponse.getSondage().getId());
 
             pst.executeUpdate();
-            
+
             ResultSet rs = pst.getGeneratedKeys();
             if (rs.next()) {
                 reponse.setId(rs.getInt(1));
             }
         }
     }
-    
+
     /**
      * Met à jour une réponse existante
      */
@@ -82,20 +81,20 @@ public class ReponseService {
             // Conversion de LocalDateTime en Timestamp pour la BDD
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
-            
+
             pst.setInt(2, reponse.getChoixSondage().getId());
             pst.setInt(3, reponse.getId());
-            
+
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Supprime une réponse par son ID
      */
     public void delete(Integer id) throws SQLException {
         String query = "DELETE FROM reponse WHERE id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, id);
             pst.executeUpdate();
@@ -116,7 +115,8 @@ public class ReponseService {
     }
 
     /**
-     * Vérifie si un utilisateur a déjà voté pour un sondage (méthode déjà existante)
+     * Vérifie si un utilisateur a déjà voté pour un sondage (méthode déjà
+     * existante)
      */
     public boolean hasUserVoted(int userId, int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE user_id = ? AND sondage_id = ?";
@@ -132,23 +132,23 @@ public class ReponseService {
         }
         return false;
     }
-    
+
     /**
      * Récupère la réponse d'un utilisateur pour un sondage
      */
     public Reponse getUserResponseForPoll(int userId, int sondageId) throws SQLException {
         String query = "SELECT * FROM reponse WHERE user_id = ? AND sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, userId);
             pst.setInt(2, sondageId);
             ResultSet rs = pst.executeQuery();
-            
+
             if (rs.next()) {
                 return mapResultSetToReponse(rs);
             }
         }
-        
+
         return null;
     }
 
@@ -218,24 +218,25 @@ public class ReponseService {
         }
         return reponses;
     }
-    
+
     /**
      * Compte le nombre de votes pour un choix spécifique
+     * 
      * @param choixId ID du choix dont on veut compter les votes
      * @return Le nombre de votes pour ce choix
      */
     public int getVotesByChoix(int choixId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE choix_sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, choixId);
             ResultSet rs = pst.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt(1);
             }
         }
-        
+
         return 0;
     }
 
@@ -245,7 +246,7 @@ public class ReponseService {
     private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
         Reponse reponse = new Reponse();
         reponse.setId(rs.getInt("id"));
-        
+
         // Conversion de Timestamp en LocalDate
         Timestamp timestamp = rs.getTimestamp("date_reponse");
         reponse.setDateReponse(timestamp.toLocalDateTime().toLocalDate());
@@ -253,7 +254,7 @@ public class ReponseService {
         // Charger les relations
         UserService userService = new UserService();
         ChoixSondageService choixService = new ChoixSondageService();
-        SondageService sondageService = new SondageService();
+        SondageService sondageService = SondageService.getInstance();
 
         reponse.setUser(userService.getById(rs.getInt("user_id")));
         reponse.setChoixSondage(choixService.getById(rs.getInt("choix_sondage_id")));
@@ -267,79 +268,79 @@ public class ReponseService {
      */
     public ChoixSondage getUserResponse(int userId, int sondageId) throws SQLException {
         String query = "SELECT cs.* FROM reponse r " +
-                       "JOIN choix_sondage cs ON r.choix_sondage_id = cs.id " +
-                       "WHERE r.user_id = ? AND r.sondage_id = ?";
-        
+                "JOIN choix_sondage cs ON r.choix_sondage_id = cs.id " +
+                "WHERE r.user_id = ? AND r.sondage_id = ?";
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, userId);
             pst.setInt(2, sondageId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     ChoixSondage choix = new ChoixSondage();
                     choix.setId(rs.getInt("id"));
                     choix.setContenu(rs.getString("contenu"));
-                    
+
                     Sondage sondage = new Sondage();
                     sondage.setId(sondageId);
                     choix.setSondage(sondage);
-                    
+
                     return choix;
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Add a new vote
      */
     public void addVote(int userId, int sondageId, int choixId) throws SQLException {
         String query = "INSERT INTO reponse (user_id, sondage_id, choix_sondage_id, date_reponse) VALUES (?, ?, ?, ?)";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, userId);
             pst.setInt(2, sondageId);
             pst.setInt(3, choixId);
             pst.setDate(4, Date.valueOf(LocalDate.now()));
-            
+
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Update a user's existing vote
      */
     public void updateUserVote(int userId, int sondageId, int newChoixId) throws SQLException {
         String query = "UPDATE reponse SET choix_sondage_id = ?, date_reponse = ? WHERE user_id = ? AND sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, newChoixId);
             pst.setDate(2, Date.valueOf(LocalDate.now()));
             pst.setInt(3, userId);
             pst.setInt(4, sondageId);
-            
+
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Get total votes for a poll
      */
     public int getTotalVotesForPoll(int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sondageId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
             }
         }
-        
+
         return 0;
     }
 
@@ -348,7 +349,7 @@ public class ReponseService {
      */
     public int getTotalVotesForAllPolls() throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
@@ -356,7 +357,7 @@ public class ReponseService {
                 }
             }
         }
-        
+
         return 0;
     }
 }

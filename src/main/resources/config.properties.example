@@ -1,0 +1,15 @@
+# Configuration file for the application
+# Copy this file to config.properties and update with your own values
+
+# OpenAI API key for generating comment summaries
+# Get your API key from https://platform.openai.com/api-keys
+OPENAI_API_KEY=your_openai_api_key_here
+
+# ===============================================
+# HOW TO USE:
+# 1. Rename this file to "config.properties"
+# 2. Place it in one of these locations:
+#    - In the same directory as your application
+#    - In your home directory
+# 3. Replace the value with your actual OpenAI API key
+# =============================================== 

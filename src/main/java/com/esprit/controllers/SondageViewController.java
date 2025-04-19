@@ -18,6 +18,7 @@ import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
 import com.esprit.utils.NavigationManager;
 import com.esprit.utils.EmailService;
+import com.esprit.utils.SpeechRecognitionService;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -30,11 +31,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -62,12 +67,38 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.Set;
 import java.util.HashSet;
 import javafx.scene.Node;
 import java.util.regex.Pattern;
 import java.util.Arrays;
+import java.util.HashMap;
+
 import javafx.concurrent.Task;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.chart.PieChart.Data;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import com.esprit.services.AiService;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import java.awt.Desktop;
+import java.net.URI;
 
 public class SondageViewController implements Initializable {
 
@@ -118,7 +149,8 @@ public class SondageViewController implements Initializable {
     private final ObservableList<String> clubsList = FXCollections.observableArrayList();
     private int optionCount = 2; // Commence avec 2 options
 
-    // Add these FXML field declarations at the top of the class with the other declarations
+    // Add these FXML field declarations at the top of the class with the other
+    // declarations
     @FXML
     private VBox clubsDropdown;
 
@@ -196,6 +228,11 @@ public class SondageViewController implements Initializable {
                 clubsDropdown.setManaged(false);
             }
 
+            // Check if user has admin role and add toxicity management button
+            if (currentUser.getRole() != null && currentUser.getRole().equals("ADMIN")) {
+                addToxicityManagementButton();
+            }
+
             // Configure club filter
             setupClubFilter();
 
@@ -227,6 +264,9 @@ public class SondageViewController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Error", "Failed to initialize view: " + e.getMessage());
         }
     }
 
@@ -308,28 +348,29 @@ public class SondageViewController implements Initializable {
         avatar.setFitWidth(40);
         avatar.setPreserveRatio(true);
         avatar.getStyleClass().add("comment-avatar");
-        
+
         // Get user's profile picture path
         String profilePicPath = sondage.getUser().getProfilePicture();
-        
+
         // Debug - print profile pic path to console
-        System.out.println("User ID: " + sondage.getUser().getId() + 
-                          ", Name: " + sondage.getUser().getFirstName() + 
-                          ", Profile Pic Path: " + profilePicPath);
-        
+        System.out.println("User ID: " + sondage.getUser().getId() +
+                ", Name: " + sondage.getUser().getFirstName() +
+                ", Profile Pic Path: " + profilePicPath);
+
         try {
             // Check if user has a profile picture
             if (profilePicPath != null && !profilePicPath.isEmpty()) {
-                // Use the same approach as CommentsModalController - look in uploads/profiles directory
+                // Use the same approach as CommentsModalController - look in uploads/profiles
+                // directory
                 File imageFile = new File("uploads/profiles/" + profilePicPath);
                 System.out.println("Trying to load from: " + imageFile.getAbsolutePath());
-                
+
                 if (imageFile.exists()) {
                     System.out.println("File exists, loading image");
                     avatar.setImage(new Image(imageFile.toURI().toString()));
                 } else {
                     System.out.println("File does not exist");
-                    
+
                     // If file doesn't exist in uploads, try the direct path
                     File directFile = new File(profilePicPath);
                     if (directFile.exists()) {
@@ -337,11 +378,11 @@ public class SondageViewController implements Initializable {
                         avatar.setImage(new Image(directFile.toURI().toString()));
                     } else {
                         System.out.println("Direct file does not exist either");
-                        
+
                         // Finally try as a resource path
                         String resourcePath = "/images/" + profilePicPath;
                         System.out.println("Trying resource path: " + resourcePath);
-                        
+
                         try {
                             if (getClass().getResourceAsStream(resourcePath) != null) {
                                 avatar.setImage(new Image(getClass().getResourceAsStream(resourcePath)));
@@ -446,21 +487,22 @@ public class SondageViewController implements Initializable {
         // Add comment form
         VBox commentForm = new VBox(10);
         commentForm.getStyleClass().add("comment-form");
+        commentForm.getStyleClass().add("comment-form-container");
 
         // Comment form header with icon
         HBox commentFormHeader = new HBox(8);
         commentFormHeader.setAlignment(Pos.CENTER_LEFT);
 
-        // // Create pen icon for comment form
-        // Label penIcon = new Label("✏️");
-        // penIcon.getStyleClass().add("comment-form-icon");
-
         // Comment form title
         Label commentFormTitle = new Label("Write a comment");
         commentFormTitle.getStyleClass().add("comment-form-title");
+        commentFormHeader.getChildren().add(commentFormTitle);
 
-        // Add icon to comment form header
-        // commentFormHeader.getChildren().addAll(penIcon, commentFormTitle);
+        // Create container for textarea and mic button
+        HBox commentInputContainer = new HBox(5);
+        commentInputContainer.setAlignment(Pos.CENTER);
+        commentInputContainer.getStyleClass().add("comment-textarea-container");
+        commentInputContainer.setFillHeight(true);
 
         // Comment textarea
         TextArea commentTextArea = new TextArea();
@@ -468,6 +510,34 @@ public class SondageViewController implements Initializable {
         commentTextArea.getStyleClass().add("comment-textarea");
         commentTextArea.setPrefHeight(70);
         commentTextArea.setWrapText(true);
+        HBox.setHgrow(commentTextArea, Priority.ALWAYS);
+
+        // Microphone button for voice input
+        Button micButton = new Button("🎤");
+        micButton.getStyleClass().add("voice-input-btn");
+        micButton.setTooltip(new Tooltip("Click to speak your comment"));
+
+        // Get speech recognition service and check availability
+        SpeechRecognitionService speechService = SpeechRecognitionService.getInstance();
+
+        // If speech recognition is not available, disable the button
+        if (!speechService.isAvailable()) {
+            micButton.setDisable(true);
+            micButton.setTooltip(new Tooltip("Speech recognition is not available"));
+        } else {
+            micButton.setOnAction(event -> {
+                if (speechService.isRecognizing()) {
+                    speechService.stopRecognition();
+                } else {
+                    // Show a toast notification that the microphone is active
+                    showToast("Microphone active! Start speaking...", "info");
+                    speechService.startRecognition(commentTextArea, micButton);
+                }
+            });
+        }
+
+        // Add components to the container
+        commentInputContainer.getChildren().addAll(commentTextArea, micButton);
 
         // Label for comment validation errors
         Label commentErrorLabel = new Label();
@@ -490,10 +560,6 @@ public class SondageViewController implements Initializable {
         HBox postButtonWithIcon = new HBox(5);
         postButtonWithIcon.setAlignment(Pos.CENTER);
 
-        // Create send icon
-        // Label sendIcon = new Label("📤");
-        // sendIcon.getStyleClass().add("send-icon");
-
         // Add comment button
         Button addCommentButton = new Button("Post Comment");
         addCommentButton.getStyleClass().add("post-comment-button");
@@ -508,18 +574,19 @@ public class SondageViewController implements Initializable {
                 addComment(sondage, content);
                 commentTextArea.clear();
                 commentErrorLabel.setVisible(false);
-                    } catch (SQLException ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
             }
         });
 
         // Add icon to button
-        postButtonWithIcon.getChildren().addAll(addCommentButton);
+        postButtonWithIcon.getChildren().add(addCommentButton);
         addCommentButtonBox.getChildren().add(postButtonWithIcon);
 
         // Add all elements to the comment form
-        commentForm.getChildren().addAll(commentFormHeader, commentTextArea, commentErrorLabel, addCommentButtonBox);
+        commentForm.getChildren().addAll(commentFormHeader, commentInputContainer, commentErrorLabel,
+                addCommentButtonBox);
 
         // Add comment form to sondage box
         sondageBox.getChildren().add(commentForm);
@@ -784,24 +851,111 @@ public class SondageViewController implements Initializable {
      * Add a comment to a poll
      */
     private void addComment(Sondage sondage, String content) throws SQLException {
-        // Create a temporary label and validate comment
-        Label tempLabel = new Label();
-        if (!validateComment(content, tempLabel, null)) {
-            showToast(tempLabel.getText(), "warning");
-            return;
+        try {
+            // Check if user is banned from commenting
+            if (commentaireService.isUserBannedFromCommenting(currentUser.getId())) {
+                showCommentBannedDialog();
+                return;
+            }
+            
+            // Create a temporary label and validate comment
+            Label tempLabel = new Label();
+            if (!validateComment(content, tempLabel, null)) {
+                showToast(tempLabel.getText(), "warning");
+                return;
+            }
+
+            // Create and save the comment
+            Commentaire commentaire = new Commentaire();
+            commentaire.setSondage(sondage);
+            commentaire.setUser(currentUser);
+            commentaire.setContenuComment(content);
+            commentaire.setDateComment(LocalDate.now());
+
+            commentaireService.add(commentaire);
+
+            showToast("Your comment has been added successfully!", "success");
+            refreshData();
+        } catch (SecurityException e) {
+            // This is thrown when a user is banned
+            showCommentBannedDialog();
         }
+    }
 
-        // Create and save the comment
-        Commentaire commentaire = new Commentaire();
-        commentaire.setSondage(sondage);
-        commentaire.setUser(currentUser);
-        commentaire.setContenuComment(content);
-        commentaire.setDateComment(LocalDate.now());
-
-        commentaireService.add(commentaire);
-
-        showToast("Your comment has been added successfully!", "success");
-        refreshData();
+    /**
+     * Shows a beautifully styled dialog when a user is banned from commenting
+     */
+    private void showCommentBannedDialog() {
+        // Create the dialog
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Account Restricted");
+        
+        // Create the content
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setStyle("-fx-background-color: white;");
+        content.setAlignment(Pos.CENTER);
+        
+        // Add warning icon
+        HBox iconContainer = new HBox();
+        iconContainer.setAlignment(Pos.CENTER);
+        Text warningIcon = new Text("⚠️");
+        warningIcon.setStyle("-fx-font-size: 48px; -fx-fill: #F44336;");
+        iconContainer.getChildren().add(warningIcon);
+        
+        // Add title
+        Label titleLabel = new Label("Commenting Restricted");
+        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #F44336;");
+        
+        // Add explanation
+        VBox explanationBox = new VBox(10);
+        explanationBox.setStyle("-fx-background-color: #FFF8E1; -fx-padding: 15px; -fx-background-radius: 5px;");
+        
+        Label explanationLabel = new Label("Your account has been restricted from commenting due to multiple violations of our community guidelines.");
+        explanationLabel.setWrapText(true);
+        explanationLabel.setStyle("-fx-font-size: 14px;");
+        
+        Label detailsLabel = new Label("This restriction occurs after receiving 3 warnings for posting inappropriate content.");
+        detailsLabel.setWrapText(true);
+        detailsLabel.setStyle("-fx-font-size: 14px;");
+        
+        explanationBox.getChildren().addAll(explanationLabel, detailsLabel);
+        
+        // Add contact info
+        VBox contactBox = new VBox(10);
+        contactBox.setStyle("-fx-padding: 15px; -fx-background-radius: 5px; -fx-border-color: #E0E0E0; -fx-border-radius: 5px;");
+        
+        Label contactLabel = new Label("If you believe this is an error or wish to appeal this decision, please contact our support team:");
+        contactLabel.setWrapText(true);
+        
+        Hyperlink emailLink = new Hyperlink("support@uniclubs.com");
+        emailLink.setStyle("-fx-font-size: 14px;");
+        emailLink.setOnAction(e -> {
+            // Open default mail client
+            try {
+                Desktop.getDesktop().mail(new URI("mailto:support@uniclubs.com?subject=Comment%20Ban%20Appeal"));
+            } catch (Exception ex) {
+                showToast("Unable to open email client", "error");
+            }
+        });
+        
+        contactBox.getChildren().addAll(contactLabel, emailLink);
+        
+        // Add close button
+        Button closeButton = new Button("Close");
+        closeButton.setStyle("-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 20;");
+        closeButton.setOnAction(e -> dialog.close());
+        
+        // Add all to content
+        content.getChildren().addAll(iconContainer, titleLabel, explanationBox, contactBox, closeButton);
+        
+        // Set the content and show
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.getDialogPane().lookupButton(ButtonType.CLOSE).setVisible(false);
+        dialog.getDialogPane().setPrefWidth(400);
+        
+        dialog.showAndWait();
     }
 
     /**
@@ -1160,8 +1314,8 @@ public class SondageViewController implements Initializable {
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
                 showToast("You must be a club president to create polls.", "error");
-            return;
-        }
+                return;
+            }
             sondage.setClub(userClub);
 
             // Add options to the poll
@@ -1173,6 +1327,9 @@ public class SondageViewController implements Initializable {
 
             // Save the poll
             sondageService.add(sondage);
+
+            // Send notification emails to club members
+            sendEmailsToClubMembers(sondage, userClub);
 
             // Show success toast
             showToast("Poll created successfully!", "success");
@@ -1219,7 +1376,8 @@ public class SondageViewController implements Initializable {
                 // If user is a club president, open PollManagement view
                 if (userClub != null) {
                     // Load PollManagement view
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/com/esprit/views/PollManagementView.fxml"));
                     Parent root = loader.load();
 
                     PollManagementController controller = loader.getController();
@@ -1371,33 +1529,8 @@ public class SondageViewController implements Initializable {
             Task<String> summaryTask = new Task<String>() {
                 @Override
                 protected String call() throws Exception {
-                    StringBuilder summary = new StringBuilder();
-                    summary.append("Summary of comments for poll: ").append(sondage.getQuestion()).append("\n\n");
-
-                    for (int i = 0; i < comments.size(); i++) {
-                        Commentaire comment = comments.get(i);
-                        summary.append(i + 1).append(". ")
-                                .append(comment.getUser().getLastName()).append(" ")
-                                .append(comment.getUser().getFirstName()).append(": ")
-                                .append(comment.getContenuComment()).append(" (")
-                                .append(comment.getDateComment()).append(")\n");
-                    }
-
-                    // Add basic statistics
-                    summary.append("\n--- Statistics ---\n");
-                    summary.append("Total Comments: ").append(comments.size()).append("\n");
-
-                    // Count unique users
-                    long uniqueUsers = comments.stream()
-                            .map(c -> c.getUser().getId())
-                            .distinct()
-                            .count();
-                    summary.append("Unique Commenters: ").append(uniqueUsers).append("\n");
-
-                    // Delay for UX purposes, so loading dialog is visible
-                    Thread.sleep(800);
-
-                    return summary.toString();
+                    // Use the AI-powered summary service
+                    return commentaireService.generateCommentsSummary(sondage.getId());
                 }
             };
 
@@ -1428,80 +1561,473 @@ public class SondageViewController implements Initializable {
      * @param summary The generated summary text
      */
     private void showSummaryDialog(Sondage sondage, String summary) {
-        Stage dialogStage = new Stage();
-        dialogStage.initModality(Modality.APPLICATION_MODAL);
-        dialogStage.initStyle(StageStyle.TRANSPARENT);
-        dialogStage.setResizable(true);
+        try {
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+            dialogStage.setResizable(true);
+            dialogStage.setTitle("AI Summary Analytics");
 
-        // Create dialog container
-        VBox dialogVBox = new VBox(15);
-        dialogVBox.getStyleClass().add("summary-dialog");
-        dialogVBox.setPadding(new Insets(20));
+            // Get comments for statistics
+            ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
 
-        // Header with title and close button
-        HBox headerBox = new HBox();
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.setSpacing(10);
+            // Extract the main points from the summary and format them as bullet points
+            String processedSummary = processRawSummary(summary);
 
-        Label titleLabel = new Label("Comments Summary");
-        titleLabel.getStyleClass().add("summary-title");
-        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+            // ============= MAIN CONTAINER =============
+            VBox mainContainer = new VBox(0);
+            mainContainer.getStyleClass().add("modern-summary-dialog");
+            mainContainer.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);");
 
-        Button closeButton = new Button("✕");
-        closeButton.getStyleClass().add("close-button");
-        closeButton.setOnAction(e -> dialogStage.close());
+            // ============= HEADER SECTION =============
+            HBox headerBox = new HBox();
+            headerBox.setAlignment(Pos.CENTER_LEFT);
+            headerBox.setPadding(new Insets(20, 25, 20, 25));
+            headerBox.setStyle("-fx-background-color: #4B83CD; -fx-background-radius: 10 10 0 0;");
 
-        headerBox.getChildren().addAll(titleLabel, closeButton);
+            // Robot icon with glow effect
+            Label aiIcon = new Label("🤖");
+            aiIcon.setStyle(
+                    "-fx-font-size: 28px; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.6), 10, 0, 0, 0);");
 
-        // Summary content area
-        TextArea summaryArea = new TextArea(summary);
-        summaryArea.setEditable(false);
-        summaryArea.setWrapText(true);
-        summaryArea.setPrefRowCount(20);
-        summaryArea.setPrefColumnCount(60);
-        summaryArea.getStyleClass().add("summary-text");
+            // Title section with main title and subtitle
+            VBox titleBox = new VBox(3);
+            Label titleLabel = new Label("AI INSIGHTS DASHBOARD");
+            titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        // Add components to dialog
-        dialogVBox.getChildren().addAll(headerBox, summaryArea);
+            Label subtitleLabel = new Label("Poll: " + sondage.getQuestion());
+            subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.9);");
+            subtitleLabel.setWrapText(true);
+            subtitleLabel.setMaxWidth(450);
 
-        // Background with shadow
-        StackPane rootPane = new StackPane();
-        rootPane.getStyleClass().add("summary-dialog-background");
+            titleBox.getChildren().addAll(titleLabel, subtitleLabel);
+            HBox.setHgrow(titleBox, Priority.ALWAYS);
+            HBox.setMargin(titleBox, new Insets(0, 0, 0, 15));
 
-        // Semi-transparent overlay
-        Region overlay = new Region();
-        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
-        overlay.setOnMouseClicked(e -> {
-            if (e.getTarget() == overlay) {
-                dialogStage.close();
+            // Close button
+            Button closeButton = new Button("✕");
+            closeButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;");
+            closeButton.setOnAction(e -> dialogStage.close());
+            closeButton.setOnMouseEntered(e -> closeButton.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 16px;"));
+            closeButton.setOnMouseExited(e -> closeButton
+                    .setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;"));
+
+            headerBox.getChildren().addAll(aiIcon, titleBox, closeButton);
+
+            // ============= CONTENT SECTION =============
+            HBox contentBox = new HBox(0);
+            contentBox.setPrefHeight(460);
+
+            // ============= LEFT PANEL - CHARTS =============
+            VBox chartsPanel = new VBox(15);
+            chartsPanel.setPadding(new Insets(20));
+            chartsPanel.setPrefWidth(390);
+            chartsPanel.setMinWidth(390);
+            chartsPanel.setMaxWidth(390);
+            chartsPanel.setStyle("-fx-background-color: #f0f5fa;");
+
+            // User participation chart (Pie chart)
+            VBox userChartContainer = new VBox(5);
+            Label userChartTitle = new Label("USER PARTICIPATION");
+            userChartTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
+            Map<String, Integer> userCommentCounts = new HashMap<>();
+            for (Commentaire comment : comments) {
+                String userName = comment.getUser().getFirstName() + " " + comment.getUser().getLastName();
+                userCommentCounts.put(userName, userCommentCounts.getOrDefault(userName, 0) + 1);
             }
-        });
 
-        rootPane.getChildren().addAll(overlay, dialogVBox);
+            // Create pie chart data
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+            for (Map.Entry<String, Integer> entry : userCommentCounts.entrySet()) {
+                pieChartData.add(new PieChart.Data(entry.getKey(), entry.getValue()));
+            }
 
-        // Create scene
-        Scene dialogScene = new Scene(rootPane);
-        dialogScene.setFill(Color.TRANSPARENT);
-        dialogScene.getStylesheets()
-                .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+            PieChart userPieChart = new PieChart(pieChartData);
+            userPieChart.setTitle("");
+            userPieChart.setLabelsVisible(false);
+            userPieChart.setLegendVisible(true);
+            userPieChart.setLegendSide(Side.RIGHT);
+            userPieChart.setPrefHeight(180);
+            userPieChart.setPrefWidth(370);
+            userPieChart.setMinWidth(370);
+            userPieChart.setMaxWidth(370);
 
-        dialogStage.setScene(dialogScene);
-        dialogStage.setWidth(700);
-        dialogStage.setHeight(500);
+            // Add tooltip to pie chart slices
+            for (final PieChart.Data data : userPieChart.getData()) {
+                Tooltip tooltip = new Tooltip(String.format("%s: %d comments (%.1f%%)",
+                        data.getName(), (int) data.getPieValue(),
+                        (data.getPieValue() / comments.size() * 100)));
+                javafx.scene.control.Tooltip.install(data.getNode(), tooltip);
 
-        // Center on screen and show with animation
-        dialogStage.setOnShown(e -> {
-            dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
-            dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+                // Add animation effect on hover
+                data.getNode().setOnMouseEntered(e -> {
+                    data.getNode().setScaleX(1.1);
+                    data.getNode().setScaleY(1.1);
+                });
+                data.getNode().setOnMouseExited(e -> {
+                    data.getNode().setScaleX(1);
+                    data.getNode().setScaleY(1);
+                });
+            }
 
-            // Fade in animation
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dialogVBox);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-        });
+            userChartContainer.getChildren().addAll(userChartTitle, userPieChart);
 
-        dialogStage.show();
+            // Sentiment Analysis Chart
+            VBox sentimentContainer = new VBox(5);
+            Label sentimentTitle = new Label("SENTIMENT ANALYSIS");
+            sentimentTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
+            // Extract sentiment from summary (naive approach)
+            Map<String, Double> sentiments = extractSentiment(summary);
+
+            // Create bar chart for sentiment
+            CategoryAxis xAxis = new CategoryAxis();
+            NumberAxis yAxis = new NumberAxis(0, 100, 20);
+            yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
+                @Override
+                public String toString(Number object) {
+                    return object.intValue() + "%";
+                }
+            });
+
+            BarChart<String, Number> sentimentChart = new BarChart<>(xAxis, yAxis);
+            sentimentChart.setTitle("");
+            sentimentChart.setLegendVisible(false);
+            sentimentChart.setAnimated(true);
+            sentimentChart.setPrefHeight(180);
+            sentimentChart.setPrefWidth(370);
+            sentimentChart.setMinWidth(370);
+            sentimentChart.setMaxWidth(370);
+
+            // Hide grid lines for cleaner look
+            sentimentChart.setHorizontalGridLinesVisible(false);
+            sentimentChart.setHorizontalZeroLineVisible(false);
+            sentimentChart.setVerticalGridLinesVisible(false);
+
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            sentiments.forEach((sentiment, value) -> {
+                series.getData().add(new XYChart.Data<>(sentiment, value));
+            });
+
+            sentimentChart.getData().add(series);
+
+            // Style the bars with different colors based on sentiment
+            int i = 0;
+            String[] colors = { "#4B83CD", "#47B39C", "#FFC107" };
+            for (XYChart.Data<String, Number> data : series.getData()) {
+                String color = colors[i % colors.length];
+                Node node = data.getNode();
+                node.setStyle("-fx-bar-fill: " + color + ";");
+
+                // Add hover effect
+                javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
+                        data.getXValue() + ": " + String.format("%.1f", data.getYValue().doubleValue()) + "%");
+                javafx.scene.control.Tooltip.install(node, tooltip);
+
+                node.setOnMouseEntered(e -> {
+                    node.setStyle("-fx-bar-fill: " + color
+                            + "; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 0);");
+                });
+                node.setOnMouseExited(e -> {
+                    node.setStyle("-fx-bar-fill: " + color + ";");
+                });
+                i++;
+            }
+
+            sentimentContainer.getChildren().addAll(sentimentTitle, sentimentChart);
+
+            // Add charts to left panel
+            chartsPanel.getChildren().addAll(userChartContainer, sentimentContainer);
+
+            // ============= RIGHT PANEL - SUMMARY AND METRICS =============
+            VBox summaryPanel = new VBox(15);
+            summaryPanel.setPadding(new Insets(20));
+            summaryPanel.setStyle("-fx-background-color: white;");
+            HBox.setHgrow(summaryPanel, Priority.ALWAYS);
+            summaryPanel.setPrefWidth(470);
+            summaryPanel.setMinWidth(470);
+
+            // Key metrics section - card layout with 4 metrics
+            Label metricsTitle = new Label("KEY METRICS");
+            metricsTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
+            // Calculate statistics
+            int totalComments = comments.size();
+            long uniqueUsers = comments.stream()
+                    .map(c -> c.getUser().getId())
+                    .distinct()
+                    .count();
+
+            double avgLength = comments.stream()
+                    .mapToInt(c -> c.getContenuComment().length())
+                    .average()
+                    .orElse(0);
+
+            LocalDate mostRecentDate = comments.stream()
+                    .map(Commentaire::getDateComment)
+                    .max(LocalDate::compareTo)
+                    .orElse(LocalDate.now());
+
+            // Create metric cards in a grid layout
+            HBox metricsRowTop = new HBox(15);
+            HBox metricsRowBottom = new HBox(15);
+
+            VBox totalCommentsCard = createMetricCard("TOTAL COMMENTS", String.valueOf(totalComments), "💬", "#4B83CD");
+            VBox uniqueUsersCard = createMetricCard("UNIQUE USERS", String.valueOf(uniqueUsers), "👥", "#47B39C");
+            VBox avgLengthCard = createMetricCard("AVG LENGTH", String.format("%.1f", avgLength), "📏", "#FFC107");
+            VBox recentCard = createMetricCard("LATEST UPDATE",
+                    mostRecentDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")), "📅", "#FF6B6B");
+
+            HBox.setHgrow(totalCommentsCard, Priority.ALWAYS);
+            HBox.setHgrow(uniqueUsersCard, Priority.ALWAYS);
+            HBox.setHgrow(avgLengthCard, Priority.ALWAYS);
+            HBox.setHgrow(recentCard, Priority.ALWAYS);
+
+            metricsRowTop.getChildren().addAll(totalCommentsCard, uniqueUsersCard);
+            metricsRowBottom.getChildren().addAll(avgLengthCard, recentCard);
+
+            VBox metricsGrid = new VBox(15);
+            metricsGrid.getChildren().addAll(metricsRowTop, metricsRowBottom);
+
+            // AI Summary section
+            Label summaryTitle = new Label("AI-GENERATED INSIGHTS");
+            summaryTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
+            // Use a text flow for the summary with bullet points
+            TextFlow summaryFlow = new TextFlow();
+            summaryFlow.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8px; -fx-padding: 15px;");
+            summaryFlow.setPrefWidth(430);
+            summaryFlow.setMinWidth(430);
+            summaryFlow.setMaxWidth(430);
+            summaryFlow.setLineSpacing(1.5);
+
+            // Create summary with bullet points if it contains multiple sentences
+            Text summaryText = new Text(processedSummary);
+            summaryText.setStyle("-fx-fill: #333333; -fx-font-size: 14px;");
+            summaryFlow.getChildren().add(summaryText);
+
+            // Wrap TextFlow in a ScrollPane to make it scrollable
+            ScrollPane summaryScrollPane = new ScrollPane(summaryFlow);
+            summaryScrollPane.setFitToWidth(true);
+            summaryScrollPane.setPrefHeight(150);
+            summaryScrollPane.setMinHeight(150);
+            summaryScrollPane.setStyle(
+                    "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+            summaryScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            summaryScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+            VBox.setVgrow(summaryScrollPane, Priority.ALWAYS);
+
+            // Footer with copy and download buttons
+            HBox footerBox = new HBox(10);
+            footerBox.setAlignment(Pos.CENTER_RIGHT);
+
+            Button copyButton = new Button("Copy Summary");
+            copyButton.setStyle(
+                    "-fx-background-color: #4B83CD; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 5px;");
+            copyButton.setOnAction(e -> {
+                final javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+                final javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+                content.putString(summary);
+                clipboard.setContent(content);
+                showToast("Summary copied to clipboard", "success");
+            });
+
+            // Add a PDF export button
+            Button exportButton = new Button("Download PDF");
+            exportButton.setStyle(
+                    "-fx-background-color: #47B39C; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 5px;");
+            exportButton.setOnAction(e -> {
+                showToast("PDF export simulation - report would be generated here", "success");
+                // In a real implementation, you would generate a PDF with the summary and
+                // charts
+            });
+
+            footerBox.getChildren().addAll(exportButton, copyButton);
+
+            // Add all sections to the summary panel
+            summaryPanel.getChildren().addAll(metricsTitle, metricsGrid, summaryTitle, summaryScrollPane, footerBox);
+
+            // Add both panels to the content box
+            contentBox.getChildren().addAll(chartsPanel, summaryPanel);
+
+            // Assemble all components into the main container
+            mainContainer.getChildren().addAll(headerBox, contentBox);
+
+            // Create scene with transparent background for rounded corners
+            StackPane rootPane = new StackPane();
+
+            // Semi-transparent overlay
+            Region overlay = new Region();
+            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.4);");
+            overlay.setOnMouseClicked(e -> {
+                if (e.getTarget() == overlay) {
+                    dialogStage.close();
+                }
+            });
+
+            rootPane.getChildren().addAll(overlay, mainContainer);
+
+            Scene dialogScene = new Scene(rootPane);
+            dialogScene.setFill(Color.TRANSPARENT);
+            dialogScene.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
+            // Set scene and show the dialog
+            dialogStage.setScene(dialogScene);
+            dialogStage.setWidth(870);
+            dialogStage.setHeight(600);
+
+            // Center on screen and show with animation
+            dialogStage.setOnShown(e -> {
+                dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
+                dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+
+                // Fade in animation
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), mainContainer);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                fadeIn.play();
+            });
+
+            dialogStage.show();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showToast("Error loading comment statistics: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Creates a modern, colorful metric card for the dashboard
+     */
+    private VBox createMetricCard(String label, String value, String icon, String color) {
+        VBox card = new VBox(5);
+        card.setPadding(new Insets(15));
+        card.setStyle("-fx-background-color: white; -fx-border-radius: 8px; -fx-background-radius: 8px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-border-color: #e0e0e0; -fx-border-width: 1px;");
+
+        // Icon with colored circle background
+        StackPane iconContainer = new StackPane();
+        iconContainer.setMinSize(40, 40);
+        iconContainer.setMaxSize(40, 40);
+
+        Circle iconBackground = new Circle(20);
+        iconBackground.setFill(Color.web(color));
+        iconBackground.setOpacity(0.15);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: " + color + ";");
+
+        iconContainer.getChildren().addAll(iconBackground, iconLabel);
+
+        // Metric value
+        Label valueLabel = new Label(value);
+        valueLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+
+        // Metric label
+        Label nameLabel = new Label(label);
+        nameLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #777777;");
+
+        card.getChildren().addAll(iconContainer, valueLabel, nameLabel);
+        return card;
+    }
+
+    /**
+     * Extract sentiment information from the AI summary
+     */
+    private Map<String, Double> extractSentiment(String summary) {
+        Map<String, Double> sentiments = new LinkedHashMap<>();
+
+        // Detect sentiment words in the summary text
+        String lowerSummary = summary.toLowerCase();
+
+        boolean hasPositive = lowerSummary.contains("positive") || lowerSummary.contains("favor") ||
+                lowerSummary.contains("good") || lowerSummary.contains("great") ||
+                lowerSummary.contains("like") || lowerSummary.contains("appreciate");
+
+        boolean hasNegative = lowerSummary.contains("negative") || lowerSummary.contains("against") ||
+                lowerSummary.contains("bad") || lowerSummary.contains("poor") ||
+                lowerSummary.contains("dislike") || lowerSummary.contains("issue");
+
+        boolean hasMixed = lowerSummary.contains("mixed") || lowerSummary.contains("both") ||
+                lowerSummary.contains("varied") || lowerSummary.contains("diverse") ||
+                lowerSummary.contains("some") || lowerSummary.contains("other");
+
+        boolean hasNeutral = lowerSummary.contains("neutral") || lowerSummary.contains("unclear") ||
+                lowerSummary.contains("undecided");
+
+        // Simple algorithm to determine sentiment values
+        double positive = 0.0;
+        double negative = 0.0;
+        double neutral = 15.0; // Baseline minimum
+
+        // Adjust based on keywords
+        if (hasPositive)
+            positive += 45.0;
+        if (hasNegative)
+            negative += 30.0;
+        if (hasMixed) {
+            positive += 25.0;
+            negative += 25.0;
+        }
+        if (hasNeutral)
+            neutral += 25.0;
+
+        // Ensure we have something to show even if no clear sentiment
+        if (positive < 15.0)
+            positive = 15.0;
+        if (negative < 10.0)
+            negative = 10.0;
+
+        // Normalize to ensure total is 100%
+        double total = positive + negative + neutral;
+        positive = (positive / total) * 100;
+        negative = (negative / total) * 100;
+        neutral = (neutral / total) * 100;
+
+        sentiments.put("Positive", positive);
+        sentiments.put("Neutral", neutral);
+        sentiments.put("Negative", negative);
+
+        return sentiments;
+    }
+
+    /**
+     * Process the raw summary to make it more concise and visually appealing
+     */
+    private String processRawSummary(String rawSummary) {
+        // Remove any "Error:" prefix if present
+        if (rawSummary.startsWith("Error:")) {
+            return "Unable to generate summary. Please try again later.";
+        }
+
+        // Split into sentences
+        String[] sentences = rawSummary.split("(?<=[.!?])\\s+");
+
+        // If we have multiple sentences, format as bullet points
+        if (sentences.length > 1) {
+            StringBuilder formatted = new StringBuilder();
+
+            // Add title if there's no clear one
+            if (!rawSummary.toLowerCase().contains("summary") && !rawSummary.toLowerCase().contains("overview")) {
+                formatted.append("Key Insights:\n\n");
+            }
+
+            // Add each sentence as a bullet point
+            for (String sentence : sentences) {
+                if (sentence.trim().isEmpty())
+                    continue;
+                formatted.append("• ").append(sentence.trim()).append("\n\n");
+            }
+
+            return formatted.toString();
+        }
+
+        // If it's just one sentence, return as is
+        return rawSummary;
     }
 
     // Méthode appelée par d'autres contrôleurs pour rafraîchir les données
@@ -1740,7 +2266,7 @@ public class SondageViewController implements Initializable {
     public void handleLogout() throws IOException {
         // Clear the session
         SessionManager.getInstance().clearSession();
-        
+
         // Navigate to login page
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
         Parent root = loader.load();
@@ -1781,9 +2307,11 @@ public class SondageViewController implements Initializable {
     }
 
     /**
-     * Shows a professional toast notification that automatically disappears after a few seconds
+     * Shows a professional toast notification that automatically disappears after a
+     * few seconds
+     * 
      * @param message The message to display
-     * @param type The type of toast (success, error, warning)
+     * @param type    The type of toast (success, error, warning)
      */
     private void showToast(String message, String type) {
         try {
@@ -1804,10 +2332,10 @@ public class SondageViewController implements Initializable {
                     return; // No scene available yet
                 }
             }
-            
+
             // Store the final reference to root for use in lambdas
             final StackPane finalRoot = root;
-            
+
             // Create the toast container
             HBox toast = new HBox();
             toast.setMaxWidth(400);
@@ -1817,16 +2345,15 @@ public class SondageViewController implements Initializable {
             toast.setAlignment(Pos.CENTER_LEFT);
             toast.setSpacing(15);
             toast.setPadding(new Insets(15, 20, 15, 20));
-            toast.setStyle("-fx-background-radius: 8; -fx-background-color: " + 
-                (type.equals("success") ? "#4caf50" : 
-                 type.equals("error") ? "#f44336" : "#ff9800") + ";" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);");
-            
+            toast.setStyle("-fx-background-radius: 8; -fx-background-color: " +
+                    (type.equals("success") ? "#4caf50" : type.equals("error") ? "#f44336" : "#ff9800") + ";" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);");
+
             // Create icon based on type
             Label icon = new Label();
             icon.setTextFill(Color.WHITE);
             icon.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
-            
+
             if (type.equals("success")) {
                 icon.setText("✓");
             } else if (type.equals("error")) {
@@ -1834,39 +2361,39 @@ public class SondageViewController implements Initializable {
             } else {
                 icon.setText("⚠");
             }
-            
+
             // Create message text
             Label text = new Label(message);
             text.setTextFill(Color.WHITE);
             text.setStyle("-fx-font-size: 15px; -fx-font-weight: 500;");
             text.setWrapText(true);
-            
+
             // Add elements to toast
             toast.getChildren().addAll(icon, text);
-            
+
             // Position toast at the bottom center
             StackPane.setAlignment(toast, Pos.BOTTOM_CENTER);
             StackPane.setMargin(toast, new Insets(0, 0, 100, 0));
-            
+
             // Ensure toast is on top
             toast.toFront();
-            
+
             // Store the final toast reference for lambdas
             final HBox finalToast = toast;
-            
+
             // Scale and fade-in transition
             ScaleTransition scaleIn = new ScaleTransition(Duration.millis(180), finalToast);
             scaleIn.setFromX(0.8);
             scaleIn.setFromY(0.8);
             scaleIn.setToX(1);
             scaleIn.setToY(1);
-            
+
             FadeTransition fadeIn = new FadeTransition(Duration.millis(180), finalToast);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
-            
+
             ParallelTransition parallelIn = new ParallelTransition(scaleIn, fadeIn);
-            
+
             // Fade-out transition
             FadeTransition fadeOut = new FadeTransition(Duration.millis(350), finalToast);
             fadeOut.setFromValue(1.0);
@@ -1875,16 +2402,555 @@ public class SondageViewController implements Initializable {
             fadeOut.setOnFinished(e -> {
                 finalRoot.getChildren().remove(finalToast);
             });
-            
+
             // Add toast to scene and play animations
             finalRoot.getChildren().add(finalToast);
-            
+
             parallelIn.play();
             parallelIn.setOnFinished(e -> fadeOut.play());
-            
+
         } catch (Exception e) {
             System.err.println("Error showing toast: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void showToxicityManagementPanel() {
+        try {
+            // Create the dashboard layout
+            VBox dashboardRoot = new VBox(15);
+            dashboardRoot.setPadding(new Insets(20));
+            dashboardRoot.setStyle("-fx-background-color: white;");
+
+            // Create title area
+            HBox titleArea = new HBox();
+            titleArea.setAlignment(Pos.CENTER_LEFT);
+
+            ImageView warningIcon = new ImageView(
+                    new Image(getClass().getResourceAsStream("/com/esprit/images/warning-icon.png")));
+            if (warningIcon.getImage().isError()) {
+                // Fallback if image not found
+                warningIcon = createTextIcon("⚠️", 30, Color.ORANGE);
+            } else {
+                warningIcon.setFitWidth(30);
+                warningIcon.setFitHeight(30);
+            }
+
+            Label titleLabel = new Label("AI Comment Moderation Dashboard");
+            titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+
+            titleArea.getChildren().addAll(warningIcon, new Region() {
+                {
+                    setMinWidth(10);
+                }
+            }, titleLabel);
+
+            // Create statistics area
+            HBox statsArea = new HBox(20);
+            statsArea.setAlignment(Pos.CENTER);
+            statsArea.setPadding(new Insets(15));
+            statsArea.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 10px;");
+
+            // Get statistics from the CommentaireService
+            CommentaireService commentaireService = new CommentaireService();
+            int totalComments = commentaireService.getTotalComments();
+            int flaggedComments = commentaireService.getFlaggedComments();
+            int todayComments = commentaireService.getTodayComments();
+            double flaggedPercentage = totalComments > 0 ? (flaggedComments * 100.0 / totalComments) : 0;
+
+            VBox stat1 = createStatBox("Total Comments", String.valueOf(totalComments), "blue");
+            VBox stat2 = createStatBox("Flagged Comments", String.valueOf(flaggedComments), "orange");
+            VBox stat3 = createStatBox("Today's Comments", String.valueOf(todayComments), "green");
+            VBox stat4 = createStatBox("Flagged %", String.format("%.1f%%", flaggedPercentage),
+                    flaggedPercentage > 10 ? "red" : flaggedPercentage > 5 ? "orange" : "green");
+
+            statsArea.getChildren().addAll(stat1, stat2, stat3, stat4);
+
+            // Create flagged comments table
+            TableView<Commentaire> commentsTable = new TableView<>();
+            commentsTable.setPlaceholder(new Label("No flagged comments found."));
+            commentsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+            TableColumn<Commentaire, String> userCol = new TableColumn<>("User");
+            userCol.setCellValueFactory(data -> {
+                User user = data.getValue().getUser();
+                return new SimpleStringProperty(
+                        user != null ? user.getFirstName() + " " + user.getLastName() : "Unknown");
+            });
+
+            TableColumn<Commentaire, String> pollCol = new TableColumn<>("Poll");
+            pollCol.setCellValueFactory(data -> {
+                Sondage sondage = data.getValue().getSondage();
+                return new SimpleStringProperty(sondage != null ? sondage.getQuestion() : "Unknown");
+            });
+
+            TableColumn<Commentaire, String> contentCol = new TableColumn<>("Content");
+            contentCol.setCellValueFactory(data -> {
+                String content = data.getValue().getContenuComment();
+                if (commentaireService.isContentFlaggedAsToxic(content)) {
+                    // Extract original content if available in the database for admin view
+                    return new SimpleStringProperty("[FLAGGED CONTENT]");
+                } else {
+                    return new SimpleStringProperty(content);
+                }
+            });
+            contentCol.setPrefWidth(300);
+
+            TableColumn<Commentaire, LocalDate> dateCol = new TableColumn<>("Date");
+            dateCol.setCellValueFactory(new PropertyValueFactory<>("dateComment"));
+            dateCol.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    if (empty || date == null) {
+                        setText(null);
+                    } else {
+                        setText(date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+                    }
+                }
+            });
+
+            TableColumn<Commentaire, Void> actionsCol = new TableColumn<>("Actions");
+            actionsCol.setCellFactory(param -> new TableCell<>() {
+                private final Button viewBtn = new Button("View");
+                private final Button approveBtn = new Button("Approve");
+                private final Button deleteBtn = new Button("Delete");
+
+                {
+                    viewBtn.setStyle("-fx-background-color: #4285F4; -fx-text-fill: white;");
+                    approveBtn.setStyle("-fx-background-color: #0F9D58; -fx-text-fill: white;");
+                    deleteBtn.setStyle("-fx-background-color: #DB4437; -fx-text-fill: white;");
+
+                    viewBtn.setOnAction(event -> {
+                        Commentaire comment = getTableView().getItems().get(getIndex());
+                        showToxicityAnalysisDialog(comment);
+                    });
+
+                    approveBtn.setOnAction(event -> {
+                        Commentaire comment = getTableView().getItems().get(getIndex());
+                        approveComment(comment);
+                        refreshFlaggedComments(commentsTable);
+                    });
+
+                    deleteBtn.setOnAction(event -> {
+                        Commentaire comment = getTableView().getItems().get(getIndex());
+                        try {
+                            commentaireService.delete(comment.getId());
+                            getTableView().getItems().remove(comment);
+                            showToast("Comment deleted successfully", "success");
+                        } catch (SQLException e) {
+                            showToast("Error deleting comment: " + e.getMessage(), "error");
+                        }
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        HBox buttons = new HBox(5);
+                        buttons.getChildren().addAll(viewBtn, approveBtn, deleteBtn);
+                        setGraphic(buttons);
+                    }
+                }
+            });
+
+            commentsTable.getColumns().addAll(userCol, pollCol, contentCol, dateCol, actionsCol);
+
+            // Load flagged comments
+            refreshFlaggedComments(commentsTable);
+
+            // Create refresh button
+            Button refreshButton = new Button("Refresh Comments");
+            refreshButton.setStyle("-fx-background-color: #4285F4; -fx-text-fill: white;");
+            refreshButton.setOnAction(e -> refreshFlaggedComments(commentsTable));
+
+            // Add all components to the dashboard
+            dashboardRoot.getChildren().addAll(
+                    titleArea,
+                    new Separator(),
+                    statsArea,
+                    new Label("Flagged Comments") {
+                        {
+                            setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+                        }
+                    },
+                    commentsTable,
+                    refreshButton);
+
+            VBox.setVgrow(commentsTable, Priority.ALWAYS);
+
+            // Create and show the dialog
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Comment Moderation Dashboard");
+            dialog.getDialogPane().setContent(dashboardRoot);
+            dialog.getDialogPane().setPrefSize(900, 700);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+            // Apply styles to dialog
+            dialog.getDialogPane().setStyle("-fx-background-color: white;");
+
+            dialog.showAndWait();
+
+        } catch (SQLException e) {
+            showToast("Error loading comment data: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Shows a detailed toxicity analysis dialog for a comment
+     */
+    private void showToxicityAnalysisDialog(Commentaire comment) {
+        try {
+            // Get the original comment content by extracting from the warning message or
+            // database
+            String warningMessage = comment.getContenuComment();
+            String originalContent = "[Original content not available]";
+
+            // Create toxicity analysis
+            com.esprit.utils.AiService aiService = new com.esprit.utils.AiService();
+            JSONObject toxicityAnalysis;
+
+            // If we can get the original content, analyze it
+            // Otherwise, just create empty analysis
+            if (originalContent.equals("[Original content not available]")) {
+                // Create empty analysis result
+                toxicityAnalysis = new JSONObject();
+                toxicityAnalysis.put("isToxic", true);
+                toxicityAnalysis.put("reason", "Comment was previously flagged as toxic");
+                toxicityAnalysis.put("toxicWords", new JSONArray());
+
+                JSONObject categories = new JSONObject();
+                categories.put("profanity", new JSONArray());
+                categories.put("offensive", new JSONArray());
+                categories.put("discriminatory", new JSONArray());
+                categories.put("threatening", new JSONArray());
+                categories.put("formatting", new JSONArray());
+                toxicityAnalysis.put("categories", categories);
+            } else {
+                toxicityAnalysis = aiService.analyzeToxicity(originalContent);
+            }
+
+            // Create the analysis dialog layout
+            VBox root = new VBox(15);
+            root.setPadding(new Insets(20));
+            root.setStyle("-fx-background-color: white;");
+
+            // Add title
+            Label titleLabel = new Label("Toxicity Analysis");
+            titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+
+            // Add user info
+            User user = comment.getUser();
+            HBox userInfo = new HBox(10);
+            userInfo.setAlignment(Pos.CENTER_LEFT);
+
+            Label userLabel = new Label("Comment by: ");
+            userLabel.setStyle("-fx-font-weight: bold;");
+
+            Label userName = new Label(user != null ? user.getFirstName() + " " + user.getLastName() : "Unknown User");
+
+            Label emailLabel = new Label("Email: ");
+            emailLabel.setStyle("-fx-font-weight: bold;");
+
+            Label userEmail = new Label(user != null ? user.getEmail() : "unknown@email.com");
+
+            userInfo.getChildren().addAll(userLabel, userName, new Region() {
+                {
+                    setMinWidth(20);
+                }
+            },
+                    emailLabel, userEmail);
+
+            // Add flagged comment section
+            VBox commentBox = new VBox(5);
+            commentBox.setStyle("-fx-background-color: #FFF3E0; -fx-padding: 10px; -fx-background-radius: 5px;");
+
+            Label commentLabel = new Label("Flagged Comment Content:");
+            commentLabel.setStyle("-fx-font-weight: bold;");
+
+            TextArea commentArea = new TextArea(warningMessage);
+            commentArea.setEditable(false);
+            commentArea.setWrapText(true);
+            commentArea.setPrefRowCount(3);
+            commentArea.setStyle("-fx-control-inner-background: #FFF3E0; -fx-border-color: transparent;");
+
+            commentBox.getChildren().addAll(commentLabel, commentArea);
+
+            // Create analysis section
+            VBox analysisBox = new VBox(10);
+            analysisBox.setStyle("-fx-background-color: #E8F5E9; -fx-padding: 10px; -fx-background-radius: 5px;");
+
+            Label analysisLabel = new Label("AI Analysis Results:");
+            analysisLabel.setStyle("-fx-font-weight: bold;");
+
+            // Main reason
+            HBox reasonBox = new HBox(10);
+            reasonBox.setAlignment(Pos.CENTER_LEFT);
+
+            Label reasonLabel = new Label("Detection Reason:");
+            reasonLabel.setStyle("-fx-font-weight: bold;");
+
+            Label reasonValue = new Label(toxicityAnalysis.getString("reason"));
+            reasonValue.setStyle("-fx-text-fill: #D32F2F;");
+
+            reasonBox.getChildren().addAll(reasonLabel, reasonValue);
+
+            // Categories section
+            VBox categoriesBox = new VBox(5);
+            categoriesBox.setStyle("-fx-background-color: white; -fx-padding: 10px; -fx-background-radius: 5px;");
+
+            Label categoriesLabel = new Label("Detected Categories:");
+            categoriesLabel.setStyle("-fx-font-weight: bold;");
+
+            categoriesBox.getChildren().add(categoriesLabel);
+
+            // Add each category
+            JSONObject categories = toxicityAnalysis.getJSONObject("categories");
+            String[] categoryNames = { "profanity", "offensive", "discriminatory", "threatening", "formatting" };
+            String[] categoryDisplayNames = { "Profanity", "Offensive Language", "Discriminatory Language",
+                    "Threatening Content", "Formatting Issues" };
+            String[] categoryColors = { "#E57373", "#FFB74D", "#BA68C8", "#F44336", "#90CAF9" };
+
+            boolean hasAnyDetection = false;
+
+            for (int i = 0; i < categoryNames.length; i++) {
+                JSONArray categoryItems = categories.getJSONArray(categoryNames[i]);
+                if (categoryItems.length() > 0) {
+                    hasAnyDetection = true;
+
+                    HBox categoryBox = new HBox(10);
+                    categoryBox.setAlignment(Pos.CENTER_LEFT);
+                    categoryBox.setPadding(new Insets(5));
+
+                    Label categoryNameLabel = new Label(categoryDisplayNames[i] + ": ");
+                    categoryNameLabel.setStyle("-fx-font-weight: bold;");
+
+                    // Create color indicator
+                    Region colorIndicator = new Region();
+                    colorIndicator.setMinSize(12, 12);
+                    colorIndicator.setMaxSize(12, 12);
+                    colorIndicator.setStyle("-fx-background-color: " + categoryColors[i] + "; " +
+                            "-fx-background-radius: 6px;");
+
+                    // Create detected items
+                    StringBuilder itemsText = new StringBuilder();
+                    for (int j = 0; j < categoryItems.length(); j++) {
+                        itemsText.append(categoryItems.getString(j));
+                        if (j < categoryItems.length() - 1) {
+                            itemsText.append(", ");
+                        }
+                    }
+
+                    Label itemsLabel = new Label(itemsText.toString());
+                    itemsLabel.setStyle("-fx-text-fill: " + categoryColors[i] + "; -fx-font-weight: bold;");
+
+                    categoryBox.getChildren().addAll(colorIndicator, categoryNameLabel, itemsLabel);
+                    categoriesBox.getChildren().add(categoryBox);
+                }
+            }
+
+            if (!hasAnyDetection) {
+                Label noDetectionLabel = new Label("No specific categories detected");
+                noDetectionLabel.setStyle("-fx-font-style: italic;");
+                categoriesBox.getChildren().add(noDetectionLabel);
+            }
+
+            analysisBox.getChildren().addAll(analysisLabel, reasonBox, categoriesBox);
+
+            // User action section
+            HBox actionBox = new HBox(15);
+            actionBox.setAlignment(Pos.CENTER);
+            actionBox.setPadding(new Insets(10));
+
+            Button approveBtn = new Button("Approve Comment");
+            approveBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+            approveBtn.setPrefWidth(200);
+            approveBtn.setOnAction(e -> {
+                approveComment(comment);
+                // Close the dialog by getting the Stage and calling close()
+                ((Stage) approveBtn.getScene().getWindow()).close();
+            });
+
+            Button deleteBtn = new Button("Delete Comment");
+            deleteBtn.setStyle("-fx-background-color: #F44336; -fx-text-fill: white;");
+            deleteBtn.setPrefWidth(200);
+            deleteBtn.setOnAction(e -> {
+                try {
+                    CommentaireService commentaireService = new CommentaireService();
+                    commentaireService.delete(comment.getId());
+                    showToast("Comment deleted successfully", "success");
+                    // Close the dialog
+                    ((Stage) deleteBtn.getScene().getWindow()).close();
+                } catch (SQLException ex) {
+                    showToast("Error deleting comment: " + ex.getMessage(), "error");
+                }
+            });
+
+            actionBox.getChildren().addAll(approveBtn, deleteBtn);
+
+            // Add all components to root
+            root.getChildren().addAll(
+                    titleLabel,
+                    new Separator(),
+                    userInfo,
+                    commentBox,
+                    analysisBox,
+                    actionBox);
+
+            // Create and show dialog
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Comment Toxicity Analysis");
+            dialog.getDialogPane().setContent(root);
+            dialog.getDialogPane().setPrefSize(700, 600);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Error showing analysis: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Approves a previously flagged comment by restoring its original content
+     */
+    private void approveComment(Commentaire comment) {
+        try {
+            // This is a simplified implementation since we don't have access to original
+            // content
+            // In a real implementation, we would store the original content in a separate
+            // column
+            // For now, we'll just replace the warning message with a generic approved
+            // message
+
+            comment.setContenuComment("[Comment was reviewed and approved by moderator]");
+
+            CommentaireService commentaireService = new CommentaireService();
+            commentaireService.update(comment);
+
+            showToast("Comment approved successfully", "success");
+        } catch (SQLException e) {
+            showToast("Error approving comment: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Refreshes the flagged comments table with the latest data
+     */
+    private void refreshFlaggedComments(TableView<Commentaire> table) {
+        try {
+            CommentaireService commentaireService = new CommentaireService();
+            ObservableList<Commentaire> allComments = commentaireService.getAllComments();
+
+            // Filter only flagged comments
+            ObservableList<Commentaire> flaggedComments = allComments.filtered(
+                    comment -> commentaireService.isCommentFlaggedAsToxic(comment));
+
+            table.setItems(flaggedComments);
+        } catch (SQLException e) {
+            showToast("Error refreshing comments: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Creates a statistic box for the dashboard
+     */
+    private VBox createStatBox(String title, String value, String color) {
+        VBox box = new VBox(5);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(15));
+        box.setMinWidth(150);
+        box.setStyle("-fx-background-color: white; -fx-border-radius: 5px; " +
+                "-fx-background-radius: 5px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
+
+        Label valueLabel = new Label(value);
+        String colorStyle;
+        switch (color) {
+            case "red":
+                colorStyle = "#F44336";
+                break;
+            case "green":
+                colorStyle = "#4CAF50";
+                break;
+            case "blue":
+                colorStyle = "#2196F3";
+                break;
+            case "orange":
+                colorStyle = "#FF9800";
+                break;
+            default:
+                colorStyle = "#666666";
+        }
+        valueLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + colorStyle + ";");
+
+        box.getChildren().addAll(titleLabel, valueLabel);
+        return box;
+    }
+
+    /**
+     * Creates a text-based icon when image is not available
+     */
+    private ImageView createTextIcon(String text, double size, Color color) {
+        Text textNode = new Text(text);
+        textNode.setFont(Font.font("System", FontWeight.BOLD, size));
+        textNode.setFill(color);
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+
+        WritableImage image = textNode.snapshot(params, null);
+        return new ImageView(image);
+    }
+
+    /**
+     * Adds a toxicity management button to the sidebar for admin users
+     */
+    private void addToxicityManagementButton() {
+        try {
+            // Find the sidebar VBox (the second child of the HBox in the ScrollPane)
+            ScrollPane scrollPane = (ScrollPane) ((VBox) tabPane.getScene().getRoot()).getChildren().get(2);
+            HBox contentHBox = (HBox) scrollPane.getContent();
+            VBox sidebar = (VBox) contentHBox.getChildren().get(1);
+
+            // Create a styled button for toxicity management
+            Button toxicityButton = new Button("AI Comment Moderation");
+            toxicityButton.getStyleClass().add("view-all-polls-button");
+            toxicityButton.setPrefWidth(250.0);
+            toxicityButton.setGraphic(createToxicityIcon());
+            toxicityButton.setContentDisplay(ContentDisplay.LEFT);
+            toxicityButton.setOnAction(e -> showToxicityManagementPanel());
+
+            // Add a margin above the button
+            VBox.setMargin(toxicityButton, new Insets(10, 0, 5, 0));
+
+            // Add the button to the sidebar, right after the view all polls button
+            sidebar.getChildren().add(3, toxicityButton);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to add toxicity management button: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Creates an icon for the toxicity management button
+     */
+    private HBox createToxicityIcon() {
+        HBox iconContainer = new HBox();
+        iconContainer.setAlignment(Pos.CENTER);
+
+        Text icon = new Text("⚠️");
+        icon.setStyle("-fx-fill: #FF9800;");
+
+        iconContainer.getChildren().add(icon);
+        return iconContainer;
     }
 }

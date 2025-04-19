@@ -35,9 +35,6 @@
                 <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
                     <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
                     
-                    <!-- Direct Polls Button -->
-                    <Button text="Polls" styleClass="nav-button" onAction="#navigateToPolls"/>
-                    
                     <!-- Clubs dropdown container -->
                     <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
                         <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>

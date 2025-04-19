@@ -173,4 +173,9 @@ public class EmailService {
             return false;
         }
     }
+
+    public static EmailService getInstance() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    }
 }

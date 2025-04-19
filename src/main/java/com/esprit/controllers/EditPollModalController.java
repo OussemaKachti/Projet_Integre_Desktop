@@ -1,14 +1,20 @@
 package com.esprit.controllers;
 
 import com.esprit.models.ChoixSondage;
+import com.esprit.models.Club;
 import com.esprit.models.Sondage;
 import com.esprit.models.User;
+import com.esprit.models.ParticipationMembre;
 import com.esprit.services.ChoixSondageService;
 import com.esprit.services.SondageService;
+import com.esprit.services.ClubService;
+import com.esprit.services.ParticipationMembreService;
+import com.esprit.utils.EmailService;
 import com.esprit.utils.AlertUtils;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -51,6 +57,10 @@ public class EditPollModalController implements Initializable {
 
     private final SondageService sondageService = SondageService.getInstance();
     private final ChoixSondageService choixSondageService = new ChoixSondageService();
+    private final ClubService clubService = new ClubService();
+    private final EmailService emailService = EmailService.getInstance();
+    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    
     private Stage modalStage;
     private Sondage currentPoll;
     private User currentUser;
@@ -355,6 +365,14 @@ public class EditPollModalController implements Initializable {
             currentPoll.setQuestion(question);
 
             if (isCreateMode) {
+                // Find the club associated with the current user (president)
+                Club userClub = clubService.findByPresident(currentUser.getId());
+                if (userClub == null) {
+                    AlertUtils.showWarning("Avertissement", "Vous devez être président d'un club pour créer des sondages.");
+                    return;
+                }
+                currentPoll.setClub(userClub);
+                
                 // Create new poll
                 sondageService.add(currentPoll);
                 
@@ -365,14 +383,31 @@ public class EditPollModalController implements Initializable {
                     choix.setSondage(currentPoll);
                     choixSondageService.add(choix);
                 }
+                
+                // Send email notifications to club members
+                sendEmailsToClubMembers(currentPoll, userClub);
             } else {
                 // When updating an existing poll:
                 // 1. First update the poll question
+                String originalQuestion = sondageService.getById(currentPoll.getId()).getQuestion();
+                boolean questionChanged = !originalQuestion.equals(question);
+                
                 sondageService.update(currentPoll);
+                
+                boolean optionsChanged = false;
                 
                 try {
                     // 2. Get the current options from the database
                     List<ChoixSondage> existingOptions = sondageService.getChoixBySondage(currentPoll.getId());
+                    
+                    // Check if options are different from existing ones
+                    Set<String> existingOptionTexts = existingOptions.stream()
+                            .map(ChoixSondage::getContenu)
+                            .filter(text -> !text.startsWith("[Deprecated]"))
+                            .collect(Collectors.toSet());
+                    
+                    Set<String> newOptionTexts = new HashSet<>(options);
+                    optionsChanged = !existingOptionTexts.equals(newOptionTexts) || existingOptionTexts.size() != newOptionTexts.size();
                     
                     // 3. Update existing options and add new ones as needed
                     for (int i = 0; i < options.size(); i++) {
@@ -381,10 +416,14 @@ public class EditPollModalController implements Initializable {
                         if (i < existingOptions.size()) {
                             // Update existing option
                             ChoixSondage existingOption = existingOptions.get(i);
-                            existingOption.setContenu(optionContent);
-                            choixSondageService.update(existingOption);
+                            if (!existingOption.getContenu().equals(optionContent)) {
+                                optionsChanged = true;
+                                existingOption.setContenu(optionContent);
+                                choixSondageService.update(existingOption);
+                            }
                         } else {
                             // Add new option
+                            optionsChanged = true;
                             ChoixSondage newOption = new ChoixSondage();
                             newOption.setContenu(optionContent);
                             newOption.setSondage(currentPoll);
@@ -394,6 +433,7 @@ public class EditPollModalController implements Initializable {
                     
                     // 4. If there are more existing options than new ones, handle the excess
                     if (existingOptions.size() > options.size()) {
+                        optionsChanged = true;
                         for (int i = options.size(); i < existingOptions.size(); i++) {
                             ChoixSondage optionToRemove = existingOptions.get(i);
                             if (choixSondageService.getResponseCount(optionToRemove.getId()) > 0) {
@@ -402,6 +442,14 @@ public class EditPollModalController implements Initializable {
                             } else {
                                 choixSondageService.delete(optionToRemove.getId());
                             }
+                        }
+                    }
+                    
+                    // If poll question or options changed, send update notification emails
+                    if (questionChanged || optionsChanged) {
+                        Club club = currentPoll.getClub();
+                        if (club != null) {
+                            sendPollUpdateEmailsToClubMembers(currentPoll, club);
                         }
                     }
                     
@@ -446,5 +494,195 @@ public class EditPollModalController implements Initializable {
      */
     public void setOnSaveHandler(Runnable handler) {
         this.onSaveHandler = handler;
+    }
+    
+    /**
+     * Send email notifications to club members about a new poll
+     * 
+     * @param sondage the created poll
+     * @param club the club to which the poll belongs
+     */
+    private void sendEmailsToClubMembers(Sondage sondage, Club club) {
+        try {
+            // Get active club members (with "accepte" status)
+            List<ParticipationMembre> clubMembers = participationService.getParticipationsByClubAndStatut(
+                    club.getId(), "accepte");
+
+            // Prepare poll options for the email template
+            String[] optionsArray = sondage.getChoix().stream()
+                    .map(ChoixSondage::getContenu)
+                    .toArray(String[]::new);
+
+            int emailsSent = 0;
+            int emailErrors = 0;
+
+            // Log number of members to notify
+            System.out.println("Sending emails to " + clubMembers.size() + " club members");
+
+            // Send email to each member
+            for (ParticipationMembre participation : clubMembers) {
+                User member = participation.getUser();
+
+                // Check that the member has a valid email
+                if (member != null && member.getEmail() != null && !member.getEmail().isEmpty()) {
+                    // Create personalized HTML content
+                    String emailContent = emailService.createNewPollEmailTemplate(
+                            club.getNom(),
+                            member.getLastName(),
+                            sondage.getQuestion(),
+                            optionsArray);
+
+                    // Send email asynchronously
+                    emailService.sendEmailAsync(
+                            member.getEmail(),
+                            "Nouveau sondage dans votre club: " + club.getNom(),
+                            emailContent)
+                            .thenAccept(success -> {
+                                if (success) {
+                                    System.out.println("Email sent successfully to: " + member.getEmail());
+                                } else {
+                                    System.err.println("Failed to send email to: " + member.getEmail());
+                                }
+                            });
+
+                    emailsSent++;
+                } else {
+                    System.out.println("Member doesn't have a valid email: " +
+                            (member != null ? member.getFullName() : "null"));
+                    emailErrors++;
+                }
+            }
+
+            // Display summary of emails sent
+            if (emailsSent > 0) {
+                System.out.println(String.format("Notification emails sent to %d club members", emailsSent));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error sending notification emails: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Send email notifications to club members about a poll update
+     * 
+     * @param sondage the updated poll
+     * @param club the club to which the poll belongs
+     */
+    private void sendPollUpdateEmailsToClubMembers(Sondage sondage, Club club) {
+        try {
+            // Get active club members (with "accepte" status)
+            List<ParticipationMembre> clubMembers = participationService.getParticipationsByClubAndStatut(
+                    club.getId(), "accepte");
+
+            // Prepare poll options for the email template (excluding deprecated options)
+            String[] optionsArray = sondage.getChoix().stream()
+                    .map(ChoixSondage::getContenu)
+                    .filter(text -> !text.startsWith("[Deprecated]"))
+                    .toArray(String[]::new);
+
+            int emailsSent = 0;
+
+            // Log number of members to notify
+            System.out.println("Sending poll update emails to " + clubMembers.size() + " club members");
+
+            // Send email to each member
+            for (ParticipationMembre participation : clubMembers) {
+                User member = participation.getUser();
+
+                // Check that the member has a valid email
+                if (member != null && member.getEmail() != null && !member.getEmail().isEmpty()) {
+                    // Create personalized HTML content for update notification
+                    String emailContent = createPollUpdateEmailTemplate(
+                            club.getNom(),
+                            member.getLastName(),
+                            sondage.getQuestion(),
+                            optionsArray);
+
+                    // Send email asynchronously
+                    emailService.sendEmailAsync(
+                            member.getEmail(),
+                            "Mise à jour d'un sondage: " + club.getNom(),
+                            emailContent)
+                            .thenAccept(success -> {
+                                if (success) {
+                                    System.out.println("Update email sent successfully to: " + member.getEmail());
+                                } else {
+                                    System.err.println("Failed to send update email to: " + member.getEmail());
+                                }
+                            });
+
+                    emailsSent++;
+                }
+            }
+
+            // Display summary of emails sent
+            if (emailsSent > 0) {
+                System.out.println(String.format("Poll update emails sent to %d club members", emailsSent));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error sending poll update emails: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Creates a custom HTML template for poll update notifications
+     */
+    private String createPollUpdateEmailTemplate(String clubName, String memberName, String pollQuestion, String[] options) {
+        StringBuilder optionsHtml = new StringBuilder();
+        for (String option : options) {
+            optionsHtml.append("<div style=\"background-color: #f5f5f5; padding: 8px; margin: 5px 0; border-radius: 4px;\">")
+                      .append(option)
+                      .append("</div>");
+        }
+        
+        return "<!DOCTYPE html>\n" +
+               "<html>\n" +
+               "<head>\n" +
+               "    <meta charset=\"UTF-8\">\n" +
+               "    <style>\n" +
+               "        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }\n" +
+               "        .header { background-color: #4b83cd; color: white; padding: 10px 20px; }\n" +
+               "        .content { padding: 20px; }\n" +
+               "        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 30px; }\n" +
+               "        .button { display: inline-block; background-color: #4b83cd; color: white; padding: 10px 20px; \n" +
+               "                 text-decoration: none; border-radius: 5px; margin-top: 15px; }\n" +
+               "        .choices { margin: 15px 0; }\n" +
+               "        .choice { background-color: #f5f5f5; padding: 8px; margin: 5px 0; border-radius: 4px; }\n" +
+               "    </style>\n" +
+               "</head>\n" +
+               "<body>\n" +
+               "    <div class=\"header\">\n" +
+               "        <h2>Mise à jour d'un sondage dans " + clubName + "</h2>\n" +
+               "    </div>\n" +
+               "    \n" +
+               "    <div class=\"content\">\n" +
+               "        <p>Bonjour " + memberName + ",</p>\n" +
+               "        \n" +
+               "        <p>Un sondage a été mis à jour dans votre club <strong>" + clubName + "</strong>.</p>\n" +
+               "        \n" +
+               "        <h3>" + pollQuestion + "</h3>\n" +
+               "        \n" +
+               "        <div class=\"choices\">\n" +
+               "            <p>Options disponibles:</p>\n" +
+               optionsHtml.toString() +
+               "        </div>\n" +
+               "        \n" +
+               "        <p>Connectez-vous à la plateforme pour participer au sondage.</p>\n" +
+               "        \n" +
+               "        <a href=\"#\" class=\"button\">Voter dans le sondage</a>\n" +
+               "        \n" +
+               "        <p>Si vous avez déjà voté, vous pouvez modifier votre vote.</p>\n" +
+               "    </div>\n" +
+               "    \n" +
+               "    <div class=\"footer\">\n" +
+               "        <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>\n" +
+               "        <p>© " + java.time.Year.now().getValue() + " " + clubName + "</p>\n" +
+               "    </div>\n" +
+               "</body>\n" +
+               "</html>";
     }
 }
