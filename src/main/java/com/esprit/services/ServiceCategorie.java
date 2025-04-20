@@ -64,4 +64,52 @@ public class ServiceCategorie implements IService<Categorie> {
         return categories;
     }
 
+    // Méthode pour obtenir les statistiques d'utilisation des catégories
+    public List<CategoryUsage> getCategoriesUsageStats() throws SQLException {
+        List<CategoryUsage> stats = new ArrayList<>();
+
+        // Cette requête compte combien d'événements sont associés à chaque catégorie
+        String req = "SELECT c.id, c.nom_cat, COUNT(e.id) as count " +
+                "FROM categorie c " +
+                "LEFT JOIN evenement e ON c.id = e.categorie_id " + // Changement de table club à evenement
+                "GROUP BY c.id, c.nom_cat " +
+                "ORDER BY count DESC";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(req);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String nom = rs.getString("nom_cat");
+            int count = rs.getInt("count");
+            stats.add(new CategoryUsage(id, nom, count));
+        }
+
+        return stats;
+    }
+
+    // Classe pour stocker les données d'utilisation des catégories
+    public static class CategoryUsage {
+        private int id;
+        private String name;
+        private int count;
+
+        public CategoryUsage(int id, String name, int count) {
+            this.id = id;
+            this.name = name;
+            this.count = count;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
 }

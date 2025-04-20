@@ -130,7 +130,7 @@
                     <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
                         <!-- Search Box -->
                         <TextField fx:id="searchField" prefWidth="250.0" promptText="Search events..." />
-                        <Button fx:id="searchButton" styleClass="button-primary" text="Search" />
+
                         <Circle fill="#1e90ff" radius="18" />
                     </HBox>
                 </HBox>
