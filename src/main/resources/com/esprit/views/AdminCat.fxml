@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
@@ -132,172 +134,184 @@
                 </HBox>
             </top>
 
-            <!-- Main Content -->
+            <!-- Main Content - Now in a ScrollPane -->
             <center>
-                <VBox prefHeight="553.0" prefWidth="852.0" style="-fx-padding: 30 40;">
-               <Label prefHeight="26.0" prefWidth="262.0" style="-fx-text-fill: #333333;" text="Categories">
-                  <font>
-                     <Font name="Arial Bold" size="21.0" />
-                  </font>
-               </Label>
-                    <!-- Page Info -->
-                    <HBox alignment="CENTER_LEFT" prefHeight="22.0" prefWidth="638.0" spacing="15">
-                        <VBox>
-                            <!-- TEXTE PLUS CLAIR: "Manage all your club categories" -->
-                            <Label style="-fx-text-fill: #333333;" text="Manage all your club categories from here">
-                                <font>
-                                    <Font name="Arial" size="21.0" />
-                                </font>
-                            </Label>
-                        </VBox>
-
-                        <Region HBox.hgrow="ALWAYS" />
-
-                        <Label fx:id="dateLabel" style="-fx-text-fill: #666666;" text="Today: Tuesday, April 15, 2025">
-                            <font>
-                                <Font name="Arial Italic" size="14" />
-                            </font>
-                        </Label>
-                    </HBox>
-
-                    <HBox style="-fx-padding: 30 0 20 0;">
-                        <!-- Stats Card 1 -->
-                        <VBox maxWidth="228.0" minWidth="200" prefHeight="86.0" prefWidth="228.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                     <Label prefHeight="26.0" prefWidth="184.0" style="-fx-text-fill: #333333;" text="Total Categories">
-                        <font>
-                           <Font name="Arial Bold" size="21.0" />
-                        </font>
-                     </Label>
-                            <Label fx:id="totalCategoriesLabel" prefHeight="18.0" prefWidth="142.0" style="-fx-text-fill: #040f71; -fx-font-weight: bold;" text="24">
-                                <font>
-                                    <Font name="Arial Bold" size="32.0" />
-                                </font>
-                            </Label>
-                        </VBox>
-
-                        <Region prefWidth="50" />
-
-                        <!-- Stats Card 2 -->
-                        <VBox maxWidth="230.0" minWidth="200" prefHeight="82.0" prefWidth="230.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                     <Label prefHeight="26.0" prefWidth="184.0" style="-fx-text-fill: #333333;" text="Most Popular">
-                        <font>
-                           <Font name="Arial" size="21.0" />
-                        </font>
-                     </Label>
-                            <Label fx:id="popularCategoryLabel" prefHeight="18.0" prefWidth="222.0" style="-fx-text-fill: #28a745; -fx-font-weight: bold;" text="Sports">
-                                <font>
-                                    <Font name="Arial Bold" size="38" />
-                                </font>
-                            </Label>
-                            <!-- TEXTE PLUS CLAIR ET PLUS GRAND: "Most Popular" -->
-                            <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;">
-                                <font>
-                                    <Font name="Arial Bold" size="36.0" />
-                                </font>
-                            </Label>
-                        </VBox>
-                    </HBox>
-
-                    <!-- Main Working Area -->
-                    <HBox spacing="20" style="-fx-padding: 10 0 0 0;" VBox.vgrow="ALWAYS">
-                        <!-- Add Category Panel -->
-                        <VBox prefHeight="278.0" prefWidth="274.0" spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-                     <Label prefHeight="26.0" prefWidth="262.0" style="-fx-text-fill: #333333;" text="Add New Category">
-                        <font>
-                           <Font name="Arial Bold" size="21.0" />
-                        </font>
-                     </Label>
-
-                            <!-- TEXTE PLUS CLAIR ET PLUS GRAND: "Category Name" -->
-                            <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Category Name">
-                                <font>
-                                    <Font name="Arial Bold" size="20" />
-                                </font>
-                                <VBox.margin>
-                                    <Insets bottom="5" top="15" />
-                                </VBox.margin>
-                            </Label>
-
-                            <TextField fx:id="nomcattf" promptText="Enter category name" style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;">
-                                <font>
-                                    <Font name="Arial" size="16" />
-                                </font>
-                            </TextField>
-
-                            <!-- BOUTON PLUS GRAND ET ESPACE RÉDUIT -->
-                            <Button fx:id="ajoutercat" maxWidth="Infinity" onAction="#insererCategorie" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 18 20; -fx-font-weight: bold;" text="Add Category">
-                                <font>
-                                    <Font name="Arial Bold" size="20" />
-                                </font>
-                                <effect>
-                                    <DropShadow color="#00000033" radius="5" spread="0.02" />
-                                </effect>
-                                <VBox.margin>
-                                    <Insets top="20" />
-                                </VBox.margin>
-                            </Button>
-                        </VBox>
-
-                        <!-- Categories List Panel -->
-                        <VBox prefHeight="278.0" prefWidth="570.0" spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT">
-                                <!-- TEXTE PLUS CLAIR ET PLUS GRAND: "Available Categories" -->
-                                <Label style="-fx-text-fill: #000000; -fx-font-weight: bold;">
+                <ScrollPane fitToWidth="true" pannable="true" style="-fx-background-color: #f6f9fe; -fx-background: #f6f9fe; -fx-border-color: #f6f9fe;">
+                    <VBox prefHeight="800.0" prefWidth="852.0" spacing="15" style="-fx-padding: 15 25; -fx-background-color: #f6f9fe;">
+                        <!-- Header Section -->
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <VBox>
+                                <Label prefHeight="26.0" prefWidth="262.0" style="-fx-text-fill: #333333;" text="Categories">
                                     <font>
-                                        <Font name="Arial Bold" size="32" />
+                                        <Font name="Arial Bold" size="22.0" />
+                                    </font>
+                                </Label>
+                                <Label style="-fx-text-fill: #333333;" text="Manage all your club categories from here">
+                                    <font>
+                                        <Font name="Arial" size="16.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <Region HBox.hgrow="ALWAYS" />
+
+                            <Label fx:id="dateLabel" style="-fx-text-fill: #666666;" text="Today: Tuesday, April 15, 2025">
+                                <font>
+                                    <Font name="Arial Italic" size="14" />
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Stats Cards Row -->
+                        <HBox spacing="15">
+                            <!-- Stats Card 1 -->
+                            <VBox maxWidth="260.0" minWidth="200" prefHeight="70.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #333333;" text="Total Categories">
+                                    <font>
+                                        <Font name="Arial Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="totalCategoriesLabel" style="-fx-text-fill: #040f71; -fx-font-weight: bold;" text="24">
+                                    <font>
+                                        <Font name="Arial Bold" size="26.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Stats Card 2 -->
+                            <VBox maxWidth="260.0" minWidth="200" prefHeight="70.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #333333;" text="Most Popular">
+                                    <font>
+                                        <Font name="Arial Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="popularCategoryLabel" style="-fx-text-fill: #28a745; -fx-font-weight: bold;" text="Sports">
+                                    <font>
+                                        <Font name="Arial Bold" size="26.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <Region prefWidth="100" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <!-- Top Row: Form and List side by side -->
+                        <HBox prefHeight="450.0" spacing="15">
+                            <!-- Add Category Panel - MODIFIED WIDTH -->
+                            <VBox minWidth="300.0" prefWidth="300.0" prefHeight="155.0" spacing="10"
+                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="NEVER">
+                                <Label style="-fx-text-fill: #333333;" text="Add New Category">
+                                    <font>
+                                        <Font name="Arial Bold" size="18.0" />
                                     </font>
                                 </Label>
 
-                                <Region HBox.hgrow="ALWAYS" />
-                        <Label prefHeight="26.0" prefWidth="941.0" style="-fx-text-fill: #333333;" text="Available Categories">
-                           <font>
-                              <Font name="Arial Bold" size="21.0" />
-                           </font>
-                        </Label>
-
-                                <Button fx:id="refreshButton" onAction="#handleRefresh" prefHeight="38.0" prefWidth="74.0" style="-fx-background-color: #eef2f7; -fx-text-fill: #444444; -fx-background-radius: 5; -fx-padding: 10 15; -fx-font-weight: bold;" text="Refresh">
+                                <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Category Name">
                                     <font>
-                                        <Font name="Arial Bold" size="25.0" />
+                                        <Font name="Arial Bold" size="14" />
                                     </font>
-                                    <HBox.margin>
-                                        <Insets left="10" />
-                                    </HBox.margin>
-                                </Button>
-                            </HBox>
-
-                            <!-- Category Filter Options avec texte plus grand et plus clair -->
-                            <HBox prefHeight="60.0" prefWidth="846.0" spacing="10" style="-fx-padding: 10 0;">
-                                <Button fx:id="allFilterButton" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-weight: bold;" text="All">
-                                    <font>
-                                        <Font name="Arial Bold" size="16" />
-                                    </font>
-                                </Button>
-
-                                <Button fx:id="inactiveFilterButton" style="-fx-background-color: #f0f0f0; -fx-text-fill: #444444; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-weight: bold;" text="Inactive">
-                                    <font>
-                                        <Font name="Arial Bold" size="16" />
-                                    </font>
-                                </Button>
-                            </HBox>
-
-                            <!-- Category List avec items plus grands -->
-                            <ListView fx:id="categoriesListView" style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #eeeeee; -fx-border-radius: 5; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-font-size: 18px;" VBox.vgrow="ALWAYS">
-                            </ListView>
-
-                            <!-- Footer with Pagination -->
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <!-- TEXTE PLUS CLAIR ET PLUS GRAND: pagination info -->
-                                <Label fx:id="paginationInfoLabel" style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Showing 1-10 of 24 categories">
-                                    <font>
-                                        <Font name="Arial Bold" size="16" />
-                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="15" />
+                                    </VBox.margin>
                                 </Label>
 
-                                <Region HBox.hgrow="ALWAYS" />
-                            </HBox>
+                                <TextField fx:id="nomcattf"
+                                           prefHeight="38.0"
+                                           prefWidth="250.0"
+                                           maxWidth="250.0"
+                                           promptText="Enter category name"
+                                           style="-fx-background-color: #f8f9fa;
+                  -fx-background-radius: 8;
+                  -fx-border-color: #dddddd;
+                  -fx-border-radius: 8;
+                  -fx-padding: 10;">
+                                    <font>
+                                        <Font name="Arial" size="14" />
+                                    </font>
+                                </TextField>
+
+
+                                <Button fx:id="ajoutercat"
+                                        prefWidth="250.0"
+                                        onAction="#insererCategorie"
+                                        style="-fx-background-color: #1e90ff;
+               -fx-text-fill: white;
+               -fx-background-radius: 8;
+               -fx-padding: 12;
+               -fx-font-weight: bold;"
+                                        text="Add Category">
+                                    <font>
+                                        <Font name="Arial Bold" size="14" />
+                                    </font>
+                                    <effect>
+                                        <DropShadow color="#00000033" radius="5" spread="0.02" />
+                                    </effect>
+                                    <VBox.margin>
+                                        <Insets top="15" />
+                                    </VBox.margin>
+                                </Button>
+
+                                <Region VBox.vgrow="ALWAYS" />
+                            </VBox>
+
+                            <!-- Categories List Panel - MODIFIED WIDTH -->
+                            <VBox prefHeight="279.0" prefWidth="800.0" minWidth="400.0" spacing="10"
+                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;
+                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);" HBox.hgrow="NEVER">
+                                <Label style="-fx-text-fill: #333333;" text="Available Categories">
+                                    <font>
+                                        <Font name="Arial Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <HBox alignment="CENTER_LEFT">
+                                    <Button fx:id="allFilterButton" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 5 15; -fx-font-weight: bold;" text="All">
+                                        <font>
+                                            <Font name="Arial Bold" size="12" />
+                                        </font>
+                                    </Button>
+
+                                    <Button fx:id="inactiveFilterButton" style="-fx-background-color: #f0f0f0; -fx-text-fill: #444444; -fx-background-radius: 20; -fx-padding: 5 15; -fx-font-weight: bold;" text="Inactive">
+                                        <font>
+                                            <Font name="Arial Bold" size="12" />
+                                        </font>
+                                    </Button>
+
+                                    <Region HBox.hgrow="NEVER" />
+
+                                    <Button fx:id="refreshButton" onAction="#handleRefresh" style="-fx-background-color: #eef2f7; -fx-text-fill: #444444; -fx-background-radius: 5; -fx-padding: 5 10; -fx-font-weight: bold;" text="Refresh">
+                                        <font>
+                                            <Font name="Arial Bold" size="12.0" />
+                                        </font>
+                                    </Button>
+                                </HBox>
+
+                                <!-- Category List - Kept large height -->
+                                <ListView fx:id="categoriesListView" maxHeight="Infinity" prefHeight="350.0" prefWidth="589.0" style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #eeeeee; -fx-border-radius: 5; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-font-size: 14px;" VBox.vgrow="ALWAYS">
+                                </ListView>
+
+                                <!-- Footer with Pagination -->
+                                <HBox alignment="CENTER_LEFT">
+                                    <Label fx:id="paginationInfoLabel" style="-fx-text-fill: #333333;" text="Showing 1-10 of 24 categories">
+                                        <font>
+                                            <Font name="Arial" size="12" />
+                                        </font>
+                                    </Label>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Bottom Row: PieChart (With Increased Height) -->
+                        <VBox prefHeight="500.0" prefWidth="700.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+                            <!-- PieChart - Significantly Increased Height -->
+                            <PieChart fx:id="categoryUsagePieChart" labelsVisible="true" legendSide="BOTTOM" prefHeight="360.0" prefWidth="700.0" VBox.vgrow="never">
+                                <VBox.margin>
+                                    <Insets top="3" />
+                                </VBox.margin>
+                            </PieChart>
                         </VBox>
-                    </HBox>
-                </VBox>
+                    </VBox>
+                </ScrollPane>
             </center>
 
             <!-- Footer -->
