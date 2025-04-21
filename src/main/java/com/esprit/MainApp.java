@@ -11,7 +11,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(
-            getClass().getResource("/com/esprit/views/sondage/MainSondage.fxml"));
+            getClass().getResource("/com/esprit/views.produit/AdminProduitView.fxml"));
         
         Scene scene = new Scene(root);
         primaryStage.setTitle("Gestion des Sondages");

@@ -12,6 +12,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProduitCardItemController {
 
@@ -26,6 +28,11 @@ public class ProduitCardItemController {
 
     private Produit produit;
     private final ProduitService produitService;
+    // Static cart shared across all instances
+    private static final Map<Integer, Integer> cart = new HashMap<>();
+    public static Map<Integer, Integer> getCart() {
+        return new HashMap<>(cart); // Return a copy for encapsulation
+    }
 
     public ProduitCardItemController() {
         this.produitService = ProduitService.getInstance();
@@ -91,11 +98,53 @@ public class ProduitCardItemController {
 
     @FXML
     private void addToCart() {
-        if (produit != null) {
+        /*if (produit != null) {
             // For now, just show an info message
             AlertUtils.showInfo("Panier", "Produit ajouté", 
-                "Le produit \"" + produit.getNomProd() + "\" a été ajouté au panier.");
+                "Le produit \"" + produit.getNomProd() + "\" a été ajouté au panier.");*/
             // TODO: Implement actual cart functionality
+            if (produit != null) {
+                try {
+                    // Check if product has available stock
+                    int availableQuantity = Integer.parseInt(produit.getQuantity());
+                    if (availableQuantity <= 0) {
+                        AlertUtils.showError("Erreur", "Stock épuisé",
+                                "Ce produit n'est plus disponible en stock.");
+                        return;
+                    }
+
+                    // Get current quantity in cart
+                    int currentCartQuantity = cart.getOrDefault(produit.getId(), 0);
+
+                    // Check if we can add more
+                    if (currentCartQuantity >= availableQuantity) {
+                        AlertUtils.showError("Erreur", "Quantité maximale atteinte",
+                                "Vous ne pouvez pas ajouter plus de ce produit que ce qui est disponible en stock.");
+                        return;
+                    }
+
+                    // Add to cart or increment quantity
+                    cart.put(produit.getId(), currentCartQuantity + 1);
+
+                    // Show success message
+                    AlertUtils.showInfo("Panier", "Produit ajouté",
+                            String.format("%s ajouté au panier\nQuantité: %d",
+                                    produit.getNomProd(), cart.get(produit.getId())));
+
+                    // Update any cart badge if exists
+                    //updateCartBadge();
+
+                    // Navigate to cart view after adding
+                    ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
+
+                } catch (NumberFormatException e) {
+                    AlertUtils.showError("Erreur", "Problème de quantité",
+                            "La quantité disponible pour ce produit est invalide.");
+                } catch (Exception e) {
+                    AlertUtils.showError("Erreur", "Impossible d'accéder au panier", e.getMessage());
+                }
+            }
+
         }
-    }
+
 } 

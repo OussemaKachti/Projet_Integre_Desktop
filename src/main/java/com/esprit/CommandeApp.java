@@ -18,7 +18,7 @@ public class CommandeApp extends Application {
 
     public static void showCommandeView() {
         try {
-            FXMLLoader loader = new FXMLLoader(CommandeApp.class.getResource("/views/produit/Commandeview.fxml"));
+            FXMLLoader loader = new FXMLLoader(CommandeApp.class.getResource("/views/produit/AdminProduitView.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);

@@ -1,36 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.StackPane?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.esprit.controllers.crud.ProduitCardController"
-      spacing="10"
-      style="-fx-background-color: #F5F5F5;">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.CartController" spacing="20"
+      style="-fx-background-color: #f5f5f5;" padding="20">
 
-    <!-- En-tête -->
-    <HBox alignment="CENTER_LEFT" spacing="10">
-        <Button fx:id="btnRetour" text="Retour à la gestion" onAction="#retourGestion"/>
-        <Label text="Catalogue des Produits" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-        <HBox HBox.hgrow="ALWAYS" />
-        <ComboBox fx:id="comboFilterClub" promptText="Filtrer par club"/>
-        <TextField fx:id="txtRecherche" promptText="Rechercher un produit" prefWidth="200"/>
+    <Label text="Votre Panier" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="tableView" style="-fx-background-color: white;">
+        <columns>
+            <TableColumn fx:id="colImage" text="Image" prefWidth="80">
+                <cellValueFactory>
+                    <PropertyValueFactory property="imageView" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colName" text="Produit" prefWidth="200">
+                <cellValueFactory>
+                    <PropertyValueFactory property="name" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colPrice" text="Prix (TND)" prefWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="price" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="quantity" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="200">
+                <cellValueFactory>
+                    <PropertyValueFactory property="dummy" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_RIGHT" spacing="20">
+        <Label fx:id="lblTotal" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Button text="Passer la Commande" style="-fx-background-color: #6200EE; -fx-text-fill: white;"
+                onAction="#proceedToCheckout"/>
     </HBox>
-
-    <!-- Contenu principal - Affichage des produits -->
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
-        <FlowPane fx:id="produitContainer" hgap="20" vgap="20">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-        </FlowPane>
-    </ScrollPane>
 </VBox>
