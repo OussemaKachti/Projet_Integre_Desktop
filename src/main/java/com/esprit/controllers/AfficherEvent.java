@@ -53,11 +53,23 @@ public class AfficherEvent implements Initializable {
     @FXML
     private Label totalEventsLabel;
 
+    // Add these new FXML components for pagination
+    @FXML
+    private Button prevPageButton;
+
+    @FXML
+    private Button nextPageButton;
+
+    @FXML
+    private Label pageInfoLabel;
+
     private ServiceEvent serviceEvent;
     private List<Evenement> allEvents;
 
-
-
+    // Pagination properties
+    private int currentPage = 1;
+    private final int ITEMS_PER_PAGE = 6; // Number of events to show per page
+    private int totalPages = 1;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -67,9 +79,67 @@ public class AfficherEvent implements Initializable {
         // Load events from database
         loadEvents();
 
+        // Set up pagination buttons
+        setupPagination();
+
         // Update total events count
         updateEventCounter();
     }
+
+    private void setupPagination() {
+        // Configure the pagination buttons
+        prevPageButton.setOnAction(event -> {
+            if (currentPage > 1) {
+                currentPage--;
+                displayCurrentPage();
+            }
+        });
+
+        nextPageButton.setOnAction(event -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayCurrentPage();
+            }
+        });
+
+        // Initial button states
+        updatePaginationControls();
+    }
+
+    private void updatePaginationControls() {
+        // Calculate total pages
+        if (allEvents != null) {
+            totalPages = (int) Math.ceil((double) allEvents.size() / ITEMS_PER_PAGE);
+        }
+
+        // Update page info label
+        pageInfoLabel.setText("Page " + currentPage + " of " + totalPages);
+
+        // Enable/disable buttons based on current page
+        prevPageButton.setDisable(currentPage <= 1);
+        nextPageButton.setDisable(currentPage >= totalPages);
+    }
+
+    private void displayCurrentPage() {
+        if (allEvents == null || allEvents.isEmpty()) {
+            eventsContainer.getChildren().clear();
+            return;
+        }
+
+        // Calculate start and end indices for current page
+        int startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, allEvents.size());
+
+        // Get events for current page
+        List<Evenement> currentPageEvents = allEvents.subList(startIndex, endIndex);
+
+        // Display the current page of events
+        displayEvents(currentPageEvents);
+
+        // Update pagination controls
+        updatePaginationControls();
+    }
+
     @FXML
     private void handleAddNewEvent() {
         try {
@@ -107,8 +177,8 @@ public class AfficherEvent implements Initializable {
                 allEvents.add(event);
             }
 
-            // Display events
-            displayEvents(allEvents);
+            // Instead of showing all events at once, show the first page
+            displayCurrentPage();
 
         } catch (SQLException ex) {
             System.err.println("Error loading events: " + ex.getMessage());
@@ -270,7 +340,7 @@ public class AfficherEvent implements Initializable {
         viewDetailsButton.setStyle("-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
         viewDetailsButton.setFont(new javafx.scene.text.Font("Arial Bold", 13));
 
-// Ajouter l'action pour le bouton "View Details"
+        // Ajouter l'action pour le bouton "View Details"
         viewDetailsButton.setOnAction(e -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/DetailsEvent.fxml"));
@@ -280,9 +350,7 @@ public class AfficherEvent implements Initializable {
                 DetailsEvent detailsController = loader.getController();
                 detailsController.setEventData(event);
 
-
                 viewDetailsButton.getScene().setRoot(root);
-
 
             } catch (IOException ex) {
                 System.err.println("Error loading DetailsEvent.fxml: " + ex.getMessage());
@@ -295,7 +363,10 @@ public class AfficherEvent implements Initializable {
         registerButton.setFont(new javafx.scene.text.Font("Arial Bold", 13));
 
         // Disable registration if event is closed
-
+        if ("Closed".equalsIgnoreCase(eventType)) {
+            registerButton.setDisable(true);
+            registerButton.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #999999; -fx-background-radius: 20; -fx-border-color: #cccccc; -fx-border-radius: 20; -fx-padding: 8 15;");
+        }
 
         buttonsBox.getChildren().addAll(viewDetailsButton, registerButton);
 
@@ -318,6 +389,76 @@ public class AfficherEvent implements Initializable {
     private void updateEventCounter() {
         if (totalEventsLabel != null && allEvents != null) {
             totalEventsLabel.setText("Total Events: " + allEvents.size());
+        }
+    }
+
+    // Search functionality
+    @FXML
+    private void handleSearch() {
+        String searchText = searchField.getText().toLowerCase().trim();
+        List<Evenement> filteredEvents = new ArrayList<>();
+
+        // Filter events based on search text
+        for (Evenement event : allEvents) {
+            if (event.getNom_event().toLowerCase().contains(searchText) ||
+                    event.getDesc_event().toLowerCase().contains(searchText) ||
+                    event.getLieux().toLowerCase().contains(searchText)) {
+                filteredEvents.add(event);
+            }
+        }
+
+        // Reset to first page when searching
+        currentPage = 1;
+
+        // Display filtered events
+        if (filteredEvents.isEmpty() && !searchText.isEmpty()) {
+            eventsContainer.getChildren().clear();
+            Label noResultsLabel = new Label("No events found matching your search.");
+            noResultsLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 16px;");
+            eventsContainer.getChildren().add(noResultsLabel);
+
+            // Update pagination for no results
+            totalPages = 1;
+            pageInfoLabel.setText("Page 0 of 0");
+            prevPageButton.setDisable(true);
+            nextPageButton.setDisable(true);
+        } else {
+            allEvents = searchText.isEmpty() ? loadAllEvents() : filteredEvents;
+            displayCurrentPage();
+        }
+    }
+
+    // Helper method to reload all events for when search is cleared
+    private List<Evenement> loadAllEvents() {
+        try {
+            Connection conn = DataSource.getInstance().getCnx();
+            String query = "SELECT * FROM evenement ORDER BY start_date DESC";
+            PreparedStatement pst = conn.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
+
+            List<Evenement> events = new ArrayList<>();
+
+            while (rs.next()) {
+                Evenement event = new Evenement();
+                event.setId(rs.getInt("id"));
+                event.setNom_event(rs.getString("nom_event"));
+                event.setType(rs.getString("type"));
+                event.setDesc_event(rs.getString("desc_event"));
+                event.setImage_description(rs.getString("image_description"));
+                event.setLieux(rs.getString("lieux"));
+                event.setClub_id(rs.getInt("club_id"));
+                event.setCategorie_id(rs.getInt("categorie_id"));
+                event.setStart_date(rs.getDate("start_date"));
+                event.setEnd_date(rs.getDate("end_date"));
+
+                events.add(event);
+            }
+
+            return events;
+
+        } catch (SQLException ex) {
+            System.err.println("Error loading events: " + ex.getMessage());
+            return new ArrayList<>();
         }
     }
 }
