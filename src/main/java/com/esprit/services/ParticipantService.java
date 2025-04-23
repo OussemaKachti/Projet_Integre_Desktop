@@ -12,13 +12,14 @@ public class ParticipantService {
     private final Connection cnx;
 
     public ParticipantService() {
-        cnx = DatabaseConnection.getInstance();
+        cnx = DatabaseConnection.getInstance().getCnx();
     }
+
     public void ajouter(Participant p) {
         String req = "INSERT INTO participation_membre(user_id, club_id, date_request, statut, description) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(req)) {
-            pst.setInt(1, p.getUser_id());
-            pst.setInt(2, p.getUser_id());
+            pst.setInt(1, p.getUser_id());  // Corrected the user_id
+            pst.setInt(2, p.getClub_id());  // Corrected the club_id (was incorrectly set to user_id before)
             pst.setTimestamp(3, Timestamp.valueOf(p.getDate_request()));
             pst.setString(4, p.getStatut());
             pst.setString(5, p.getDescription());
@@ -45,14 +46,21 @@ public class ParticipantService {
         }
     }
 
-    public void supprimer(int id) {
+    public boolean supprimer(int id) throws SQLException {
         String req = "DELETE FROM participation_membre WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(req)) {
             pst.setInt(1, id);
-            pst.executeUpdate();
-            System.out.println("Participant supprimé avec succès !");
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Participant supprimé avec succès !");
+                return true;
+            } else {
+                System.out.println("Aucun participant trouvé avec l'ID: " + id);
+                return false;
+            }
         } catch (SQLException e) {
             System.err.println("Erreur de suppression : " + e.getMessage());
+            throw e; // Re-throw the exception to be handled by the controller
         }
     }
 
@@ -78,5 +86,10 @@ public class ParticipantService {
         }
 
         return list;
+    }
+
+    public Iterable<Throwable> getAllParticipants() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllParticipants'");
     }
 }
