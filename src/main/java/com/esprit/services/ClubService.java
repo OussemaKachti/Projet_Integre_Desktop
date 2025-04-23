@@ -1,31 +1,19 @@
 package com.esprit.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.esprit.models.Club;
 import com.esprit.utils.DatabaseConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClubService {
 
     private final Connection cnx;
-    private static ClubService instance;
 
     // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
-        cnx = DatabaseConnection.getInstance();
-    }
-    
-    public static ClubService getInstance() {
-        if (instance == null) {
-            instance = new ClubService();
-        }
-        return instance;
+        cnx = DatabaseConnection.getInstance().getCnx();
     }
 
     // Ajouter un club
@@ -95,7 +83,6 @@ public class ClubService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
         return clubs;
     }
 
@@ -121,65 +108,6 @@ public class ClubService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return club;
-    }
-
-    // Get a club by ID (renamed method to match other callers)
-    public Club getById(int id) {
-        return getClubById(id);
-    }
-    
-    // Find clubs by president ID
-    public List<Club> findByPresident(int presidentId) {
-        List<Club> clubs = new ArrayList<>();
-        String query = "SELECT * FROM club WHERE president_id = ?";
-        
-        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
-            stmt.setInt(1, presidentId);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                Club club = new Club();
-                club.setId(rs.getInt("id"));
-                club.setPresidentId(rs.getInt("president_id"));
-                club.setNomC(rs.getString("nom_c"));
-                club.setDescription(rs.getString("description"));
-                club.setStatus(rs.getString("status"));
-                club.setImage(rs.getString("image"));
-                club.setPoints(rs.getInt("points"));
-                clubs.add(club);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return clubs;
-    }
-    
-    // Get all clubs (renamed to match standard service pattern)
-    public List<Club> getAll() {
-        return afficher();
-    }
-
-    // Find the first club by president ID
-    public Club findFirstByPresident(int presidentId) {
-        List<Club> clubs = findByPresident(presidentId);
-        if (clubs != null && !clubs.isEmpty()) {
-            return clubs.get(0);
-        }
-        return null;
-    }
-    
-    // Helper method to map result set to Club object
-    private Club mapResultSetToClub(ResultSet rs) throws SQLException {
-        Club club = new Club();
-        club.setId(rs.getInt("id"));
-        club.setPresidentId(rs.getInt("president_id"));
-        club.setNomC(rs.getString("nom_c"));
-        club.setDescription(rs.getString("description"));
-        club.setStatus(rs.getString("status"));
-        club.setImage(rs.getString("image"));
-        club.setPoints(rs.getInt("points"));
         return club;
     }
 }

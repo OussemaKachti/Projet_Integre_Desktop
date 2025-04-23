@@ -1,3 +1,4 @@
+/*
 module com.esprit {
     requires javafx.controls;
     requires javafx.fxml;
@@ -26,3 +27,5 @@ module com.esprit {
     exports com.esprit.services;
     exports com.esprit.utils;
 }
+
+ */

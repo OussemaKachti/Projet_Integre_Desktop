@@ -67,7 +67,7 @@ public class ClubController {
             showError("Erreur lors du chargement des clubs: " + e.getMessage());
         }
     }
-
+    //    @FXML
     private void loadClubs() throws SQLException {
         clubs.clear();
         clubs.addAll(clubService.afficher());
@@ -76,14 +76,12 @@ public class ClubController {
 
     @FXML
     private void ajouterClub() {
-        // Vérifier si les champs sont vides
+        // Vérifier si les champs obligatoires sont vides
         if (idField.getText().isEmpty() ||
                 presidentIdField.getText().isEmpty() ||
                 nomCField.getText().isEmpty() ||
                 descriptionField.getText().isEmpty() ||
-                statusField.getText().isEmpty() ||
-                imageField.getText().isEmpty() ||
-                pointsField.getText().isEmpty()) {
+                imageField.getText().isEmpty()) {
 
             showError("Tous les champs doivent être remplis !");
             return;
@@ -113,9 +111,11 @@ public class ClubController {
         try {
             int id = Integer.parseInt(idField.getText());
             int presidentId = Integer.parseInt(presidentIdField.getText());
-            String status = statusField.getText();
             String image = imageField.getText();
-            int points = Integer.parseInt(pointsField.getText());
+
+            // ✅ Statut et points par défaut
+            String status = "en_attente";
+            int points = 0;
 
             Club club = new Club(id, presidentId, nomC, description, status, image, points);
             clubService.ajouter(club); // Ajouter le club dans la base de données
@@ -124,9 +124,10 @@ public class ClubController {
 
             showSuccess("Club ajouté avec succès !");
         } catch (NumberFormatException e) {
-            showError("Veuillez entrer des valeurs numériques valides pour ID, président et points.");
+            showError("Veuillez entrer des valeurs numériques valides pour ID et président.");
         }
     }
+
 
 
 
@@ -182,7 +183,7 @@ public class ClubController {
             return;
         }
 
-        selectedClub.setStatus("Accepté");
+        selectedClub.setStatus("accepte");
         clubService.modifier(selectedClub); // Mettre à jour le statut
         refreshClubList(); // Rafraîchir la liste des clubs
         clearForm();

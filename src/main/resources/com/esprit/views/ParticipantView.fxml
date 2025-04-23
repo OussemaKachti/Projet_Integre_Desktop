@@ -62,26 +62,17 @@
                 <Label text="Statut"
                        GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2"
                        style="-fx-text-fill: #34495e; -fx-font-weight: bold;" />
-                <ComboBox fx:id="statutBox"
-                          GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                          style="-fx-background-radius: 10; -fx-padding: 8; -fx-pref-width: 300px;">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="en_attente"/>
-                            <String fx:value="accepté"/>
-                            <String fx:value="refusé"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                <TextField fx:id="statutField"
+                           GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="2"
+                           style="-fx-background-radius: 10; -fx-padding: 10; -fx-pref-width: 300px;"
+                           editable="false"/>
             </GridPane>
 
             <!-- Action buttons -->
             <HBox spacing="20" alignment="CENTER">
-                <Button text="➕ Ajouter" onAction="#ajouterParticipant"
+                <Button text="✅ Accepter" onAction="#accepterParticipant"
                         style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 25;" />
-                <Button text="✏️Modifier" onAction="#modifierParticipant"
-                        style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 25;" />
-                <Button text="🗑️Supprimer" onAction="#supprimerParticipant"
+                <Button text="🗑️ Supprimer" onAction="#supprimerParticipant"
                         style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 25;" />
             </HBox>
 
