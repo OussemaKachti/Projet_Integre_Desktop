@@ -6,6 +6,7 @@ import com.esprit.models.User;
 import com.esprit.services.CommentaireService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
+import com.esprit.utils.TranslationService;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -206,6 +207,27 @@ public class CommentsModalController implements Initializable {
         commentText.setWrapText(true);
         commentText.setPadding(new Insets(5, 0, 5, 50));
         
+        // Translation container (initially hidden)
+        VBox translationContainer = new VBox(5);
+        translationContainer.getStyleClass().add("translation-container");
+        translationContainer.setVisible(false);
+        translationContainer.setManaged(false);
+        
+        Label translatedContent = new Label();
+        translatedContent.getStyleClass().add("translated-text");
+        translatedContent.setWrapText(true);
+        
+        Label originalLanguageLabel = new Label();
+        originalLanguageLabel.getStyleClass().add("language-label");
+        
+        Label translatedLanguageLabel = new Label();
+        translatedLanguageLabel.getStyleClass().add("language-label");
+        
+        HBox languageLabels = new HBox(10);
+        languageLabels.getChildren().addAll(originalLanguageLabel, translatedLanguageLabel);
+        
+        translationContainer.getChildren().addAll(languageLabels, translatedContent);
+        
         // Check if comment is flagged as toxic
         boolean isToxic = comment.getContenuComment().startsWith("⚠️ Comment hidden");
         
@@ -213,6 +235,34 @@ public class CommentsModalController implements Initializable {
         HBox actionBox = new HBox(10);
         actionBox.setAlignment(Pos.CENTER_RIGHT);
         actionBox.setPadding(new Insets(5, 0, 0, 50));
+        
+        // Add translate button
+        Button translateButton = new Button("Translate");
+        translateButton.getStyleClass().add("translate-button");
+        translateButton.setOnAction(e -> {
+            if (translationContainer.isVisible()) {
+                translationContainer.setVisible(false);
+                translationContainer.setManaged(false);
+                translateButton.setText("Translate");
+            } else {
+                translateButton.setText("Hide Translation");
+                translationContainer.setVisible(true);
+                translationContainer.setManaged(true);
+                
+                // Get translation service instance
+                TranslationService translationService = TranslationService.getInstance();
+                
+                // Call translation service
+                translationService.detectAndTranslate(
+                    comment.getContenuComment(),
+                    translatedContent,
+                    originalLanguageLabel,
+                    translatedLanguageLabel
+                );
+            }
+        });
+        
+        actionBox.getChildren().add(translateButton);
         
         if (!isToxic && currentUser != null && comment.getUser().getId() == currentUser.getId()) {
             // Edit components
@@ -258,6 +308,11 @@ public class CommentsModalController implements Initializable {
                         editButton.setVisible(true);
                         updateButton.setVisible(false);
                         
+                        // Reset translation if visible
+                        translationContainer.setVisible(false);
+                        translationContainer.setManaged(false);
+                        translateButton.setText("Translate");
+                        
                         // Refresh parent view
                         if (parentController != null) {
                             parentController.refreshData();
@@ -289,16 +344,16 @@ public class CommentsModalController implements Initializable {
             });
             
             actionBox.getChildren().addAll(editButton, deleteButton);
-            commentBox.getChildren().addAll(headerBox, commentText, editTextArea, actionBox);
+            commentBox.getChildren().addAll(headerBox, commentText, editTextArea, translationContainer, actionBox);
         } else {
-            // For toxic comments or comments by other users, just show the content without actions
+            // For toxic comments or comments by other users, just show the content without edit/delete actions
             if (isToxic) {
                 // Add a moderation badge
                 Label moderationLabel = new Label("Moderated Content");
                 moderationLabel.setStyle("-fx-text-fill: #F44336; -fx-font-style: italic; -fx-font-size: 12px;");
                 actionBox.getChildren().add(moderationLabel);
             }
-            commentBox.getChildren().addAll(headerBox, commentText, actionBox);
+            commentBox.getChildren().addAll(headerBox, commentText, translationContainer, actionBox);
         }
         
         return commentBox;

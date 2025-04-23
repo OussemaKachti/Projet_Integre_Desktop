@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.esprit.utils.SpeechRecognitionService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -227,14 +226,4 @@ public static void loadForgotPasswordUI(String email) {
     }
 }
 
-@Override
-public void stop() {
-    try {
-        // Clean up resources
-        SpeechRecognitionService.getInstance().shutdown();
-        LOGGER.info("Application shutdown successfully");
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error during application shutdown", e);
-    }
-}
 }

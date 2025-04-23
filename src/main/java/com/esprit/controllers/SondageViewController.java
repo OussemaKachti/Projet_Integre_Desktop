@@ -18,7 +18,6 @@ import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
 import com.esprit.utils.NavigationManager;
 import com.esprit.utils.EmailService;
-import com.esprit.utils.SpeechRecognitionService;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -519,23 +518,9 @@ public class SondageViewController implements Initializable {
         micButton.setTooltip(new Tooltip("Click to speak your comment"));
 
         // Get speech recognition service and check availability
-        SpeechRecognitionService speechService = SpeechRecognitionService.getInstance();
 
         // If speech recognition is not available, disable the button
-        if (!speechService.isAvailable()) {
-            micButton.setDisable(true);
-            micButton.setTooltip(new Tooltip("Speech recognition is not available"));
-        } else {
-            micButton.setOnAction(event -> {
-                if (speechService.isRecognizing()) {
-                    speechService.stopRecognition();
-                } else {
-                    // Show a toast notification that the microphone is active
-                    showToast("Microphone active! Start speaking...", "info");
-                    speechService.startRecognition(commentTextArea, micButton);
-                }
-            });
-        }
+       
 
         // Add components to the container
         commentInputContainer.getChildren().addAll(commentTextArea, micButton);
