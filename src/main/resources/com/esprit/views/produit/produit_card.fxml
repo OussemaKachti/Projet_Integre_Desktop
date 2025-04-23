@@ -15,7 +15,11 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.esprit.controllers.crud.CartController" spacing="20"
-      style="-fx-background-color: #f5f5f5;" padding="20">
+      style="-fx-background-color: #f5f5f5;">
+<padding>
+    <Insets top="20" right="20" bottom="20" left="20"/>
+</padding>
+
 
     <Label text="Votre Panier" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 

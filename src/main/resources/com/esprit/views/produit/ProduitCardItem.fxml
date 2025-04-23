@@ -25,8 +25,8 @@
         </HBox>
         <HBox alignment="CENTER" spacing="10.0">
             <children>
-                <Button fx:id="btnDetails" onAction="#viewDetails" text="Détails" />
-                <Button fx:id="btnAddToCart" onAction="#addToCart" text="Ajouter au panier" />
+                <Button fx:id="btnDetails" onAction="#viewDetails" text="Details" />
+                <Button fx:id="btnAddToCart" onAction="#addToCart" text="Add to card" />
             </children>
         </HBox>
     </children>

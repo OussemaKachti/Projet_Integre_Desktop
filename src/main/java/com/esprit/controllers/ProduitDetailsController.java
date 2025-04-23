@@ -157,10 +157,41 @@ public class ProduitDetailsController implements Initializable {
     @FXML
     private void ajouterAuPanier() {
         int quantity = spinnerQuantity.getValue();
-        
-        // TODO: Implémenter le panier
-        AlertUtils.showInfo("Panier", "Produit ajouté", 
-            String.format("%d × %s ajouté(s) au panier", quantity, selectedProduit.getNomProd()));
+
+        if (selectedProduit != null) {
+            try {
+                // Vérifier si le produit a du stock disponible
+                int availableQuantity = Integer.parseInt(selectedProduit.getQuantity());
+                if (availableQuantity <= 0) {
+                    AlertUtils.showError("Erreur", "Stock épuisé",
+                            "Ce produit n'est plus disponible en stock.");
+                    return;
+                }
+
+                // Vérifier si on peut ajouter la quantité demandée
+                if (quantity > availableQuantity) {
+                    AlertUtils.showError("Erreur", "Quantité non disponible",
+                            String.format("Il ne reste que %d unité(s) disponible(s) pour ce produit.", availableQuantity));
+                    return;
+                }
+
+                // TODO: Implémenter l'ajout au panier avec la quantité
+                // (remplacer par votre logique de panier comme dans l'exemple)
+
+                AlertUtils.showInfo("Panier", "Produit ajouté",
+                        String.format("%d × %s ajouté(s) au panier", quantity, selectedProduit.getNomProd()));
+
+                // Navigation vers la page produit_card.fxml
+                ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
+
+            } catch (NumberFormatException e) {
+                AlertUtils.showError("Erreur", "Problème de quantité",
+                        "La quantité disponible pour ce produit est invalide.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                AlertUtils.showError("Erreur", "Impossible d'ajouter au panier", e.getMessage());
+            }
+        }
     }
 
     /**
@@ -175,6 +206,7 @@ public class ProduitDetailsController implements Initializable {
         AlertUtils.showInfo("Achat", "Achat direct", 
             String.format("Achat de %d × %s pour un total de %.2f €", 
                 quantity, selectedProduit.getNomProd(), total));
+
     }
 
     /**

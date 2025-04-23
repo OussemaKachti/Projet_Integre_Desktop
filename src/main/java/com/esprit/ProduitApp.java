@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -43,18 +44,20 @@ public class ProduitApp extends Application {
      */
     public static void navigateTo(String fxmlPath) {
         try {
-            URL fxmlUrl = ProduitApp.class.getResource(fxmlPath);
-            if (fxmlUrl == null) {
-                throw new IllegalArgumentException("FXML file not found: " + fxmlPath);
-            }
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(ProduitApp.class.getResource(fxmlPath));
+            Parent root = loader.load();
 
-            Parent root = FXMLLoader.load(fxmlUrl);
-            Scene scene = new Scene(root);
-            primaryStage.setScene(scene);
-            adjustStageSize(false);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.show();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Navigation failed", e);
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de navigation");
+            alert.setHeaderText("Impossible de charger la vue: " + fxmlPath);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 

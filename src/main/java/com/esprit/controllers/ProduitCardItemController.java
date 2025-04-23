@@ -5,12 +5,19 @@ import com.esprit.models.Produit;
 import com.esprit.services.ProduitService;
 import com.esprit.utils.AlertUtils;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +95,7 @@ public class ProduitCardItemController {
                 ProduitDetailsController.setSelectedProduit(produit);
                 
                 // Navigate to product details view
-                ProduitApp.navigateTo("/com/esprit/views/produit/ProduitDetailsView.fxml");
+                ProduitApp.navigateTo("/com/esprit/views/produit/ProduitForm.fxml");
             } catch (Exception e) {
                 e.printStackTrace();
                 AlertUtils.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
@@ -96,55 +103,75 @@ public class ProduitCardItemController {
         }
     }
 
+
     @FXML
-    private void addToCart() {
+    private void addToCart(ActionEvent event) {
         /*if (produit != null) {
-            // For now, just show an info message
-            AlertUtils.showInfo("Panier", "Produit ajouté", 
-                "Le produit \"" + produit.getNomProd() + "\" a été ajouté au panier.");*/
-            // TODO: Implement actual cart functionality
-            if (produit != null) {
-                try {
-                    // Check if product has available stock
-                    int availableQuantity = Integer.parseInt(produit.getQuantity());
-                    if (availableQuantity <= 0) {
-                        AlertUtils.showError("Erreur", "Stock épuisé",
-                                "Ce produit n'est plus disponible en stock.");
-                        return;
-                    }
-
-                    // Get current quantity in cart
-                    int currentCartQuantity = cart.getOrDefault(produit.getId(), 0);
-
-                    // Check if we can add more
-                    if (currentCartQuantity >= availableQuantity) {
-                        AlertUtils.showError("Erreur", "Quantité maximale atteinte",
-                                "Vous ne pouvez pas ajouter plus de ce produit que ce qui est disponible en stock.");
-                        return;
-                    }
-
-                    // Add to cart or increment quantity
-                    cart.put(produit.getId(), currentCartQuantity + 1);
-
-                    // Show success message
-                    AlertUtils.showInfo("Panier", "Produit ajouté",
-                            String.format("%s ajouté au panier\nQuantité: %d",
-                                    produit.getNomProd(), cart.get(produit.getId())));
-
-                    // Update any cart badge if exists
-                    //updateCartBadge();
-
-                    // Navigate to cart view after adding
-                    ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
-
-                } catch (NumberFormatException e) {
-                    AlertUtils.showError("Erreur", "Problème de quantité",
-                            "La quantité disponible pour ce produit est invalide.");
-                } catch (Exception e) {
-                    AlertUtils.showError("Erreur", "Impossible d'accéder au panier", e.getMessage());
+            try {
+                // Check if product has available stock
+                int availableQuantity = Integer.parseInt(produit.getQuantity());
+                if (availableQuantity <= 0) {
+                    AlertUtils.showError("Erreur", "Stock épuisé",
+                            "Ce produit n'est plus disponible en stock.");
+                    return;
                 }
+
+                // Get current quantity in cart
+                int currentCartQuantity = cart.getOrDefault(produit.getId(), 0);
+
+                // Check if we can add more
+                if (currentCartQuantity >= availableQuantity) {
+                    AlertUtils.showError("Erreur", "Quantité maximale atteinte",
+                            "Vous ne pouvez pas ajouter plus de ce produit que ce qui est disponible en stock.");
+                    return;
+                }
+
+                // Add to cart or increment quantity
+                cart.put(produit.getId(), currentCartQuantity + 1);
+
+                // Show success message
+                AlertUtils.showInfo("Panier", "Produit ajouté",
+                        String.format("Le produit \"%s\" a été ajouté au panier.", produit.getNomProd()));
+
+                // Navigate to cart view
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/cart_view.fxml"));
+                    Parent cartView = loader.load();
+
+                    // Obtenez la scène actuelle à partir de l'événement
+                    Scene currentScene = ((Node) event.getSource()).getScene();
+                    Stage stage = (Stage) currentScene.getWindow();
+
+                    // Remplacez le contenu par la vue du panier
+                    Scene cartScene = new Scene(cartView);
+                    stage.setScene(cartScene);
+                    stage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    AlertUtils.showError("Erreur", "Navigation",
+                            "Impossible d'afficher la page du panier: " + e.getMessage());
+                }
+
+            } catch (NumberFormatException e) {
+                AlertUtils.showError("Erreur", "Problème de quantité",
+                        "La quantité disponible pour ce produit est invalide.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                AlertUtils.showError("Erreur", "Impossible d'accéder au panier", e.getMessage());
             }
+        }*/
+        if (produit != null) {
+            try {
+                // Store the selected product in the details controller
+                ProduitDetailsController.setSelectedProduit(produit);
 
+                // Navigate to product details view
+                //ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
+            } catch (Exception e) {
+                e.printStackTrace();
+                AlertUtils.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
+            }
         }
-
+    }
 } 
