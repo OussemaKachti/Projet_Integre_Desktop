@@ -387,3 +387,25 @@
     -fx-spacing: 10;
     -fx-alignment: center-right;
 }
+
+.pagination-container {
+    -fx-padding: 15px;
+}
+
+.pagination-button {
+    -fx-background-color: #1e90ff;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 5 15;
+    -fx-font-weight: bold;
+}
+
+.pagination-button:disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #888888;
+}
+
+.pagination-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
