@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.CalendarViewController"
+            stylesheets="/com/esprit/styles/calendar.css, /com/esprit/styles/uniclubs.css"
+            prefHeight="800.0" prefWidth="1200.0"
+            styleClass="fade-in, main-container">
+
+    <!-- Header (copied from list view for consistency) -->
+    <top>
+        <VBox spacing="10">
+            <!-- Navigation Header -->
+
+
+            <!-- Calendar Page Header -->
+            <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
+                <padding>
+                    <Insets top="20" right="25" bottom="15" left="25"/>
+                </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Button fx:id="backToListButton" text="← Back to List View"
+                            style="-fx-background-color: #ae6dbd; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold; -fx-padding: 8 15;">
+                        <effect>
+                            <DropShadow color="#00000040" radius="3" spread="0.05" />
+                        </effect>
+                    </Button>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Events Calendar" style="-fx-text-fill: #5d4ebb;">
+                        <font>
+                            <Font name="Arial Bold" size="28.0" />
+                        </font>
+                    </Label>
+                    <Label text="View and manage events by date" style="-fx-text-fill: #555555;">
+                        <font>
+                            <Font name="Arial" size="21.0" />
+                        </font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS" />
+
+                </HBox>
+
+                <Line startX="0" endX="1160" style="-fx-stroke: #dddddd; -fx-stroke-width: 1;"/>
+
+                <!-- Calendar Navigation and Controls -->
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="previousButton" text="◄"
+                                style="-fx-background-color: #cbc5e6; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 36; -fx-min-height: 36; -fx-font-weight: bold;">
+                            <effect>
+                                <DropShadow color="#00000040" radius="2" spread="0.05" />
+                            </effect>
+                        </Button>
+                        <Label fx:id="monthYearLabel" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                            <font>
+                                <Font name="Arial Bold" size="18.0" />
+                            </font>
+                        </Label>
+                        <Button fx:id="nextButton" text="►"
+                                style="-fx-background-color: #cbc5e6; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 36; -fx-min-height: 36; -fx-font-weight: bold;">
+                            <effect>
+                                <DropShadow color="#00000040" radius="2" spread="0.05" />
+                            </effect>
+                        </Button>
+                        <Button fx:id="todayButton" text="Today"
+                                style="-fx-background-color: #69646a; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 5 15;">
+                            <font>
+                                <Font name="Arial" size="13.0" />
+                            </font>
+                        </Button>
+                    </HBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- Filters -->
+                    <HBox spacing="15" alignment="CENTER">
+                        <ComboBox fx:id="categoryFilter" prefWidth="180" promptText="Category"
+                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+                        </ComboBox>
+                        <ComboBox fx:id="clubFilter" prefWidth="180" promptText="Club"
+                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+                        </ComboBox>
+                        <Button fx:id="resetFiltersButton" text="Reset Filters"
+                                style="-fx-background-color: white; -fx-text-fill: #1e90ff; -fx-background-radius: 20; -fx-border-color: #1e90ff; -fx-border-radius: 20; -fx-padding: 5 15;">
+                            <font>
+                                <Font name="Arial" size="13.0" />
+                            </font>
+                        </Button>
+                    </HBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
+            <!-- Weekday Headers -->
+            <HBox fx:id="weekdaysHeader" alignment="CENTER" spacing="2"
+                  style="-fx-background-color: #c4bde8; -fx-padding: 10; -fx-background-radius: 10 10 0 0;">
+                <padding>
+                    <Insets top="12" right="5" bottom="12" left="5"/>
+                </padding>
+                <!-- Days will be added dynamically -->
+                <!-- Example day header for design -->
+                <Label text="Sunday" style="-fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER">
+                    <font>
+                        <Font name="Arial Bold" size="14.0" />
+                    </font>
+                </Label>
+            </HBox>
+
+            <!-- Calendar Grid -->
+            <GridPane fx:id="calendarGrid" alignment="CENTER" hgap="3" vgap="3"
+                      style="-fx-background-color: #f8f9fa; -fx-padding: 3; -fx-background-radius: 0 0 10 10;">
+                <padding>
+                    <Insets top="3" right="3" bottom="3" left="3"/>
+                </padding>
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                    <ColumnConstraints percentWidth="14.285" />
+                </columnConstraints>
+
+                <rowConstraints>
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                    <RowConstraints percentHeight="16.666" minHeight="120" />
+                </rowConstraints>
+
+                <!-- Example day cell for design -->
+                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0"
+                           style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8;">
+                    <VBox spacing="2" style="-fx-padding: 5;">
+                        <HBox alignment="TOP_RIGHT">
+                            <Label text="1" style="-fx-font-weight: bold; -fx-text-fill: #333333;">
+                                <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Example event in calendar -->
+                        <HBox style="-fx-background-color: #1e90ff; -fx-background-radius: 5; -fx-padding: 3 5; -fx-max-width: 150;">
+                            <Label text="Tennis Tournament" style="-fx-text-fill: white; -fx-font-size: 11;" wrapText="true" />
+                        </HBox>
+                    </VBox>
+                </StackPane>
+
+                <!-- Cells will be added dynamically -->
+            </GridPane>
+
+            <!-- Pagination Controls -->
+            <HBox alignment="CENTER" spacing="15" style="-fx-padding: 15;">
+                <Button fx:id="prevPageButton" text="❮ Previous"
+                        style="-fx-background-color: #5d4ebb; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 5 15;">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Button>
+                <Label fx:id="pageInfoLabel" text="Page 1 of 1" style="-fx-text-fill: #555555;">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Label>
+                <Button fx:id="nextPageButton" text="Next ❯"
+                        style="-fx-background-color: #5d4ebb; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 5 15;">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Button>
+            </HBox>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox fx:id="eventDetailsPane" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 3); -fx-background-radius: 10;" prefWidth="380">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+
+            <!-- When no event is selected -->
+            <StackPane fx:id="noEventSelectedPane" VBox.vgrow="ALWAYS">
+                <VBox alignment="CENTER" spacing="15">
+                    <ImageView fitHeight="100" fitWidth="100">
+                        <Image url="@../images/calendar-iconr.png" />
+                    </ImageView>
+                    <Label text="No Event Selected" style="-fx-text-fill: #666666; -fx-font-weight: bold;">
+                        <font>
+                            <Font name="Arial Bold" size="18.0" />
+                        </font>
+                    </Label>
+                    <Label text="Click on an event in the calendar to view details" style="-fx-text-fill: #888888; -fx-text-alignment: center;" wrapText="true" textAlignment="CENTER">
+                        <font>
+                            <Font name="Arial" size="14.0" />
+                        </font>
+                    </Label>
+                </VBox>
+            </StackPane>
+
+            <!-- Event details content -->
+            <VBox fx:id="eventDetailsContent" spacing="20" visible="false">
+                <!-- Event Title -->
+                <Label fx:id="eventTitle" style="-fx-text-fill: #2e1696; -fx-font-weight: bold;">
+                    <font>
+                        <Font name="Arial Bold" size="22.0" />
+                    </font>
+                </Label>
+
+                <!-- Status Badge -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="eventStatusBadge" text="UPCOMING"
+                           style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 5 15; -fx-font-weight: bold;">
+                        <font>
+                            <Font name="Arial Bold" size="12.0" />
+                        </font>
+                    </Label>
+                </HBox>
+
+                <Line startX="0" endX="330" style="-fx-stroke: #dddddd; -fx-stroke-width: 1;"/>
+
+                <!-- Event Details -->
+                <VBox spacing="15">
+                    <HBox spacing="15">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="155">
+                            <Label text="Date" style="-fx-text-fill: #888888;">
+                                <font>
+                                    <Font name="Arial" size="12.0" />
+                                </font>
+                            </Label>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <ImageView fitHeight="16" fitWidth="16">
+                                    <Image url="@../images/calendar-iconr.png" />
+                                </ImageView>
+                                <Label fx:id="eventDate" text="April 15-17, 2025" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="155">
+                            <Label text="Time" style="-fx-text-fill: #888888;">
+                                <font>
+                                    <Font name="Arial" size="12.0" />
+                                </font>
+                            </Label>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <ImageView fitHeight="16" fitWidth="16">
+                                    <Image url="@../images/clock-icon.png" />
+                                </ImageView>
+                                <Label fx:id="eventTime" text="2:00 PM - 5:00 PM" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="15">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="155">
+                            <Label text="Category" style="-fx-text-fill: #888888;">
+                                <font>
+                                    <Font name="Arial" size="12.0" />
+                                </font>
+                            </Label>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <ImageView fitHeight="16" fitWidth="16">
+                                    <Image url="@../images/tag-icon.png" />
+                                </ImageView>
+                                <Label fx:id="eventCategory" text="Sports" style="-fx-text-fill: #1e90ff; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" maxWidth="155">
+                            <Label text="Club" style="-fx-text-fill: #888888;">
+                                <font>
+                                    <Font name="Arial" size="12.0" />
+                                </font>
+                            </Label>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <ImageView fitHeight="16" fitWidth="16">
+                                    <Image url="@../images/club-icon.png" />
+                                </ImageView>
+                                <Label fx:id="eventClub" text="Tennis Club" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="5">
+                        <Label text="Location" style="-fx-text-fill: #888888;">
+                            <font>
+                                <Font name="Arial" size="12.0" />
+                            </font>
+                        </Label>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <ImageView fitHeight="16" fitWidth="16">
+                                <Image url="@../images/location-icon.png" />
+                            </ImageView>
+                            <Label fx:id="eventLocation" text="Campus Tennis Courts" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                </font>
+                            </Label>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <Line startX="0" endX="330" style="-fx-stroke: #dddddd; -fx-stroke-width: 1;"/>
+
+                <!-- Description -->
+                <VBox spacing="10">
+                    <Label text="Description" style="-fx-text-fill: #888888;">
+                        <font>
+                            <Font name="Arial" size="16.0" />
+                        </font>
+                    </Label>
+                    <ScrollPane fitToWidth="true" prefHeight="150" style="-fx-background-color: transparent; -fx-border-color: #dddddd; -fx-border-radius: 5;">
+                        <padding>
+                            <Insets top="5" right="5" bottom="5" left="5"/>
+                        </padding>
+                        <Label fx:id="eventDescription" text="Join us for our exciting annual tennis competition with players from all over the region. Prizes for winners and participants. Refreshments will be provided."
+                               style="-fx-text-fill: #555555; -fx-line-spacing: 1.2;" wrapText="true">
+                            <font>
+                                <Font name="Arial" size="14.0" />
+                            </font>
+                        </Label>
+                    </ScrollPane>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <!-- Action Buttons -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button fx:id="registerEventButton" text="Register"
+                            style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-font-weight: bold;" prefWidth="120">
+                        <font>
+                            <Font name="Arial Bold" size="14.0" />
+                        </font>
+                        <effect>
+                            <DropShadow color="#00000040" radius="3" spread="0.05" />
+                        </effect>
+                    </Button>
+                    <Button fx:id="editEventButton" text="Edit"
+                            style="-fx-background-color: #5d4ebb; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;" prefWidth="120">
+                        <font>
+                            <Font name="Arial Bold" size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="deleteEventButton" text="Delete"
+                            style="-fx-background-color: white; -fx-text-fill: #ff3b30; -fx-background-radius: 20; -fx-border-color: #ff3b30; -fx-border-radius: 20; -fx-padding: 10 20;" prefWidth="120">
+                        <font>
+                            <Font name="Arial Bold" size="14.0" />
+                        </font>
+                    </Button>
+                </HBox>
+            </VBox>
+        </VBox>
+    </right>
+
+    <!-- Footer -->
+    <bottom>
+        <BorderPane style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
+            <left>
+                <Label style="-fx-text-fill: #666666;" text="© 2025 - Club Event Management">
+                    <font>
+                        <Font name="Arial" size="12" />
+                    </font>
+                </Label>
+            </left>
+            <right>
+                <HBox alignment="CENTER_RIGHT" spacing="15">
+                    <Label fx:id="totalEventsLabel" style="-fx-text-fill: #666666;" text="Total Events: 24">
+                        <font>
+                            <Font name="Arial" size="12" />
+                        </font>
+                    </Label>
+                </HBox>
+            </right>
+        </BorderPane>
+    </bottom>
+</BorderPane>
