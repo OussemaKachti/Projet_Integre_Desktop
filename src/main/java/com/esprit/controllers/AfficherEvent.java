@@ -36,6 +36,9 @@ public class AfficherEvent implements Initializable {
     private Button backButton;
 
     @FXML
+    private Button refreshButton;
+
+    @FXML
     private TextField searchField;
 
     @FXML
@@ -76,6 +79,9 @@ public class AfficherEvent implements Initializable {
         // Initialize service
         serviceEvent = new ServiceEvent();
 
+        // Setup filters before loading events
+        setupFilters();
+
         // Load events from database
         loadEvents();
 
@@ -84,6 +90,45 @@ public class AfficherEvent implements Initializable {
 
         // Update total events count
         updateEventCounter();
+
+        // Add listeners for filters
+        addFilterListeners();
+
+        // Set up search field action
+        searchField.setOnAction(e -> handleSearch());
+
+        // Setup refresh button action
+        if (refreshButton != null) {
+            refreshButton.setOnAction(e -> handleRefresh());
+        }
+        setupCalendarButton();
+    }
+
+    /**
+     * Handle refresh button action - resets filters and reloads all events
+     */
+    @FXML
+    private void handleRefresh() {
+        // Reset all filters to default values
+        searchField.clear();
+        categoryFilter.setValue("All Categories");
+        clubFilter.setValue("All Clubs");
+        dateFilter.setValue("All Dates");
+
+        // Reset to first page
+        currentPage = 1;
+
+        // Reload all events from database
+        allEvents = loadAllEvents();
+
+        // Display the first page
+        displayCurrentPage();
+
+        // Update counter
+        updateEventCounter();
+
+        // Update pagination controls
+        updatePaginationControls();
     }
 
     private void setupPagination() {
@@ -392,42 +437,6 @@ public class AfficherEvent implements Initializable {
         }
     }
 
-    // Search functionality
-    @FXML
-    private void handleSearch() {
-        String searchText = searchField.getText().toLowerCase().trim();
-        List<Evenement> filteredEvents = new ArrayList<>();
-
-        // Filter events based on search text
-        for (Evenement event : allEvents) {
-            if (event.getNom_event().toLowerCase().contains(searchText) ||
-                    event.getDesc_event().toLowerCase().contains(searchText) ||
-                    event.getLieux().toLowerCase().contains(searchText)) {
-                filteredEvents.add(event);
-            }
-        }
-
-        // Reset to first page when searching
-        currentPage = 1;
-
-        // Display filtered events
-        if (filteredEvents.isEmpty() && !searchText.isEmpty()) {
-            eventsContainer.getChildren().clear();
-            Label noResultsLabel = new Label("No events found matching your search.");
-            noResultsLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 16px;");
-            eventsContainer.getChildren().add(noResultsLabel);
-
-            // Update pagination for no results
-            totalPages = 1;
-            pageInfoLabel.setText("Page 0 of 0");
-            prevPageButton.setDisable(true);
-            nextPageButton.setDisable(true);
-        } else {
-            allEvents = searchText.isEmpty() ? loadAllEvents() : filteredEvents;
-            displayCurrentPage();
-        }
-    }
-
     // Helper method to reload all events for when search is cleared
     private List<Evenement> loadAllEvents() {
         try {
@@ -459,6 +468,267 @@ public class AfficherEvent implements Initializable {
         } catch (SQLException ex) {
             System.err.println("Error loading events: " + ex.getMessage());
             return new ArrayList<>();
+        }
+    }
+
+    private void setupFilters() {
+        // Initialize ComboBox items if they're null
+        if (categoryFilter.getItems() == null || categoryFilter.getItems().isEmpty()) {
+            categoryFilter.getItems().add("All Categories");
+            categoryFilter.setValue("All Categories");
+        }
+
+        if (clubFilter.getItems() == null || clubFilter.getItems().isEmpty()) {
+            clubFilter.getItems().add("All Clubs");
+            clubFilter.setValue("All Clubs");
+        }
+
+        if (dateFilter.getItems() == null || dateFilter.getItems().isEmpty()) {
+            dateFilter.getItems().addAll(
+                    "All Dates",
+                    "Today",
+                    "This Week",
+                    "This Month",
+                    "Upcoming",
+                    "Past Events"
+            );
+            dateFilter.setValue("All Dates");
+        }
+
+        // Setup Category Filter
+        try {
+            Connection conn = DataSource.getInstance().getCnx();
+
+            // Populate category filter
+            List<String> categories = new ArrayList<>();
+            categories.add("All Categories"); // Default option
+
+            // Use your existing method to get categories, but check the column name
+            String categoryQuery = "SELECT nom_cat FROM categorie ORDER BY nom_cat";
+            PreparedStatement categoryPst = conn.prepareStatement(categoryQuery);
+            ResultSet categoryRs = categoryPst.executeQuery();
+
+            while (categoryRs.next()) {
+                categories.add(categoryRs.getString("nom_cat"));
+            }
+
+            categoryFilter.getItems().clear();
+            categoryFilter.getItems().addAll(categories);
+            categoryFilter.setValue("All Categories");
+
+            // Populate club filter
+            List<String> clubs = new ArrayList<>();
+            clubs.add("All Clubs"); // Default option
+
+            // Use your existing method to get clubs, but check the column name
+            String clubQuery = "SELECT nom_c FROM club ORDER BY nom_c";
+            PreparedStatement clubPst = conn.prepareStatement(clubQuery);
+            ResultSet clubRs = clubPst.executeQuery();
+
+            while (clubRs.next()) {
+                clubs.add(clubRs.getString("nom_c"));
+            }
+
+            clubFilter.getItems().clear();
+            clubFilter.getItems().addAll(clubs);
+            clubFilter.setValue("All Clubs");
+
+        } catch (SQLException ex) {
+            System.err.println("Error setting up filters: " + ex.getMessage());
+        }
+    }
+
+    private void addFilterListeners() {
+        // Add listeners to filters to apply filtering when they change
+        categoryFilter.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
+        clubFilter.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
+        dateFilter.valueProperty().addListener((obs, oldValue, newValue) -> applyFilters());
+
+        // Add listener to search field for real-time filtering
+        searchField.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.isEmpty() && !oldValue.isEmpty()) {
+                applyFilters(); // Only trigger when text is cleared
+            }
+        });
+    }
+
+    private void applyFilters() {
+        // Get filter values
+        String searchText = searchField.getText().toLowerCase().trim();
+        String categoryValue = categoryFilter.getValue();
+        String clubValue = clubFilter.getValue();
+        String dateValue = dateFilter.getValue();
+
+        // Load all events first
+        List<Evenement> baseEvents = loadAllEvents();
+        List<Evenement> filteredEvents = new ArrayList<>(baseEvents);
+
+        // Apply category filter
+        if (categoryValue != null && !categoryValue.equals("All Categories")) {
+            // Use existing method in your ServiceEvent class
+            int categoryId = serviceEvent.getCategorieIdByName(categoryValue);
+            if (categoryId != -1) {
+                filteredEvents.removeIf(event -> event.getCategorie_id() != categoryId);
+            }
+        }
+
+        // Apply club filter
+        if (clubValue != null && !clubValue.equals("All Clubs")) {
+            // Use existing method in your ServiceEvent class
+            int clubId = serviceEvent.getClubIdByName(clubValue);
+            if (clubId != -1) {
+                filteredEvents.removeIf(event -> event.getClub_id() != clubId);
+            }
+        }
+
+        // Apply date filter
+        if (dateValue != null && !dateValue.equals("All Dates")) {
+            filteredEvents = filterEventsByDate(filteredEvents, dateValue);
+        }
+
+        // Apply search text if not empty
+        if (!searchText.isEmpty()) {
+            filteredEvents.removeIf(event ->
+                    !event.getNom_event().toLowerCase().contains(searchText) &&
+                            !event.getDesc_event().toLowerCase().contains(searchText) &&
+                            !event.getLieux().toLowerCase().contains(searchText)
+            );
+        }
+
+        // Update allEvents with filtered list
+        allEvents = filteredEvents;
+
+        // Reset to first page
+        currentPage = 1;
+
+        // Display filtered events
+        if (filteredEvents.isEmpty()) {
+            eventsContainer.getChildren().clear();
+            Label noResultsLabel = new Label("No events found matching your criteria.");
+            noResultsLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 16px;");
+            eventsContainer.getChildren().add(noResultsLabel);
+
+            // Update pagination for no results
+            totalPages = 1;
+            pageInfoLabel.setText("Page 0 of 0");
+            prevPageButton.setDisable(true);
+            nextPageButton.setDisable(true);
+        } else {
+            displayCurrentPage();
+        }
+
+        // Update event counter
+        updateEventCounter();
+    }
+
+    private List<Evenement> filterEventsByDate(List<Evenement> events, String dateFilter) {
+        List<Evenement> filteredEvents = new ArrayList<>();
+
+        // Get current date
+        java.util.Date currentDate = new java.util.Date();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(currentDate);
+
+        // Apply date filtering
+        switch(dateFilter) {
+            case "Today":
+                // Today's events
+                for (Evenement event : events) {
+                    java.util.Calendar eventCal = java.util.Calendar.getInstance();
+                    eventCal.setTime(event.getStart_date());
+
+                    if (cal.get(java.util.Calendar.YEAR) == eventCal.get(java.util.Calendar.YEAR) &&
+                            cal.get(java.util.Calendar.DAY_OF_YEAR) == eventCal.get(java.util.Calendar.DAY_OF_YEAR)) {
+                        filteredEvents.add(event);
+                    }
+                }
+                break;
+
+            case "This Week":
+                // This week's events
+                int currentWeek = cal.get(java.util.Calendar.WEEK_OF_YEAR);
+                int currentYear = cal.get(java.util.Calendar.YEAR);
+
+                for (Evenement event : events) {
+                    java.util.Calendar eventCal = java.util.Calendar.getInstance();
+                    eventCal.setTime(event.getStart_date());
+
+                    if (currentYear == eventCal.get(java.util.Calendar.YEAR) &&
+                            currentWeek == eventCal.get(java.util.Calendar.WEEK_OF_YEAR)) {
+                        filteredEvents.add(event);
+                    }
+                }
+                break;
+
+            case "This Month":
+                // This month's events
+                int currentMonth = cal.get(java.util.Calendar.MONTH);
+                int currentMonthYear = cal.get(java.util.Calendar.YEAR);
+
+                for (Evenement event : events) {
+                    java.util.Calendar eventCal = java.util.Calendar.getInstance();
+                    eventCal.setTime(event.getStart_date());
+
+                    if (currentMonthYear == eventCal.get(java.util.Calendar.YEAR) &&
+                            currentMonth == eventCal.get(java.util.Calendar.MONTH)) {
+                        filteredEvents.add(event);
+                    }
+                }
+                break;
+
+            case "Upcoming":
+                // Future events (starting from today)
+                for (Evenement event : events) {
+                    if (event.getStart_date().compareTo(currentDate) >= 0) {
+                        filteredEvents.add(event);
+                    }
+                }
+                break;
+
+            case "Past Events":
+                // Past events (before today)
+                for (Evenement event : events) {
+                    if (event.getEnd_date().compareTo(currentDate) < 0) {
+                        filteredEvents.add(event);
+                    }
+                }
+                break;
+
+            default:
+                // Return all events if no valid filter
+                return events;
+        }
+
+        return filteredEvents;
+    }
+
+    // Single search method to handle searching
+    @FXML
+    private void handleSearch() {
+        // When user explicitly clicks search or presses Enter in search field, apply all filters
+        applyFilters();
+    }
+
+    @FXML
+    private Button calendarViewButton; // Add this to your FXML button declarations
+
+    // Add this method to your initialization sequence in initialize()
+    private void setupCalendarButton() {
+        // Set up calendar view button
+        if (calendarViewButton != null) {
+            calendarViewButton.setOnAction(e -> switchToCalendarView());
+        }
+    }
+
+    @FXML
+    private void switchToCalendarView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/CalendarView.fxml"));
+            Parent root = loader.load();
+            calendarViewButton.getScene().setRoot(root);
+        } catch (IOException ex) {
+            System.err.println("Error loading CalendarView.fxml: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }
