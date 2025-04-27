@@ -1,6 +1,8 @@
 package com.esprit.controllers;
 
+import com.esprit.models.Club;
 import com.esprit.models.Participant;
+import com.esprit.services.ClubService;
 import com.esprit.services.ParticipantService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,17 +17,26 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ParticipantController {
 
     @FXML private TextField userIdField;
     @FXML private TextField clubIdField;
+    @FXML private TextField clubNameField;
     @FXML private TextField descriptionField;
     @FXML private TextField statutField;
+    @FXML private TextField searchField;
     @FXML private ListView<Participant> participantList;
 
     private final ParticipantService participantService = new ParticipantService();
+    private final ClubService clubService = new ClubService();
     private final ObservableList<Participant> participants = FXCollections.observableArrayList();
+    private List<Participant> allParticipants; // To store the full list for filtering
+    private Map<Integer, String> clubIdToNameMap = new HashMap<>(); // Cache for club ID to name mapping
     private Participant selectedParticipant = null;
 
     // Assuming a logged-in user (placeholder values)
@@ -40,7 +51,12 @@ public class ParticipantController {
 
         // Charger les participants dans la ListView au démarrage
         try {
+            // Charger les noms des clubs pour le mapping
+            loadClubNames();
+
+            // Charger les participants
             loadParticipants();
+            allParticipants = participantService.afficher(); // Store the full list for filtering
 
             // Configurer l'affichage personnalisé dans la ListView
             participantList.setCellFactory(param -> new ListCell<Participant>() {
@@ -50,7 +66,8 @@ public class ParticipantController {
                     if (empty || participant == null) {
                         setText(null);
                     } else {
-                        setText("ID: " + participant.getUser_id() + " | Club ID: " + participant.getClub_id() + " | Statut: " + participant.getStatut());
+                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub_id(), "Inconnu");
+                        setText("Utilisateur: " + participant.getUser_id() + " | Club: " + clubName + " | Statut: " + participant.getStatut());
                     }
                 }
             });
@@ -61,6 +78,7 @@ public class ParticipantController {
                     selectedParticipant = newVal;
                     userIdField.setText(String.valueOf(newVal.getUser_id()));
                     clubIdField.setText(String.valueOf(newVal.getClub_id()));
+                    clubNameField.setText(clubIdToNameMap.getOrDefault(newVal.getClub_id(), "Inconnu"));
                     descriptionField.setText(newVal.getDescription());
                     statutField.setText(newVal.getStatut());
                 } else {
@@ -72,10 +90,21 @@ public class ParticipantController {
         }
     }
 
+    // Charger les noms des clubs pour le mapping
+    private void loadClubNames() throws SQLException {
+        List<Club> clubs = clubService.afficher();
+        for (Club club : clubs) {
+            clubIdToNameMap.put(club.getId(), club.getNomC());
+        }
+    }
+
     // Method to set club ID and prefill the form
     public void setClubId(int clubId) {
         clubIdField.setText(String.valueOf(clubId));
         clubIdField.setEditable(false); // Prevent editing club ID
+
+        // Mettre à jour le champ du nom du club
+        clubNameField.setText(clubIdToNameMap.getOrDefault(clubId, "Inconnu"));
 
         // Automatically save participation request with default values
         try {
@@ -139,16 +168,34 @@ public class ParticipantController {
         }
     }
 
+    @FXML
+    private void searchParticipants() {
+        String searchText = searchField.getText().trim().toLowerCase();
+        if (searchText.isEmpty()) {
+            participants.setAll(allParticipants);
+        } else {
+            List<Participant> filteredParticipants = allParticipants.stream()
+                    .filter(participant -> {
+                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub_id(), "Inconnu").toLowerCase();
+                        return clubName.contains(searchText);
+                    })
+                    .collect(Collectors.toList());
+            participants.setAll(filteredParticipants);
+        }
+        participantList.setItems(participants);
+    }
+
     private void refreshParticipantList() {
         participants.clear();
-        participants.addAll(participantService.afficher());
-        participantList.setItems(participants); // Ensure the ListView is updated
+        allParticipants = participantService.afficher();
+        participants.addAll(allParticipants);
         participantList.refresh();
     }
 
     private void clearForm() {
         userIdField.setText(String.valueOf(currentUserId)); // Reset to current user ID
         clubIdField.clear();
+        clubNameField.clear();
         descriptionField.clear();
         statutField.clear();
         selectedParticipant = null;
