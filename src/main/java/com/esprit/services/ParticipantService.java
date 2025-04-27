@@ -11,11 +11,10 @@ import java.util.List;
 public class ParticipantService {
 
     private final Connection cnx;
-    private Connection connection;
 
+    // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ParticipantService() {
-        this.cnx = null;
-        this.connection = DataSource.getInstance().getCnx();
+        this.cnx = DataSource.getInstance().getCnx();
     }
 
     public void ajouter(Participant p) {
