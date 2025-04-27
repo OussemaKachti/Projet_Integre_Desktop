@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import java.io.IOException;
 import java.net.URL;
@@ -46,7 +46,7 @@ import javafx.stage.Stage;
 /**
  * Contrôleur pour la gestion des sondages
  */
-public class PollManagementController implements Initializable {
+/*public class PollManagementController implements Initializable {
 
     @FXML private ListView<Sondage> pollsListView;
     @FXML private Button backButton;
@@ -121,7 +121,7 @@ public class PollManagementController implements Initializable {
     /**
      * Configure ListView with custom cell factory
      */
-    private void setupListView() {
+    /*private void setupListView() {
         pollsListView.setCellFactory(listView -> new ListCell<Sondage>() {
             private final HBox rowContainer = new HBox();
             private final Label questionLabel = new Label();
@@ -219,7 +219,7 @@ public class PollManagementController implements Initializable {
     /**
      * Configure la recherche
      */
-    private void setupSearch() {
+   /* private void setupSearch() {
         searchButton.setOnAction(e -> performSearch());
         
         // Enable search on Enter key
@@ -229,7 +229,7 @@ public class PollManagementController implements Initializable {
     /**
      * Exécute la recherche dans les sondages
      */
-    private void performSearch() {
+   /* private void performSearch() {
         String searchTerm = searchField.getText().toLowerCase().trim();
         
         if (searchTerm.isEmpty()) {
@@ -249,14 +249,14 @@ public class PollManagementController implements Initializable {
     /**
      * Configure l'animation du toast
      */
-    private void setupToast() {
+    /*private void setupToast() {
         toastContainer.setVisible(false);
     }
     
     /**
      * Affiche un toast avec un message
      */
-    private void showToast(String message, String type) {
+    /*private void showToast(String message, String type) {
         Label toastText = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
         toastText.setText(message);
         
@@ -280,7 +280,7 @@ public class PollManagementController implements Initializable {
     /**
      * Charge les sondages dans la liste avec filtre optionnel
      */
-   private void loadPolls(int clubId) throws SQLException {
+   /*private void loadPolls(int clubId) throws SQLException {
     try {
         // Get polls for the specific club
         List<Sondage> sondagesList = sondageService.getAll().stream()
@@ -348,7 +348,7 @@ public class PollManagementController implements Initializable {
     /**
      * Ouvre la fenêtre modale pour créer ou modifier un sondage
      */
-    private void openPollModal(Sondage sondage) {
+   /* private void openPollModal(Sondage sondage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
             VBox modalContent = loader.load();
@@ -413,7 +413,7 @@ public class PollManagementController implements Initializable {
     /**
      * Demande confirmation avant de supprimer un sondage
      */
-    private void confirmDeletePoll(Sondage sondage) {
+    /*private void confirmDeletePoll(Sondage sondage) {
         boolean confirm = showCustomConfirmDialog(
             "Delete Poll",
             "Are you sure you want to delete this poll?",
@@ -442,7 +442,7 @@ public class PollManagementController implements Initializable {
     /**
      * Delete a poll and all its dependencies to avoid foreign key constraint violations
      */
-    private void deletePollWithDependencies(int pollId) throws SQLException {
+   /* private void deletePollWithDependencies(int pollId) throws SQLException {
         // Get all responses/votes for this poll and delete them first
         try {
             // Delete comments related to the poll
@@ -465,14 +465,14 @@ public class PollManagementController implements Initializable {
     /**
      * Définit la scène précédente pour la navigation
      */
-    public void setPreviousScene(Scene scene) {
+   /* public void setPreviousScene(Scene scene) {
         this.previousScene = scene;
     }
     
     /**
      * Retourne à la vue précédente
      */
-    private void navigateBack() {
+    /*private void navigateBack() {
         if (previousScene != null) {
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(previousScene);
@@ -545,4 +545,4 @@ public class PollManagementController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == deleteButton;
     }
-}
+}*/

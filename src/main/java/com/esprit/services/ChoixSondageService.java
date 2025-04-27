@@ -1,4 +1,4 @@
-package com.esprit.services;
+/*package com.esprit.services;
 
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Sondage;
@@ -101,7 +101,7 @@ public class ChoixSondageService {
         return choix;
     }
 
-    private boolean hasResponses(int choixId) throws SQLException {
+    /*private boolean hasResponses(int choixId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE choix_sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -115,13 +115,13 @@ public class ChoixSondageService {
         return false;
     }
 
-    private ChoixSondage mapResultSetToChoixSondage(ResultSet rs) throws SQLException {
+    /*private ChoixSondage mapResultSetToChoixSondage(ResultSet rs) throws SQLException {
         ChoixSondage choix = new ChoixSondage();
         choix.setId(rs.getInt("id"));
         choix.setContenu(rs.getString("contenu"));
 
         // Charger le sondage associé
-        SondageService sondageService = new SondageService();
+        /*SondageService sondageService = new SondageService();
         choix.setSondage(sondageService.getById(rs.getInt("sondage_id")));
 
         return choix;
@@ -178,4 +178,4 @@ public class ChoixSondageService {
         
         return option;
     }
-}
+}*/

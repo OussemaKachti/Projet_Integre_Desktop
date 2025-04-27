@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import com.esprit.models.Sondage;
 import com.esprit.models.Club;
@@ -133,7 +133,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Load all polls from the database and update the table
      */
-    private void loadData() throws SQLException {
+    /*private void loadData() throws SQLException {
         System.out.println("AdminPollsController: Loading data...");
         
         // Charger tous les sondages
@@ -181,7 +181,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Setup the table columns
      */
-    private void setupTableColumns() {
+    /*private void setupTableColumns() {
         // Configuration de la colonne ID
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setStyle("-fx-alignment: CENTER;");
@@ -289,7 +289,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Update the statistics cards at the top of the view
      */
-    private void calculateStats() throws SQLException {
+   /* private void calculateStats() throws SQLException {
         System.out.println("AdminPollsController: Calculating stats...");
         
         // Total des sondages depuis le service
@@ -362,7 +362,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Setup the activity chart showing polls and votes over time
      */
-    private void updateActivityChart() {
+   /* private void updateActivityChart() {
         // Nettoyer le graphique
         activityChart.getData().clear();
 
@@ -391,7 +391,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Setup pagination controls
      */
-    private void setupPagination() {
+   /* private void setupPagination() {
         paginationContainer.getChildren().clear();
 
         if (totalPages <= 1) {
@@ -458,7 +458,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Setup search functionality
      */
-    private void setupEventHandlers() {
+    /*private void setupEventHandlers() {
         // Recherche
         searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
             filterPolls(newValue);
@@ -521,7 +521,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Open a new view displaying detailed information about a poll
      */
-    private void viewPollDetails(Sondage sondage) {
+    /*private void viewPollDetails(Sondage sondage) {
         try {
             System.out.println("Opening poll details for: " + sondage.getId() + " - " + sondage.getQuestion());
             
@@ -632,7 +632,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Show confirmation dialog for poll deletion
      */
-    private void deletePoll(Sondage sondage) {
+    /*private void deletePoll(Sondage sondage) {
         try {
             // Create a custom confirmation dialog
             Alert confirmDialog = new Alert(Alert.AlertType.NONE);
@@ -737,7 +737,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Show a toast notification with a larger area for error messages
      */
-    private void showToast(String message, String type) {
+   /* private void showToast(String message, String type) {
         try {
             // Afficher l'erreur dans une boîte de dialogue pour les erreurs
             if ("error".equals(type)) {
@@ -794,7 +794,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Setup back button to return to previous scene
      */
-    private void setupBackButton() {
+    /*private void setupBackButton() {
         backButton.setOnAction(e -> {
             if (previousScene != null) {
                 Stage stage = (Stage) backButton.getScene().getWindow();
@@ -817,14 +817,14 @@ public class AdminPollsController implements Initializable {
     /**
      * Set the previous scene to return to when back button is clicked
      */
-    public void setPreviousScene(Scene scene) {
+  /*  public void setPreviousScene(Scene scene) {
         this.previousScene = scene;
     }
 
     /**
      * Refresh all data in the view
      */
-    public void refreshData() {
+    /*public void refreshData() {
         try {
             loadData();
         } catch (SQLException e) {
@@ -836,7 +836,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Configure les événements de navigation pour la sidebar
      */
-    private void setupNavigationEvents() {
+    /*private void setupNavigationEvents() {
         // Navigation vers AdminCommentsView
         commentsManagementBtn.setOnAction(event -> {
             try {
@@ -906,7 +906,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Gère la déconnexion de l'utilisateur
      */
-    private void handleLogout() {
+    /*private void handleLogout() {
         try {
             // Afficher une confirmation avant de se déconnecter
             Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
@@ -932,7 +932,7 @@ public class AdminPollsController implements Initializable {
     /**
      * Configure les informations de l'administrateur
      */
-    private void setupAdminInfo() {
+   /* private void setupAdminInfo() {
         try {
             // Récupérer l'utilisateur connecté (à implémenter avec la gestion des sessions)
             // Pour l'instant, on affiche un nom par défaut
@@ -945,3 +945,4 @@ public class AdminPollsController implements Initializable {
         }
     }
 } 
+*/

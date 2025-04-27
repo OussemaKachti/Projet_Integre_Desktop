@@ -1,4 +1,4 @@
-package com.esprit.controllers.crud;
+/*package com.esprit.controllers.crud;
 
 import com.esprit.models.Sondage;
 import com.esprit.models.ChoixSondage;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * Contrôleur pour la gestion des sondages (CRUD)
  */
-public class SondageController implements Initializable {
+/*public class SondageController implements Initializable {
     
     // Composants de l'interface utilisateur
     @FXML private TableView<Sondage> tableSondages;
@@ -59,7 +59,7 @@ public class SondageController implements Initializable {
     /**
      * Constructeur
      */
-    public SondageController() {
+   /* public SondageController() {
         this.sondageService = SondageService.getInstance();
         this.choixService = new ChoixSondageService();
         this.userService = new UserService();
@@ -80,7 +80,7 @@ public class SondageController implements Initializable {
     /**
      * Configure les colonnes du tableau
      */
-    private void setupTable() {
+    /*private void setupTable() {
         colQuestion.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getQuestion()));
             
@@ -97,7 +97,7 @@ public class SondageController implements Initializable {
     /**
      * Configure la colonne des actions
      */
-    private void setupActionsColumn() {
+    /*private void setupActionsColumn() {
         colActions.setCellFactory(col -> new TableCell<Sondage, String>() {
             private final Button editButton = new Button("Modifier");
             private final Button deleteButton = new Button("Supprimer");
@@ -138,7 +138,7 @@ public class SondageController implements Initializable {
     /**
      * Configure les événements des boutons
      */
-    private void setupButtons() {
+    /*private void setupButtons() {
         btnAddChoice.setOnAction(e -> addChoiceField());
         btnSave.setOnAction(e -> saveSondage());
         btnUpdate.setOnAction(e -> updateSondage());
@@ -151,7 +151,7 @@ public class SondageController implements Initializable {
     /**
      * Charge tous les sondages dans le tableau
      */
-    private void loadSondages() {
+    /*private void loadSondages() {
         try {
             ObservableList<Sondage> sondages = sondageService.getAll();
             tableSondages.setItems(sondages);
@@ -164,7 +164,7 @@ public class SondageController implements Initializable {
     /**
      * Ajoute un champ de saisie pour un choix
      */
-    @FXML
+    /*@FXML
     private void addChoiceField() {
         TextField choiceField = new TextField();
         choiceField.setPromptText("Option " + (choiceFields.size() + 1));
@@ -182,7 +182,7 @@ public class SondageController implements Initializable {
     /**
      * Supprime un champ de saisie pour un choix
      */
-    private void removeChoiceField(TextField field) {
+   /* private void removeChoiceField(TextField field) {
         int index = choiceFields.indexOf(field);
         if (index != -1) {
             choiceFields.remove(index);
@@ -193,7 +193,7 @@ public class SondageController implements Initializable {
     /**
      * Crée ou met à jour un sondage
      */
-    @FXML
+    /*@FXML
     private void saveSondage() {
         try {
             // Validation
@@ -268,7 +268,7 @@ public class SondageController implements Initializable {
     /**
      * Met à jour un sondage existant
      */
-    @FXML
+   /* @FXML
     private void updateSondage() {
         if (currentSondage == null) {
             return;
@@ -304,7 +304,7 @@ public class SondageController implements Initializable {
     /**
      * Prépare le formulaire pour modifier un sondage existant
      */
-    private void editSondage(Sondage sondage) {
+    /*private void editSondage(Sondage sondage) {
         currentSondage = sondage;
         txtQuestion.setText(sondage.getQuestion());
         
@@ -321,7 +321,7 @@ public class SondageController implements Initializable {
     /**
      * Supprime un sondage
      */
-    private void deleteSondage(Sondage sondage) {
+    /*private void deleteSondage(Sondage sondage) {
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Confirmation de suppression");
         confirmDialog.setHeaderText("Supprimer le sondage");
@@ -346,7 +346,7 @@ public class SondageController implements Initializable {
     /**
      * Affiche les détails d'un sondage
      */
-    private void viewSondageDetails(Sondage sondage) {
+    /*private void viewSondageDetails(Sondage sondage) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Détails du sondage");
         dialog.setHeaderText(sondage.getQuestion());
@@ -381,7 +381,7 @@ public class SondageController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
-    private void resetForm() {
+   /* private void resetForm() {
         txtQuestion.clear();
         choiceFields.clear();
         choicesContainer.getChildren().clear();
@@ -406,11 +406,11 @@ public class SondageController implements Initializable {
     /**
      * Affiche une boîte de dialogue
      */
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+   /* private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
-} 
+} */

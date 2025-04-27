@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import com.esprit.models.Club;
 import com.esprit.models.User;
@@ -90,4 +90,4 @@ public class ClubManagementController {
         
         alert.showAndWait();
     }
-} 
+} */
