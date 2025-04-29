@@ -185,7 +185,7 @@ public class ParticipantController {
         participantList.setItems(participants);
     }
 
-    private void refreshParticipantList() {
+    private void refreshParticipantList() throws SQLException {
         participants.clear();
         allParticipants = participantService.afficher();
         participants.addAll(allParticipants);
