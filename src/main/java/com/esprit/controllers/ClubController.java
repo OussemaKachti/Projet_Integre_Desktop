@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -34,22 +35,20 @@ public class ClubController {
     @FXML private TextField pointsField;
     @FXML private TextField searchField;
     @FXML private ListView<Club> clubList;
-    @FXML private BarChart<String, Number> statsChart;
+    @FXML private BarChart<Number, String> statsChart; // Changed to BarChart<Number, String> for horizontal chart
     @FXML private TabPane tabPane;
 
     private final ClubService clubService = new ClubService();
     private final ObservableList<Club> clubs = FXCollections.observableArrayList();
     private Club selectedClub = null;
-    private List<Club> allClubs; // To store the full list for filtering
+    private List<Club> allClubs;
 
     @FXML
     public void initialize() {
-        // Charger les clubs dans la ListView au démarrage
         try {
             loadClubs();
-            allClubs = clubService.afficher(); // Store the full list for filtering
+            allClubs = clubService.afficher();
 
-            // Configurer l'affichage personnalisé dans la ListView
             clubList.setCellFactory(param -> new ListCell<Club>() {
                 @Override
                 protected void updateItem(Club club, boolean empty) {
@@ -57,12 +56,11 @@ public class ClubController {
                     if (empty || club == null) {
                         setText(null);
                     } else {
-                        setText(club.getNomC()); // Afficher le nom du club
+                        setText(club.getNomC());
                     }
                 }
             });
 
-            // Écouteur pour sélectionner un club dans la ListView
             clubList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal != null) {
                     selectedClub = newVal;
@@ -76,10 +74,8 @@ public class ClubController {
                 }
             });
 
-            // Écouteur pour charger les statistiques quand l'onglet "Statistiques" est sélectionné
             tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
                 if (newTab.getText().equals("Statistiques")) {
-                    // Délayer l'appel à loadStatistics pour s'assurer que le TabPane est prêt
                     Platform.runLater(() -> {
                         System.out.println("Onglet Statistiques sélectionné. Chargement des statistiques...");
                         loadStatistics();
@@ -99,13 +95,11 @@ public class ClubController {
 
     @FXML
     private void ajouterClub() {
-        // Vérifier si les champs obligatoires sont vides
         if (idField.getText().isEmpty() ||
                 presidentIdField.getText().isEmpty() ||
                 nomCField.getText().isEmpty() ||
                 descriptionField.getText().isEmpty() ||
                 imageField.getText().isEmpty()) {
-
             showError("Tous les champs doivent être remplis !");
             return;
         }
@@ -113,19 +107,16 @@ public class ClubController {
         String nomC = nomCField.getText();
         String description = descriptionField.getText();
 
-        // ✅ Bloquer les caractères spéciaux dans le nom
         if (!nomC.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
             showError("Le nom du club contient des caractères non autorisés.");
             return;
         }
 
-        // ✅ Vérifier que la description ne contient pas de caractères spéciaux
         if (!description.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
             showError("La description contient des caractères non autorisés.");
             return;
         }
 
-        // ✅ Vérifier la longueur de description (max 30 mots)
         if (description.trim().split("\\s+").length > 30) {
             showError("La description ne doit pas dépasser 30 mots.");
             return;
@@ -136,13 +127,12 @@ public class ClubController {
             int presidentId = Integer.parseInt(presidentIdField.getText());
             String image = imageField.getText();
 
-            // ✅ Statut et points par défaut
             String status = "en_attente";
             int points = 0;
 
             Club club = new Club(id, presidentId, nomC, description, status, image, points);
-            clubService.ajouter(club); // Ajouter le club dans la base de données
-            refreshClubList(); // Rafraîchir la liste des clubs
+            clubService.ajouter(club);
+            refreshClubList();
             clearForm();
 
             showSuccess("Club ajouté avec succès !");
@@ -174,8 +164,8 @@ public class ClubController {
             selectedClub.setImage(imageField.getText());
             selectedClub.setPoints(Integer.parseInt(pointsField.getText()));
 
-            clubService.modifier(selectedClub); // Mettre à jour le club dans la base de données
-            refreshClubList(); // Rafraîchir la liste des clubs
+            clubService.modifier(selectedClub);
+            refreshClubList();
             clearForm();
         } catch (NumberFormatException e) {
             showError("Veuillez entrer des valeurs valides.");
@@ -189,8 +179,8 @@ public class ClubController {
             return;
         }
 
-        clubService.supprimer(selectedClub.getId()); // Supprimer le club de la base de données
-        refreshClubList(); // Rafraîchir la liste des clubs
+        clubService.supprimer(selectedClub.getId());
+        refreshClubList();
         clearForm();
     }
 
@@ -202,8 +192,8 @@ public class ClubController {
         }
 
         selectedClub.setStatus("accepte");
-        clubService.modifier(selectedClub); // Mettre à jour le statut
-        refreshClubList(); // Rafraîchir la liste des clubs
+        clubService.modifier(selectedClub);
+        refreshClubList();
         clearForm();
     }
 
@@ -215,8 +205,8 @@ public class ClubController {
         }
 
         selectedClub.setStatus("Refusé");
-        clubService.modifier(selectedClub); // Mettre à jour le statut
-        refreshClubList(); // Rafraîchir la liste des clubs
+        clubService.modifier(selectedClub);
+        refreshClubList();
         clearForm();
     }
 
@@ -236,31 +226,25 @@ public class ClubController {
 
     private void loadStatistics() {
         try {
-            // Vérifier si le graphique est initialisé
             if (statsChart == null) {
                 System.out.println("Erreur : statsChart est null !");
                 showError("Le graphique n'a pas pu être initialisé.");
                 return;
             }
 
-            // Vérifier la visibilité et la taille du graphique
             System.out.println("Visibilité du graphique : " + statsChart.isVisible());
             System.out.println("Taille du graphique : " + statsChart.getWidth() + "x" + statsChart.getHeight());
 
-            // Désactiver les animations pour éviter les problèmes de rendu
             statsChart.setAnimated(false);
-
-            // Effacer les données précédentes
             statsChart.getData().clear();
             System.out.println("Graphique effacé.");
 
-            // Récupérer les statistiques
             List<Object[]> popularityStats;
             try {
                 popularityStats = clubService.getClubsByPopularity();
             } catch (Exception e) {
                 System.out.println("Erreur lors de la récupération des statistiques: " + e.getMessage());
-                // Fallback avec des données fictives en cas d'erreur
+                e.printStackTrace();
                 popularityStats = new ArrayList<>();
                 popularityStats.add(new Object[]{"Club A", 3});
                 popularityStats.add(new Object[]{"Club B", 2});
@@ -269,55 +253,66 @@ public class ClubController {
                 showError("Erreur lors de la récupération des statistiques. Affichage de données fictives.");
             }
 
-            // Ajouter un message de débogage pour vérifier les données
             System.out.println("Nombre de statistiques récupérées : " + popularityStats.size());
             for (Object[] stat : popularityStats) {
                 System.out.println("Club: " + stat[0] + ", Participations: " + stat[1]);
             }
 
-            // Vérifier si les données sont vides
             if (popularityStats.isEmpty()) {
-                // Fallback avec des données fictives pour tester le rendu du graphique
-                popularityStats = new ArrayList<>();
-                popularityStats.add(new Object[]{"Club A", 3});
-                popularityStats.add(new Object[]{"Club B", 2});
-                popularityStats.add(new Object[]{"Club C", 1});
-                System.out.println("Aucune donnée réelle trouvée. Utilisation de données fictives pour tester le graphique.");
-                showError("Aucune donnée de popularité disponible. Affichage de données fictives pour tester le graphique.");
+                System.out.println("Aucune donnée réelle trouvée.");
+                showError("Aucune donnée de popularité disponible.");
+                return;
             }
 
-            // Préparer les données pour le BarChart (horizontal)
-            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            XYChart.Series<Number, String> series = new XYChart.Series<>(); // Changed to match BarChart<Number, String>
             series.setName("Participations");
 
             for (Object[] stat : popularityStats) {
                 String clubName = (String) stat[0];
-                int participationCount = ((Number) stat[1]).intValue(); // Convertir en int de manière sécurisée
-                XYChart.Data<String, Number> data = new XYChart.Data<>(clubName, participationCount);
-                series.getData().add(data);
+                int participationCount = ((Number) stat[1]).intValue();
+                if (clubName == null || clubName.trim().isEmpty()) {
+                    clubName = "Club Inconnu";
+                    System.out.println("Nom du club null ou vide, remplacé par 'Club Inconnu'");
+                }
+                // Swap the order: X is Number (participationCount), Y is String (clubName)
+                series.getData().add(new XYChart.Data<>(participationCount, clubName));
                 System.out.println("Ajout des données au graphique : " + clubName + " -> " + participationCount);
             }
 
-            // Mettre à jour le BarChart
             statsChart.getData().add(series);
             System.out.println("Données ajoutées au graphique. Nombre de points de données : " + series.getData().size());
 
-            // Forcer la mise à jour du graphique
             Platform.runLater(() -> {
                 statsChart.applyCss();
-                statsChart.requestLayout(); // Forcer le redessin du graphique
+                statsChart.requestLayout();
                 System.out.println("Après requestLayout - Taille du graphique : " + statsChart.getWidth() + "x" + statsChart.getHeight());
                 Set<Node> nodes = statsChart.lookupAll(".chart-bar");
                 System.out.println("Nombre de barres trouvées : " + nodes.size());
                 for (Node node : nodes) {
-                    node.setStyle("-fx-bar-fill: #f39c12;"); // Orange color for bars
-                    node.setOnMouseEntered(e -> node.setStyle("-fx-bar-fill: #e67e22;")); // Darker orange on hover
-                    node.setOnMouseExited(e -> node.setStyle("-fx-bar-fill: #f39c12;")); // Revert to original color
+                    node.setStyle("-fx-bar-fill: #f39c12;");
+                    node.setOnMouseEntered(e -> node.setStyle("-fx-bar-fill: #e67e22;"));
+                    node.setOnMouseExited(e -> node.setStyle("-fx-bar-fill: #f39c12;"));
+                }
+
+                // Adjust the X-axis to ensure small values are visible
+                if (statsChart.getXAxis() instanceof NumberAxis) {
+                    NumberAxis xAxis = (NumberAxis) statsChart.getXAxis();
+                    xAxis.setAutoRanging(true);
+                    xAxis.setForceZeroInRange(true);
+                    xAxis.setLowerBound(0);
+                    xAxis.setUpperBound(Math.max(5, series.getData().stream()
+                            .mapToDouble(data -> data.getXValue().doubleValue())
+                            .max()
+                            .orElse(5)));
+                    xAxis.setTickUnit(1);
+                    System.out.println("X-axis adjusted: LowerBound=" + xAxis.getLowerBound() + ", UpperBound=" + xAxis.getUpperBound());
+                } else {
+                    System.out.println("X-axis is not a NumberAxis, cannot adjust bounds.");
                 }
             });
         } catch (Exception e) {
             showError("Erreur inattendue lors du chargement des statistiques: " + e.getMessage());
-            e.printStackTrace(); // Ajouter un stack trace pour plus de détails
+            e.printStackTrace();
         }
     }
 

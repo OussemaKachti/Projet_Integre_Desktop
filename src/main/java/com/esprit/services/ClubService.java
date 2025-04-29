@@ -12,16 +12,10 @@ public class ClubService {
 
     private final Connection cnx;
 
-    // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
         this.cnx = DataSource.getInstance().getCnx();
     }
 
-    public static ClubService getInstance() {
-        return null ;
-    }
-
-    // Ajouter un club
     public void ajouter(Club club) {
         String query = "INSERT INTO club (president_id, nom_c, description, status, image, points) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -38,7 +32,6 @@ public class ClubService {
         }
     }
 
-    // Modifier un club
     public void modifier(Club club) {
         String query = "UPDATE club SET president_id = ?, nom_c = ?, description = ?, status = ?, image = ?, points = ? WHERE id = ?";
 
@@ -56,7 +49,6 @@ public class ClubService {
         }
     }
 
-    // Supprimer un club
     public void supprimer(int id) {
         String query = "DELETE FROM club WHERE id = ?";
 
@@ -68,7 +60,6 @@ public class ClubService {
         }
     }
 
-    // Afficher tous les clubs
     public List<Club> afficher() {
         List<Club> clubs = new ArrayList<>();
         String query = "SELECT * FROM club";
@@ -91,7 +82,6 @@ public class ClubService {
         return clubs;
     }
 
-    // Afficher un club par ID
     public Club getClubById(int id) {
         Club club = null;
         String query = "SELECT * FROM club WHERE id = ?";
@@ -118,9 +108,10 @@ public class ClubService {
 
     public List<Object[]> getClubsByPopularity() {
         List<Object[]> stats = new ArrayList<>();
-        String query = "SELECT c.nom_c, COUNT(pm.id_membre) as participation_count " +
+        String query = "SELECT c.nom_c, " +
+                "COUNT(CASE WHEN pm.statut = 'accepte' THEN pm.id ELSE NULL END) as participation_count " +
                 "FROM club c " +
-                "LEFT JOIN participation_membre pm ON c.id = pm.id_club " +
+                "LEFT JOIN participation_membre pm ON c.id = pm.club_id " +
                 "GROUP BY c.nom_c " +
                 "ORDER BY participation_count DESC";
 
@@ -133,19 +124,12 @@ public class ClubService {
                 System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
             }
         } catch (SQLException e) {
+            System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
         }
 
         System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
         return stats;
-    }
-
-    public List<Club> getAll() {
-        return null ;
-    }
-
-    public Club getById(int clubId) {
-        return null ;
     }
 }
