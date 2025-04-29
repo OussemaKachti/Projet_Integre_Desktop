@@ -1,6 +1,7 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Participant;
+import com.esprit.services.AiMService;
 import com.esprit.services.ParticipantService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -28,29 +29,31 @@ public class FormParticipationController {
 
     @FXML
     private void ajouterParticipant() {
-        // Validate description
         String description = descriptionField.getText().trim();
 
-        // Check if description is empty
         if (description.isEmpty()) {
             showError("La description est requise !");
             return;
         }
 
-        // Validate description length (max 30 words)
         if (description.split("\\s+").length > 30) {
             showError("La description ne doit pas dépasser 30 mots.");
             return;
         }
 
-        // Validate description for special characters
         if (!description.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
             showError("La description contient des caractères non autorisés.");
             return;
         }
 
         try {
-            // Create and save the participant
+            // 🔥 NEW PART: Check with AI before adding participant
+            if (AiMService.containsBadWords(description)) {
+                showError("Votre description contient des mots inappropriés. Veuillez corriger et réessayer.");
+                return;
+            }
+
+            // If everything is fine ➔ Add participant
             Participant participant = new Participant(
                     userId,
                     clubId,
@@ -60,14 +63,13 @@ public class FormParticipationController {
             participantService.ajouter(participant);
 
             showSuccess("Demande de participation envoyée avec succès !");
-
-            // Close the form
             Stage stage = (Stage) descriptionField.getScene().getWindow();
             stage.close();
         } catch (Exception e) {
             showError("Erreur lors de l'enregistrement de la participation: " + e.getMessage());
         }
     }
+
 
     private void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
