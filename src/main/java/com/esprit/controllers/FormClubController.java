@@ -1,6 +1,8 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Club;
+import com.esprit.services.AiMService;
+import com.esprit.services.AiService;
 import com.esprit.services.ClubService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -33,13 +35,11 @@ public class FormClubController {
         String description = descriptionField.getText().trim();
         String image = imageField.getText().trim();
 
-        // Validation: champs vides
         if (nomC.isEmpty() || description.isEmpty() || image.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Champs manquants", "Tous les champs doivent être remplis !");
             return;
         }
 
-        // Validation: caractères spéciaux interdits
         if (!nomC.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
             showAlert(Alert.AlertType.WARNING, "Nom invalide", "Le nom du club contient des caractères non autorisés.");
             return;
@@ -50,19 +50,23 @@ public class FormClubController {
             return;
         }
 
-        // Validation: description ≤ 30 mots
         if (description.split("\\s+").length > 30) {
             showAlert(Alert.AlertType.WARNING, "Description trop longue", "La description ne doit pas dépasser 30 mots.");
             return;
         }
 
-        // Validation basique URL
         if (!image.matches("^https?://.*")) {
             showAlert(Alert.AlertType.WARNING, "URL invalide", "L'URL de l'image doit commencer par http:// ou https://");
             return;
         }
 
         try {
+            // ✅ AI moderation call
+            if (AiMService.containsBadWords(description)) {
+                showAlert(Alert.AlertType.ERROR, "Contenu inapproprié", "La description contient des mots inappropriés !");
+                return;
+            }
+
             String status = "en_attente";
             int points = 0;
 
@@ -72,14 +76,16 @@ public class FormClubController {
             clearForm();
             showAlert(Alert.AlertType.INFORMATION, "Succès", "✅ Club ajouté avec succès !");
 
-            // Close the form
             Stage stage = (Stage) nomCField.getScene().getWindow();
             stage.close();
+
+
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout du club: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     private void clearForm() {
         nomCField.clear();
