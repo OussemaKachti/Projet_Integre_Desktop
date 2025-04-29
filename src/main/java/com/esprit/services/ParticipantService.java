@@ -2,6 +2,7 @@ package com.esprit.services;
 
 import com.esprit.models.Club;
 import com.esprit.models.Participant;
+import com.esprit.utils.DataSource;
 import com.esprit.utils.DatabaseConnection;
 
 import java.sql.*;
@@ -13,7 +14,7 @@ public class ParticipantService {
     private final Connection cnx;
 
     public ParticipantService() {
-        cnx = DatabaseConnection.getInstance().getCnx();
+       this.cnx = DataSource.getInstance().getCnx();
     }
 
     public void ajouter(Participant p) {

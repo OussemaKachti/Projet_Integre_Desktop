@@ -16,6 +16,10 @@ public class ClubService {
         this.cnx = DataSource.getInstance().getCnx();
     }
 
+    public static ClubService getInstance() {
+        return null;
+    }
+
     public void ajouter(Club club) {
         String query = "INSERT INTO club (president_id, nom_c, description, status, image, points) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -131,5 +135,13 @@ public class ClubService {
 
         System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
         return stats;
+    }
+
+    public List<Club> getAll() {
+        return null;
+    }
+
+    public Club getById(int clubId) {
+        return null;
     }
 }
