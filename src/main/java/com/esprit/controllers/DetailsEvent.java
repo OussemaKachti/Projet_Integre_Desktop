@@ -10,9 +10,12 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 import com.esprit.models.Evenement;
+import com.esprit.models.Participation_event;
 import com.esprit.services.ServiceEvent;
+import com.esprit.services.ServiceParticipation;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -52,20 +55,29 @@ public class DetailsEvent implements Initializable {
     @FXML
     private Button shareButton;
     @FXML
-    private Button presidentButton1; // Your delete button
+    private Button presidentButton1; // Delete button
+
+    @FXML
+    private Button presidentButton3; // View Participants button
 
     private Evenement currentEvent;
     private ServiceEvent serviceEvent = new ServiceEvent();
+    private ServiceParticipation serviceParticipation = new ServiceParticipation();
+
+    // Changed from long to Long to match the required type
+    private Long currentUserId = 1L; // À remplacer par l'ID de l'utilisateur connecté
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Désactiver les boutons non implémentés pour l'instant
-        registerButton.setVisible(false);
-        editButton.setVisible(true); // Modifié pour rendre le bouton Edit visible
+        // Rendre le bouton de participation visible
+        registerButton.setVisible(true);
+        editButton.setVisible(true);
         shareButton.setVisible(false);
 
-        // Configure delete button handler
+        // Configure les gestionnaires d'événements
         presidentButton1.setOnAction(event -> handleDelete());
+        registerButton.setOnAction(event -> handleRegister());
+        presidentButton3.setOnAction(event -> handleViewParticipants());
     }
 
     /**
@@ -96,6 +108,126 @@ public class DetailsEvent implements Initializable {
 
         // Charger l'image de l'événement si disponible
         loadEventImage(event.getImage_description());
+
+        // Vérifier si l'utilisateur participe déjà à cet événement
+        updateRegisterButtonStatus();
+    }
+
+    /**
+     * Met à jour l'état du bouton d'inscription en fonction de la participation de l'utilisateur
+     */
+    private void updateRegisterButtonStatus() {
+        if (currentEvent == null) return;
+
+        boolean isAlreadyRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
+
+        if (isAlreadyRegistered) {
+            registerButton.setText("✓ Cancel Registration");
+            registerButton.setStyle("-fx-background-color: linear-gradient(to right, #e53935, #f44336); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
+        } else {
+            registerButton.setText("✓ Register for Event");
+            registerButton.setStyle("-fx-background-color: linear-gradient(to right, #1976d2, #2979ff); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
+        }
+    }
+
+    /**
+     * Gère l'inscription/désinscription à un événement
+     */
+    @FXML
+    private void handleRegister() {
+        if (currentEvent == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
+                    "Impossible de s'inscrire à l'événement car aucun événement n'est sélectionné.");
+            return;
+        }
+
+        // Vérifier si l'utilisateur est déjà inscrit
+        boolean isAlreadyRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
+
+        if (isAlreadyRegistered) {
+            // L'utilisateur est déjà inscrit, proposer d'annuler l'inscription
+            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmDialog.setTitle("Annulation d'inscription");
+            confirmDialog.setHeaderText("Annuler votre inscription");
+            confirmDialog.setContentText("Êtes-vous sûr de vouloir annuler votre inscription à l'événement \"" +
+                    currentEvent.getNom_event() + "\" ?");
+
+            Optional<ButtonType> result = confirmDialog.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Supprimer la participation
+                boolean cancelled = serviceParticipation.annulerParticipation(currentUserId, currentEvent.getId());
+
+                if (cancelled) {
+                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Inscription annulée",
+                            "Votre inscription à l'événement a été annulée avec succès.");
+                    updateRegisterButtonStatus();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'annulation",
+                            "L'annulation de votre inscription a échoué. Veuillez réessayer.");
+                }
+            }
+        } else {
+            // L'utilisateur n'est pas inscrit, proposer de l'inscrire
+            Date currentDate = new Date();
+
+            // Vérifier si l'événement n'est pas déjà passé
+            if (currentEvent.getEnd_date().before(currentDate)) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Événement terminé",
+                        "Cet événement est déjà terminé. Vous ne pouvez plus vous y inscrire.");
+                return;
+            }
+
+            // Créer une nouvelle participation
+            Participation_event participation = new Participation_event();
+            participation.setUser_id(currentUserId);
+            participation.setEvenement_id(Long.valueOf(currentEvent.getId()));
+            participation.setDateparticipation(currentDate);
+
+            // Enregistrer la participation
+            boolean registered = serviceParticipation.ajouterParticipation(participation);
+
+            if (registered) {
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Inscription confirmée",
+                        "Vous êtes maintenant inscrit à l'événement.");
+                updateRegisterButtonStatus();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'inscription",
+                        "L'inscription à l'événement a échoué. Veuillez réessayer.");
+            }
+        }
+    }
+
+    /**
+     * Gère l'affichage de la liste des participants
+     */
+    @FXML
+    private void handleViewParticipants() {
+        if (currentEvent == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
+                    "Impossible d'afficher les participants car aucun événement n'est sélectionné.");
+            return;
+        }
+
+        try {
+            // Charger la vue de la liste des participants (à implémenter ultérieurement)
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ParticipantsList.fxml"));
+            Parent root = loader.load();
+
+            // Passer l'ID de l'événement au contrôleur
+            // ParticipantsListController controller = loader.getController();
+            // controller.setEventId(currentEvent.getId());
+
+            Stage stage = new Stage();
+            stage.setTitle("Participants à l'événement " + currentEvent.getNom_event());
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors du chargement de la liste des participants: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
+                    "Impossible de charger la liste des participants: " + e.getMessage());
+        }
     }
 
     /**
@@ -164,7 +296,7 @@ public class DetailsEvent implements Initializable {
 
             // Obtenir le contrôleur et lui passer l'ID de l'événement à modifier
             ModifierEvent modifierController = loader.getController();
-            modifierController.setEventId(currentEvent.getId()); // Assurez-vous que cette méthode existe dans votre Evenement
+            modifierController.setEventId(currentEvent.getId());
 
             // Créer une nouvelle scène pour la vue ModifierEvent
             Stage stage = new Stage();
@@ -173,10 +305,6 @@ public class DetailsEvent implements Initializable {
 
             // Afficher la scène
             stage.show();
-
-            // Optionnellement, fermer la fenêtre actuelle des détails
-            // Stage currentStage = (Stage) editButton.getScene().getWindow();
-            // currentStage.close();
 
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement de la page de modification: " + e.getMessage());
