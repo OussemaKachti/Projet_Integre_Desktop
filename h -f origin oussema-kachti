@@ -1,0 +1,48 @@
+[33mc795a01[m[33m ([m[1;36mHEAD[m[33m)[m LeaderBoard of most active users : participation leaderboard and stats
+[33md20a1f9[m correction add comment/traduction commentaire/commentInsights
+[33m393d953[m amelioration dans l affichage du resumé
+[33ma3a9500[m Add email notifications to club members when new polls are created / Implement AI-powered comment summarization with sentiment analysis and statistics /Add AI toxicity detection to automatically flag inappropriate comments + warning email system with progressive severity + Implement automatic comment banning
+[33m17258cc[m Add email notifications to club members when new polls are created / Implement AI-powered comment summarization with sentiment analysis and statistics /Add AI toxicity detection to automatically flag inappropriate comments + warning email system with progressive severity + Implement automatic comment banning
+[33mc0aa956[m User / Sondage : 100%
+[33mc0d0321[m 1ere Validation (version finale 'Sondage')
+[33m5bd4070[m last version
+[33m37783a9[m navbar pollManagement / ameliorartion listView pollManagement / ajout toasts
+[33me850536[m redirection pollDetails -> {adminPollsView / adminCommentsView / UserAdmin}
+[33m107edfc[m Merge branch 'main' of https://github.com/OussemaKachti/Projet_Integre_Desktop into oussema-kachti
+[33mc287503[m Ajout des redirection apres l'integration user/polls {AdminPollsView -> AdminCommentsView / AdminPollsView -> DetailsPoll / AdminPollsView -> UserAdmin} {AdminCommentsView -> AdminPollsView / AdminCommentsView -> UserAdmin}
+[33m3c8e848[m intg fix
+[33m32fa283[m Merge branch 'main' of https://github.com/OussemaKachti/Projet_Integre_Desktop into test-intg
+[33m574a8af[m integ
+[33m553d68c[m  add home page
+[33m301e46b[m Merge branch 'test-intg' of https://github.com/OussemaKachti/Projet_Integre_Desktop into test-intg
+[33m54f5153[m add profanity check on user info
+[33m72bf98b[m[33m ([m[1;32mmain[m[33m)[m utilisation d une session dans SondageView / PollManagement {redirection apres login to sondageView}
+[33m2ab586d[m[33m ([m[1;32mtest-intg[m[33m)[m integration user/polls
+[33ma4b825c[m integration user/polls
+[33m3c7eaa0[m integration user/sondage 3
+[33mc66a38b[m integ user/sondage 2
+[33m4d528e1[m integration user / sondage
+[33m1c0e450[m Merge branch 'oussema-kachti' of https://github.com/OussemaKachti/Projet_Integre_Desktop into test-intg
+[33m0896f04[m integration user test
+[33m95ae233[m test
+[33m4902938[m Summary button (ai) 10%
+[33mcdda88b[m tableView->listView dans la partie PollManagement
+[33me7e65ad[m overall improvements
+[33mb88506b[m amelioration interface + ajout sidebar/footer : adminCommentsView/detailsPollView
+[33m7ed2cab[m ajout sidebar footer cote admin {adminPollsView}
+[33m729cff7[m amelioration et correction -> version 0
+[33md5630e5[m[33m ([m[1;31morigin/Nour_Balti[m[33m, [m[1;32mNour_Balti[m[33m)[m global UI imporovements / add forgot password functionality
+[33ma3d5e7d[m amelioration des interfaces user {sondageView / pollmanagementView}
+[33mb2a02c5[m crud admin {polls(show all/delete any) + popup + recherche dynamique en temps reelle + stats} || {reponse(show all / stats)} || {comments(show all / delete) + popup + filtrage + stats} || popups cote USER + Controle de Saisie [poll / reponse / comments] || amelioration des interfaces
+[33m679138d[m improved verification process
+[33m7318d81[m add detailed stats too admin dashboard
+[33m6e28b19[m added details ui for user dashboard
+[33mf14df41[m add admin dashboard/profile
+[33mc11bd8f[m Overall corrections
+[33m4ea4f39[m Crud{sondage}front/back + recherche - Crud{reponse}front/back - Crud{commentaire}front/back   --> cote user
+[33mea252c0[m improve design in all existing pages (incomplete)
+[33m90ab47e[m fix error display in login and register UIs /add profile page for normal users)
+[33m96d18ea[m add login/registry/account-verification (incomplete UI/func)
+[33mba8b844[m Preparation des interfaces (front/back) version 0 - sans affectation des boutons dans le controlleur
+[33me64af9e[m Preparation de tous les cruds avec leurs tests
+[33m92517ca[m creation des{ models / services / SondageController(pas complet) / une interface MainSondage + affichage sur scene builder}
