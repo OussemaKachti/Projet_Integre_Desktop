@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.ParticipationMembre;
+import com.esprit.models.ParticipationMembre;
 import com.esprit.models.Sondage;
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Reponse;
@@ -14,9 +15,11 @@ import com.esprit.services.ReponseService;
 import com.esprit.services.UserService;
 import com.esprit.services.ClubService;
 import com.esprit.services.ParticipationMembreService;
+import com.esprit.services.ParticipationMembreService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.SessionManager;
 import com.esprit.utils.NavigationManager;
+import com.esprit.utils.EmailService;
 import com.esprit.utils.EmailService;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -66,6 +69,7 @@ import javafx.scene.Node;
 import java.util.regex.Pattern;
 import java.util.Arrays;
 import javafx.concurrent.Task;
+import javafx.concurrent.Task;
 
 public class SondageViewController implements Initializable {
 
@@ -78,6 +82,7 @@ public class SondageViewController implements Initializable {
     private TextArea commentTextArea;
     @FXML
     private ComboBox<String> filterClubComboBox;
+
 
     // Éléments du formulaire de création de sondage
     @FXML
@@ -108,6 +113,8 @@ public class SondageViewController implements Initializable {
     private final ClubService clubService = new ClubService();
     private final EmailService emailService = EmailService.getInstance();
     private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    private final EmailService emailService = EmailService.getInstance();
+    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
 
     // Variables d'état
     private Sondage currentSondage;
@@ -121,14 +128,19 @@ public class SondageViewController implements Initializable {
         try {
             // Get the logged-in user from SessionManager
             currentUser = SessionManager.getInstance().getCurrentUser();
+            // Get the logged-in user from SessionManager
+            currentUser = SessionManager.getInstance().getCurrentUser();
             if (currentUser == null) {
+                AlertUtils.showError("Error", "No user is currently logged in.");
                 AlertUtils.showError("Error", "No user is currently logged in.");
                 return;
             }
 
             // Configure club filter
+            // Configure club filter
             setupClubFilter();
 
+            // Apply CSS styles to components
             // Apply CSS styles to components
             sondagesContainer.getStyleClass().add("polls-section");
             sondagesContainer.setSpacing(20);
@@ -153,12 +165,14 @@ public class SondageViewController implements Initializable {
             }
 
             // Load polls
+            // Load polls
             loadSondages("all");
         } catch (SQLException e) {
             e.printStackTrace();
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
         }
     }
+
 
     private void setupClubFilter() throws SQLException {
         // Ajouter l'option pour tous les clubs
@@ -225,25 +239,38 @@ public class SondageViewController implements Initializable {
         // userInfoBox.getStyleClass().add("user-info");
         // userInfoBox.setPadding(new Insets(10));
 
+
+        // // User info header
+        // HBox userInfoBox = new HBox(10);
+        // userInfoBox.getStyleClass().add("user-info");
+        // userInfoBox.setPadding(new Insets(10));
+
         // User avatar
+        ImageView avatar = new ImageView(new Image(getClass().getResourceAsStream("/images/user.png")));
         ImageView avatar = new ImageView(new Image(getClass().getResourceAsStream("/images/user.png")));
         avatar.setFitHeight(40);
         avatar.setFitWidth(40);
         avatar.setPreserveRatio(true);
         avatar.getStyleClass().add("comment-avatar");
 
+        avatar.getStyleClass().add("comment-avatar");
+
         // User name
         Label userName = new Label(sondage.getUser().getFirstName() + " " + sondage.getUser().getLastName());
+        Label userName = new Label(sondage.getUser().getFirstName() + " " + sondage.getUser().getLastName());
         userName.getStyleClass().add("user-name");
+
 
         // Date separator
         Label dateSeparator = new Label(" • ");
         dateSeparator.getStyleClass().add("date-separator");
 
+
         // Poll date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         Label pollDate = new Label(sondage.getCreatedAt().format(formatter));
         pollDate.getStyleClass().add("poll-date");
+
 
         // Add club label if available
         Label clubLabel = null;
@@ -251,6 +278,10 @@ public class SondageViewController implements Initializable {
             clubLabel = new Label(" • " + sondage.getClub().getNom());
             clubLabel.getStyleClass().add("club-label");
         }
+
+        // Create HBox for user info
+        HBox userInfoBox = new HBox(10);
+        userInfoBox.setAlignment(Pos.CENTER_LEFT);
 
         // Create HBox for user info
         HBox userInfoBox = new HBox(10);
@@ -268,17 +299,32 @@ public class SondageViewController implements Initializable {
         userInfoBox.getChildren().add(viewSummaryButton);
         HBox.setMargin(viewSummaryButton, new Insets(0, 0, 0, 10));
 
+        userInfoBox.getStyleClass().add("user-info");
+
+        // Add View Summary button
+        Button viewSummaryButton = new Button("View Summary");
+        viewSummaryButton.getStyleClass().add("view-summary-button");
+        viewSummaryButton.setOnAction(e -> showCommentsSummary(sondage));
+        userInfoBox.getChildren().add(viewSummaryButton);
+        HBox.setMargin(viewSummaryButton, new Insets(0, 0, 0, 10));
+
         // Poll question
         Label questionLabel = new Label(sondage.getQuestion());
         questionLabel.getStyleClass().add("sondage-question");
         questionLabel.setWrapText(true);
 
+
         // Add to sondage box
+        VBox pollHeader = new VBox(5);
+        pollHeader.getChildren().addAll(userInfoBox, questionLabel);
+
         VBox pollHeader = new VBox(5);
         pollHeader.getChildren().addAll(userInfoBox, questionLabel);
 
         // Poll options with radio buttons for voting
         VBox optionsView = createPollOptionsView(sondage);
+        sondageBox.getChildren().addAll(pollHeader, optionsView);
+
         sondageBox.getChildren().addAll(pollHeader, optionsView);
 
         // Add a section divider
@@ -289,18 +335,22 @@ public class SondageViewController implements Initializable {
         divider.setOpacity(0.7);
         VBox.setMargin(divider, new Insets(10, 0, 5, 0));
 
+
         // Comment button container
         HBox commentButtonContainer = new HBox();
         commentButtonContainer.getStyleClass().add("comment-button-container");
         commentButtonContainer.setAlignment(Pos.CENTER_RIGHT);
 
+
         // Comment icon and button with counter
         HBox commentsButtonWithIcon = new HBox(5);
         commentsButtonWithIcon.setAlignment(Pos.CENTER);
 
+
         // Create comment icon
         Label commentIcon = new Label("💬");
         commentIcon.getStyleClass().add("comment-icon");
+
 
         // Comment button with counter
         int commentCount = getCommentCount(sondage.getId());
@@ -311,15 +361,19 @@ public class SondageViewController implements Initializable {
         // Add icon to button
         commentsButtonWithIcon.getChildren().addAll(commentIcon, commentsButton);
 
+
         // Add comment button to container
         commentButtonContainer.getChildren().add(commentsButtonWithIcon);
+
 
         // Add comments section to sondage box
         sondageBox.getChildren().addAll(divider, commentButtonContainer);
 
+
         // Add comment form
         VBox commentForm = new VBox(10);
         commentForm.getStyleClass().add("comment-form");
+
 
         // Comment form header with icon
         HBox commentFormHeader = new HBox(8);
@@ -329,11 +383,19 @@ public class SondageViewController implements Initializable {
         // Label penIcon = new Label("✏️");
         // penIcon.getStyleClass().add("comment-form-icon");
 
+
+        // // Create pen icon for comment form
+        // Label penIcon = new Label("✏️");
+        // penIcon.getStyleClass().add("comment-form-icon");
+
         // Comment form title
         Label commentFormTitle = new Label("Write a comment");
         commentFormTitle.getStyleClass().add("comment-form-title");
 
+
         // Add icon to comment form header
+        // commentFormHeader.getChildren().addAll(penIcon, commentFormTitle);
+
         // commentFormHeader.getChildren().addAll(penIcon, commentFormTitle);
 
         // Comment textarea
@@ -343,6 +405,7 @@ public class SondageViewController implements Initializable {
         commentTextArea.setPrefHeight(70);
         commentTextArea.setWrapText(true);
 
+
         // Label for comment validation errors
         Label commentErrorLabel = new Label();
         commentErrorLabel.getStyleClass().add("validation-error");
@@ -350,21 +413,28 @@ public class SondageViewController implements Initializable {
         commentErrorLabel.setWrapText(true);
         commentErrorLabel.setText("Comment cannot be empty.");
 
+
         // Add real-time validation to the textarea
         commentTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
             validateComment(newValue, commentErrorLabel, commentTextArea);
         });
+
 
         // Add comment button container
         HBox addCommentButtonBox = new HBox();
         addCommentButtonBox.setAlignment(Pos.CENTER_RIGHT);
         addCommentButtonBox.setPadding(new Insets(5, 0, 0, 0));
 
+
         // Add comment button with icon
         HBox postButtonWithIcon = new HBox(5);
         postButtonWithIcon.setAlignment(Pos.CENTER);
 
+
         // Create send icon
+        // Label sendIcon = new Label("📤");
+        // sendIcon.getStyleClass().add("send-icon");
+
         // Label sendIcon = new Label("📤");
         // sendIcon.getStyleClass().add("send-icon");
 
@@ -379,21 +449,26 @@ public class SondageViewController implements Initializable {
                     return;
                 }
 
+
                 addComment(sondage, content);
                 commentTextArea.clear();
                 commentErrorLabel.setVisible(false);
-            } catch (SQLException ex) {
+                    } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
             }
         });
 
+
         // Add icon to button
+        postButtonWithIcon.getChildren().addAll(addCommentButton);
         postButtonWithIcon.getChildren().addAll(addCommentButton);
         addCommentButtonBox.getChildren().add(postButtonWithIcon);
 
+
         // Add all elements to the comment form
         commentForm.getChildren().addAll(commentFormHeader, commentTextArea, commentErrorLabel, addCommentButtonBox);
+
 
         // Add comment form to sondage box
         sondageBox.getChildren().add(commentForm);
@@ -420,6 +495,8 @@ public class SondageViewController implements Initializable {
         optionLabel.getStyleClass().add("option-label");
         optionLabel.setPrefWidth(200); // Increased width for better readability
 
+        // Créer un spacer pour pousser la barre de progression et le pourcentage à
+        // droite
         // Créer un spacer pour pousser la barre de progression et le pourcentage à
         // droite
         Pane spacer = new Pane();
@@ -459,25 +536,32 @@ public class SondageViewController implements Initializable {
         optionsContainer.getStyleClass().add("poll-options");
         optionsContainer.setPadding(new Insets(10));
 
+
         // Create a toggle group for radio buttons
         ToggleGroup optionsGroup = new ToggleGroup();
+
 
         // Get all options for this poll
         List<ChoixSondage> options = choixService.getBySondage(sondage.getId());
 
+
         // Get total votes for percentage calculation
         int totalVotes = getTotalVotes(sondage.getId());
 
+
         // Check if the current user has already voted and what their choice was
         ChoixSondage userChoice = getUserChoice(sondage);
+
 
         // Create option rows with radio buttons and progress bars
         for (int i = 0; i < options.size(); i++) {
             ChoixSondage option = options.get(i);
 
+
             HBox optionRow = new HBox(10);
             optionRow.getStyleClass().add("poll-option");
             optionRow.setAlignment(Pos.CENTER_LEFT);
+
 
             // Radio button for option selection
             RadioButton optionRadio = new RadioButton(option.getContenu());
@@ -485,22 +569,27 @@ public class SondageViewController implements Initializable {
             optionRadio.setToggleGroup(optionsGroup);
             optionRadio.setUserData(option.getId());
 
+
             // If user already voted for this option, select it
             if (userChoice != null && userChoice.getId() == option.getId()) {
                 optionRadio.setSelected(true);
             }
 
+
             // Pane to push progress bar to the right
             Pane spacer = new Pane();
             HBox.setHgrow(spacer, Priority.ALWAYS);
+
 
             // Get votes for this option
             int votes = reponseService.getVotesByChoix(option.getId());
             double percentage = totalVotes > 0 ? (votes * 100.0 / totalVotes) : 0;
 
+
             // Progress bar to show vote percentage
             ProgressBar optionProgress = new ProgressBar(percentage / 100);
             optionProgress.setPrefWidth(220); // Match CSS width
+
 
             // Apply color class based on percentage range
             if (percentage <= 25.0) {
@@ -513,24 +602,30 @@ public class SondageViewController implements Initializable {
                 optionProgress.getStyleClass().add("progress-bar-high");
             }
 
+
             optionProgress.getStyleClass().add("option-progress");
+
 
             // Percentage label
             Label percentageLabel = new Label(String.format("%.1f%%", percentage));
             percentageLabel.getStyleClass().add("percentage-label");
 
+
             optionRow.getChildren().addAll(optionRadio, spacer, optionProgress, percentageLabel);
             optionsContainer.getChildren().add(optionRow);
         }
+
 
         // Create a container for the voting controls and user's choice
         HBox controlsContainer = new HBox();
         controlsContainer.setAlignment(Pos.CENTER);
         controlsContainer.setPrefWidth(Double.MAX_VALUE);
 
+
         // Left side - Voting buttons
         HBox buttonsBox = new HBox(10);
         buttonsBox.getStyleClass().add("vote-buttons-container");
+
 
         Button voteButton;
         if (userChoice == null) {
@@ -543,7 +638,9 @@ public class SondageViewController implements Initializable {
         voteButton.getStyleClass().add("vote-button");
         voteButton.setOnAction(e -> handleVote(sondage, optionsGroup));
 
+
         buttonsBox.getChildren().add(voteButton);
+
 
         // Add delete vote button if user has already voted
         if (userChoice != null) {
@@ -554,15 +651,19 @@ public class SondageViewController implements Initializable {
                     // Show confirmation dialog
                     boolean confirmed = showCustomConfirmDialog(
                             "Delete Vote",
+                            "Delete Vote",
                             "Are you sure you want to delete your vote?",
                             "This action cannot be undone.");
+
 
                     if (confirmed) {
                         // Delete user's vote
                         reponseService.deleteUserVote(currentUser.getId(), sondage.getId());
 
+
                         // Show confirmation
                         showCustomAlert("Success", "Your vote has been deleted successfully.", "success");
+
 
                         // Refresh the view
                         refreshData();
@@ -573,35 +674,44 @@ public class SondageViewController implements Initializable {
                 }
             });
 
+
             buttonsBox.getChildren().add(deleteVoteButton);
         }
+
 
         // Right side - User's choice if already voted
         HBox userChoiceContainer = new HBox();
         userChoiceContainer.getStyleClass().add("choice-status-container");
         HBox.setHgrow(userChoiceContainer, Priority.ALWAYS);
 
+
         if (userChoice != null) {
             HBox userChoiceBox = new HBox(10);
             userChoiceBox.getStyleClass().add("user-choice-box");
             userChoiceBox.setAlignment(Pos.CENTER_RIGHT);
 
+
             Label yourChoiceLabel = new Label("Your choice:");
             yourChoiceLabel.getStyleClass().add("your-choice-label");
 
+
             Label userChoiceLabel = new Label(userChoice.getContenu());
             userChoiceLabel.getStyleClass().add("user-choice");
+
 
             userChoiceBox.getChildren().addAll(yourChoiceLabel, userChoiceLabel);
             userChoiceContainer.getChildren().add(userChoiceBox);
         }
 
+
         // Add components to the container
         controlsContainer.getChildren().addAll(buttonsBox, userChoiceContainer);
         optionsContainer.getChildren().add(controlsContainer);
 
+
         return optionsContainer;
     }
+
 
     /**
      * Handle user vote for a poll
@@ -612,6 +722,7 @@ public class SondageViewController implements Initializable {
             // Get the selected radio button
             RadioButton selectedOption = (RadioButton) optionsGroup.getSelectedToggle();
 
+
             // Validate selection
             if (selectedOption == null) {
                 showCustomAlert("Warning", "Please select an option to vote.", "warning");
@@ -621,20 +732,26 @@ public class SondageViewController implements Initializable {
             // Get the choice ID from the selected radio button's user data
             int choixId = (int) selectedOption.getUserData();
 
+
             // Check if user already voted
             boolean hasVoted = reponseService.hasUserVoted(currentUser.getId(), sondage.getId());
+
 
             if (hasVoted) {
                 // Confirm before updating vote
                 boolean confirmed = showCustomConfirmDialog(
                         "Change Vote",
                         "Are you sure you want to change your vote?",
+                        "Change Vote",
+                        "Are you sure you want to change your vote?",
                         "Your previous vote will be replaced.");
+
 
                 if (confirmed) {
                     // Update existing vote
                     reponseService.updateUserVote(currentUser.getId(), sondage.getId(), choixId);
                     showCustomAlert("Success", "Your vote has been updated successfully!", "success");
+
 
                     // Refresh the view
                     refreshData();
@@ -644,9 +761,11 @@ public class SondageViewController implements Initializable {
                 reponseService.addVote(currentUser.getId(), sondage.getId(), choixId);
                 showCustomAlert("Success", "Your vote has been recorded successfully!", "success");
 
+
                 // Refresh the view
                 refreshData();
             }
+
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -678,6 +797,7 @@ public class SondageViewController implements Initializable {
         refreshData();
     }
 
+
     /**
      * Custom alert dialog with modern styling
      */
@@ -687,9 +807,11 @@ public class SondageViewController implements Initializable {
         dialogStage.initStyle(StageStyle.TRANSPARENT);
         dialogStage.setResizable(false);
 
+
         // Create the dialog container
         VBox dialogVBox = new VBox(15);
         dialogVBox.getStyleClass().add("custom-alert");
+
 
         // Add type-specific class for styling
         if ("success".equals(type)) {
@@ -700,15 +822,19 @@ public class SondageViewController implements Initializable {
             dialogVBox.getStyleClass().add("custom-alert-error");
         }
 
+
         dialogVBox.setPadding(new Insets(20));
+
 
         // Create icon and title in a horizontal box
         HBox headerBox = new HBox(15);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
+
         // Add appropriate icon based on alert type
         Label iconLabel = new Label();
         iconLabel.getStyleClass().add("custom-alert-icon");
+
 
         if ("success".equals(type)) {
             iconLabel.setText("✓");
@@ -720,16 +846,20 @@ public class SondageViewController implements Initializable {
             iconLabel.setText("ℹ");
         }
 
+
         // Dialog title
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("title");
 
+
         headerBox.getChildren().addAll(iconLabel, titleLabel);
+
 
         // Dialog message
         Label messageLabel = new Label(message);
         messageLabel.setWrapText(true);
         messageLabel.getStyleClass().add("content");
+
 
         // OK button
         Button okButton = new Button("OK");
@@ -743,17 +873,21 @@ public class SondageViewController implements Initializable {
             fadeOut.play();
         });
 
+
         // Button container
         HBox buttonsBox = new HBox();
         buttonsBox.getStyleClass().add("buttons-box");
         buttonsBox.getChildren().add(okButton);
 
+
         // Add all elements to dialog
         dialogVBox.getChildren().addAll(headerBox, messageLabel, buttonsBox);
+
 
         // Set up background with drop shadow
         StackPane rootPane = new StackPane();
         rootPane.getStyleClass().add("custom-alert-background");
+
 
         // Make background semi-transparent and clickable to dismiss
         Region overlay = new Region();
@@ -768,7 +902,9 @@ public class SondageViewController implements Initializable {
             }
         });
 
+
         rootPane.getChildren().addAll(overlay, dialogVBox);
+
 
         // Create scene with transparent background
         Scene dialogScene = new Scene(rootPane);
@@ -776,24 +912,32 @@ public class SondageViewController implements Initializable {
         dialogScene.getStylesheets()
                 .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
 
+        dialogScene.getStylesheets()
+                .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
         // Set and show the dialog with animation
         dialogStage.setScene(dialogScene);
+
 
         // Center on screen
         dialogStage.setOnShown(e -> {
             dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
             dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
 
+
             // Play fade-in animation
             dialogVBox.setOpacity(0);
             dialogVBox.setScaleX(0.9);
             dialogVBox.setScaleY(0.9);
 
+
             ParallelTransition pt = new ParallelTransition();
+
 
             FadeTransition fadeIn = new FadeTransition(Duration.millis(350), dialogVBox);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
+
 
             ScaleTransition scaleIn = new ScaleTransition(Duration.millis(350), dialogVBox);
             scaleIn.setFromX(0.9);
@@ -801,14 +945,19 @@ public class SondageViewController implements Initializable {
             scaleIn.setToX(1);
             scaleIn.setToY(1);
 
+
             pt.getChildren().addAll(fadeIn, scaleIn);
             pt.play();
         });
 
+
         dialogStage.showAndWait();
     }
 
+
     /**
+     * Custom confirmation dialog with OK/Cancel buttons
+     * 
      * Custom confirmation dialog with OK/Cancel buttons
      * 
      * @return true if confirmed, false if canceled
@@ -816,42 +965,54 @@ public class SondageViewController implements Initializable {
     private boolean showCustomConfirmDialog(String title, String message, String details) {
         final boolean[] result = { false };
 
+        final boolean[] result = { false };
+
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
         dialogStage.setResizable(false);
+
 
         // Create the dialog container
         VBox dialogVBox = new VBox(15);
         dialogVBox.getStyleClass().add("custom-alert");
         dialogVBox.setPadding(new Insets(25));
 
+
         // Create icon and title in a horizontal box
         HBox headerBox = new HBox(15);
         headerBox.setAlignment(Pos.CENTER_LEFT);
+
 
         // Add appropriate icon for confirmation
         Label iconLabel = new Label("❓");
         iconLabel.getStyleClass().addAll("custom-alert-icon", "custom-alert-confirm-icon");
 
+
         // Dialog title
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("title");
 
+
         headerBox.getChildren().addAll(iconLabel, titleLabel);
+
 
         // Dialog message and details in a VBox
         VBox messageBox = new VBox(8);
+
 
         Label messageLabel = new Label(message);
         messageLabel.setWrapText(true);
         messageLabel.getStyleClass().add("content");
 
+
         Label detailsLabel = new Label(details);
         detailsLabel.setWrapText(true);
         detailsLabel.getStyleClass().add("details-content");
 
+
         messageBox.getChildren().addAll(messageLabel, detailsLabel);
+
 
         // Buttons
         Button confirmButton = new Button("Confirm");
@@ -868,6 +1029,7 @@ public class SondageViewController implements Initializable {
             fadeOut.play();
         });
 
+
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().addAll("custom-alert-button", "custom-alert-button-cancel");
         cancelButton.setOnAction(e -> {
@@ -882,15 +1044,18 @@ public class SondageViewController implements Initializable {
             fadeOut.play();
         });
 
+
         // Button container
         HBox buttonsBox = new HBox(15);
         buttonsBox.setAlignment(Pos.CENTER);
         buttonsBox.getStyleClass().add("buttons-box");
         buttonsBox.getChildren().addAll(cancelButton, confirmButton);
 
+
         // Set up background with drop shadow
         StackPane rootPane = new StackPane();
         rootPane.getStyleClass().add("custom-alert-background");
+
 
         // Make background semi-transparent and clickable to dismiss
         Region overlay = new Region();
@@ -908,9 +1073,11 @@ public class SondageViewController implements Initializable {
             }
         });
 
+
         // Add all elements to dialog
         dialogVBox.getChildren().addAll(headerBox, messageBox, buttonsBox);
         rootPane.getChildren().addAll(overlay, dialogVBox);
+
 
         // Create scene with transparent background
         Scene dialogScene = new Scene(rootPane);
@@ -918,24 +1085,32 @@ public class SondageViewController implements Initializable {
         dialogScene.getStylesheets()
                 .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
 
+        dialogScene.getStylesheets()
+                .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
         // Set and show the dialog with animation
         dialogStage.setScene(dialogScene);
+
 
         // Center on screen
         dialogStage.setOnShown(e -> {
             dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
             dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
 
+
             // Play fade-in animation
             dialogVBox.setOpacity(0);
             dialogVBox.setScaleX(0.9);
             dialogVBox.setScaleY(0.9);
 
+
             ParallelTransition pt = new ParallelTransition();
+
 
             FadeTransition fadeIn = new FadeTransition(Duration.millis(350), dialogVBox);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
+
 
             ScaleTransition scaleIn = new ScaleTransition(Duration.millis(350), dialogVBox);
             scaleIn.setFromX(0.9);
@@ -943,17 +1118,25 @@ public class SondageViewController implements Initializable {
             scaleIn.setToX(1);
             scaleIn.setToY(1);
 
+
             pt.getChildren().addAll(fadeIn, scaleIn);
             pt.play();
         });
 
+
         dialogStage.showAndWait();
+
 
         return result[0];
     }
 
+
     @FXML
     private void handleCreatePoll() {
+        // Reset validation error messages
+        questionErrorLabel.setVisible(false);
+        optionsErrorLabel.setVisible(false);
+
         // Reset validation error messages
         questionErrorLabel.setVisible(false);
         optionsErrorLabel.setVisible(false);
@@ -977,13 +1160,42 @@ public class SondageViewController implements Initializable {
         }
 
         // Collect options
+        boolean hasError = false;
+
+        // Validate question
+        if (question.isEmpty()) {
+            questionErrorLabel.setText("Question cannot be empty.");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (!question.endsWith("?")) {
+            questionErrorLabel.setText("Question must end with a question mark (?).");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (question.length() < 5) {
+            questionErrorLabel.setText("Question must be at least 5 characters long.");
+            questionErrorLabel.setVisible(true);
+            hasError = true;
+        }
+
+        // Collect options
         List<String> options = new ArrayList<>();
+        boolean hasEmptyOption = false;
+        boolean hasInvalidOption = false;
+        Pattern validOptionPattern = Pattern.compile(".*[a-zA-Z0-9].*"); // Must contain at least one alphanumeric char
+
         boolean hasEmptyOption = false;
         boolean hasInvalidOption = false;
         Pattern validOptionPattern = Pattern.compile(".*[a-zA-Z0-9].*"); // Must contain at least one alphanumeric char
 
         for (Node node : pollOptionsContainer.getChildren()) {
             if (node instanceof TextField) {
+                TextField optionField = (TextField) node;
+                String optionText = optionField.getText().trim();
+                if (optionText.isEmpty()) {
+                    hasEmptyOption = true;
+                } else if (!validOptionPattern.matcher(optionText).matches()) {
+                    hasInvalidOption = true;
+                } else {
                 TextField optionField = (TextField) node;
                 String optionText = optionField.getText().trim();
                 if (optionText.isEmpty()) {
@@ -999,7 +1211,20 @@ public class SondageViewController implements Initializable {
         // Validate options
         if (hasEmptyOption) {
             optionsErrorLabel.setText("All options must have content.");
+
+        // Validate options
+        if (hasEmptyOption) {
+            optionsErrorLabel.setText("All options must have content.");
             optionsErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (hasInvalidOption) {
+            optionsErrorLabel.setText("Options must contain at least one letter or number.");
+            optionsErrorLabel.setVisible(true);
+            hasError = true;
+        } else if (options.size() < 2) {
+            optionsErrorLabel.setText("Please add at least 2 options for the poll.");
+            optionsErrorLabel.setVisible(true);
+            hasError = true;
             hasError = true;
         } else if (hasInvalidOption) {
             optionsErrorLabel.setText("Options must contain at least one letter or number.");
@@ -1023,20 +1248,36 @@ public class SondageViewController implements Initializable {
         if (hasError) {
             return;
         }
+            // Check for duplicate options
+            Set<String> uniqueOptions = new HashSet<>(
+                    options.stream().map(String::toLowerCase).collect(Collectors.toList()));
+            if (uniqueOptions.size() != options.size()) {
+                optionsErrorLabel.setText("Duplicate options are not allowed.");
+                optionsErrorLabel.setVisible(true);
+                hasError = true;
+            }
+        }
 
+        if (hasError) {
+            return;
+        }
+
+        try {
         try {
             // Create poll object
             Sondage sondage = new Sondage();
             sondage.setQuestion(question);
             sondage.setUser(currentUser);
 
+
             // Find the club associated with the current user (president)
             Club userClub = clubService.findByPresident(currentUser.getId());
             if (userClub == null) {
                 showCustomAlert("Error", "You must be a club president to create polls.", "error");
-                return;
-            }
+            return;
+        }
             sondage.setClub(userClub);
+
 
             // Add options to the poll
             for (String optionText : options) {
@@ -1045,18 +1286,23 @@ public class SondageViewController implements Initializable {
                 sondage.addChoix(choix);
             }
 
+
             // Save the poll
             sondageService.add(sondage);
+
 
             // Reset form
             resetPollForm();
 
+
             // Show success popup
             showCustomAlert("Success", "Your poll has been created successfully!", "success");
+
 
             // Reload sondages properly - using "all" as filter to show all polls
             filterClubComboBox.getSelectionModel().select("all");
             loadSondages("all");
+
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1067,20 +1313,25 @@ public class SondageViewController implements Initializable {
     private void resetPollForm() {
         pollQuestionField.clear();
 
+
         // Supprimer toutes les options sauf les deux premières
         if (pollOptionsContainer.getChildren().size() > 2) {
             pollOptionsContainer.getChildren().remove(2, pollOptionsContainer.getChildren().size());
         }
 
+
         // Réinitialiser les deux premières options
         option1Field.clear();
         option2Field.clear();
+
 
         // Réinitialiser le compteur d'options
         optionCount = 2;
     }
 
     /**
+     * Gère le clic sur le bouton "View All Polls" pour ouvrir la vue de gestion des
+     * sondages
      * Gère le clic sur le bouton "View All Polls" pour ouvrir la vue de gestion des
      * sondages
      * et afficher les sondages du club dont l'utilisateur courant est président
@@ -1129,6 +1380,7 @@ public class SondageViewController implements Initializable {
         return reponseService.getUserResponse(currentUser.getId(), sondage.getId());
     }
 
+
     /**
      * Get total number of votes for a poll
      */
@@ -1142,6 +1394,7 @@ public class SondageViewController implements Initializable {
     private int getCommentCount(int pollId) throws SQLException {
         return commentaireService.getBySondage(pollId).size();
     }
+
 
     private void openCommentsModal(Sondage sondage) {
         try {
@@ -1166,16 +1419,19 @@ public class SondageViewController implements Initializable {
                 return;
             }
 
+
             // Configure the controller with required data
             controller.setSondage(sondage);
             controller.setParentController(this);
             controller.setCurrentUser(currentUser);
+
 
             // Initialize the modal content after setting necessary data
             controller.setupModalContent();
 
             // Créer une nouvelle scène et fenêtre pour la modale
             Scene scene = new Scene(commentsModal);
+
 
             // Charger le fichier CSS
             URL cssUrl = getClass().getResource("/com/esprit/styles/sondage-style.css");
@@ -1184,6 +1440,7 @@ public class SondageViewController implements Initializable {
             } else {
                 System.err.println("Warning: Unable to load CSS file. The modal will appear without styling.");
             }
+
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -1198,6 +1455,185 @@ public class SondageViewController implements Initializable {
             e.printStackTrace();
             AlertUtils.showError("Error", "Failed to open comments modal: " + e.getMessage());
         }
+    }
+
+    /**
+     * Show a summary of all comments for a poll
+     * 
+     * @param sondage The poll to show comments summary for
+     */
+    private void showCommentsSummary(Sondage sondage) {
+        try {
+            // Get all comments for this poll
+            CommentaireService commentaireService = new CommentaireService();
+            ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
+
+            if (comments.isEmpty()) {
+                showCustomAlert("Info", "There are no comments to summarize for this poll.", "info");
+                return;
+            }
+
+            // Show loading dialog
+            Stage loadingStage = new Stage();
+            loadingStage.initModality(Modality.APPLICATION_MODAL);
+            loadingStage.initStyle(StageStyle.TRANSPARENT);
+
+            VBox loadingBox = new VBox(10);
+            loadingBox.setAlignment(Pos.CENTER);
+            loadingBox.setPadding(new Insets(20));
+            loadingBox.getStyleClass().add("loading-dialog");
+
+            Label loadingLabel = new Label("Generating summary...");
+            loadingLabel.getStyleClass().add("loading-label");
+
+            ProgressIndicator progressIndicator = new ProgressIndicator();
+            progressIndicator.setMaxSize(50, 50);
+
+            loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
+
+            Scene loadingScene = new Scene(loadingBox);
+            loadingScene.setFill(Color.TRANSPARENT);
+            loadingScene.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
+            loadingStage.setScene(loadingScene);
+            loadingStage.show();
+
+            // Generate summary in a background task
+            Task<String> summaryTask = new Task<String>() {
+                @Override
+                protected String call() throws Exception {
+                    StringBuilder summary = new StringBuilder();
+                    summary.append("Summary of comments for poll: ").append(sondage.getQuestion()).append("\n\n");
+
+                    for (int i = 0; i < comments.size(); i++) {
+                        Commentaire comment = comments.get(i);
+                        summary.append(i + 1).append(". ")
+                                .append(comment.getUser().getLastName()).append(" ")
+                                .append(comment.getUser().getFirstName()).append(": ")
+                                .append(comment.getContenuComment()).append(" (")
+                                .append(comment.getDateComment()).append(")\n");
+                    }
+
+                    // Add basic statistics
+                    summary.append("\n--- Statistics ---\n");
+                    summary.append("Total Comments: ").append(comments.size()).append("\n");
+
+                    // Count unique users
+                    long uniqueUsers = comments.stream()
+                            .map(c -> c.getUser().getId())
+                            .distinct()
+                            .count();
+                    summary.append("Unique Commenters: ").append(uniqueUsers).append("\n");
+
+                    // Delay for UX purposes, so loading dialog is visible
+                    Thread.sleep(800);
+
+                    return summary.toString();
+                }
+            };
+
+            summaryTask.setOnSucceeded(event -> {
+                loadingStage.close();
+                String summaryText = summaryTask.getValue();
+                showSummaryDialog(sondage, summaryText);
+            });
+
+            summaryTask.setOnFailed(event -> {
+                loadingStage.close();
+                Throwable exception = summaryTask.getException();
+                showCustomAlert("Error", "Failed to generate summary: " + exception.getMessage(), "error");
+            });
+
+            new Thread(summaryTask).start();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showCustomAlert("Error", "Failed to load comments: " + e.getMessage(), "error");
+        }
+    }
+
+    /**
+     * Shows a dialog with the comments summary
+     * 
+     * @param sondage The poll
+     * @param summary The generated summary text
+     */
+    private void showSummaryDialog(Sondage sondage, String summary) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+        dialogStage.setResizable(true);
+
+        // Create dialog container
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.getStyleClass().add("summary-dialog");
+        dialogVBox.setPadding(new Insets(20));
+
+        // Header with title and close button
+        HBox headerBox = new HBox();
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setSpacing(10);
+
+        Label titleLabel = new Label("Comments Summary");
+        titleLabel.getStyleClass().add("summary-title");
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+
+        Button closeButton = new Button("✕");
+        closeButton.getStyleClass().add("close-button");
+        closeButton.setOnAction(e -> dialogStage.close());
+
+        headerBox.getChildren().addAll(titleLabel, closeButton);
+
+        // Summary content area
+        TextArea summaryArea = new TextArea(summary);
+        summaryArea.setEditable(false);
+        summaryArea.setWrapText(true);
+        summaryArea.setPrefRowCount(20);
+        summaryArea.setPrefColumnCount(60);
+        summaryArea.getStyleClass().add("summary-text");
+
+        // Add components to dialog
+        dialogVBox.getChildren().addAll(headerBox, summaryArea);
+
+        // Background with shadow
+        StackPane rootPane = new StackPane();
+        rootPane.getStyleClass().add("summary-dialog-background");
+
+        // Semi-transparent overlay
+        Region overlay = new Region();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.3);");
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                dialogStage.close();
+            }
+        });
+
+        rootPane.getChildren().addAll(overlay, dialogVBox);
+
+        // Create scene
+        Scene dialogScene = new Scene(rootPane);
+        dialogScene.setFill(Color.TRANSPARENT);
+        dialogScene.getStylesheets()
+                .add(getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm());
+
+        dialogStage.setScene(dialogScene);
+        dialogStage.setWidth(700);
+        dialogStage.setHeight(500);
+
+        // Center on screen and show with animation
+        dialogStage.setOnShown(e -> {
+            dialogStage.setX((Screen.getPrimary().getVisualBounds().getWidth() - dialogScene.getWidth()) / 2);
+            dialogStage.setY((Screen.getPrimary().getVisualBounds().getHeight() - dialogScene.getHeight()) / 2);
+
+            // Fade in animation
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dialogVBox);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        });
+
+        dialogStage.show();
     }
 
     /**
@@ -1405,9 +1841,10 @@ public class SondageViewController implements Initializable {
             return false;
         }
 
+
         // Check minimum length (2 characters)
         if (content.trim().length() < 2) {
-            commentErrorLabel.setText("Comment is too short. Minimum 2 characters required.");
+            commentErrorLabel.setText("Comment must be at least 2 characters long.");
             commentErrorLabel.setVisible(true);
             return false;
         }

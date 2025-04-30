@@ -29,52 +29,58 @@ public class Club {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     @Column(name = "nom")
     private String nom;
-    
+    @Column(name = "nom_c")
+    private String nomC;
     @Column(name = "description")
     private String description;
-    
+
     @Column(name = "logo")
     private String logo;
-    
+
     @Column(name = "date_creation")
     private LocalDateTime dateCreation;
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "president_id")
     private User president;
-    
+
     @Column(name = "status")
     private String status;
-    
+    @Column(name = "image")
+    private String image;
+
+    @Column(name = "points")
+    private int points;
+
     // JavaFX properties for UI binding
     @Transient
     private final IntegerProperty idProperty = new SimpleIntegerProperty();
-    
+
     @Transient
     private final StringProperty nomProperty = new SimpleStringProperty();
-    
+
     @Transient
     private final StringProperty descriptionProperty = new SimpleStringProperty();
-    
+
     @Transient
     private final StringProperty logoProperty = new SimpleStringProperty();
-    
+
     @Transient
     private final ObjectProperty<LocalDateTime> dateCreationProperty = new SimpleObjectProperty<>();
-    
+
     @Transient
     private final ObjectProperty<User> presidentProperty = new SimpleObjectProperty<>();
-    
+
     @Transient
     private final StringProperty statusProperty = new SimpleStringProperty();
-    
+
     // JPA relationships
     @Transient
     private List<User> membres = new ArrayList<>();
-    
+
     @OneToMany(mappedBy = "club", fetch = FetchType.EAGER)
     private List<Sondage> sondages = new ArrayList<>();
 
@@ -146,38 +152,38 @@ public class Club {
         this.status = status;
         this.statusProperty.set(status);
     }
-    
+
     // Property accessors for JavaFX
     public IntegerProperty idProperty() {
         idProperty.set(id);
         return idProperty;
     }
-    
+
     public StringProperty nomProperty() {
         nomProperty.set(nom);
         return nomProperty;
     }
-    
+
     public StringProperty descriptionProperty() {
         descriptionProperty.set(description);
         return descriptionProperty;
     }
-    
+
     public StringProperty logoProperty() {
         logoProperty.set(logo);
         return logoProperty;
     }
-    
+
     public ObjectProperty<LocalDateTime> dateCreationProperty() {
         dateCreationProperty.set(dateCreation);
         return dateCreationProperty;
     }
-    
+
     public ObjectProperty<User> presidentProperty() {
         presidentProperty.set(president);
         return presidentProperty;
     }
-    
+
     public StringProperty statusProperty() {
         statusProperty.set(status);
         return statusProperty;
@@ -206,13 +212,29 @@ public class Club {
         }
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public void addSondage(Sondage sondage) {
         if (!this.sondages.contains(sondage)) {
             this.sondages.add(sondage);
             sondage.setClub(this);
         }
     }
-    
+
     @Override
     public String toString() {
         return this.getNom();

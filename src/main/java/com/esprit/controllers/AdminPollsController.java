@@ -29,6 +29,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -82,6 +84,20 @@ public class AdminPollsController implements Initializable {
     @FXML private VBox surveySubMenu;
     @FXML private Label adminNameLabel;
 
+    // Sidebar navigation buttons
+    @FXML private Button userManagementBtn;
+    @FXML private Button clubManagementBtn;
+    @FXML private Button eventManagementBtn;
+    @FXML private Button productOrdersBtn;
+    @FXML private Button competitionBtn;
+    @FXML private Button surveyManagementBtn;
+    @FXML private Button pollsManagementBtn;
+    @FXML private Button commentsManagementBtn;
+    @FXML private Button profileBtn;
+    @FXML private Button logoutBtn;
+    @FXML private VBox surveySubMenu;
+    @FXML private Label adminNameLabel;
+
     // Services
     private SondageService sondageService;
     private ClubService clubService;
@@ -114,6 +130,12 @@ public class AdminPollsController implements Initializable {
 
             // Configurer les événements
             setupEventHandlers();
+
+            // Configurer les événements de navigation
+            setupNavigationEvents();
+
+            // Configurer les informations de l'administrateur
+            setupAdminInfo();
 
             // Configurer les événements de navigation
             setupNavigationEvents();
@@ -186,8 +208,11 @@ public class AdminPollsController implements Initializable {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setStyle("-fx-alignment: CENTER;");
         
+        idColumn.setStyle("-fx-alignment: CENTER;");
+        
         // Configuration de la colonne Question
         questionColumn.setCellValueFactory(new PropertyValueFactory<>("question"));
+        questionColumn.setStyle("-fx-alignment: CENTER-LEFT;");
         questionColumn.setStyle("-fx-alignment: CENTER-LEFT;");
         
         // Configuration de la colonne Options
@@ -202,6 +227,7 @@ public class AdminPollsController implements Initializable {
             return new SimpleStringProperty("");
         });
         optionsColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        optionsColumn.setStyle("-fx-alignment: CENTER-LEFT;");
 
         // Configuration de la colonne Club
         clubColumn.setCellValueFactory(cellData -> {
@@ -210,6 +236,7 @@ public class AdminPollsController implements Initializable {
             }
             return new SimpleStringProperty("N/A");
         });
+        clubColumn.setStyle("-fx-alignment: CENTER;");
         clubColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Date
@@ -221,15 +248,40 @@ public class AdminPollsController implements Initializable {
             return new SimpleStringProperty("N/A");
         });
         createdAtColumn.setStyle("-fx-alignment: CENTER;");
+        createdAtColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Actions
         actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
             // Créer des boutons avec des images au lieu de texte
             private final Button viewButton = new Button();
             private final Button deleteButton = new Button();
+        actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
+            // Créer des boutons avec des images au lieu de texte
+            private final Button viewButton = new Button();
+            private final Button deleteButton = new Button();
             private final HBox buttonsBox = new HBox(8);
             
+            
             {
+                // Créer les ImageView pour les icônes
+                ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/eye.png")));
+                eyeIcon.setFitHeight(20);
+                eyeIcon.setFitWidth(20);
+                
+                ImageView trashIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/trash.png")));
+                trashIcon.setFitHeight(20);
+                trashIcon.setFitWidth(20);
+                
+                // Configurer le bouton de détails avec l'icône d'œil
+                viewButton.setGraphic(eyeIcon);
+                viewButton.getStyleClass().add("icon-button");
+                viewButton.getStyleClass().add("view-button");
+                viewButton.setTooltip(new Tooltip("Voir les détails"));
+                
+                // Configurer le bouton de suppression avec l'icône de poubelle
+                deleteButton.setGraphic(trashIcon);
+                deleteButton.getStyleClass().add("icon-button");
+                deleteButton.getStyleClass().add("delete-icon-button");
                 // Créer les ImageView pour les icônes
                 ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/eye.png")));
                 eyeIcon.setFitHeight(20);
@@ -259,6 +311,14 @@ public class AdminPollsController implements Initializable {
                 buttonsBox.getChildren().addAll(viewButton, deleteButton);
                 
                 // Action pour le bouton Voir détails
+                // Ajouter la classe pour centrer les boutons
+                getStyleClass().add("button-cell");
+                
+                // Configuration du conteneur des boutons
+                buttonsBox.setAlignment(Pos.CENTER);
+                buttonsBox.getChildren().addAll(viewButton, deleteButton);
+                
+                // Action pour le bouton Voir détails
                 viewButton.setOnAction(event -> {
                     Sondage sondage = getTableView().getItems().get(getIndex());
                     viewPollDetails(sondage);
@@ -269,7 +329,14 @@ public class AdminPollsController implements Initializable {
                     Sondage sondage = getTableView().getItems().get(getIndex());
                     deletePoll(sondage);
                 });
+                
+                // Action pour le bouton Supprimer
+                deleteButton.setOnAction(event -> {
+                    Sondage sondage = getTableView().getItems().get(getIndex());
+                    deletePoll(sondage);
+                });
             }
+            
             
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -281,8 +348,16 @@ public class AdminPollsController implements Initializable {
                     setGraphic(buttonsBox);
                     setAlignment(Pos.CENTER);
                 }
+                
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(buttonsBox);
+                    setAlignment(Pos.CENTER);
+                }
             }
         });
+        actionsColumn.setStyle("-fx-alignment: CENTER;");
         actionsColumn.setStyle("-fx-alignment: CENTER;");
     }
 
@@ -560,9 +635,10 @@ public class AdminPollsController implements Initializable {
                 
                 controller.setSondage(sondage);
                 
-                // Récupérer les dimensions de la fenêtre actuelle
-                double width = NavigationManager.getCurrentScene().getWindow().getWidth();
-                double height = NavigationManager.getCurrentScene().getWindow().getHeight();
+                // Get current stage directly from a scene component
+                Stage currentStage = (Stage) pollsTable.getScene().getWindow();
+                double width = currentStage.getWidth();
+                double height = currentStage.getHeight();
                 
                 // Créer la scène avec les dimensions de la fenêtre actuelle
                 Scene scene = new Scene(root, width, height);
@@ -578,8 +654,9 @@ public class AdminPollsController implements Initializable {
                     }
                 }
                 
-                // Utiliser NavigationManager pour naviguer vers la nouvelle vue
-                NavigationManager.navigateTo(scene);
+                // Appliquer la scène directement au stage
+                currentStage.setScene(scene);
+                currentStage.show();
                 
             } catch (Exception e) {
                 System.err.println("Error during loading or showing the view: " + e.getMessage());
@@ -634,13 +711,45 @@ public class AdminPollsController implements Initializable {
         try {
             // Create a custom confirmation dialog
             Alert confirmDialog = new Alert(Alert.AlertType.NONE);
+            Alert confirmDialog = new Alert(Alert.AlertType.NONE);
             confirmDialog.setTitle("Confirmation");
+            confirmDialog.setHeaderText("Delete poll?");
+            confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
+                                        "\" along with all its associated votes and comments. This action is irreversible.");
+    
             confirmDialog.setHeaderText("Delete poll?");
             confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
                                         "\" along with all its associated votes and comments. This action is irreversible.");
     
             // Customize the dialog
             DialogPane dialogPane = confirmDialog.getDialogPane();
+    
+            // Add icon to header
+            Label headerIcon = new Label("⚠️");
+            headerIcon.setStyle("-fx-font-size: 24px; -fx-text-fill: #e74c3b;");
+    
+            HBox headerLayout = new HBox(10);
+            headerLayout.setAlignment(Pos.CENTER_LEFT);
+    
+            Label headerLabel = new Label("Delete poll?");
+            headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3b;");
+    
+            headerLayout.getChildren().addAll(headerIcon, headerLabel);
+            dialogPane.setHeader(headerLayout);
+    
+            // Style for content text
+            Label contentLabel = new Label(confirmDialog.getContentText());
+            contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+            contentLabel.setWrapText(true);
+            contentLabel.setPrefWidth(400);
+            dialogPane.setContent(contentLabel);
+    
+            // Add buttons
+            ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            ButtonType confirmButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+            confirmDialog.getButtonTypes().addAll(cancelButtonType, confirmButtonType);
+    
+            // Apply CSS styling
     
             // Add icon to header
             Label headerIcon = new Label("⚠️");
@@ -676,7 +785,16 @@ public class AdminPollsController implements Initializable {
             // Add some style to dialog background
             dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);");
     
+            dialogPane.setPrefWidth(450);
+            dialogPane.setPrefHeight(200);
+    
+            // Add some style to dialog background
+            dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);");
+    
             // Get the confirm and cancel buttons
+            Button confirmButton = (Button) dialogPane.lookupButton(confirmButtonType);
+            Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
+    
             Button confirmButton = (Button) dialogPane.lookupButton(confirmButtonType);
             Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
     
@@ -695,27 +813,56 @@ public class AdminPollsController implements Initializable {
                 btnContent.getChildren().addAll(iconLabel, textLabel);
                 confirmButton.setGraphic(btnContent);
                 confirmButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                confirmButton.getStyleClass().add("delete-confirm-button"); 
+                confirmButton.setStyle("-fx-background-color: #e74c3b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
+    
+                // Add icon to delete button
+                HBox btnContent = new HBox(5);
+                btnContent.setAlignment(Pos.CENTER);
+    
+                Label iconLabel = new Label("🗑️");
+                Label textLabel = new Label("Delete");
+                textLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+    
+                btnContent.getChildren().addAll(iconLabel, textLabel);
+                confirmButton.setGraphic(btnContent);
+                confirmButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             }
+    
     
             if (cancelButton != null) {
                 cancelButton.getStyleClass().add("cancel-button"); 
                 cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-border-color: #dee2e6; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
+                cancelButton.getStyleClass().add("cancel-button"); 
+                cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-border-color: #dee2e6; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
             }
+    
     
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
+            if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
                 try {
                     // First delete comments linked to this poll
+                    // First delete comments linked to this poll
                     sondageService.deleteCommentsByPollId(sondage.getId());
+    
+                    // Then delete responses linked to this poll
     
                     // Then delete responses linked to this poll
                     sondageService.deleteResponsesByPollId(sondage.getId());
     
                     // Then delete options linked to this poll
+    
+                    // Then delete options linked to this poll
                     sondageService.deleteOptionsByPollId(sondage.getId());
     
                     // Finally, delete the poll itself
+    
+                    // Finally, delete the poll itself
                     sondageService.delete(sondage.getId());
+    
+                    // Show success confirmation
+                    showToast("✅ The poll was successfully deleted", "success");
     
                     // Show success confirmation
                     showToast("✅ The poll was successfully deleted", "success");
@@ -723,13 +870,16 @@ public class AdminPollsController implements Initializable {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     showToast("Error while deleting: " + e.getMessage(), "error");
+                    showToast("Error while deleting: " + e.getMessage(), "error");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
+            showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
         }
     }
+    
     
 
     /**

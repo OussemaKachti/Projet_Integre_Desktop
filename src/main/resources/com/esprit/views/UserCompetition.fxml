@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<?import java.net.URL?>
+<AnchorPane fx:id="competitionUserPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionUserController" styleClass="content-wrapper">
+    <stylesheets>
+        <URL value="@styles/competitionUser.css" />
+    </stylesheets>
+
+    <ScrollPane fitToWidth="true" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" styleClass="transparent-background">
+        <VBox spacing="30">
+            <!-- Header with Back Button -->
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="page-header">
+                <Button fx:id="backButton" styleClass="back-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-arrow-left" iconSize="20" />
+                    </graphic>
+                    <tooltip>
+                        <Tooltip text="Back to Dashboard" />
+                    </tooltip>
+                </Button>
+
+                <Label text="Competition" styleClass="page-title" />
+            </HBox>
+
+            <!-- Seasons Section -->
+            <VBox styleClass="section-container">
+                <HBox styleClass="section-header" alignment="CENTER">
+                    <VBox alignment="CENTER">
+                        <Label text="Competition Timeline" styleClass="section-pre-title" />
+                        <Label text="Seasons" styleClass="section-title" />
+                    </VBox>
+                </HBox>
+
+                <FlowPane fx:id="seasonsContainer" hgap="15" vgap="15" alignment="CENTER">
+                    <!-- Season cards will be added here dynamically -->
+                </FlowPane>
+            </VBox>
+
+            <!-- Missions and Leaderboard Section -->
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+                <!-- Missions Section -->
+                <VBox styleClass="section-container" HBox.hgrow="ALWAYS" prefWidth="700">
+                    <HBox styleClass="section-header-left">
+                        <VBox>
+                            <Label text="Current Season" styleClass="section-pre-title" />
+                            <Label text="Missions" styleClass="section-title" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox fx:id="missionsContainer" spacing="10">
+                        <!-- Mission items will be added here dynamically -->
+                    </VBox>
+                </VBox>
+
+                <!-- Leaderboard Section -->
+                <VBox styleClass="section-container" minWidth="300" maxWidth="350">
+                    <Label text="Leaderboard" styleClass="leaderboard-title" />
+
+                    <TableView fx:id="leaderboardTable" styleClass="leaderboard-table">
+                        <columns>
+                            <TableColumn fx:id="rankColumn" text="#" prefWidth="40" />
+                            <TableColumn fx:id="clubColumn" text="Club" prefWidth="160" />
+                            <TableColumn fx:id="pointsColumn" text="Points" prefWidth="80" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </HBox>
+        </VBox>
+        <padding>
+            <Insets top="20" right="30" bottom="30" left="30" />
+        </padding>
+    </ScrollPane>
+</AnchorPane>

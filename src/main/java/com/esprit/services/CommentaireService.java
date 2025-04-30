@@ -1,9 +1,6 @@
 package com.esprit.services;
 
 import com.esprit.models.Commentaire;
-import com.esprit.models.Sondage;
-import com.esprit.models.User;
-import com.esprit.utils.DatabaseConnection;
 import com.esprit.utils.DataSource;
 
 import javafx.collections.FXCollections;
@@ -94,16 +91,19 @@ public class CommentaireService {
     /**
      * Supprime un commentaire sans vérification d'autorisation
      * Utilisé principalement par le contrôleur CRUD
+     *
      * @param commentId ID du commentaire à supprimer
+     * @return
      * @throws SQLException En cas d'erreur SQL
      */
-    public void delete(int commentId) throws SQLException {
+    public boolean delete(int commentId) throws SQLException {
         String query = "DELETE FROM commentaire WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, commentId);
             pst.executeUpdate();
         }
+        return false;
     }
 
     public ObservableList<Commentaire> getBySondage(int sondageId) throws SQLException {

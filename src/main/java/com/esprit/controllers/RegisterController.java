@@ -96,11 +96,21 @@ public class RegisterController {
             validator.showError(firstNameField, "First name must be at least 2 characters");
             isFirstNameValid = false;
         }
+        // Check for profanity in first name
+        if (isFirstNameValid && !ValidationUtils.isCleanText(firstName)) {
+            validator.showError(firstNameField, "First name contains inappropriate language");
+            isFirstNameValid = false;
+        }
         
         // Validate last name
         boolean isLastNameValid = validator.validateRequired(lastNameField, "Last name is required");
         if (isLastNameValid && lastName.length() < 2) {
             validator.showError(lastNameField, "Last name must be at least 2 characters");
+            isLastNameValid = false;
+        }
+        // Check for profanity in last name
+        if (isLastNameValid && !ValidationUtils.isCleanText(lastName)) {
+            validator.showError(lastNameField, "Last name contains inappropriate language");
             isLastNameValid = false;
         }
         

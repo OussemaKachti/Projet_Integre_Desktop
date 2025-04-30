@@ -14,7 +14,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.beans.property.SimpleStringProperty;
@@ -90,7 +89,7 @@ public class SondageController implements Initializable {
             
         colClub.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getClub() != null ? 
-                cellData.getValue().getClub().getNom() : ""));
+                cellData.getValue().getClub().getNomC() : ""));
                 
         setupActionsColumn();
     }
@@ -227,7 +226,7 @@ public class SondageController implements Initializable {
             }
             
             // Récupérer le club où l'utilisateur est président
-            Club club = clubService.findByPresident(user.getId());
+            Club club = clubService.findFirstByPresident(user.getId());
             if (club == null) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", 
                          "Club non trouvé", "L'utilisateur n'est pas président d'un club.");
@@ -358,7 +357,7 @@ public class SondageController implements Initializable {
         // Informations sur le sondage
         content.getChildren().add(new Label("Date de création: " + sondage.getCreatedAt()));
         content.getChildren().add(new Label("Club: " + 
-            (sondage.getClub() != null ? sondage.getClub().getNom() : "N/A")));
+            (sondage.getClub() != null ? sondage.getClub().getNomC() : "N/A")));
         content.getChildren().add(new Label("Créé par: " + 
             (sondage.getUser() != null ? sondage.getUser().getLastName() + " " + 
                                        sondage.getUser().getFirstName() : "N/A")));
