@@ -170,6 +170,78 @@
                      </HBox>
                   </VBox>
                   
+                  <!-- LEADERBOARD SECTION - NOUVEAU -->
+                  <VBox fx:id="leaderboardContainer" styleClass="leaderboard-container" spacing="15">
+                     <children>
+                        <!-- Leaderboard Header -->
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                           <children>
+                              <Label styleClass="leaderboard-header" text="Member Participation Leaderboard" />
+                              <Pane HBox.hgrow="ALWAYS" />
+                              <Button fx:id="refreshLeaderboardButton" styleClass="refresh-button" text="Refresh" onAction="#refreshLeaderboard">
+                                 <graphic>
+                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                       <Image url="@../images/refresh-icon.png" />
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                           </children>
+                        </HBox>
+                        
+                        <Label styleClass="leaderboard-subheader" text="See which members are most active in participating in your club's polls" />
+                        
+                        <!-- Participation Stats Cards -->
+                        <HBox fx:id="participationStatsContainer" styleClass="participation-stats" spacing="15">
+                           <!-- Stats will be loaded dynamically -->
+                           <children>
+                              <!-- Total Votes -->
+                              <VBox styleClass="stats-card">
+                                 <children>
+                                    <Label styleClass="stats-label" text="TOTAL VOTES" />
+                                    <Label fx:id="totalVotesLabel" styleClass="stats-value" text="0" />
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Unique Participants -->
+                              <VBox styleClass="stats-card">
+                                 <children>
+                                    <Label styleClass="stats-label" text="UNIQUE PARTICIPANTS" />
+                                    <Label fx:id="uniqueParticipantsLabel" styleClass="stats-value" text="0" />
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Most Popular Poll -->
+                              <VBox styleClass="most-popular-poll" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label styleClass="most-popular-poll-title" text="MOST POPULAR POLL" />
+                                    <Label fx:id="mostPopularPollLabel" styleClass="most-popular-poll-question" 
+                                           text="No poll data available yet" wrapText="true" />
+                                    <Label fx:id="mostPopularPollVotesLabel" styleClass="most-popular-poll-votes" 
+                                           text="0 votes" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        
+                        <!-- Leaderboard Table -->
+                        <VBox styleClass="leaderboard-table">
+                           <!-- Table Header -->
+                           <HBox styleClass="leaderboard-table-header">
+                              <children>
+                                 <Label prefWidth="60" text="RANK" />
+                                 <Label prefWidth="250" text="MEMBER" />
+                                 <Label text="PARTICIPATION" HBox.hgrow="ALWAYS" />
+                              </children>
+                           </HBox>
+                           
+                           <!-- Table Content will be filled programmatically -->
+                           <VBox fx:id="leaderboardContent">
+                              <!-- Rows will be added dynamically -->
+                           </VBox>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  
                   <!-- Toast Container -->
                   <Pane fx:id="toastContainer" prefHeight="40.0" styleClass="toast-container" visible="false">
                      <children>

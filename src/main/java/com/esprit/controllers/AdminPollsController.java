@@ -29,6 +29,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -112,6 +113,9 @@ public class AdminPollsController implements Initializable {
     private VBox surveySubMenu;
     @FXML
     private Label adminNameLabel;
+
+    @FXML
+    private BorderPane borderPane;
 
     // Services
     public SondageService sondageService;
@@ -588,7 +592,7 @@ public class AdminPollsController implements Initializable {
                 }
 
                 controller.setSondage(sondage);
-
+//borderPane.setCenter(root);
                 // Get current stage directly from a scene component
                 Stage currentStage = (Stage) pollsTable.getScene().getWindow();
                 double width = currentStage.getWidth();
