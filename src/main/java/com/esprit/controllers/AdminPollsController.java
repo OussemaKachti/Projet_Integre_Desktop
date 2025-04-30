@@ -156,12 +156,6 @@ public class AdminPollsController implements Initializable {
             // Configurer les informations de l'administrateur
             setupAdminInfo();
 
-            // Configurer les événements de navigation
-            setupNavigationEvents();
-
-            // Configurer les informations de l'administrateur
-            setupAdminInfo();
-
             // Charger les données initiales
             loadData();
 
@@ -246,11 +240,10 @@ public class AdminPollsController implements Initializable {
         // Configuration de la colonne Club
         clubColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue() != null && cellData.getValue().getClub() != null) {
-                return new SimpleStringProperty(cellData.getValue().getClub().getNom());
+                return new SimpleStringProperty(cellData.getValue().getClub().getNomC());
             }
             return new SimpleStringProperty("N/A");
         });
-        clubColumn.setStyle("-fx-alignment: CENTER;");
         clubColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Date
@@ -262,13 +255,8 @@ public class AdminPollsController implements Initializable {
             return new SimpleStringProperty("N/A");
         });
         createdAtColumn.setStyle("-fx-alignment: CENTER;");
-        createdAtColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Actions
-        actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
-            // Créer des boutons avec des images au lieu de texte
-            private final Button viewButton = new Button();
-            private final Button deleteButton = new Button();
         actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
             // Créer des boutons avec des images au lieu de texte
             private final Button viewButton = new Button();
@@ -276,12 +264,12 @@ public class AdminPollsController implements Initializable {
             private final HBox buttonsBox = new HBox(8);
 
             {
-                // Créer les ImageView pour les icônes
-                ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/eye.png")));
+                // Créer les ImageView pour les icônes - Update paths to use common resources folder
+                ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/esprit/images/eye.png")));
                 eyeIcon.setFitHeight(20);
                 eyeIcon.setFitWidth(20);
 
-                ImageView trashIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/trash.png")));
+                ImageView trashIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/esprit/images/trash.png")));
                 trashIcon.setFitHeight(20);
                 trashIcon.setFitWidth(20);
 
@@ -301,7 +289,7 @@ public class AdminPollsController implements Initializable {
                 getStyleClass().add("button-cell");
 
                 // Configuration du conteneur des boutons
-                buttonsBox.setAlignment(Pos.CENTER_RIGHT);
+                buttonsBox.setAlignment(Pos.CENTER);
                 buttonsBox.getChildren().addAll(viewButton, deleteButton);
 
                 // Action pour le bouton Voir détails
@@ -329,7 +317,6 @@ public class AdminPollsController implements Initializable {
                 }
             }
         });
-        actionsColumn.setStyle("-fx-alignment: CENTER;");
         actionsColumn.setStyle("-fx-alignment: CENTER;");
     }
 
@@ -394,10 +381,10 @@ public class AdminPollsController implements Initializable {
         if (mostActiveClubLabel != null && mostActiveClubPollsLabel != null) {
             if (mostActive.isPresent() && mostActive.get().getKey() != null) {
                 Club club = mostActive.get().getKey();
-                mostActiveClubLabel.setText(club.getNom());
+                mostActiveClubLabel.setText(club.getNomC());
                 mostActiveClubPollsLabel.setText(mostActive.get().getValue() + " polls");
                 System.out.println(
-                        "Most active club: " + club.getNom() + " with " + mostActive.get().getValue() + " polls");
+                        "Most active club: " + club.getNomC() + " with " + mostActive.get().getValue() + " polls");
             } else {
                 mostActiveClubLabel.setText("No active club");
                 mostActiveClubPollsLabel.setText("0 polls");
@@ -535,8 +522,8 @@ public class AdminPollsController implements Initializable {
             }
 
             // Vérifier le club
-            if (poll.getClub() != null && poll.getClub().getNom() != null &&
-                    poll.getClub().getNom().toLowerCase().contains(lowerSearchText)) {
+            if (poll.getClub() != null && poll.getClub().getNomC() != null &&
+                    poll.getClub().getNomC().toLowerCase().contains(lowerSearchText)) {
                 matches = true;
             }
 
@@ -682,7 +669,6 @@ public class AdminPollsController implements Initializable {
         try {
             // Create a custom confirmation dialog
             Alert confirmDialog = new Alert(Alert.AlertType.NONE);
-            Alert confirmDialog = new Alert(Alert.AlertType.NONE);
             confirmDialog.setTitle("Confirmation");
             confirmDialog.setHeaderText("Delete poll?");
             confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
@@ -757,9 +743,7 @@ public class AdminPollsController implements Initializable {
 
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
-            if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
                 try {
-                    // First delete comments linked to this poll
                     // First delete comments linked to this poll
                     sondageService.deleteCommentsByPollId(sondage.getId());
 
@@ -778,12 +762,10 @@ public class AdminPollsController implements Initializable {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     showToast("Error while deleting: " + e.getMessage(), "error");
-                    showToast("Error while deleting: " + e.getMessage(), "error");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
             showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
         }
     }

@@ -98,7 +98,7 @@ public class ParticipationMembre {
                 "id=" + id +
                 ", statut='" + statut + '\'' +
                 ", user=" + (user != null ? user.getFullName() : "null") +
-                ", club=" + (club != null ? club.getNom() : "null") +
+                ", club=" + (club != null ? club.getNomC() : "null") +
                 '}';
     }
 } 

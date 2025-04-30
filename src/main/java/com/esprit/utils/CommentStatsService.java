@@ -49,7 +49,7 @@ public class CommentStatsService {
             for (Commentaire comment : comments) {
                 String commentClubName = "Inconnu";
                 if (comment.getSondage() != null && comment.getSondage().getClub() != null) {
-                    commentClubName = comment.getSondage().getClub().getNom();
+                    commentClubName = comment.getSondage().getClub().getNomC();
                 }
                 if (clubName.equals(commentClubName)) {
                     filteredComments.add(comment);
@@ -66,7 +66,7 @@ public class CommentStatsService {
             commentData.put("date", commentDate.toString());
             String commentClubName = "Inconnu";
             if (comment.getSondage() != null && comment.getSondage().getClub() != null) {
-                commentClubName = comment.getSondage().getClub().getNom();
+                commentClubName = comment.getSondage().getClub().getNomC();
             }
             commentData.put("club", commentClubName);
             commentData.put("content", comment.getContenuComment());
@@ -104,7 +104,7 @@ public class CommentStatsService {
             for (Commentaire comment : comments) {
                 String commentClubName = "Inconnu";
                 if (comment.getSondage() != null && comment.getSondage().getClub() != null) {
-                    commentClubName = comment.getSondage().getClub().getNom();
+                    commentClubName = comment.getSondage().getClub().getNomC();
                 }
                 if (clubName.equals(commentClubName)) {
                     filteredComments.add(comment);
