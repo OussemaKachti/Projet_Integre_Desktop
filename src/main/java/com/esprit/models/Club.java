@@ -47,6 +47,9 @@ public class Club {
     @JoinColumn(name = "president_id")
     private User president;
 
+    @Column(name = "president_id", insertable = false, updatable = false)
+    private int presidentId;
+
     @Column(name = "status")
     private String status;
     @Column(name = "image")
@@ -60,7 +63,7 @@ public class Club {
     private final IntegerProperty idProperty = new SimpleIntegerProperty();
 
     @Transient
-    private final StringProperty nomProperty = new SimpleStringProperty();
+    private final StringProperty nomCProperty = new SimpleStringProperty();
 
     @Transient
     private final StringProperty descriptionProperty = new SimpleStringProperty();
@@ -89,6 +92,16 @@ public class Club {
         this.dateCreationProperty.set(LocalDateTime.now());
     }
 
+    public Club(int id, int presidentId, String nomC, String description, String status, String image, int points) {
+        this.id = id;
+        this.presidentId = presidentId;
+        this.nomC = nomC;
+        this.description = description;
+        this.status = status;
+        this.image = image;
+        this.points = points;
+    }
+
     // Getters and Setters
     public int getId() {
         return id;
@@ -99,13 +112,31 @@ public class Club {
         this.idProperty.set(id);
     }
 
-    public String getNom() {
-        return nom;
+    // public String getNom() {
+    //     return nom;
+    // }
+
+    // public void setNom(String nom) {
+    //     this.nom = nom;
+    //     this.nomCProperty.set(nom);
+    // }
+
+    public String getNomC() {
+        return nomC;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-        this.nomProperty.set(nom);
+    public int getPresidentId() {
+        return presidentId;
+    }
+
+    public void setPresidentId(int presidentId) {
+        this.presidentId = presidentId;
+    }
+
+    public void setNomC(String nomC) {
+        this.nomC = nomC;
+        this.nomCProperty.set(nom);
+
     }
 
     public String getDescription() {
@@ -159,9 +190,9 @@ public class Club {
         return idProperty;
     }
 
-    public StringProperty nomProperty() {
-        nomProperty.set(nom);
-        return nomProperty;
+    public StringProperty nomCProperty() {
+        nomCProperty.set(nomC);
+        return nomCProperty;
     }
 
     public StringProperty descriptionProperty() {
@@ -237,6 +268,6 @@ public class Club {
 
     @Override
     public String toString() {
-        return this.getNom();
+        return this.getNomC();
     }
 }

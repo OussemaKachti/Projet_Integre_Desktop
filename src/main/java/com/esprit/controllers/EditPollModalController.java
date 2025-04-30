@@ -527,7 +527,7 @@ public class EditPollModalController implements Initializable {
                 if (member != null && member.getEmail() != null && !member.getEmail().isEmpty()) {
                     // Create personalized HTML content
                     String emailContent = emailService.createNewPollEmailTemplate(
-                            club.getNom(),
+                            club.getNomC(),
                             member.getLastName(),
                             sondage.getQuestion(),
                             optionsArray);
@@ -535,7 +535,7 @@ public class EditPollModalController implements Initializable {
                     // Send email asynchronously
                     emailService.sendEmailAsync(
                             member.getEmail(),
-                            "Nouveau sondage dans votre club: " + club.getNom(),
+                            "Nouveau sondage dans votre club: " + club.getNomC(),
                             emailContent)
                             .thenAccept(success -> {
                                 if (success) {
@@ -595,7 +595,7 @@ public class EditPollModalController implements Initializable {
                 if (member != null && member.getEmail() != null && !member.getEmail().isEmpty()) {
                     // Create personalized HTML content for update notification
                     String emailContent = createPollUpdateEmailTemplate(
-                            club.getNom(),
+                            club.getNomC(),
                             member.getLastName(),
                             sondage.getQuestion(),
                             optionsArray);
@@ -603,7 +603,7 @@ public class EditPollModalController implements Initializable {
                     // Send email asynchronously
                     emailService.sendEmailAsync(
                             member.getEmail(),
-                            "Mise à jour d'un sondage: " + club.getNom(),
+                            "Mise à jour d'un sondage: " + club.getNomC(),
                             emailContent)
                             .thenAccept(success -> {
                                 if (success) {

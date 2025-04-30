@@ -49,7 +49,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import com.esprit.services.AuthService;
 import com.esprit.services.UserService;
-import com.esprit.utils.ProfanityLogManager;
 import com.esprit.MainApp;
 import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.SessionManager;

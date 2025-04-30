@@ -136,48 +136,16 @@
             <version>0.4</version>
         </dependency>
 
-        <!-- JavaMail for sending emails - updated to correct artifact -->
+        <!-- Jakarta Mail for sending emails - CONSOLIDATED EMAIL DEPENDENCIES -->
         <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
             <version>2.1.0</version>
         </dependency>
-        <!-- Implementation of Jakarta Mail -->
         <dependency>
             <groupId>org.eclipse.angus</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>1.0.0</version>
-        </dependency>
-        <!--account
-        verif-->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        
-        <!-- Jakarta Mail for sending emails -->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        
-        <!-- Jakarta Mail for sending emails -->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>jakarta.activation</groupId>
@@ -245,25 +213,17 @@
         </dependency>
 
         <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-fontawesome</artifactId>
-     <version>4.7.0-9.1.2</version>
- </dependency>
- <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-commons</artifactId>
-     <version>9.1.2</version>
- </dependency><dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-fontawesome</artifactId>
-     <version>4.7.0-9.1.2</version>
- </dependency>
- <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-commons</artifactId>
-     <version>9.1.2</version>
- </dependency>
-  <!-- ControlsFX -->
+             <groupId>de.jensd</groupId>
+             <artifactId>fontawesomefx-fontawesome</artifactId>
+             <version>4.7.0-9.1.2</version>
+        </dependency>
+        <dependency>
+             <groupId>de.jensd</groupId>
+             <artifactId>fontawesomefx-commons</artifactId>
+             <version>9.1.2</version>
+        </dependency>
+        
+        <!-- ControlsFX -->
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
@@ -303,7 +263,6 @@
                 <configuration>
                     <release>17</release>
                     <excludes>
-                        <exclude>**/controllers/AdminCommentsController.java</exclude>
                         <exclude>**/module-info.java</exclude>
                     </excludes>
                 </configuration>
