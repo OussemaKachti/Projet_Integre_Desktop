@@ -70,7 +70,7 @@ public class PollDetailsController implements Initializable {
     @FXML private Label adminNameLabel;
 
     private Sondage currentSondage;
-    private final SondageService sondageService = new SondageService();
+    private final SondageService sondageService = SondageService.getInstance();
     private final ChoixSondageService choixSondageService = new ChoixSondageService();
     private final ReponseService reponseService = new ReponseService();
     private final CommentaireService commentaireService = new CommentaireService();
@@ -109,11 +109,85 @@ public class PollDetailsController implements Initializable {
 
     private void setupNavigationEvents() {
         // Navigation pour les boutons du sidebar
-        pollsManagementBtn.setOnAction(event -> navigateToView("/com/esprit/views/AdminPollsView.fxml"));
-        commentsManagementBtn.setOnAction(event -> navigateToView("/com/esprit/views/AdminCommentsView.fxml"));
+        pollsManagementBtn.setOnAction(event -> {
+            try {
+                URL fxmlUrl = getClass().getResource("/com/esprit/views/AdminPollsView.fxml");
+                if (fxmlUrl == null) {
+                    System.err.println("FXML file not found: /com/esprit/views/AdminPollsView.fxml");
+                    AlertUtils.showError("Error", "Fichier FXML introuvable: /com/esprit/views/AdminPollsView.fxml");
+                    return;
+                }
+                
+                FXMLLoader loader = new FXMLLoader(fxmlUrl);
+                Parent root = loader.load();
+                
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+                
+                // Get current stage and set the scene directly
+                Stage currentStage = (Stage) pollsManagementBtn.getScene().getWindow();
+                currentStage.setScene(scene);
+                currentStage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                AlertUtils.showError("Error", "Erreur lors de la navigation: " + e.getMessage());
+            }
+        });
         
-        // Autres événements de navigation si nécessaire
-        userManagementBtn.setOnAction(event -> showNotImplementedMessage("User Management"));
+        commentsManagementBtn.setOnAction(event -> {
+            try {
+                URL fxmlUrl = getClass().getResource("/com/esprit/views/AdminCommentsView.fxml");
+                if (fxmlUrl == null) {
+                    System.err.println("FXML file not found: /com/esprit/views/AdminCommentsView.fxml");
+                    AlertUtils.showError("Error", "Fichier FXML introuvable: /com/esprit/views/AdminCommentsView.fxml");
+                    return;
+                }
+                
+                FXMLLoader loader = new FXMLLoader(fxmlUrl);
+                Parent root = loader.load();
+                
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+                
+                // Get current stage and set the scene directly
+                Stage currentStage = (Stage) commentsManagementBtn.getScene().getWindow();
+                currentStage.setScene(scene);
+                currentStage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                AlertUtils.showError("Error", "Erreur lors de la navigation: " + e.getMessage());
+            }
+        });
+        
+        // User Management navigation
+        userManagementBtn.setOnAction(event -> {
+            try {
+                URL fxmlUrl = getClass().getResource("/com/esprit/views/admin_dashboard.fxml");
+                if (fxmlUrl == null) {
+                    System.err.println("FXML file not found: /com/esprit/views/admin_dashboard.fxml");
+                    AlertUtils.showError("Error", "Fichier FXML introuvable: /com/esprit/views/admin_dashboard.fxml");
+                    return;
+                }
+                
+                FXMLLoader loader = new FXMLLoader(fxmlUrl);
+                Parent root = loader.load();
+                
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+                
+                // Get current stage and set the scene directly
+                Stage currentStage = (Stage) userManagementBtn.getScene().getWindow();
+                currentStage.setScene(scene);
+                currentStage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                AlertUtils.showError("Error", "Erreur lors de la navigation: " + e.getMessage());
+            }
+        });
+        
+        // Other navigation buttons remain the same
         clubManagementBtn.setOnAction(event -> showNotImplementedMessage("Club Management"));
         eventManagementBtn.setOnAction(event -> showNotImplementedMessage("Event Management"));
         productOrdersBtn.setOnAction(event -> showNotImplementedMessage("Products & Orders"));
@@ -131,42 +205,6 @@ public class PollDetailsController implements Initializable {
         }
     }
     
-    private void navigateToView(String fxmlPath) {
-        try {
-            URL fxmlUrl = getClass().getResource(fxmlPath);
-            if (fxmlUrl == null) {
-                System.err.println("FXML file not found: " + fxmlPath);
-                AlertUtils.showError("Error", "Fichier FXML introuvable: " + fxmlPath);
-                return;
-            }
-            
-            // Charger le CSS approprié
-            URL cssUrl = getClass().getResource("/com/esprit/styles/admin-polls-style.css");
-            
-            // Créer le loader
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Parent root = loader.load();
-            
-            // Récupérer les dimensions de la fenêtre actuelle
-            double width = backButton.getScene().getWindow().getWidth();
-            double height = backButton.getScene().getWindow().getHeight();
-            
-            // Créer la scène avec les mêmes dimensions
-            Scene scene = new Scene(root, width, height);
-            
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
-            
-            // Utiliser NavigationManager pour naviguer vers la vue
-            NavigationManager.navigateTo(scene);
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Error", "Erreur lors de la navigation: " + e.getMessage());
-        }
-    }
-    
     private void showNotImplementedMessage(String feature) {
         AlertUtils.showInformation("Information", "La fonctionnalité '" + feature + "' n'est pas implémentée dans cette démo.");
     }
@@ -176,9 +214,26 @@ public class PollDetailsController implements Initializable {
             // Simuler une déconnexion
             AlertUtils.showInformation("Déconnexion", "Vous avez été déconnecté avec succès.");
             
-            // Rediriger vers la page de connexion ou fermer l'application
-            // Pour cet exemple, on navigue simplement vers la vue des sondages
-            navigateToView("/com/esprit/views/AdminPollsView.fxml");
+            // Rediriger vers la vue des sondages en utilisant la méthode directe
+            URL fxmlUrl = getClass().getResource("/com/esprit/views/AdminPollsView.fxml");
+            if (fxmlUrl == null) {
+                System.err.println("FXML file not found: /com/esprit/views/AdminPollsView.fxml");
+                AlertUtils.showError("Error", "Fichier FXML introuvable: /com/esprit/views/AdminPollsView.fxml");
+                return;
+            }
+            
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+            
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            // Get current stage and set the scene directly
+            Stage currentStage = (Stage) logoutBtn.getScene().getWindow();
+            currentStage.setScene(scene);
+            currentStage.show();
+            
         } catch (Exception e) {
             e.printStackTrace();
             AlertUtils.showError("Error", "Erreur lors de la déconnexion: " + e.getMessage());
@@ -450,26 +505,21 @@ public class PollDetailsController implements Initializable {
                 return;
             }
             
-            // Charger le CSS
-            URL cssUrl = getClass().getResource("/com/esprit/styles/admin-polls-style.css");
-            
             // Créer le loader
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
             
-            // Récupérer les dimensions de la fenêtre actuelle
-            double width = backButton.getScene().getWindow().getWidth();
-            double height = backButton.getScene().getWindow().getHeight();
+            // Créer la scène
+            Scene scene = new Scene(root);
             
-            // Créer la scène avec les mêmes dimensions
-            Scene scene = new Scene(root, width, height);
+            // Add stylesheets
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
             
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
-            
-            // Utiliser NavigationManager pour naviguer vers la vue AdminPollsView
-            NavigationManager.navigateTo(scene);
+            // Get current stage and set the scene directly
+            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            currentStage.setScene(scene);
+            currentStage.show();
             
         } catch (IOException e) {
             e.printStackTrace();

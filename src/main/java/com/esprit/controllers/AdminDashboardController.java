@@ -47,11 +47,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.Stage;
 import com.esprit.services.AuthService;
 import com.esprit.services.UserService;
 import com.esprit.utils.ProfanityLogManager;
 import com.esprit.MainApp;
+import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.SessionManager;
 import javafx.application.Platform;
 
@@ -86,6 +86,9 @@ public class AdminDashboardController {
     
     @FXML
     private Button surveyButton;
+    
+    @FXML
+    private VBox surveySubMenu;
     
     @FXML
     private Button profileButton;
@@ -212,6 +215,12 @@ public class AdminDashboardController {
             
             // Initialize user management view
             setupUserManagementView();
+            
+            // Hide create user button
+            if (createUserButton != null) {
+                createUserButton.setVisible(false);
+                createUserButton.setManaged(false);
+            }
             
             // Load user data - this will update the pagination
             loadUserData();
@@ -1332,7 +1341,7 @@ public class AdminDashboardController {
     }
     
     @FXML
-    private void showClubManagement() {
+    public void showClubManagement() {
         contentTitle.setText("Club Management");
         setActiveButton(clubManagementButton);
         
@@ -1341,7 +1350,7 @@ public class AdminDashboardController {
     }
     
     @FXML
-    private void showEventManagement() {
+    public void showEventManagement() {
         contentTitle.setText("Event Management");
         setActiveButton(eventManagementButton);
         
@@ -1350,7 +1359,7 @@ public class AdminDashboardController {
     }
     
     @FXML
-    private void showProductOrders() {
+    public void showProductOrders() {
         contentTitle.setText("Products & Orders");
         setActiveButton(productOrdersButton);
         
@@ -1359,7 +1368,7 @@ public class AdminDashboardController {
     }
     
     @FXML
-    private void showCompetition() {
+    public void showCompetition() {
         contentTitle.setText("Competition & Season");
         setActiveButton(competitionButton);
         
@@ -1372,8 +1381,70 @@ public class AdminDashboardController {
         contentTitle.setText("Survey Management");
         setActiveButton(surveyButton);
         
-        // Show placeholder for Survey module
-        showModulePlaceholder("Survey Management");
+        // Toggle the visibility of the survey submenu
+        boolean isVisible = surveySubMenu.isVisible();
+        surveySubMenu.setVisible(!isVisible);
+        surveySubMenu.setManaged(!isVisible);
+    }
+    
+    /**
+     * Navigate to the Poll Management view
+     */
+    @FXML
+    public void navigateToPollsManagement() {
+        try {
+            // Load the AdminPollsView
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+            Parent root = loader.load();
+            
+            // Get the current stage
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+            
+            // Create a new scene
+            Scene scene = new Scene(root);
+            
+            // Make sure the stylesheets are properly applied
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            // Set the scene to the stage
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Navigation Error", "Failed to navigate to Poll Management: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Navigate to the Comment Management view
+     */
+    @FXML
+    public void navigateToCommentsManagement() {
+        try {
+            // Load the AdminCommentsView
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
+            Parent root = loader.load();
+            
+            // Get the current stage
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+            
+            // Create a new scene
+            Scene scene = new Scene(root);
+            
+            // Make sure the stylesheets are properly applied
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            // Set the scene to the stage
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Navigation Error", "Failed to navigate to Comment Management: " + e.getMessage());
+        }
     }
     
     private void showModulePlaceholder(String moduleName) {
@@ -1509,4 +1580,3 @@ public class AdminDashboardController {
         alert.showAndWait();
     }
 }
-
