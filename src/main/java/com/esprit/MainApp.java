@@ -217,26 +217,14 @@ private static void configureMainApplicationScreen(Stage stage) {
 //             controller.setEmailField(email);
 //         }
         
-//         // Create a new Stage instead of reusing primaryStage
-//         Stage stage = new Stage();
+        // Use our utility method with explicit dimensions for login-sized screens
+        setupStage(primaryStage, root, "UNICLUBS - Forgot Password", true, LOGIN_WIDTH, LOGIN_HEIGHT);
+        primaryStage.show();
         
-//         // Use our utility method with explicit dimensions for login-sized screens
-//         setupStage(stage, root, "UNICLUBS - Forgot Password", true, LOGIN_WIDTH, LOGIN_HEIGHT);
-        
-//         // Hide the primary stage before showing the new one
-//         if (primaryStage != null) {
-//             primaryStage.hide();
-//         }
-        
-//         // Show the new stage
-//         stage.show();
-        
-//         // Update the primaryStage reference to the new stage
-//         primaryStage = stage;
-        
-//     } catch (Exception e) {
-//         LOGGER.log(Level.SEVERE, "Failed to load forgot password UI", e);
-//         e.printStackTrace();
-//     }
-// }
+    } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Failed to load forgot password UI", e);
+        e.printStackTrace();
+    }
+}
+
 }
