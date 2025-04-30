@@ -2,15 +2,21 @@ package com.esprit.controllers;
 
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Club;
+import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
 import com.esprit.models.User;
+import com.esprit.services.ChoixSondageService;
 import com.esprit.services.ClubService;
+import com.esprit.services.CommentaireService;
+import com.esprit.services.OpenAIService;
+import com.esprit.services.ReponseService;
 import com.esprit.services.SondageService;
 import com.esprit.services.UserService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.NavigationManager;
 import com.esprit.utils.SessionManager;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,23 +28,35 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Contrôleur pour la gestion des sondages
@@ -66,6 +84,16 @@ public class PollManagementController implements Initializable {
     @FXML private VBox pollsTableContent;
     @FXML private StackPane emptyStateContainer;
     
+    // Nouveaux FXML components pour le leaderboard
+    @FXML private VBox leaderboardContainer;
+    @FXML private Button refreshLeaderboardButton;
+    @FXML private HBox participationStatsContainer;
+    @FXML private Label totalVotesLabel;
+    @FXML private Label uniqueParticipantsLabel;
+    @FXML private Label mostPopularPollLabel;
+    @FXML private Label mostPopularPollVotesLabel;
+    @FXML private VBox leaderboardContent;
+    
     private final int ITEMS_PER_PAGE = 3;
     private int currentPage = 1;
     private int totalPages;
@@ -73,12 +101,19 @@ public class PollManagementController implements Initializable {
     private final SondageService sondageService = SondageService.getInstance();
     private final ClubService clubService = new ClubService();
     private final UserService userService = new UserService();
+    private final ReponseService reponseService = new ReponseService();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
     private User currentUser;
+    private Club currentClub;
     private Scene previousScene;
     private ObservableList<Sondage> allPolls;
     private FilteredList<Sondage> filteredPolls;
+    private List<Map<String, Object>> leaderboardData;
+    private Map<String, Object> participationStats;
+    private OpenAIService openAIService;
+    private static final String[] MEDAL_ICONS = {"🥇", "🥈", "🥉"};
+    private static final int TOP_USERS_LIMIT = 10;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -106,8 +141,8 @@ public class PollManagementController implements Initializable {
             }
             
             // Get the club where the user is president
-            Club userClub = clubService.findByPresident(currentUser.getId());
-            if (userClub == null) {
+            currentClub = clubService.findByPresident(currentUser.getId());
+            if (currentClub == null) {
                 AlertUtils.showError("Access Denied", "You must be a club president to access this view.");
                 navigateBack();
                 return;
@@ -117,7 +152,7 @@ public class PollManagementController implements Initializable {
             setupSearch();
             
             // Load polls for the user's club only
-            loadPolls(userClub.getId());
+            loadPolls(currentClub.getId());
             
             // Configure buttons
             backButton.setOnAction(e -> navigateBack());
@@ -132,6 +167,23 @@ public class PollManagementController implements Initializable {
                     stage.setMaximized(true);
                 }
             });
+            
+            // Configuration de l'interface
+            setupLeaderboard();
+            setupEventHandlers();
+            
+            // Charger les données
+            loadLeaderboardData();
+            
+            // Initialiser l'OpenAI Service
+            try {
+                openAIService = new OpenAIService();
+            } catch (Exception e) {
+                System.err.println("Error initializing OpenAI service: " + e.getMessage());
+            }
+            
+            // Mettre à jour les informations utilisateur
+            updateUserInfo();
             
         } catch (SQLException e) {
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
@@ -360,10 +412,36 @@ public class PollManagementController implements Initializable {
     }
     
     /**
-     * Configure l'animation du toast
+     * Configure toast animation
      */
     private void setupToast() {
+        // Configure toast animation for the toast container
         toastContainer.setVisible(false);
+        toastContainer.setOpacity(0);
+    }
+
+    /**
+     * Set up event handlers for UI elements
+     */
+    private void setupEventHandlers() {
+        // Set up search button event
+        if (searchButton != null) {
+            searchButton.setOnAction(e -> performSearch());
+        }
+        
+        // Set up search field enter key event
+        if (searchField != null) {
+            searchField.setOnKeyPressed(e -> {
+                if (e.getCode() == KeyCode.ENTER) {
+                    performSearch();
+                }
+            });
+        }
+        
+        // Set up refresh button event
+        if (refreshLeaderboardButton != null) {
+            refreshLeaderboardButton.setOnAction(e -> refreshLeaderboard());
+        }
     }
     
     /**
@@ -690,5 +768,372 @@ public class PollManagementController implements Initializable {
         
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == deleteButton;
+    }
+
+    /**
+     * Configure le tableau de classement et les statistiques de participation
+     */
+    private void setupLeaderboard() {
+        // Initialisation des statistiques
+        totalVotesLabel.setText("0");
+        uniqueParticipantsLabel.setText("0");
+        mostPopularPollLabel.setText("No poll data available yet");
+        mostPopularPollVotesLabel.setText("0 votes");
+        
+        // Vider le contenu du leaderboard
+        leaderboardContent.getChildren().clear();
+        
+        // Créer dynamiquement une icône de rafraîchissement pour le bouton
+        Label refreshIcon = new Label("⟳");
+        refreshIcon.setStyle("-fx-font-size: 16px; -fx-text-fill: #555555;");
+        refreshLeaderboardButton.setGraphic(refreshIcon);
+    }
+    
+    /**
+     * Charge les données du tableau de classement depuis la base de données
+     */
+    private void loadLeaderboardData() {
+        if (currentClub == null) {
+            return;
+        }
+        
+        try {
+            // Afficher un indicateur de chargement
+            showLoadingState();
+            
+            // Chargement asynchrone pour ne pas bloquer l'interface utilisateur
+            CompletableFuture.runAsync(() -> {
+                try {
+                    // Récupérer les statistiques de participation
+                    Map<String, Object> stats = reponseService.getParticipationStatsByClub(currentClub.getId());
+                    
+                    // Récupérer les utilisateurs les plus actifs
+                    List<Map<String, Object>> topUsers = reponseService.getTopRespondentsByClub(currentClub.getId(), TOP_USERS_LIMIT);
+                    
+                    // Enrichir les données avec l'OpenAI si disponible
+                    if (openAIService != null && !topUsers.isEmpty()) {
+                        enrichLeaderboardData(topUsers);
+                    }
+                    
+                    // Mettre à jour l'interface sur le thread JavaFX
+                    Platform.runLater(() -> {
+                        updateParticipationStats(stats);
+                        updateLeaderboardTable(topUsers);
+                        hideLoadingState();
+                    });
+                    
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    // Afficher l'erreur sur le thread JavaFX
+                    Platform.runLater(() -> {
+                        showAlert("Error", "Failed to load leaderboard data: " + e.getMessage(), "error");
+                        hideLoadingState();
+                    });
+                }
+            });
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load leaderboard data: " + e.getMessage(), "error");
+            hideLoadingState();
+        }
+    }
+    
+    /**
+     * Enrichit les données du leaderboard avec des descriptions générées par l'IA
+     */
+    private void enrichLeaderboardData(List<Map<String, Object>> topUsers) {
+        try {
+            // Préparer une liste des utilisateurs pour l'API
+            List<String> userDescriptions = new ArrayList<>();
+            for (Map<String, Object> user : topUsers) {
+                String name = user.get("firstName") + " " + user.get("lastName");
+                int voteCount = (int) user.get("voteCount");
+                userDescriptions.add(name + " - " + voteCount + " votes");
+            }
+            
+            // Générer des badges spéciaux pour les utilisateurs
+            String prompt = "Generate creative, short (max 3 words) badge titles for these users based on their poll participation. " + 
+                            "Format each badge as 'Badge Title'. Examples: 'Survey Champion', 'Voting Expert', 'Feedback Guru'.\n\n" +
+                            String.join("\n", userDescriptions);
+            
+            // Appeler l'API OpenAI
+            String response = openAIService.summarizeComments(convertToCommentaireList(prompt));
+            
+            // Analyser la réponse
+            String[] badges = response.split("\n");
+            for (int i = 0; i < Math.min(badges.length, topUsers.size()); i++) {
+                String badge = badges[i].trim();
+                // Nettoyer le badge (enlever numérotation, tirets, etc.)
+                badge = badge.replaceAll("^\\d+\\.\\s*", "").replaceAll("^-\\s*", "");
+                if (badge.startsWith("\"") && badge.endsWith("\"")) {
+                    badge = badge.substring(1, badge.length() - 1);
+                }
+                if (badge.startsWith("'") && badge.endsWith("'")) {
+                    badge = badge.substring(1, badge.length() - 1);
+                }
+                
+                // Ajouter le badge au user
+                topUsers.get(i).put("badge", badge);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error enriching leaderboard data: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Helper method to convert a String to a Commentaire object for OpenAI processing
+     */
+    private List<Commentaire> convertToCommentaireList(String content) {
+        Commentaire commentaire = new Commentaire();
+        commentaire.setContenuComment(content);
+        commentaire.setDateComment(LocalDate.now());
+        return Collections.singletonList(commentaire);
+    }
+    
+    /**
+     * Met à jour les statistiques de participation
+     */
+    private void updateParticipationStats(Map<String, Object> stats) {
+        // Mettre à jour les labels de statistiques
+        int totalVotes = (int) stats.getOrDefault("totalVotes", 0);
+        int uniqueParticipants = (int) stats.getOrDefault("uniqueParticipants", 0);
+        
+        totalVotesLabel.setText(String.valueOf(totalVotes));
+        uniqueParticipantsLabel.setText(String.valueOf(uniqueParticipants));
+        
+        // Mettre à jour les informations sur le sondage le plus populaire
+        Map<String, Object> mostPopularPoll = (Map<String, Object>) stats.get("mostPopularPoll");
+        if (mostPopularPoll != null) {
+            String question = (String) mostPopularPoll.get("question");
+            int voteCount = (int) mostPopularPoll.get("voteCount");
+            
+            mostPopularPollLabel.setText(question);
+            mostPopularPollVotesLabel.setText(voteCount + " votes");
+        } else {
+            mostPopularPollLabel.setText("No poll data available yet");
+            mostPopularPollVotesLabel.setText("0 votes");
+        }
+    }
+    
+    /**
+     * Met à jour le tableau de classement avec les données des utilisateurs
+     */
+    private void updateLeaderboardTable(List<Map<String, Object>> users) {
+        // Vider le contenu existant
+        leaderboardContent.getChildren().clear();
+        
+        if (users.isEmpty()) {
+            // Afficher un message si aucun utilisateur
+            VBox emptyState = new VBox();
+            emptyState.setAlignment(Pos.CENTER);
+            emptyState.setPadding(new Insets(30));
+            emptyState.setSpacing(10);
+            
+            Label emptyLabel = new Label("No participation data available");
+            emptyLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            
+            emptyState.getChildren().add(emptyLabel);
+            leaderboardContent.getChildren().add(emptyState);
+            return;
+        }
+        
+        // Créer une ligne pour chaque utilisateur
+        for (int i = 0; i < users.size(); i++) {
+            Map<String, Object> user = users.get(i);
+            int rank = (int) user.get("rank");
+            
+            // Créer une ligne pour l'utilisateur
+            HBox row = createUserRow(user, i % 2 == 0);
+            leaderboardContent.getChildren().add(row);
+        }
+    }
+    
+    /**
+     * Crée une ligne pour un utilisateur dans le tableau de classement
+     */
+    private HBox createUserRow(Map<String, Object> user, boolean isEven) {
+        HBox row = new HBox();
+        row.getStyleClass().add("leaderboard-row");
+        if (isEven) {
+            row.getStyleClass().add("leaderboard-row-highlight");
+        }
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setSpacing(10);
+        
+        // Récupérer les données de l'utilisateur
+        int rank = (int) user.get("rank");
+        String firstName = (String) user.get("firstName");
+        String lastName = (String) user.get("lastName");
+        String profilePic = (String) user.get("profilePicture");
+        int voteCount = (int) user.get("voteCount");
+        String badge = (String) user.getOrDefault("badge", null);
+        
+        // Créer l'affichage du rang
+        Label rankLabel = new Label(String.valueOf(rank));
+        rankLabel.getStyleClass().add("leaderboard-rank");
+        if (rank <= 3) {
+            rankLabel.getStyleClass().add("leaderboard-rank-" + rank);
+        }
+        
+        // Afficher une médaille pour les 3 premiers
+        Label medalLabel = new Label("");
+        medalLabel.getStyleClass().add("leaderboard-medal");
+        if (rank <= 3) {
+            medalLabel.setText(MEDAL_ICONS[rank - 1]);
+        }
+        
+        // Créer l'avatar de l'utilisateur
+        ImageView avatar = new ImageView();
+        avatar.setFitHeight(40);
+        avatar.setFitWidth(40);
+        avatar.getStyleClass().add("leaderboard-avatar");
+        
+        // Charger l'image de profil
+        try {
+            if (profilePic != null && !profilePic.isEmpty()) {
+                File profileImageFile = new File("uploads/profiles/" + profilePic);
+                if (profileImageFile.exists()) {
+                    Image profileImage = new Image(profileImageFile.toURI().toString());
+                    avatar.setImage(profileImage);
+                } else {
+                    avatar.setImage(new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png")));
+                }
+            } else {
+                avatar.setImage(new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png")));
+            }
+            
+            // Rendre l'avatar circulaire
+            Circle clip = new Circle(20, 20, 20);
+            avatar.setClip(clip);
+            
+        } catch (Exception e) {
+            System.err.println("Error loading profile image: " + e.getMessage());
+            try {
+                avatar.setImage(new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png")));
+            } catch (Exception ex) {
+                System.err.println("Error loading default profile image: " + ex.getMessage());
+            }
+        }
+        
+        // Information de l'utilisateur
+        VBox userInfo = new VBox(2);
+        userInfo.getStyleClass().add("leaderboard-user-info");
+        
+        Label userName = new Label(firstName + " " + lastName);
+        userName.getStyleClass().add("leaderboard-username");
+        
+        userInfo.getChildren().add(userName);
+        
+        // Ajouter un badge si disponible
+        if (badge != null && !badge.isEmpty()) {
+            Label badgeLabel = new Label(badge);
+            badgeLabel.getStyleClass().addAll("leaderboard-badge");
+            
+            // Différentes couleurs selon le rang
+            if (rank == 1) {
+                badgeLabel.getStyleClass().add("leaderboard-badge-gold");
+            } else if (rank == 2) {
+                badgeLabel.getStyleClass().add("leaderboard-badge-silver");
+            } else if (rank == 3) {
+                badgeLabel.getStyleClass().add("leaderboard-badge-bronze");
+            } else {
+                badgeLabel.getStyleClass().add("leaderboard-badge-participant");
+            }
+            
+            userInfo.getChildren().add(badgeLabel);
+        }
+        
+        // Nombre de votes
+        Label votes = new Label(voteCount + " votes");
+        votes.getStyleClass().add("leaderboard-votes");
+        
+        // Spacer pour pousser les votes à droite
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        
+        // Ajouter tous les éléments à la ligne
+        row.getChildren().addAll(rankLabel, medalLabel, avatar, userInfo, spacer, votes);
+        
+        return row;
+    }
+    
+    /**
+     * Affiche un état de chargement pendant le chargement des données
+     */
+    private void showLoadingState() {
+        // Créer un indicateur de chargement
+        VBox loadingBox = new VBox();
+        loadingBox.setAlignment(Pos.CENTER);
+        loadingBox.setPadding(new Insets(30));
+        loadingBox.setSpacing(15);
+        loadingBox.setId("loadingBox");
+        
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setPrefSize(40, 40);
+        
+        Label loadingLabel = new Label("Loading leaderboard data...");
+        loadingLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+        
+        loadingBox.getChildren().addAll(progressIndicator, loadingLabel);
+        
+        // Vider et ajouter
+        leaderboardContent.getChildren().clear();
+        leaderboardContent.getChildren().add(loadingBox);
+    }
+    
+    /**
+     * Cache l'état de chargement
+     */
+    private void hideLoadingState() {
+        // Enlever l'indicateur de chargement s'il existe
+        leaderboardContent.getChildren().removeIf(node -> node.getId() != null && node.getId().equals("loadingBox"));
+    }
+    
+    /**
+     * Rafraîchit les données du tableau de classement
+     */
+    @FXML
+    public void refreshLeaderboard() {
+        loadLeaderboardData();
+    }
+    
+    /**
+     * Met à jour les informations de l'utilisateur dans l'interface
+     */
+    private void updateUserInfo() {
+        if (currentUser != null) {
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            
+            // Charger l'image de profil
+            try {
+                String profilePic = currentUser.getProfilePicture();
+                if (profilePic != null && !profilePic.isEmpty()) {
+                    File profileImageFile = new File("uploads/profiles/" + profilePic);
+                    if (profileImageFile.exists()) {
+                        Image profileImage = new Image(profileImageFile.toURI().toString());
+                        userProfilePic.setImage(profileImage);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading profile image: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Affiche une alerte personnalisée
+     */
+    private void showAlert(String title, String message, String type) {
+        Alert alert = new Alert(
+            "error".equals(type) ? Alert.AlertType.ERROR : 
+            "warning".equals(type) ? Alert.AlertType.WARNING : 
+            Alert.AlertType.INFORMATION
+        );
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
