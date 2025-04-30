@@ -16,7 +16,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;

@@ -160,12 +160,7 @@
             <version>4.7.0-9.1.2</version>
         </dependency>
         
-        <!-- Additional FontAwesomeFX Dependencies -->
-        <dependency>
-            <groupId>de.jensd</groupId>
-            <artifactId>fontawesomefx-commons</artifactId>
-            <version>9.1.2</version>
-        </dependency>
+     
 
         <!-- JFoenix Material Design Library -->
         <dependency>
@@ -212,11 +207,7 @@
             <version>0.18.2</version>
         </dependency>
 
-        <dependency>
-             <groupId>de.jensd</groupId>
-             <artifactId>fontawesomefx-fontawesome</artifactId>
-             <version>4.7.0-9.1.2</version>
-        </dependency>
+      
         <dependency>
              <groupId>de.jensd</groupId>
              <artifactId>fontawesomefx-commons</artifactId>
