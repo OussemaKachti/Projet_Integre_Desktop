@@ -1,11 +1,16 @@
 // Path: src/main/java/services/UserService.java
 package com.esprit.services;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 import com.esprit.models.User;
+import com.esprit.utils.DataSource;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

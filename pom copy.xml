@@ -26,6 +26,26 @@
   <version>5.2.2</version>
 </dependency>
 
+<dependency>
+    <groupId>de.jensd</groupId>
+    <artifactId>fontawesomefx-fontawesome</artifactId>
+    <version>4.7.0-9.1.2</version>
+</dependency>
+<dependency>
+    <groupId>de.jensd</groupId>
+    <artifactId>fontawesomefx-commons</artifactId>
+    <version>9.1.2</version>
+</dependency><dependency>
+    <groupId>de.jensd</groupId>
+    <artifactId>fontawesomefx-fontawesome</artifactId>
+    <version>4.7.0-9.1.2</version>
+</dependency>
+<dependency>
+    <groupId>de.jensd</groupId>
+    <artifactId>fontawesomefx-commons</artifactId>
+    <version>9.1.2</version>
+</dependency>
+
         <!-- MySQL Connector -->
         <dependency>
             <groupId>mysql</groupId>
@@ -173,18 +193,6 @@
             <version>2.0.1</version>
         </dependency>
         
-        <!-- Jakarta Mail for sending emails -->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        
         <!-- FontAwesomeFX -->
         <dependency>
             <groupId>de.jensd</groupId>
@@ -230,40 +238,29 @@
             <version>2.15.2</version>
         </dependency>
         
+        <!-- Speech Recognition Libraries -->
+        <dependency>
+            <groupId>edu.cmu.sphinx</groupId>
+            <artifactId>sphinx4-core</artifactId>
+            <version>5prealpha-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/OUSSEMA-KACHTI/.m2/repository/edu/cmu/sphinx/sphinx4-core/5prealpha-SNAPSHOT/sphinx4-core-5prealpha-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>edu.cmu.sphinx</groupId>
+            <artifactId>sphinx4-data</artifactId>
+            <version>5prealpha-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/OUSSEMA-KACHTI/.m2/repository/edu/cmu/sphinx/sphinx4-data/5prealpha-SNAPSHOT/sphinx4-data-5prealpha-SNAPSHOT.jar</systemPath>
+        </dependency>
+
         <!-- Add Google Gson for JSON manipulation -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
-
-        <!-- OpenAI API Client -->
-        <dependency>
-            <groupId>com.theokanning.openai-gpt3-java</groupId>
-            <artifactId>service</artifactId>
-            <version>0.18.2</version>
-        </dependency>
-
-        <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-fontawesome</artifactId>
-     <version>4.7.0-9.1.2</version>
- </dependency>
- <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-commons</artifactId>
-     <version>9.1.2</version>
- </dependency><dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-fontawesome</artifactId>
-     <version>4.7.0-9.1.2</version>
- </dependency>
- <dependency>
-     <groupId>de.jensd</groupId>
-     <artifactId>fontawesomefx-commons</artifactId>
-     <version>9.1.2</version>
- </dependency>
-  <!-- ControlsFX -->
+         <!-- ControlsFX -->
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
