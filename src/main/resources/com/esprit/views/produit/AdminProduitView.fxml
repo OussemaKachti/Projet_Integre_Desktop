@@ -61,10 +61,11 @@
                   <Insets left="15.0" />
                </padding>
             </Button>
-            <Button fx:id="productOrdersBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-size: 14px;" text="Produits &amp; Commandes">
+            <Button fx:id="productOrdersBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-size: 14px;" text="Produits &amp; Commandes" onAction="#goToAdmincommande">
                <padding>
                   <Insets left="15.0" />
                </padding>
+               <Button fx:id="btnCommandes" text="Commandes" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
             </Button>
             <Button fx:id="competitionBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Compétitions">
                <padding>

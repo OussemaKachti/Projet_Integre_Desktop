@@ -92,6 +92,10 @@ public class ProduitService {
             stmt.setInt(8, produit.getId());
             stmt.executeUpdate();
         }
+    catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Erreur lors de la mise à jour du produit avec ID " + produit.getId(), e);
+    }
     }
 
     public void deleteProduit(int id) throws SQLException {
@@ -125,8 +129,12 @@ public class ProduitService {
                 }
                 return produit;
             }
+        } catch (SQLException e) {
+            e.printStackTrace(); // ou log error
+            throw new RuntimeException("Erreur lors de la récupération du produit avec ID " + id, e);
         }
         return null;
+
     }
 
     public List<Produit> getProduitsByClub(int clubId) throws SQLException {

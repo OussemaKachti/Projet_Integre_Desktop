@@ -102,6 +102,10 @@ public class ProduitCardItemController {
             }
         }
     }
+    public static void updateCart(Map<Integer, Integer> newCart) {
+        cart.clear();
+        cart.putAll(newCart);
+    }
 
 
     @FXML

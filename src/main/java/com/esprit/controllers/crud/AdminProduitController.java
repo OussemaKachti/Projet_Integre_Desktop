@@ -1406,6 +1406,10 @@ public class AdminProduitController implements Initializable {
             }
         }).start();
     }
+    @FXML
+    private void goToAdmincommande() {
+        ProduitApp.navigateTo("/com/esprit/views/produit/commandeview.fxml");
+    }
 
     // More methods to be added...
 }

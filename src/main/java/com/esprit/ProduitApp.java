@@ -48,9 +48,13 @@ public class ProduitApp extends Application {
             loader.setLocation(ProduitApp.class.getResource(fxmlPath));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
+            if (primaryStage != null) {
+                primaryStage.setScene(new Scene(root));
+            } else {
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -60,6 +64,7 @@ public class ProduitApp extends Application {
             alert.showAndWait();
         }
     }
+
 
     public static void adjustStageSize(boolean isLoginScreen) {
         if (primaryStage == null) return;

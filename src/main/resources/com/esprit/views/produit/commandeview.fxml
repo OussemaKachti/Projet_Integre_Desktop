@@ -1,45 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.esprit.controllers.crud.CommandeController"
+<VBox xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.AdminCommandeController"
       spacing="15">
-<padding>
-<Insets top="20" right="20" bottom="20" left="20"/>
-</padding>
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
+    <!-- Titre -->
+    <Label text="Administration des Commandes" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6200EE;"/>
 
-    <!-- Formulaire -->
-    <HBox spacing="10">
-        <VBox spacing="8">
-            <Label text="Date de commande"/>
-            <DatePicker fx:id="dateCommande"/>
+    <!-- Statistiques -->
+    <HBox spacing="15">
+        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
+            <Label text="Total des Commandes" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+            <Label fx:id="totalCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
         </VBox>
-
-        <VBox spacing="8">
-            <Label text="Statut"/>
-            <ComboBox fx:id="cbStatut" prefWidth="150"/>
+        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
+            <Label text="Commandes en Attente" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+            <Label fx:id="pendingCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
         </VBox>
-
-        <VBox alignment="BOTTOM_CENTER" spacing="8">
-            <Button fx:id="btnSave" text="Enregistrer" minWidth="100"/>
-            <Button fx:id="btnUpdate" text="Mettre à jour" visible="false" minWidth="100"/>
-            <Button fx:id="btnCancel" text="Annuler" minWidth="100"/>
+        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
+            <Label text="Commandes Confirmées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+            <Label fx:id="completedCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        </VBox>
+        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
+            <Label text="Commandes Annulées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+            <Label fx:id="cancelledCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
         </VBox>
     </HBox>
 
-    <Separator/>
+    <!-- Filtres -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Rechercher et Filtrer" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #6c757d;"/>
+        <TextField fx:id="txtSearch" promptText="Rechercher une commande..." prefWidth="200"/>
+        <ComboBox fx:id="filterStatusComboBox" prefWidth="150"/>
+    </HBox>
 
     <!-- Tableau des commandes -->
-    <TableView fx:id="tableCommandes" prefHeight="400">
+    <TableView fx:id="tableView" prefHeight="400">
         <columns>
-            <TableColumn fx:id="colDate" text="Date"/>
-            <TableColumn fx:id="colStatut" text="Statut"/>
-            <TableColumn fx:id="colActions" text="Actions"/>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colUser" text="Utilisateur" prefWidth="150"/>
+            <TableColumn fx:id="colTotal" text="Total" prefWidth="100"/>
+            <TableColumn fx:id="colStatus" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="colDate" text="Date de Création" prefWidth="150"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
         </columns>
     </TableView>
 
+    <!-- Pagination -->
+    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5"/>
+
+    <!-- Conteneur pour "Aucune commande" -->
+    <VBox fx:id="noCommandesContainer" alignment="CENTER" spacing="10" visible="false">
+        <Label text="Aucune commande trouvée" style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
+    </VBox>
+
+    <!-- Toast pour notifications -->
+    <Pane fx:id="toastContainer" visible="false">
+        <HBox alignment="CENTER" style="-fx-background-color: #28a745; -fx-background-radius: 4px;" prefHeight="40">
+            <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Message"/>
+        </HBox>
+    </Pane>
 </VBox>

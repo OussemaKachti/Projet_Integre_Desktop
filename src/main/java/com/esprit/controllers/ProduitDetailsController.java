@@ -16,6 +16,8 @@ import javafx.scene.image.ImageView;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProduitDetailsController implements Initializable {
 
@@ -29,10 +31,10 @@ public class ProduitDetailsController implements Initializable {
     @FXML private Button btnAddToCart;
     @FXML private Button btnBuyNow;
     @FXML private Button btnBack;
-    
+
     // Le produit sélectionné à afficher
     private static Produit selectedProduit;
-    
+
     /**
      * Définir le produit sélectionné (appelé avant la navigation)
      */
@@ -46,7 +48,7 @@ public class ProduitDetailsController implements Initializable {
             setupProductDetails();
             setupQuantitySpinner();
         } else {
-            AlertUtils.showError("Erreur", "Produit non disponible", 
+            AlertUtils.showError("Erreur", "Produit non disponible",
                 "Impossible d'afficher les détails du produit. Veuillez réessayer.");
             retourCatalogue();
         }
@@ -59,7 +61,7 @@ public class ProduitDetailsController implements Initializable {
         lblNomProduit.setText(selectedProduit.getNomProd());
         lblPrix.setText(String.format("%.2f €", selectedProduit.getPrix()));
         lblDescription.setText(selectedProduit.getDescProd());
-        
+
         // Afficher la quantité disponible
         String quantity = selectedProduit.getQuantity();
         int quantityInt;
@@ -77,24 +79,24 @@ public class ProduitDetailsController implements Initializable {
         } catch (NumberFormatException e) {
             lblQuantity.setText("Disponibilité: " + quantity);
         }
-        
+
         // Afficher le club
         if (selectedProduit.getClub() != null && selectedProduit.getClub().getNom() != null) {
             lblClub.setText(selectedProduit.getClub().getNom().toUpperCase());
         } else {
             lblClub.setText("");
         }
-        
+
         // Set a blank image by default
         imgProduit.setImage(null);
-        
+
         // Try to load the product image
         try {
             String imagePath = selectedProduit.getImgProd();
             if (imagePath != null && !imagePath.isEmpty()) {
                 // Try first as a resource
                 URL imageUrl = getClass().getResource("/" + imagePath);
-                
+
                 if (imageUrl != null) {
                     Image image = new Image(imageUrl.toString(), true); // Use background loading
                     imgProduit.setImage(image);
@@ -122,18 +124,18 @@ public class ProduitDetailsController implements Initializable {
         // Utiliser un tableau pour stocker la valeur qui peut être modifiée
         // tout en gardant la référence finale
         final int[] maxQuantityHolder = new int[1];
-        
+
         try {
             maxQuantityHolder[0] = Integer.parseInt(selectedProduit.getQuantity());
         } catch (NumberFormatException e) {
             maxQuantityHolder[0] = 10; // Valeur par défaut si la quantité n'est pas un nombre
         }
-        
+
         // Limiter la quantité maximum à la disponibilité
-        SpinnerValueFactory<Integer> valueFactory = 
+        SpinnerValueFactory<Integer> valueFactory =
             new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxQuantityHolder[0], 1);
         spinnerQuantity.setValueFactory(valueFactory);
-        
+
         // Rendre le spinner éditable
         spinnerQuantity.setEditable(true);
         spinnerQuantity.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
@@ -157,7 +159,6 @@ public class ProduitDetailsController implements Initializable {
     @FXML
     private void ajouterAuPanier() {
         int quantity = spinnerQuantity.getValue();
-
         if (selectedProduit != null) {
             try {
                 // Vérifier si le produit a du stock disponible
@@ -175,13 +176,21 @@ public class ProduitDetailsController implements Initializable {
                     return;
                 }
 
-                // TODO: Implémenter l'ajout au panier avec la quantité
-                // (remplacer par votre logique de panier comme dans l'exemple)
+                // Obtenir la quantité actuelle dans le panier
+                int currentCartQuantity = ProduitCardItemController.getCart().getOrDefault(selectedProduit.getId(), 0);
 
+                // Mettre à jour la quantité dans le panier
+                Map<Integer, Integer> cart = new HashMap<>(ProduitCardItemController.getCart());
+                cart.put(selectedProduit.getId(), currentCartQuantity + quantity);
+
+                // Mettre à jour le panier dans ProduitCardItemController
+                ProduitCardItemController.updateCart(cart);
+
+                // Afficher un message de succès
                 AlertUtils.showInfo("Panier", "Produit ajouté",
                         String.format("%d × %s ajouté(s) au panier", quantity, selectedProduit.getNomProd()));
 
-                // Navigation vers la page produit_card.fxml
+                // Navigation vers la page du panier
                 ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
 
             } catch (NumberFormatException e) {
@@ -201,10 +210,10 @@ public class ProduitDetailsController implements Initializable {
     private void acheterMaintenant() {
         int quantity = spinnerQuantity.getValue();
         float total = selectedProduit.getPrix() * quantity;
-        
+
         // TODO: Implémenter le processus d'achat
-        AlertUtils.showInfo("Achat", "Achat direct", 
-            String.format("Achat de %d × %s pour un total de %.2f €", 
+        AlertUtils.showInfo("Achat", "Achat direct",
+            String.format("Achat de %d × %s pour un total de %.2f €",
                 quantity, selectedProduit.getNomProd(), total));
 
     }
@@ -216,7 +225,7 @@ public class ProduitDetailsController implements Initializable {
     private void retourCatalogue() {
         ProduitApp.navigateTo("/com/esprit/views/produit/ProduitView.fxml");
     }
-    
+
     /**
      * Increments the quantity spinner value
      */
@@ -224,19 +233,19 @@ public class ProduitDetailsController implements Initializable {
     private void incrementQuantity() {
         int currentValue = spinnerQuantity.getValue();
         int maxValue = ((SpinnerValueFactory.IntegerSpinnerValueFactory)spinnerQuantity.getValueFactory()).getMax();
-        
+
         if (currentValue < maxValue) {
             spinnerQuantity.getValueFactory().setValue(currentValue + 1);
         }
     }
-    
+
     /**
      * Decrements the quantity spinner value
      */
     @FXML
     private void decrementQuantity() {
         int currentValue = spinnerQuantity.getValue();
-        
+
         if (currentValue > 1) {
             spinnerQuantity.getValueFactory().setValue(currentValue - 1);
         }
