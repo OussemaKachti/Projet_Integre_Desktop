@@ -1,55 +1,51 @@
+
 package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Club;
-import com.esprit.models.Commentaire;
-import com.esprit.models.Club;
-import com.esprit.services.CommentaireService;
 import com.esprit.services.ClubService;
+import com.esprit.services.CommentaireService;
+import com.esprit.services.UserService;
 import com.esprit.utils.AlertUtils;
+import com.esprit.utils.CommentStatsService;
 import com.esprit.utils.NavigationManager;
-import com.esprit.utils.NavigationManager;
+import com.esprit.visualization.CommentBarChartVisualization;
+
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import javafx.scene.chart.PieChart;
+
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import javafx.animation.FadeTransition;
-import javafx.util.Duration;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import java.io.IOException;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import java.io.IOException;
 
 public class AdminCommentsController implements Initializable {
 
@@ -127,40 +123,24 @@ public class AdminCommentsController implements Initializable {
     @FXML
     private Label mostActiveUserCommentsLabel;
 
-    // Sidebar navigation buttons
     @FXML
-    private Button userManagementBtn;
-    @FXML
-    private Button clubManagementBtn;
-    @FXML
-    private Button eventManagementBtn;
-    @FXML
-    private Button productOrdersBtn;
-    @FXML
-    private Button competitionBtn;
-    @FXML
-    private Button surveyManagementBtn;
-    @FXML
-    private Button pollsManagementBtn;
-    @FXML
-    private Button commentsManagementBtn;
-    @FXML
-    private Button profileBtn;
-    @FXML
-    private Button logoutBtn;
-    @FXML
-    private VBox surveySubMenu;
-    @FXML
-    private Label adminNameLabel;
+    private Button generateInsightsBtn;
 
     @FXML
-    private Label mostActiveUserLabel;
+    private VBox aiInsightsContainer;
 
     @FXML
-    private Label mostActiveUserCommentsLabel;
+    private HBox insightsChartContainer;
+
+    @FXML
+    private VBox insightsSummaryContainer;
+
+    @FXML
+    private Label insightsLoadingLabel;
 
     private CommentaireService commentaireService;
     private ClubService clubService;
+    private CommentStatsService statsService;
 
     private ObservableList<Commentaire> commentsList = FXCollections.observableArrayList();
     private ObservableList<String> clubsList = FXCollections.observableArrayList();
@@ -179,36 +159,37 @@ public class AdminCommentsController implements Initializable {
     // Filtre sélectionné
     private String selectedClub = "all";
 
+    // Visualizations
+    private CommentBarChartVisualization barChartVisualization;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            // Initialize services
-            commentaireService = new CommentaireService();
-            clubService = new ClubService();
+        // Initialize services
+        commentaireService = new CommentaireService();
+        clubService = new ClubService();
+        statsService = CommentStatsService.getInstance();
 
-        // Configuration des colonnes du tableau
+        // Setup UI
         setupTableColumns();
-
-        // Chargement des clubs pour le filtre
-        loadClubs();
-
-        // Chargement des commentaires
-        loadComments();
-
-        // Calcul des statistiques
-        calculateStats();
-
-        // Configuration des événements
-        setupEventHandlers();
-
-        // Configuration de la pagination
-        setupPagination();
-
-        // Configuration des événements de navigation
+        setupAdminInfo();
         setupNavigationEvents();
 
-        // Configuration des informations de l'administrateur
-        setupAdminInfo();
+        // Load data
+        loadClubs();
+        setupComboBoxCellFactory(clubFilterComboBox);
+        loadComments();
+        setupPagination();
+        setupEventHandlers();
+        calculateStats();
+
+        // Add listener to clubFilterComboBox to update charts when selection changes
+        clubFilterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                selectedClub = newValue;
+                loadComments();
+                updateBarChart();
+            }
+        });
     }
 
     private void setupTableColumns() {
@@ -532,82 +513,11 @@ public class AdminCommentsController implements Initializable {
                     .sorted() // Sort clubs alphabetically
                     .collect(Collectors.toList()));
 
-            // Set items to the ComboBox
+            // Set items to both ComboBoxes
             clubFilterComboBox.setItems(this.clubsList);
 
-            // Set custom cell factory for better display
-            clubFilterComboBox.setCellFactory(listView -> new ListCell<String>() {
-                @Override
-                protected void updateItem(String club, boolean empty) {
-                    super.updateItem(club, empty);
-
-                    if (empty || club == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        // Create an HBox for the cell content
-                        HBox cellBox = new HBox(10);
-                        cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                        // Create icon based on whether it's "All Clubs" or a specific club
-                        Label icon = new Label();
-                        if ("All Clubs".equals(club)) {
-                            icon.setText("🌐");
-                        } else {
-                            icon.setText("🏢");
-                        }
-                        icon.setStyle("-fx-font-size: 14px;");
-
-                        // Create label for club name
-                        Label clubLabel = new Label(club);
-                        clubLabel.setStyle("-fx-font-size: 14px;");
-
-                        // Add components to cell
-                        cellBox.getChildren().addAll(icon, clubLabel);
-
-                        setGraphic(cellBox);
-                        setText(null);
-                    }
-                }
-            });
-
-            // Set custom button cell for the selected value display
-            clubFilterComboBox.setButtonCell(new ListCell<String>() {
-                @Override
-                protected void updateItem(String club, boolean empty) {
-                    super.updateItem(club, empty);
-
-                    if (empty || club == null) {
-                        setText("All Clubs");
-                        setGraphic(null);
-                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
-                    } else {
-                        HBox cellBox = new HBox(10);
-                        cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                        Label icon = new Label();
-                        if ("All Clubs".equals(club)) {
-                            icon.setText("🌐");
-                        } else {
-                            icon.setText("🏢");
-                        }
-                        icon.setStyle("-fx-font-size: 14px;");
-
-                        Label clubLabel = new Label(club);
-                        clubLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;"); // S'assurer que le texte
-                                                                                            // est noir
-
-                        cellBox.getChildren().addAll(icon, clubLabel);
-
-                        setGraphic(cellBox);
-                        setText(null);
-                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
-                    }
-                }
-            });
-
-            // Select first item (All Clubs)
             clubFilterComboBox.getSelectionModel().selectFirst();
+
             selectedClub = "all"; // Default value
 
             // Add style class for custom styling
@@ -617,6 +527,80 @@ public class AdminCommentsController implements Initializable {
             AlertUtils.showError("Error", "Unable to load clubs: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void setupComboBoxCellFactory(ComboBox<String> comboBox) {
+        comboBox.setCellFactory(listView -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String club, boolean empty) {
+                super.updateItem(club, empty);
+
+                if (empty || club == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Create an HBox for the cell content
+                    HBox cellBox = new HBox(10);
+                    cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                    // Create icon based on whether it's "All Clubs" or a specific club
+                    Label icon = new Label();
+                    if ("All Clubs".equals(club)) {
+                        icon.setText("🌐");
+                    } else {
+                        icon.setText("🏢");
+                    }
+                    icon.setStyle("-fx-font-size: 14px;");
+
+                    // Create label for club name
+                    Label clubLabel = new Label(club);
+                    clubLabel.setStyle("-fx-font-size: 14px;");
+
+                    // Add components to cell
+                    cellBox.getChildren().addAll(icon, clubLabel);
+
+                    setGraphic(cellBox);
+                    setText(null);
+                }
+            }
+        });
+
+        // Set custom button cell for the selected value display
+        comboBox.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String club, boolean empty) {
+                super.updateItem(club, empty);
+
+                if (empty || club == null) {
+                    setText("All Clubs");
+                    setGraphic(null);
+                    setStyle("-fx-text-fill: #333333;");
+                } else {
+                    HBox cellBox = new HBox(10);
+                    cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                    Label icon = new Label();
+                    if ("All Clubs".equals(club)) {
+                        icon.setText("🌐");
+                    } else {
+                        icon.setText("🏢");
+                    }
+                    icon.setStyle("-fx-font-size: 14px;");
+
+                    Label clubLabel = new Label(club);
+                    clubLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+
+                    cellBox.getChildren().addAll(icon, clubLabel);
+
+                    setGraphic(cellBox);
+                    setText(null);
+                    setStyle("-fx-text-fill: #333333;");
+                }
+            }
+        });
+
+        // Add style class for custom styling
+        comboBox.getStyleClass().add("club-filter-combo");
     }
 
     private void loadComments() {
@@ -785,44 +769,33 @@ public class AdminCommentsController implements Initializable {
     }
 
     private void setupEventHandlers() {
-        clubFilterComboBox.setOnAction(event -> {
-            String selected = clubFilterComboBox.getValue();
-            if (selected == null) {
-                selected = "All Clubs";
-            }
-
-
-            // Show a short animation or visual feedback when filter changes
-            clubFilterComboBox.setDisable(true); // Temporarily disable to show processing
-
-
-            // Convert "All Clubs" to internal value "all"
-            selectedClub = "All Clubs".equals(selected) ? "all" : selected;
-
-
-            // Reset to page 1 when changing filter
-            currentPage = 1;
-
-
-            // Load filtered comments
-            loadComments();
-
-
-            // Re-enable after short delay to show processing
-            new Thread(() -> {
-                try {
-                    Thread.sleep(300); // Short delay for visual feedback
-                    Platform.runLater(() -> clubFilterComboBox.setDisable(false));
-                } catch (InterruptedException e) {
-                    Platform.runLater(() -> clubFilterComboBox.setDisable(false));
-                    e.printStackTrace();
+        // Show comment details when row is clicked
+        commentsTable.setRowFactory(tableView -> {
+            TableRow<Commentaire> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    showCommentDetails(row.getItem());
                 }
-            }).start();
-
-
-            // Show toast with filter info
-            showToast("Filtered by " + (selectedClub.equals("all") ? "all clubs" : "club: " + selectedClub), "info");
+            });
+            return row;
         });
+
+        // Rename and update the button action
+        generateInsightsBtn.setText("Show Comments Chart");
+        generateInsightsBtn.setOnAction(e -> {
+            updateBarChart();
+        });
+
+        // Initialize bar chart visualization in insightsChartContainer
+        StackPane barChartContainer = new StackPane();
+        barChartContainer.setPrefSize(600, 400);
+        barChartVisualization = new CommentBarChartVisualization(barChartContainer);
+
+        insightsChartContainer.getChildren().clear();
+        insightsChartContainer.getChildren().add(barChartContainer);
+
+        // Initial update of bar chart with all comments
+        updateBarChart();
     }
 
     private void setupPagination() {
@@ -1004,12 +977,15 @@ public class AdminCommentsController implements Initializable {
      * Configure les événements de navigation pour la sidebar
      */
     private void setupNavigationEvents() {
-        // Navigation vers AdminPollsView
+        // Navigation back to AdminPollsView
         pollsManagementBtn.setOnAction(event -> {
             try {
                 // Charger la vue des sondages
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
                 Parent root = loader.load();
+
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
 
                 // Configurer la scène
                 Scene scene = new Scene(root);
@@ -1019,8 +995,7 @@ public class AdminCommentsController implements Initializable {
                         .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
 
-                // Utiliser le NavigationManager pour obtenir et configurer la scène
-                Stage stage = NavigationManager.getMainStage();
+                // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
                 stage.show();
@@ -1039,9 +1014,29 @@ public class AdminCommentsController implements Initializable {
             surveySubMenu.setManaged(!isVisible);
         });
 
+        // Navigation vers admin_dashboard
+        userManagementBtn.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+                Parent root = loader.load();
+
+                // Obtenir le stage actuel directement depuis la scène du bouton
+                Stage stage = (Stage) userManagementBtn.getScene().getWindow();
+
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Appliquer la scène au stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to user management: " + e.getMessage(), "error");
+            }
+        });
+
         // Configurer les autres boutons de navigation si nécessaire
-        userManagementBtn
-                .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des utilisateurs", "info"));
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
         eventManagementBtn
                 .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
@@ -1093,5 +1088,122 @@ public class AdminCommentsController implements Initializable {
             System.err
                     .println("Erreur lors de la configuration des informations de l'administrateur: " + e.getMessage());
         }
+    }
+
+    private void updateBarChart() {
+        // Get the selected club
+        String selectedClub = clubFilterComboBox.getValue();
+        System.out.println("Updating bar chart for club: " + selectedClub);
+
+        // Show loading message
+        insightsLoadingLabel.setText("Chargement des données...");
+        insightsLoadingLabel.setVisible(true);
+
+        // Run in background thread to avoid freezing UI
+        new Thread(() -> {
+            try {
+                // Get all comments to be processed
+                List<Commentaire> allComments = commentaireService.getAllComments();
+                System.out.println("Total comments retrieved: " + allComments.size());
+
+                // Filter comments for the selected club if necessary
+                List<Commentaire> filteredComments;
+                if (selectedClub == null || selectedClub.equals("all")) {
+                    filteredComments = allComments;
+                } else {
+                    filteredComments = new ArrayList<>();
+                    for (Commentaire comment : allComments) {
+                        if (comment.getSondage() != null &&
+                                comment.getSondage().getClub() != null &&
+                                selectedClub.equals(comment.getSondage().getClub().getNom())) {
+                            filteredComments.add(comment);
+                        }
+                    }
+                }
+
+                System.out.println("Loaded " + filteredComments.size() + " comments for club: " + selectedClub);
+
+                // Prepare data for the bar chart
+                List<Map<String, Object>> chartData = statsService.getCommentsByMonth(filteredComments, selectedClub);
+                System.out.println("Prepared " + chartData.size() + " data points for chart");
+
+                // Debug: Print all data points
+                for (Map<String, Object> dataPoint : chartData) {
+                    System.out.println("Data point: " + dataPoint);
+                }
+
+                // Update chart on JavaFX thread
+                Platform.runLater(() -> {
+                    if (barChartVisualization != null) {
+                        if (chartData.isEmpty()) {
+                            insightsLoadingLabel.setText("Aucun commentaire trouvé pour ce club");
+                            insightsLoadingLabel.setVisible(true);
+                        } else {
+                            insightsLoadingLabel.setVisible(false);
+                            barChartVisualization.updateData(chartData, selectedClub);
+                        }
+                    } else {
+                        System.err.println("Bar chart visualization is null!");
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    insightsLoadingLabel.setText("Erreur lors du chargement des données: " + e.getMessage());
+                    insightsLoadingLabel.setVisible(true);
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * Afficher les détails d'un commentaire dans une fenêtre modale
+     * 
+     * @param commentaire Le commentaire à afficher
+     */
+    private void showCommentDetails(Commentaire commentaire) {
+        // Créer une fenêtre de dialogue pour afficher les détails du commentaire
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Détails du commentaire");
+        alert.setHeaderText(
+                "Commentaire de " + commentaire.getUser().getFirstName() + " " + commentaire.getUser().getLastName());
+
+        // Créer un content container avec formatage
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(10));
+
+        // Ajouter le texte du commentaire
+        Label contentLabel = new Label("Contenu:");
+        contentLabel.setStyle("-fx-font-weight: bold;");
+
+        TextArea commentText = new TextArea(commentaire.getContenuComment());
+        commentText.setEditable(false);
+        commentText.setWrapText(true);
+        commentText.setPrefHeight(100);
+
+        // Ajouter la date
+        Label dateLabel = new Label("Date:");
+        dateLabel.setStyle("-fx-font-weight: bold;");
+
+        Label dateValue = new Label(commentaire.getDateComment().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+        // Ajouter d'autres informations si disponibles
+        Label sondageLabel = new Label("Sondage associé:");
+        sondageLabel.setStyle("-fx-font-weight: bold;");
+
+        Label sondageValue = new Label(
+                commentaire.getSondage() != null ? commentaire.getSondage().getQuestion() : "Non disponible");
+
+        content.getChildren().addAll(
+                contentLabel, commentText,
+                dateLabel, dateValue,
+                sondageLabel, sondageValue);
+
+        // Appliquer une classe CSS pour styliser
+        alert.getDialogPane().getStyleClass().add("custom-alert");
+        alert.getDialogPane().setContent(content);
+
+        // Afficher la fenêtre de dialogue
+        alert.showAndWait();
     }
 }
