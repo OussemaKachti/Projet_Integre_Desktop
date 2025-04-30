@@ -4,67 +4,225 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.esprit.controllers.crud.AdminCommandeController"
-      spacing="15">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
-
-    <!-- Titre -->
-    <Label text="Administration des Commandes" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6200EE;"/>
-
-    <!-- Statistiques -->
-    <HBox spacing="15">
-        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
-            <Label text="Total des Commandes" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
-            <Label fx:id="totalCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
-            <Label text="Commandes en Attente" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
-            <Label fx:id="pendingCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
-            <Label text="Commandes Confirmées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
-            <Label fx:id="completedCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-        </VBox>
-        <VBox style="-fx-background-color: white; -fx-border-radius: 10; -fx-padding: 10;">
-            <Label text="Commandes Annulées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
-            <Label fx:id="cancelledCommandesLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-        </VBox>
-    </HBox>
-
-    <!-- Filtres -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Rechercher et Filtrer" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #6c757d;"/>
-        <TextField fx:id="txtSearch" promptText="Rechercher une commande..." prefWidth="200"/>
-        <ComboBox fx:id="filterStatusComboBox" prefWidth="150"/>
-    </HBox>
-
-    <!-- Tableau des commandes -->
-    <TableView fx:id="tableView" prefHeight="400">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colUser" text="Utilisateur" prefWidth="150"/>
-            <TableColumn fx:id="colTotal" text="Total" prefWidth="100"/>
-            <TableColumn fx:id="colStatus" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="colDate" text="Date de Création" prefWidth="150"/>
-            <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
-        </columns>
-    </TableView>
-
-    <!-- Pagination -->
-    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5"/>
-
-    <!-- Conteneur pour "Aucune commande" -->
-    <VBox fx:id="noCommandesContainer" alignment="CENTER" spacing="10" visible="false">
-        <Label text="Aucune commande trouvée" style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
-    </VBox>
-
-    <!-- Toast pour notifications -->
-    <Pane fx:id="toastContainer" visible="false">
-        <HBox alignment="CENTER" style="-fx-background-color: #28a745; -fx-background-radius: 4px;" prefHeight="40">
-            <Label style="-fx-text-fill: white; -fx-font-size: 14px;" text="Message"/>
+<BorderPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminCommandeController">
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
+            <children>
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="Administration des Commandes">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Label>
+            </children>
         </HBox>
+    </top>
+
+    <left>
+        <VBox prefWidth="220.0" style="-fx-background-color: #303030;" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: #252525;">
+                    <children>
+                        <Label fx:id="adminNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Admin User">
+                            <HBox.margin>
+                                <Insets left="15.0" />
+                            </HBox.margin>
+                        </Label>
+                    </children>
+                </HBox>
+
+                <Button fx:id="userManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Utilisateurs">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="clubManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Clubs">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="eventManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Événements">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="productOrdersBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-size: 14px;" text="Produits and Commandes">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                    <Button fx:id="btnCommandes" text="Commandes" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                </Button>
+                <Button fx:id="competitionBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Compétitions">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="surveyManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Sondages">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <VBox fx:id="surveySubMenu" managed="false" prefHeight="100.0" prefWidth="220.0" visible="false">
+                    <children>
+                        <Button fx:id="pollsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Sondages">
+                            <padding>
+                                <Insets left="30.0" />
+                            </padding>
+                        </Button>
+                        <Button fx:id="commentsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Commentaires">
+                            <padding>
+                                <Insets left="30.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                </VBox>
+                <Button fx:id="profileBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Mon Profil">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="logoutBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Déconnexion">
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+            <!-- Statistics Cards -->
+            <HBox spacing="20.0">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                </padding>
+                <children>
+                    <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                        <children>
+                            <Label text="Total des Commandes" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                            <Label fx:id="totalCommandesLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #6200EE;" />
+                        </children>
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                    </VBox>
+
+                    <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                        <children>
+                            <Label text="Commandes en Attente" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                            <Label fx:id="pendingCommandesLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #FF9800;" />
+                        </children>
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                    </VBox>
+
+                    <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                        <children>
+                            <Label text="Commandes Confirmées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                            <Label fx:id="completedCommandesLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+                        </children>
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                    </VBox>
+
+                    <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                        <children>
+                            <Label text="Commandes Annulées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                            <Label fx:id="cancelledCommandesLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #F44336;" />
+                        </children>
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                    </VBox>
+                </children>
+            </HBox>
+
+            <!-- Search and Filter Section -->
+            <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                <padding>
+                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                </padding>
+                <HBox.margin>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+                </HBox.margin>
+                <VBox.margin>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+                </VBox.margin>
+                <children>
+                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                        <children>
+                            <Label text="Rechercher et Filtrer" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #6c757d;" />
+                            <TextField fx:id="txtSearch" promptText="Rechercher une commande..." prefWidth="200" HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher" />
+                            <ComboBox fx:id="filterStatusComboBox" prefWidth="150" />
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+
+            <!-- Main Content -->
+            <StackPane VBox.vgrow="ALWAYS">
+                <VBox.margin>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+                </VBox.margin>
+                <children>
+                    <!-- Table View -->
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                        <children>
+                            <TableView fx:id="tableView" prefHeight="400" styleClass="product-table" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="colId" text="ID" prefWidth="50" />
+                                    <TableColumn fx:id="colUser" text="Utilisateur" prefWidth="150" />
+                                    <TableColumn fx:id="colTotal" text="Total" prefWidth="100" style="-fx-alignment: CENTER_RIGHT;" />
+                                    <TableColumn fx:id="colStatus" text="Statut" prefWidth="100" style="-fx-alignment: CENTER;" />
+                                    <TableColumn fx:id="colDate" text="Date de Création" prefWidth="150" />
+                                    <TableColumn fx:id="colActions" text="Actions" prefWidth="200" style="-fx-alignment: CENTER;" />
+                                </columns>
+                            </TableView>
+
+                            <!-- Pagination -->
+                            <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5" prefHeight="50.0">
+                                <VBox.margin>
+                                    <Insets top="10.0" />
+                                </VBox.margin>
+                            </HBox>
+                        </children>
+                    </VBox>
+
+                    <!-- No Commands Container -->
+                    <VBox fx:id="noCommandesContainer" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);" visible="false">
+                        <children>
+                            <Label text="Aucune commande trouvée" style="-fx-font-size: 16px; -fx-text-fill: #6c757d;" />
+                        </children>
+                        <padding>
+                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </padding>
+                    </VBox>
+                </children>
+            </StackPane>
+        </VBox>
+    </center>
+
+    <!-- Toast for notifications -->
+    <Pane fx:id="toastContainer" prefHeight="60.0" prefWidth="300.0" visible="false" BorderPane.alignment="BOTTOM_RIGHT">
+        <BorderPane.margin>
+            <Insets bottom="20.0" right="20.0" />
+        </BorderPane.margin>
+        <children>
+            <HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="60.0" prefWidth="300.0" style="-fx-background-color: #28a745; -fx-background-radius: 4px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 10);">
+                <children>
+                    <Label style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" text="Message">
+                        <HBox.margin>
+                            <Insets left="15.0" />
+                        </HBox.margin>
+                    </Label>
+                </children>
+            </HBox>
+        </children>
     </Pane>
-</VBox>
+</BorderPane>

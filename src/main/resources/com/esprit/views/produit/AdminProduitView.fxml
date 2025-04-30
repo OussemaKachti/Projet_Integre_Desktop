@@ -177,6 +177,7 @@
                   <children>
                      <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Rechercher et Filtrer" />
                      <TextField fx:id="txtSearch" promptText="Rechercher un produit..." HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnSearchh" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher"/>
                      <ComboBox fx:id="filterClubComboBox" prefWidth="200.0" promptText="Filtrer par club" />
                      <Button fx:id="btnAddProduct" mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4;" text="+ Ajouter un Produit">
                         <padding>

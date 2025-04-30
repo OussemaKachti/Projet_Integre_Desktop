@@ -310,6 +310,10 @@ public class AdminCommandeController implements Initializable {
             });
         }
     }
+    @FXML
+    private void searchProducts() {
+        setupFilters();
+    }
 
     private void loadAllCommandes() {
         try {
@@ -320,7 +324,7 @@ public class AdminCommandeController implements Initializable {
             commandeList.addAll(commandes);
 
             filteredList = new FilteredList<>(commandeList);
-
+            tableView.setItems(filteredList);
             if (commandeList.isEmpty()) {
                 if (noCommandesContainer != null) {
                     noCommandesContainer.setVisible(true);

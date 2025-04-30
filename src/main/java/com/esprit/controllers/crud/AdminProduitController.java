@@ -785,6 +785,10 @@ public class AdminProduitController implements Initializable {
             AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
         }
     }
+    @FXML
+    private void searchProducts() {
+        setupFilters();
+    }
 
     private void loadAllProduits() {
         try {

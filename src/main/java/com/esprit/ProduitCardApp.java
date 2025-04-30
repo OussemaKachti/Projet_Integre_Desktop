@@ -25,7 +25,7 @@ public class ProduitCardApp extends Application {
     public void start(Stage stage) {
         try {
             primaryStage = stage;
-            navigateTo("/com/esprit/views/produit/produit_card.fxml");
+            navigateTo("/com/esprit/views/produit/AdminProduitView.fxml");
 
             primaryStage.setTitle("Test Produit Card");
             primaryStage.show();
@@ -37,7 +37,7 @@ public class ProduitCardApp extends Application {
 
     /**
      * Loads the specified FXML into the main stage
-     * @param fxmlPath path to the FXML file (e.g., "/com/esprit/views/produit/produit_card.fxml")
+     * @param fxmlPath path to the FXML file (e.g., "/com/esprit/views/produit/AdminProduitView.fxml")
      */
     public static void navigateTo(String fxmlPath) {
         try {

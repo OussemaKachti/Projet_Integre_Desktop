@@ -19,12 +19,12 @@ public class CommandeService {
 
     public void createCommande(Commande commande) {
         try {
-            String insertCommandeSQL = "INSERT INTO commande (date_comm, statut, user_id, total) VALUES (?, ?, ?, ?)";
+            String insertCommandeSQL = "INSERT INTO commande (date_comm, statut, user_id) VALUES (?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(insertCommandeSQL, Statement.RETURN_GENERATED_KEYS);
             ps.setDate(1, Date.valueOf(commande.getDateComm()));
             ps.setString(2, commande.getStatut().name());
             ps.setInt(3, commande.getUser().getId());
-            ps.setDouble(4, commande.getTotal());
+            //ps.setDouble(4, commande.getTotal());
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -51,19 +51,39 @@ public class CommandeService {
 
     public void supprimerCommande(int id) {
         try {
-            String deleteDetailsSQL = "DELETE FROM order_details WHERE commande_id = ?";
-            PreparedStatement ps1 = connection.prepareStatement(deleteDetailsSQL);
-            ps1.setInt(1, id);
-            ps1.executeUpdate();
+            connection.setAutoCommit(false);
 
-            String deleteCommandeSQL = "DELETE FROM commande WHERE id = ?";
-            PreparedStatement ps2 = connection.prepareStatement(deleteCommandeSQL);
-            ps2.setInt(1, id);
-            ps2.executeUpdate();
+            try {
+                // First, delete order details (child records)
+                String deleteDetailsSQL = "DELETE FROM orderdetails WHERE commande_id = ?";
+                PreparedStatement ps1 = connection.prepareStatement(deleteDetailsSQL);
+                ps1.setInt(1, id);
+                int detailsDeleted = ps1.executeUpdate();
+                System.out.println("Order details deleted: " + detailsDeleted);
 
-            System.out.println("Commande supprimée.");
+                // Then, delete the command (parent record)
+                String deleteCommandeSQL = "DELETE FROM commande WHERE id = ?";
+                PreparedStatement ps2 = connection.prepareStatement(deleteCommandeSQL);
+                ps2.setInt(1, id);  // Correct parameter index is 1, not 2
+                int commandesDeleted = ps2.executeUpdate();
+                System.out.println("Commands deleted: " + commandesDeleted);
+
+                if (commandesDeleted > 0) {
+                    connection.commit();
+                    System.out.println("Commande supprimée avec succès.");
+                } else {
+                    connection.rollback();
+                    System.out.println("Commande avec ID " + id + " non trouvée.");
+                }
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+            System.err.println("Erreur lors de la suppression de la commande: " + e.getMessage());
         }
     }
 

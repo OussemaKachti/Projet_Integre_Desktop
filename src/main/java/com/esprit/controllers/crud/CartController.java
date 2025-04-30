@@ -14,16 +14,25 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
+import javafx.geometry.Insets;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -223,12 +232,84 @@ public class CartController implements Initializable {
             ProduitCardItemController.updateCart(new HashMap<>());
             updateTotalLabel();
 
-            AlertUtils.showInfo("Commande", "Commande créée", "Votre commande a été créée avec succès!");
+            showSuccessPopup(commande.getId());
         } catch (Exception e) {
             e.printStackTrace();
             AlertUtils.showError("Erreur", "Erreur lors de la commande", e.getMessage());
         }
     }
+    /**
+     * Shows a custom success popup with an option to return to the catalog
+     * @param commandeId The ID of the created order
+     */
+    private void showSuccessPopup(int commandeId) {
+        try {
+            // Create a new dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Commande Réussie");
+            dialog.setHeaderText("Votre commande a été créée avec succès!");
+
+            // Create custom content for the dialog
+            VBox contentBox = new VBox(10);
+            contentBox.setPadding(new Insets(20, 20, 20, 20));
+            contentBox.setAlignment(Pos.CENTER);
+
+            // Success message
+            Label messageLabel = new Label("Commande #" + commandeId + " créée avec succès");
+            messageLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+            Label detailLabel = new Label("Merci pour votre achat!");
+            detailLabel.setStyle("-fx-font-size: 14px;");
+
+            // Add components to the content box
+            contentBox.getChildren().addAll(messageLabel, detailLabel);
+
+            // Set the content for the dialog
+            dialog.getDialogPane().setContent(contentBox);
+
+            // Add buttons
+            ButtonType returnToCatalogType = new ButtonType("Retourner au Catalogue");
+            ButtonType closeButtonType = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            dialog.getDialogPane().getButtonTypes().addAll(returnToCatalogType, closeButtonType);
+
+            // Style the dialog
+            dialog.getDialogPane().setPrefWidth(400);
+            dialog.getDialogPane().setPrefHeight(200);
+
+            // Show the dialog and handle the result
+            dialog.showAndWait().ifPresent(buttonType -> {
+                if (buttonType == returnToCatalogType) {
+                    navigateToCatalogue();
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Erreur", "Erreur d'affichage", "Impossible d'afficher la confirmation.");
+        }
+    }
+
+    /**
+     * Navigate to the catalogue view
+     */
+    private void navigateToCatalogue() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit/ProduitView.fxml"));
+            Parent catalogueView = loader.load();
+
+            Scene currentScene = tableView.getScene();
+            Stage stage = (Stage) currentScene.getWindow();
+
+            Scene catalogueScene = new Scene(catalogueView);
+            stage.setScene(catalogueScene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Erreur", "Navigation", "Impossible de charger le catalogue.");
+        }
+    }
+
 
     // CartItem class
     public static class CartItem {
