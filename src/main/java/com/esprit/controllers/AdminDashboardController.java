@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javafx.stage.Stage;
 import com.esprit.models.User;
 import com.esprit.models.enums.RoleEnum;
 import javafx.collections.FXCollections;
@@ -49,8 +50,10 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import com.esprit.services.AuthService;
 import com.esprit.services.UserService;
+import com.esprit.utils.ProfanityLogManager;
 import com.esprit.MainApp;
 import com.esprit.utils.SessionManager;
+import javafx.application.Platform;
 
 public class AdminDashboardController {
 
@@ -513,6 +516,13 @@ public class AdminDashboardController {
         // Clear previous content
         userDetailsContent.getChildren().clear();
         
+        // Create a ScrollPane to enable scrolling for the details
+        ScrollPane detailsScrollPane = new ScrollPane();
+        detailsScrollPane.setFitToWidth(true);
+        detailsScrollPane.setPrefViewportHeight(600);  // Set preferred viewport height
+        detailsScrollPane.getStyleClass().add("edge-to-edge");
+        detailsScrollPane.setStyle("-fx-background-color: transparent;");
+        
         // Create user details view directly without ScrollPane
         VBox detailsContainer = new VBox();
         detailsContainer.setSpacing(15);
@@ -567,14 +577,114 @@ public class AdminDashboardController {
         
         addDetailRow(activityInfo, "Last Login", lastLogin);
         
-        // Add all sections to container
+        // Add all sections to container first
         detailsContainer.getChildren().addAll(
             basicInfoTitle, infoGrid, 
             additionalInfoTitle, additionalInfo,
             activityTitle, activityInfo
         );
         
-        // Action buttons
+        // Add NEW Profanity Evidence section if the user has warnings
+        if (user.getWarningCount() > 0) {
+            Label profanityTitle = new Label("Content Violation Evidence");
+            profanityTitle.setFont(Font.font("System", 18));
+            profanityTitle.setStyle("-fx-font-weight: bold; -fx-padding: 15 0 0 0; -fx-text-fill: #F44336;");
+            
+            VBox profanityInfo = new VBox();
+            profanityInfo.setSpacing(10);
+            profanityInfo.setStyle("-fx-background-color: #FFF8E1; -fx-background-radius: 5; -fx-padding: 10;");
+            
+            // Get violations from log file
+            List<Map<String, String>> incidents = ProfanityLogManager.getProfanityIncidents(user.getId());
+            
+            if (incidents.isEmpty()) {
+                Label noIncidents = new Label("No specific violation evidence recorded");
+                noIncidents.setStyle("-fx-font-style: italic;");
+                profanityInfo.getChildren().add(noIncidents);
+            } else {
+                Label explanationLabel = new Label("The following violations have been detected and logged:");
+                explanationLabel.setStyle("-fx-font-style: italic; -fx-padding: 0 0 5 0;");
+                profanityInfo.getChildren().add(explanationLabel);
+                
+                for (int i = 0; i < incidents.size(); i++) {
+                    Map<String, String> incident = incidents.get(i);
+                    
+                    VBox incidentBox = new VBox(5);
+                    incidentBox.setStyle("-fx-border-color: #FFE0B2; -fx-border-radius: 5; -fx-padding: 8;");
+                    
+                    Label dateLabel = new Label("Date: " + incident.get("date"));
+                    dateLabel.setStyle("-fx-font-weight: bold;");
+                    
+                    Label fieldLabel = new Label("Field: " + incident.get("field"));
+                    
+                    // Display severity
+                    String severityText = incident.get("severity");
+                    Label severityLabel = new Label("Severity: " + severityText);
+                    
+                    // Set color based on severity
+                    String textColor;
+                    if ("High".equals(severityText)) {
+                        textColor = "#D32F2F"; // Red
+                        severityLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " + textColor + ";");
+                    } else if ("Medium".equals(severityText)) {
+                        textColor = "#FF9800"; // Orange
+                        severityLabel.setStyle("-fx-text-fill: " + textColor + ";");
+                    } else {
+                        textColor = "#FFC107"; // Yellow
+                        severityLabel.setStyle("-fx-text-fill: " + textColor + ";");
+                    }
+                    
+                    // Show action taken
+                    Label actionLabel = new Label("Action: " + incident.get("action"));
+                    
+                    // NEW: Display the censored profane content if available
+                    Label contentLabel = null;
+                    if (incident.containsKey("profaneText") && 
+                        !incident.get("profaneText").equals("[Content not recorded]")) {
+                        contentLabel = new Label("Censored Content: " + incident.get("profaneText"));
+                        contentLabel.setStyle("-fx-text-fill: #D32F2F; -fx-background-color: #FFEBEE; " +
+                                           "-fx-padding: 3; -fx-background-radius: 3;");
+                    }
+                    
+                    // Add all labels to the incident box
+                    incidentBox.getChildren().addAll(dateLabel, fieldLabel, severityLabel, actionLabel);
+                    if (contentLabel != null) {
+                        incidentBox.getChildren().add(contentLabel);
+                    }
+                    
+                    profanityInfo.getChildren().add(incidentBox);
+                    
+                    // Add separator between incidents
+                    if (i < incidents.size() - 1) {
+                        Separator separator = new Separator();
+                        separator.setPadding(new Insets(5, 0, 5, 0));
+                        profanityInfo.getChildren().add(separator);
+                    }
+                }
+            }
+            
+            // Add options for admin to manage these incidents
+            HBox actionBar = new HBox(10);
+            actionBar.setPadding(new Insets(10, 0, 0, 0));
+            
+            Button clearWarningsBtn = new Button("Clear Warnings");
+            clearWarningsBtn.setStyle("-fx-background-color: #FFA726; -fx-text-fill: white;");
+            clearWarningsBtn.setOnAction(e -> clearUserWarnings(user));
+            
+            Button reportUserBtn = new Button("Send Warning Email");
+            reportUserBtn.setStyle("-fx-background-color: #F44336; -fx-text-fill: white;");
+            reportUserBtn.setOnAction(e -> sendWarningEmail(user));
+            
+            actionBar.getChildren().addAll(clearWarningsBtn, reportUserBtn);
+            
+            // Add these to the details container
+            detailsContainer.getChildren().addAll(profanityTitle, profanityInfo, actionBar);
+        }
+        
+        // Set the detailsContainer as the content of the ScrollPane
+        detailsScrollPane.setContent(detailsContainer);
+        
+        // Action buttons (put outside the scrollpane)
         HBox actionButtons = new HBox(10);
         actionButtons.setPadding(new Insets(20, 0, 0, 0));
         
@@ -609,13 +719,56 @@ public class AdminDashboardController {
         actionButtons.getChildren().addAll(editButton, statusButton, deleteButton);
         
         // Add everything to details content
-        userDetailsContent.getChildren().addAll(detailsContainer, actionButtons);
+        userDetailsContent.getChildren().addAll(detailsScrollPane, actionButtons);
         
         // Show the details view
         userManagementView.setVisible(false);
         userManagementView.setManaged(false);
         userDetailsView.setVisible(true);
         userDetailsView.setManaged(true);
+    }
+    
+    // Method to clear user warnings
+    private void clearUserWarnings(User user) {
+        if (user == null) return;
+        
+        Alert confirmDialog = new Alert(AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Clear Warnings");
+        confirmDialog.setHeaderText("Confirm Warning Reset");
+        confirmDialog.setContentText("Are you sure you want to clear all warnings for user " + 
+                                    user.getFirstName() + " " + user.getLastName() + "?");
+        
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Reset warning count
+                user.setWarningCount(0);
+                
+                // Save to database
+                userService.modifier(user);
+                
+                // Refresh the user details view
+                showUserDetails(user);
+                
+                showAlert("Success", "Warnings Cleared", 
+                         "All warnings have been cleared for user " + 
+                         user.getFirstName() + " " + user.getLastName());
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to Clear Warnings", 
+                         "An error occurred: " + e.getMessage());
+            }
+        }
+    }
+    
+    // Method to send a warning email
+    private void sendWarningEmail(User user) {
+        if (user == null) return;
+        
+        // In a real application, this would send an actual email
+        showAlert("Notification Sent", "Warning Email", 
+                 "A warning email has been sent to " + user.getEmail() + 
+                 " regarding their use of profanity.");
     }
     
     private void addDetailRow(VBox container, String label, String value) {
@@ -1275,15 +1428,30 @@ public class AdminDashboardController {
     @FXML
     private void navigateToProfile() {
         try {
+            // Load the profile view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
             Parent root = loader.load();
             
-            Stage stage = (Stage) contentArea.getScene().getWindow();
-        
-        // Use the utility method for consistent setup
-        MainApp.setupStage(stage, root, "Admin Profile - UNICLUBS", false);
+            // Create a completely new stage
+            Stage newStage = new Stage();
             
-            stage.show();
+            // Create scene with appropriate initial size
+            Scene scene = new Scene(root, 1200, 800); // Set initial size large enough
+            
+            // Apply the stylesheet
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            // Configure the new stage
+            newStage.setTitle("Admin Profile - UNICLUBS");
+            newStage.setScene(scene);
+            newStage.setMaximized(true); // Set maximized before showing
+            
+            // Close the current stage
+            Stage currentStage = (Stage) contentArea.getScene().getWindow();
+            currentStage.close();
+            
+            // Show the new stage
+            newStage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Navigation Error", "Failed to navigate to admin profile");

@@ -75,9 +75,6 @@ public class AdminProfileController {
     private Button backToDashboardButton;
     
     @FXML
-    private Button enable2FAButton;
-    
-    @FXML
     private Label profileInfoMessage;
     
     @FXML
@@ -189,15 +186,22 @@ public class AdminProfileController {
             accountCreatedLabel.setText("Not available");
         }
         
-        if (currentUser.getLastLoginAt() != null) {
-            lastLoginLabel.setText("Last login: " + 
-                                  currentUser.getLastLoginAt().format(DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' hh:mm a")));
-        } else {
-            lastLoginLabel.setText("Last login: Not available");
+        // We need to check if loginCountLabel and lastLoginLabel exist
+        // since we removed the security tab that contained them
+        if (lastLoginLabel != null) {
+            if (currentUser.getLastLoginAt() != null) {
+                lastLoginLabel.setText("Last login: " + 
+                                    currentUser.getLastLoginAt().format(DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' hh:mm a")));
+            } else {
+                lastLoginLabel.setText("Last login: Not available");
+            }
         }
         
-        // This would come from an actual count in a real application
-        loginCountLabel.setText("Total logins: --");
+        // Only update loginCountLabel if it exists
+        if (loginCountLabel != null) {
+            // This would come from an actual count in a real application
+            loginCountLabel.setText("Total logins: --");
+        }
         
         // Load profile image if exists
         loadProfileImage();
@@ -233,7 +237,7 @@ public class AdminProfileController {
     private void loadDefaultImage() {
         try {
             // First try to load the default image from resources
-            Image defaultImage = new Image(getClass().getResourceAsStream(DEFAULT_IMAGE_PATH));
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile-png.png"));
             if (defaultImage != null && !defaultImage.isError()) {
                 profileImageView.setImage(defaultImage);
             } else {
@@ -248,75 +252,88 @@ public class AdminProfileController {
     }
     
     private void createDefaultImageFallback() {
-        // Create a colored circle as default profile image (as a fallback)
-        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(75);
-        circle.setFill(javafx.scene.paint.Color.web("#3498db")); // Blue color
-        
-        // Convert the circle to an image
-        javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
-        params.setFill(javafx.scene.paint.Color.TRANSPARENT);
-        
-        javafx.scene.image.WritableImage writableImage = new javafx.scene.image.WritableImage(150, 150);
-        circle.snapshot(params, writableImage);
-        
-        profileImageView.setImage(writableImage);
-        
-        // Add text initials if available
-        if (currentUser != null && currentUser.getFirstName() != null && !currentUser.getFirstName().isEmpty()) {
-            String initials = String.valueOf(currentUser.getFirstName().charAt(0));
+        // Create a simple colored background with initials
+        try {
+            String initials = "";
+            if (currentUser.getFirstName() != null && !currentUser.getFirstName().isEmpty()) {
+                initials += currentUser.getFirstName().charAt(0);
+            }
             if (currentUser.getLastName() != null && !currentUser.getLastName().isEmpty()) {
-                initials += String.valueOf(currentUser.getLastName().charAt(0));
+                initials += currentUser.getLastName().charAt(0);
             }
             
-            // Set the initials as user data for the ImageView to be used later if needed
-            profileImageView.setUserData(initials.toUpperCase());
+            // Set a default background for the image view
+            profileImageView.setStyle("-fx-background-color: #3498db; -fx-background-radius: 75;");
+            
+            // Set image to null to show the background
+            profileImageView.setImage(null);
+            
+            // TODO: Add initials text to the center of the circle (Would need to use Canvas or a custom solution)
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // If all else fails, just show a plain circle
+            profileImageView.setStyle("-fx-background-color: #cccccc; -fx-background-radius: 75;");
+            profileImageView.setImage(null);
         }
     }
     
     private void setupProfileImageHover() {
-        changeImageBtn.setOnMouseEntered(e -> changeImageBtn.setOpacity(0.7));
+        changeImageBtn.setOnMouseEntered(e -> changeImageBtn.setOpacity(0.8));
         changeImageBtn.setOnMouseExited(e -> changeImageBtn.setOpacity(0.0));
     }
     
     private void setupPasswordFieldEvents() {
-        // Real-time validation for password fields
-        newPasswordField.textProperty().addListener((obs, oldText, newText) -> {
-            validateNewPassword(newText);
-            validateConfirmPassword();
+        // Set up real-time validation for password fields
+        newPasswordField.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateNewPassword(newValue);
         });
         
-        confirmPasswordField.textProperty().addListener((obs, oldText, newText) -> {
+        confirmPasswordField.textProperty().addListener((observable, oldValue, newValue) -> {
             validateConfirmPassword();
         });
     }
     
     private boolean validateNewPassword(String password) {
-        boolean hasLength = password.length() >= 8;
-        boolean hasUppercase = password.matches(".*[A-Z].*");
-        boolean hasLowercase = password.matches(".*[a-z].*");
-        boolean hasNumber = password.matches(".*[0-9].*");
-        boolean hasSpecial = password.matches(".*[#?!@$%^&*-].*");
+        boolean isValid = true;
         
-        // Update UI for requirements
-        lengthCheckLabel.setStyle(hasLength ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
+        // Check password length (8+ characters)
+        boolean hasValidLength = password.length() >= 8;
+        lengthCheckLabel.setStyle(hasValidLength ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
+        
+        // Check for uppercase letter
+        boolean hasUppercase = !password.equals(password.toLowerCase());
         uppercaseCheckLabel.setStyle(hasUppercase ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
+        
+        // Check for lowercase letter
+        boolean hasLowercase = !password.equals(password.toUpperCase());
         lowercaseCheckLabel.setStyle(hasLowercase ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
+        
+        // Check for number
+        boolean hasNumber = password.matches(".*\\d.*");
         numberCheckLabel.setStyle(hasNumber ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
+        
+        // Check for special character
+        boolean hasSpecial = password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
         specialCheckLabel.setStyle(hasSpecial ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
         
-        return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+        return hasValidLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
     }
     
     private boolean validateConfirmPassword() {
-        boolean matching = confirmPasswordField.getText().equals(newPasswordField.getText());
-        if (!confirmPasswordField.getText().isEmpty() && !matching) {
+        String newPassword = newPasswordField.getText();
+        String confirmPassword = confirmPasswordField.getText();
+        
+        boolean isMatch = newPassword.equals(confirmPassword);
+        
+        if (!isMatch && !confirmPassword.isEmpty()) {
             confirmPasswordError.setText("Passwords do not match");
             confirmPasswordError.setVisible(true);
-            return false;
         } else {
             confirmPasswordError.setVisible(false);
-            return true;
         }
+        
+        return isMatch;
     }
     
     @FXML
@@ -336,71 +353,63 @@ public class AdminProfileController {
     @FXML
     private void handleEditProfile(ActionEvent event) {
         try {
-            // Load the edit profile dialog
+            // Load the edit profile view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/edit_profile.fxml"));
             Parent root = loader.load();
             
-            // Get the controller and pass the current user
+            // Get the controller and set the current user
             EditProfileController controller = loader.getController();
             controller.setCurrentUser(currentUser);
+            // No parent controller needed as we'll update ourselves
+            // controller.setParentController(this);
             
-            // Create a new stage for the dialog
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Profile - UNICLUBS");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(editProfileBtn.getScene().getWindow());
+            // Create a new stage for the edit profile dialog
+            Stage stage = new Stage();
+            stage.setTitle("Edit Profile");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
             
-            // Create scene without explicit dimensions - using the size defined in the FXML
+            // Set the scene
             Scene scene = new Scene(root);
-            dialogStage.setScene(scene);
+            stage.setScene(scene);
             
-            // Set dimensions for the dialog
-            dialogStage.setMinWidth(570);
-            dialogStage.setMinHeight(670);
-            dialogStage.setWidth(570);
-            dialogStage.setHeight(670);
+            // Apply stylesheet
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
             
-            // Allow resizing in case user needs to adjust the view
-            dialogStage.setResizable(true);
+            // Show the dialog
+            stage.showAndWait();
             
-            // Show the dialog and wait
-            dialogStage.showAndWait();
-            
-            // After dialog is closed, update the profile display
+            // After dialog is closed, we need to update our display
             updateProfileDisplay();
             
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Dialog Error", "Could not load edit profile dialog");
+            showAlert("Error", "Profile Error", "Could not open edit profile dialog");
         }
     }
     
     @FXML
     private void handleChangeImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Profile Picture");
+        fileChooser.setTitle("Select Profile Image");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
         );
         
-        File selectedFile = fileChooser.showOpenDialog(changeImageBtn.getScene().getWindow());
+        // Show file chooser dialog
+        File selectedFile = fileChooser.showOpenDialog(profileImageView.getScene().getWindow());
+        
         if (selectedFile != null) {
             try {
-                // Validate file size (max 5MB)
-                if (selectedFile.length() > 5 * 1024 * 1024) {
-                    showError("Image is too large. Maximum size is 5MB.");
-                    return;
-                }
-                
                 // Create uploads directory if it doesn't exist
-                File uploadsDir = new File(UPLOADS_DIRECTORY);
-                if (!uploadsDir.exists()) {
-                    uploadsDir.mkdirs();
+                File directory = new File(UPLOADS_DIRECTORY);
+                if (!directory.exists()) {
+                    directory.mkdirs();
                 }
                 
                 // Generate unique filename
-                String fileName = currentUser.getId() + "_" + System.currentTimeMillis()
-                        + selectedFile.getName().substring(selectedFile.getName().lastIndexOf('.'));
+                String fileName = currentUser.getId() + "_" + System.currentTimeMillis() + 
+                                 selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
                 
                 // Copy file to uploads directory
                 Path sourcePath = selectedFile.toPath();
@@ -409,27 +418,32 @@ public class AdminProfileController {
                 
                 // Update user profile picture in database
                 currentUser.setProfilePicture(fileName);
-                authService.updateUserProfile(currentUser);
+                boolean updateSuccess = authService.updateUserProfile(currentUser);
                 
-                // Update UI
-                loadProfileImage();
-                
-                // Show success message
-                showSuccess("Profile picture updated successfully!");
+                if (updateSuccess) {
+                    // Update image in UI
+                    Image image = new Image(targetPath.toUri().toString());
+                    profileImageView.setImage(image);
+                    
+                    // Show success message
+                    showSuccess("Profile picture updated successfully");
+                } else {
+                    showError("Failed to update profile picture in database");
+                }
                 
             } catch (IOException e) {
                 e.printStackTrace();
-                showError("Failed to upload profile picture: " + e.getMessage());
+                showAlert("Error", "File Error", "Could not save the profile image: " + e.getMessage());
             }
         }
     }
     
     @FXML
     private void handleUpdatePassword(ActionEvent event) {
-        // Reset errors and messages
+        // Clear previous messages
         clearPasswordMessages();
         
-        // Get input values
+        // Get password values
         String currentPassword = currentPasswordField.getText();
         String newPassword = newPasswordField.getText();
         String confirmPassword = confirmPasswordField.getText();
@@ -448,53 +462,62 @@ public class AdminProfileController {
             return;
         }
         
+        // Check if new password meets requirements
         if (!validateNewPassword(newPassword)) {
-            newPasswordError.setText("Password does not meet requirements");
+            newPasswordError.setText("Password doesn't meet all requirements");
             newPasswordError.setVisible(true);
             return;
         }
         
-        // Check if new password is the same as current password
-        if (currentPassword.equals(newPassword)) {
-            newPasswordError.setText("New password must be different from current password");
-            newPasswordError.setVisible(true);
-            return;
-        }
-        
-        // Validate password confirmation
+        // Validate confirm password
         if (confirmPassword.isEmpty()) {
-            confirmPasswordError.setText("Please confirm your password");
+            confirmPasswordError.setText("Please confirm your new password");
             confirmPasswordError.setVisible(true);
             return;
         }
         
+        // Check if passwords match
         if (!newPassword.equals(confirmPassword)) {
             confirmPasswordError.setText("Passwords do not match");
             confirmPasswordError.setVisible(true);
             return;
         }
         
-        // Attempt to change password
-        boolean success = authService.changePassword(currentUser.getEmail(), currentPassword, newPassword);
+        // Verify current password
+        User authenticatedUser = authService.authenticate(currentUser.getEmail(), currentPassword);
         
-        if (success) {
-            // Reset password fields
-            currentPasswordField.clear();
-            newPasswordField.clear();
-            confirmPasswordField.clear();
-            passwordRequirementsBox.setVisible(false);
+        if (authenticatedUser == null) {
+            // Current password is incorrect
+            currentPasswordError.setText("Current password is incorrect");
+            currentPasswordError.setVisible(true);
+            return;
+        }
+        
+        // Update password
+        try {
+            boolean updateSuccess = authService.changePassword(currentUser.getEmail(), currentPassword, newPassword);
             
-            // Show success message
-            passwordSuccessMessage.setText("Your password has been updated successfully!");
-            passwordSuccessMessage.setVisible(true);
-        } else {
-            // Show error message
-            passwordErrorMessage.setText("Failed to update password. Please check your current password.");
+            if (updateSuccess) {
+                // Clear password fields
+                currentPasswordField.clear();
+                newPasswordField.clear();
+                confirmPasswordField.clear();
+                
+                // Show success message
+                passwordSuccessMessage.setVisible(true);
+            } else {
+                passwordErrorMessage.setText("Failed to update password. Please try again.");
+                passwordErrorMessage.setVisible(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            passwordErrorMessage.setText("Error: " + e.getMessage());
             passwordErrorMessage.setVisible(true);
         }
     }
     
     private void clearPasswordMessages() {
+        // Clear all error messages
         currentPasswordError.setVisible(false);
         newPasswordError.setVisible(false);
         confirmPasswordError.setVisible(false);
@@ -503,75 +526,62 @@ public class AdminProfileController {
     }
     
     public void showSuccess(String message) {
-        if (profileInfoMessage != null) {
-            profileInfoMessage.setText(message);
-            profileInfoMessage.setVisible(true);
-            
-            if (profileInfoError != null) {
-                profileInfoError.setVisible(false);
+        // Hide error message if visible
+        profileInfoError.setVisible(false);
+        
+        // Show success message
+        profileInfoMessage.setText(message);
+        profileInfoMessage.setVisible(true);
+        
+        // Fade out after 5 seconds
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+                Platform.runLater(() -> {
+                    profileInfoMessage.setVisible(false);
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            
-            // Automatically hide after 5 seconds
-            new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                    javafx.application.Platform.runLater(() -> profileInfoMessage.setVisible(false));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        } else {
-            // Use alert if label is not available
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Success");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        }
+        }).start();
     }
     
     public void showError(String message) {
-        if (profileInfoError != null) {
-            profileInfoError.setText(message);
-            profileInfoError.setVisible(true);
-            
-            if (profileInfoMessage != null) {
-                profileInfoMessage.setVisible(false);
+        // Hide success message if visible
+        profileInfoMessage.setVisible(false);
+        
+        // Show error message
+        profileInfoError.setText(message);
+        profileInfoError.setVisible(true);
+        
+        // Fade out after 5 seconds
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+                Platform.runLater(() -> {
+                    profileInfoError.setVisible(false);
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            
-            // Automatically hide after 5 seconds
-            new Thread(() -> {
-                try {
-                    Thread.sleep(5000);
-                    javafx.application.Platform.runLater(() -> profileInfoError.setVisible(false));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        } else {
-            // Use alert if label is not available
-            showAlert("Error", "Error", message);
-        }
+        }).start();
     }
     
     public void updateUserData(User updatedUser) {
-        // Update current user with new data
-        this.currentUser = updatedUser;
-        
-        // Update the profile display
-        updateProfileDisplay();
+        if (updatedUser != null) {
+            this.currentUser = updatedUser;
+            updateProfileDisplay();
+        }
     }
     
-    private void navigateToLogin() throws IOException {
+     private void navigateToLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
         Parent root = loader.load();
         
-        Stage stage = (Stage) backToDashboardButton.getScene().getWindow();
+        Stage stage = (Stage) userRoleLabel.getScene().getWindow();
         
         // Use the utility method for consistent setup
         MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
-        
-        stage.show();
     }
     
     @FXML
@@ -580,42 +590,37 @@ public class AdminProfileController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
             Parent root = loader.load();
             
-            Stage stage = (Stage) backToDashboardButton.getScene().getWindow();
+            // Get the current stage
+            Stage currentStage = (Stage) backToDashboardButton.getScene().getWindow();
             
-            // Create scene without explicit dimensions
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Admin Dashboard - UNICLUBS");
+            // Create a new stage completely
+            Stage newStage = new Stage();
+            newStage.setTitle("Admin Dashboard - UNICLUBS");
             
-            // Ensure minimum dimensions for responsive layout
-            stage.setMinWidth(900);
-            stage.setMinHeight(600);
+            // Create scene with initial size
+            Scene scene = new Scene(root, 1200, 800);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
             
-            // Force the stage to be maximized
-            stage.setMaximized(true);
+            // Set scene to stage
+            newStage.setScene(scene);
             
-            // Add a short delay before showing to allow layout to calculate properly
-            Platform.runLater(() -> {
-                // Force layout pass
-                root.layout();
-                
-                // Trick to refresh the layout by toggling maximized state
-                boolean wasMaximized = stage.isMaximized();
-                stage.setMaximized(false);
-                Platform.runLater(() -> {
-                    stage.setMaximized(true);
-                });
-            });
+            // Set maximized state BEFORE showing
+            newStage.setMaximized(true);
             
-            stage.show();
+            // Show the new stage first
+            newStage.show();
+            
+            // Then close the current stage
+            currentStage.close();
+            
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Navigation Error", "Could not load dashboard");
+            showAlert("Error", "Navigation Error", "Failed to navigate to admin dashboard");
         }
     }
     
     private void showAlert(String title, String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);

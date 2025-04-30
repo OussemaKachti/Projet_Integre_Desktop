@@ -107,8 +107,8 @@ private void handleLogin(ActionEvent event) {
         SessionManager.getInstance().setCurrentUser(user);
         
         // Navigate to appropriate view based on role
-        // loadDashboard(user);
-        handleUserNavigation(user);
+         loadDashboard(user);
+        //handleUserNavigation(user);
     } catch (Exception e) {
         e.printStackTrace();
         errorLabel.setText("Authentication error: " + e.getMessage());
@@ -173,8 +173,8 @@ private void handleLogin(ActionEvent event) {
                 // For admin users, go to admin dashboard
                 navigateToAdminDashboard();
             } else {
-                // For all other users, navigate to profile page
-                navigateToProfile();
+                // For all other users, navigate to home page
+                navigateToHome();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -222,14 +222,29 @@ private void handleUserNavigation(User user) {
     try {
         // Navigate based on user role
         if (user.getRole() == RoleEnum.ADMINISTRATEUR) {
-            navigateToAdminDashboard();
+            navigateToAdminPolls();
         } else {
-            navigateToSondageView();
+            navigateToHome();
         }
     } catch (Exception e) {
         e.printStackTrace();
         errorLabel.setText("Error navigating after login: " + e.getMessage());
         errorLabel.setVisible(true);
+    }
+}
+
+private void navigateToAdminPolls() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        MainApp.setupStage(stage, root, "Polls Management - UNICLUBS", false);
+        stage.setMaximized(true);
+        stage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        showError("Error navigating to polls management: " + e.getMessage());
     }
 }
 
@@ -291,20 +306,43 @@ private void navigateToRegister(ActionEvent event) throws IOException {
     
    @FXML
 private void navigateToForgotPassword(ActionEvent event) throws IOException {
+    String email = emailField.getText().trim();
+    
     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/forgot_password.fxml"));
     Parent root = loader.load();
     
-    Stage stage = (Stage) emailField.getScene().getWindow();
+    // Set email if provided
+    if (email != null && !email.isEmpty()) {
+        com.esprit.controllers.ForgotPasswordController controller = loader.getController();
+        controller.setEmailField(email);
+    }
     
-    // Use the utility method for consistent setup
-    MainApp.setupStage(stage, root, "Forgot Password", true);
+    // Create a new stage instead of reusing the current one
+    Stage newStage = new Stage();
     
-    stage.show();
+    // Set up the new stage
+    MainApp.setupStage(newStage, root, "Forgot Password - UNICLUBS", true, 700, 700);
+    
+    // Get the current stage to hide it
+    Stage currentStage = (Stage) emailField.getScene().getWindow();
+    currentStage.hide();
+    
+    // Show the new stage
+    newStage.show();
+    MainApp.ensureCentered(newStage);
 }
     
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
+    }
+
+    private void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
+        stage.show();
     }
 }
 

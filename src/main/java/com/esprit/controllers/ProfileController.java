@@ -524,5 +524,13 @@ public class ProfileController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) logoutButton.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
 }
 

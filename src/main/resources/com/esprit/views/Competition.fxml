@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.CompetitionUserController" 
+      styleClass="main-container" stylesheets="@../styles/competition.css">
+
+    <!-- Header Section -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+        
+        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+            <Image url="@../images/logo.png"/>
+        </ImageView>
+        
+        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+            <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
+            <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+            <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+            <Button text="Competition" styleClass="nav-button-selected"/>
+        </HBox>
+        
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <!-- User Profile Section -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                    <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                        <Image url="@../images/default-profile.png"/>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                </HBox>
+                
+                <!-- Dropdown Menu -->
+                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                    <Separator/>
+                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                </VBox>
+            </StackPane>
+            
+            <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+        </HBox>
+    </HBox>
+
+    <!-- Main Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
+        <VBox spacing="30" styleClass="content-container">
+            <!-- Hero Section -->
+            <StackPane styleClass="hero-section">
+                <ImageView fitWidth="1200" fitHeight="400" preserveRatio="false" styleClass="hero-image">
+                    <Image url="@../images/competition-hero.jpg"/>
+                </ImageView>
+                <VBox alignment="CENTER_LEFT" styleClass="hero-content">
+                    <Label text="Esprit Competitions" styleClass="hero-subtitle"/>
+                    <Label text="Challenging Minds, Building Champions" styleClass="hero-title"/>
+                    <Label text="Join our competitive challenges and showcase your talents" 
+                           styleClass="hero-description" wrapText="true"/>
+                    <Button text="Join Competition" styleClass="hero-button" onAction="#joinCompetition"/>
+                </VBox>
+            </StackPane>
+
+            <!-- Competitions Section -->
+            <VBox spacing="20" styleClass="section">
+                <Label text="Active Competitions" styleClass="section-title"/>
+                <VBox spacing="15" fx:id="competitionsContainer">
+                    <!-- Competition entries will be added here dynamically -->
+                    <Label text="No active competitions at the moment." fx:id="noCompetitionsLabel" styleClass="no-data-label"/>
+                </VBox>
+            </VBox>
+
+            <!-- Past Competitions Section -->
+            <VBox spacing="20" styleClass="section">
+                <Label text="Past Competitions" styleClass="section-title"/>
+                <VBox spacing="15" fx:id="pastCompetitionsContainer">
+                    <!-- Past competition entries will be added here dynamically -->
+                    <Label text="No past competitions to display." fx:id="noPastCompetitionsLabel" styleClass="no-data-label"/>
+                </VBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox> 
