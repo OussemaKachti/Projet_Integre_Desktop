@@ -76,7 +76,7 @@ public class AdminCommandeController implements Initializable {
 
     // Pagination
     private int currentPage = 1;
-    private static final int ITEMS_PER_PAGE = 10;
+    private static final int ITEMS_PER_PAGE = 2;
     private int totalPages = 1;
 
     public AdminCommandeController() {
