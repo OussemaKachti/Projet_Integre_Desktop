@@ -195,6 +195,18 @@
                                        <Label fx:id="newPasswordError" styleClass="error-message" visible="false" />
                                     </VBox>
                                     
+                                    <!-- Password Requirements Box -->
+                                    <VBox fx:id="passwordRequirementsBox" styleClass="info-box" spacing="2" visible="false">
+                                       <Label text="Password must contain:" styleClass="text-small, text-bold" />
+                                       <VBox spacing="2">
+                                          <Label fx:id="lengthCheckLabel" text="• At least 8 characters" styleClass="text-small" />
+                                          <Label fx:id="uppercaseCheckLabel" text="• At least one uppercase letter" styleClass="text-small" />
+                                          <Label fx:id="lowercaseCheckLabel" text="• At least one lowercase letter" styleClass="text-small" />
+                                          <Label fx:id="numberCheckLabel" text="• At least one number" styleClass="text-small" />
+                                          <Label fx:id="specialCheckLabel" text="• At least one special character" styleClass="text-small" />
+                                       </VBox>
+                                    </VBox>
+                                    
                                     <!-- Confirm Password -->
                                     <VBox fillWidth="true" styleClass="field-container">
                                        <HBox alignment="CENTER_LEFT">

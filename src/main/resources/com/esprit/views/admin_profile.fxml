@@ -323,23 +323,33 @@
                                           <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" />
                                           <Label fx:id="confirmPasswordError" styleClass="error-message" visible="false" />
                                           
-                                          <VBox.margin>
-                                             <Insets bottom="25.0" />
-                                          </VBox.margin>
+                                          <!-- Password Requirements -->
+                                          <VBox fx:id="passwordRequirementsBox" spacing="5.0" visible="false">
+                                             <Label text="Password Requirements:" styleClass="field-label" />
+                                             <Label fx:id="lengthCheckLabel" text="• At least 8 characters long" styleClass="text-muted" />
+                                             <Label fx:id="uppercaseCheckLabel" text="• Contains at least one uppercase letter" styleClass="text-muted" />
+                                             <Label fx:id="lowercaseCheckLabel" text="• Contains at least one lowercase letter" styleClass="text-muted" />
+                                             <Label fx:id="numberCheckLabel" text="• Contains at least one number" styleClass="text-muted" />
+                                             <Label fx:id="specialCheckLabel" text="• Contains at least one special character" styleClass="text-muted" />
+                                             
+                                             <VBox.margin>
+                                                <Insets bottom="25.0" />
+                                             </VBox.margin>
+                                          </VBox>
+                                          
+                                          <!-- Button -->
+                                          <HBox alignment="CENTER">
+                                             <Button defaultButton="true" onAction="#handleUpdatePassword" 
+                                                   styleClass="button-primary" text="Update Password">
+                                                <graphic>
+                                                   <Label text="✓" textFill="WHITE"/>
+                                                </graphic>
+                                                <padding>
+                                                   <Insets top="12.0" right="25.0" bottom="12.0" left="25.0" />
+                                                </padding>
+                                             </Button>
+                                          </HBox>
                                        </VBox>
-                                       
-                                       <!-- Button -->
-                                       <HBox alignment="CENTER">
-                                          <Button defaultButton="true" onAction="#handleUpdatePassword" 
-                                                styleClass="button-primary" text="Update Password">
-                                             <graphic>
-                                                <Label text="✓" textFill="WHITE"/>
-                                             </graphic>
-                                             <padding>
-                                                <Insets top="12.0" right="25.0" bottom="12.0" left="25.0" />
-                                             </padding>
-                                          </Button>
-                                       </HBox>
                                     </VBox>
                                  </VBox>
                               </content>

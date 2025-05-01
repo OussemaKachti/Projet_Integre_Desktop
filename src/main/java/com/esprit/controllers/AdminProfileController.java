@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import com.esprit.MainApp;
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
+import com.esprit.services.EmailService;
 import com.esprit.utils.SessionManager;
 
 import javafx.application.Platform;
@@ -124,6 +125,7 @@ public class AdminProfileController {
     private Label specialCheckLabel;
     
     private final AuthService authService = new AuthService();
+    private final EmailService emailService = new EmailService();
     private User currentUser;
     private final String UPLOADS_DIRECTORY = "uploads/profiles/";
     private final String DEFAULT_IMAGE_PATH = "/images/default_profile.png";
@@ -292,9 +294,27 @@ public class AdminProfileController {
         confirmPasswordField.textProperty().addListener((observable, oldValue, newValue) -> {
             validateConfirmPassword();
         });
+
+        // Show password requirements when password field is focused
+        newPasswordField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            passwordRequirementsBox.setVisible(newValue);
+        });
     }
     
     private boolean validateNewPassword(String password) {
+        // Show password requirements box
+        passwordRequirementsBox.setVisible(true);
+        
+        // If password is empty, reset all labels to default state
+        if (password == null || password.isEmpty()) {
+            lengthCheckLabel.setStyle("-fx-text-fill: red;");
+            uppercaseCheckLabel.setStyle("-fx-text-fill: red;");
+            lowercaseCheckLabel.setStyle("-fx-text-fill: red;");
+            numberCheckLabel.setStyle("-fx-text-fill: red;");
+            specialCheckLabel.setStyle("-fx-text-fill: red;");
+            return false;
+        }
+        
         boolean isValid = true;
         
         // Check password length (8+ characters)
@@ -505,6 +525,13 @@ public class AdminProfileController {
                 
                 // Show success message
                 passwordSuccessMessage.setVisible(true);
+                
+                // Send password change notification email
+                String fullName = currentUser.getFirstName() + " " + currentUser.getLastName();
+                emailService.sendPasswordChangeNotificationAsync(
+                    currentUser.getEmail(),
+                    fullName
+                );
             } else {
                 passwordErrorMessage.setText("Failed to update password. Please try again.");
                 passwordErrorMessage.setVisible(true);
