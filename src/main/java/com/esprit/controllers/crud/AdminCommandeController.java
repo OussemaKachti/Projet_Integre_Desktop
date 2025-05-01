@@ -25,8 +25,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.PasswordAuthentication;
 import java.net.URL;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -477,7 +483,28 @@ public class AdminCommandeController implements Initializable {
 
         if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
             try {
+                // Validate the command
                 commandeService.validerCommande(commande.getId());
+
+                // Debug the user object
+                System.out.println("Commande ID: " + commande.getId());
+                System.out.println("User ID in Commande: " + commande.getId());
+                System.out.println("User object: " + (commande.getUser() != null ? commande.getUser().toString() : "null"));
+
+                // Send email to the user
+                String userEmail = commande.getUser().getEmail(); // Assuming User class has getEmail()
+                System.out.println("User email: " + userEmail); // Debug log
+                if (userEmail != null && !userEmail.isEmpty()) {
+                    try {
+                        sendEmail(userEmail, commande);
+                        showToast("Email envoyé avec succès à " + userEmail, "success");
+                    } catch (MessagingException e) {
+                        showToast("Échec de l'envoi de l'email : " + e.getMessage(), "error");
+                    }
+                } else {
+                    showToast("Utilisateur n'a pas d'email défini", "error");
+                }
+
                 showToast("Commande validée avec succès", "success");
                 loadAllCommandes();
                 calculateStats();
@@ -486,6 +513,44 @@ public class AdminCommandeController implements Initializable {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private void sendEmail(String userEmail, Commande commande) throws MessagingException {
+        // Email configuration for Gmail SMTP
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.debug", "true");
+
+        // Replace with your Gmail email and App Password
+        final String senderEmail = "wahbisirine3@gmail.com"; // Replace with your Gmail address
+        final String senderPassword = "rmiv tndu ffjc deob"; // Replace with your Gmail App Password
+
+        // Create a session with authentication
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            @Override
+            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication(senderEmail, senderPassword); // Pass String directly
+            }
+        });
+
+        // Create the email message
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(senderEmail));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
+        message.setSubject("Confirmation de votre commande #" + commande.getId());
+        message.setText("Bonjour " + commande.getUser().getNom() + ",\n\n" +
+                "Votre commande #" + commande.getId() + " a été validée avec succès.\n" +
+                "Montant total : " + String.format("%.2f €", commande.getTotal()) + "\n" +
+                "Date de commande : " + commande.getDateComm() + "\n\n" +
+                "Merci de votre confiance !\n" +
+                "L'équipe de gestion");
+
+        // Send the email
+        Transport.send(message);
     }
 
     private void cancelCommande(Commande commande) {

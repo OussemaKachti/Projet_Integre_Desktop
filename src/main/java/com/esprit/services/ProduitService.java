@@ -27,7 +27,6 @@ public class ProduitService {
         return instance;
     }
 
-
     public void insertProduit(Produit produit) throws SQLException {
         String sql = "INSERT INTO produit (nom_prod, desc_prod, prix, img_prod, created_at, quantity, club_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -75,6 +74,7 @@ public class ProduitService {
         }
         return produits;
     }
+
     public List<Produit> getAll() throws SQLException {
         return selectAllProduits(); // Calls the existing method to get all products
     }
@@ -91,11 +91,10 @@ public class ProduitService {
             stmt.setInt(7, produit.getClub() != null ? produit.getClub().getId() : null);
             stmt.setInt(8, produit.getId());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la mise à jour du produit avec ID " + produit.getId(), e);
         }
-    catch (SQLException e) {
-        e.printStackTrace();
-        throw new RuntimeException("Erreur lors de la mise à jour du produit avec ID " + produit.getId(), e);
-    }
     }
 
     public void deleteProduit(int id) throws SQLException {
@@ -134,7 +133,6 @@ public class ProduitService {
             throw new RuntimeException("Erreur lors de la récupération du produit avec ID " + id, e);
         }
         return null;
-
     }
 
     public List<Produit> getProduitsByClub(int clubId) throws SQLException {
@@ -162,5 +160,34 @@ public class ProduitService {
             }
         }
         return produits;
+    }
+
+
+    public List<Object[]> getTopClubsByProducts() throws SQLException {
+        List<Object[]> result = new ArrayList<>();
+        String query = "SELECT c.name, COUNT(od.produit_id) as total_sales " +
+                "FROM club c " +
+                "JOIN produit p ON c.id = p.club_id " +
+                "JOIN orderdetails od ON p.id = od.produit_id " +
+                "JOIN commande cmd ON od.commande_id = cmd.id " +
+                "WHERE cmd.statut = 'CONFIRMEE' " +
+                "GROUP BY c.id, c_name " +
+                "ORDER BY total_sales DESC " +
+                "LIMIT 5";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Object[] row = new Object[2];
+                row[0] = rs.getString("name"); // Update to match the column name
+                row[1] = rs.getInt("total_sales");
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error fetching top clubs by products: " + e.getMessage(), e);
+        }
+
+        return result;
     }
 }

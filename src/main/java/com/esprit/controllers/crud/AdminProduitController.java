@@ -19,6 +19,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -78,6 +82,10 @@ public class AdminProduitController implements Initializable {
     private Label popularClubLabel;
     @FXML
     private Label popularClubProductsLabel;
+    @FXML
+    private VBox popularClubCard;
+    @FXML
+    private StackPane chartContainer;
 
     // Containers
     @FXML
@@ -116,7 +124,6 @@ public class AdminProduitController implements Initializable {
     private Button btnAddProduct;
     @FXML
     private TextField txtImage;
-    // private TextField comboClub;
     private TextField txtDescription;
     private TextField txtNom;
     private TextField txtPrix;
@@ -143,6 +150,10 @@ public class AdminProduitController implements Initializable {
     // Selected filter
     private String selectedClub = "all";
 
+    // Chart fields
+    private BarChart<String, Number> barChart;
+    private boolean isChartVisible = false;
+
     public AdminProduitController() {
         this.produitService = ProduitService.getInstance();
         this.clubService = ClubService.getInstance();
@@ -157,7 +168,7 @@ public class AdminProduitController implements Initializable {
                 showDatabaseConnectionError();
                 return; // Stop initialization if no connection
             }
-            
+
             // Setup table columns
             setupTableColumns();
 
@@ -179,6 +190,9 @@ public class AdminProduitController implements Initializable {
             // Setup admin info
             setupAdminInfo();
 
+            // Setup popular club card for chart
+            setupPopularClubCard();
+
             // Add table styling
             tableView.getStyleClass().add("product-table");
             try {
@@ -191,31 +205,95 @@ public class AdminProduitController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface", 
-                "Une erreur est survenue: " + e.getMessage());
+            AlertUtils.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface",
+                    "Une erreur est survenue: " + e.getMessage());
         }
     }
-    
+
+    private void setupPopularClubCard() {
+        // Initialize the bar chart
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Club");
+        yAxis.setLabel("Nombre de Produits Vendus");
+        barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Clubs les plus populaires");
+        barChart.setPrefHeight(300);
+        barChart.setPrefWidth(600);
+
+        // Add the chart to the chartContainer
+        chartContainer.getChildren().add(barChart);
+
+        // Set up the click handler for the popular club card
+        popularClubCard.setOnMouseClicked(event -> {
+            if (!isChartVisible) {
+                // Load the data and show the chart
+                loadPopularClubsChart();
+                chartContainer.setVisible(true);
+                chartContainer.setManaged(true);
+                isChartVisible = true;
+            } else {
+                // Hide the chart
+                chartContainer.setVisible(false);
+                chartContainer.setManaged(false);
+                isChartVisible = false;
+            }
+        });
+    }
+
+    private void loadPopularClubsChart() {
+        try {
+            // Clear any existing data in the chart
+            barChart.getData().clear();
+
+            // Fetch the most popular clubs
+            List<Object[]> topClubs = produitService.getTopClubsByProducts();
+
+            if (topClubs.isEmpty()) {
+                showToast("Aucune donnée de vente disponible pour les clubs", "info");
+                return;
+            }
+
+            // Create a series for the chart
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Ventes");
+
+            // Add data to the series
+            for (Object[] club : topClubs) {
+                String clubName = (String) club[0];
+                int totalSales = (int) club[1];
+                series.getData().add(new XYChart.Data<>(clubName, totalSales));
+            }
+
+            // Add the series to the chart
+            barChart.getData().add(series);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showToast("Erreur lors du chargement des clubs populaires: " + e.getMessage(), "error");
+        }
+    }
+
     private void showDatabaseConnectionError() {
         // Clear the table and show message
         if (tableView != null) {
             tableView.setPlaceholder(new Label("Impossible de se connecter à la base de données"));
         }
-        
+
         // Show error alert
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Erreur de connexion");
         alert.setHeaderText("Impossible de se connecter à la base de données");
         alert.setContentText("Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.\n\n" +
-                            "URL: " + DataSource.getInstance().getUrl() + "\n" +
-                            "Utilisateur: " + DataSource.getInstance().getUser());
-        
+                "URL: " + DataSource.getInstance().getUrl() + "\n" +
+                "Utilisateur: " + DataSource.getInstance().getUser());
+
         // Create ButtonType for retry
         ButtonType retryButton = new ButtonType("Réessayer");
         ButtonType exitButton = new ButtonType("Quitter", ButtonBar.ButtonData.CANCEL_CLOSE);
-        
+
         alert.getButtonTypes().setAll(retryButton, exitButton);
-        
+
         alert.showAndWait().ifPresent(buttonType -> {
             if (buttonType == retryButton) {
                 // Retry connection and re-initialize
@@ -228,7 +306,7 @@ public class AdminProduitController implements Initializable {
                 Platform.exit(); // Close the application
             }
         });
-        
+
         // Disable controls that require database
         if (btnAddProduct != null) btnAddProduct.setDisable(true);
         if (filterClubComboBox != null) filterClubComboBox.setDisable(true);
@@ -286,8 +364,6 @@ public class AdminProduitController implements Initializable {
         // The actual implementation would be added later
         AlertUtils.showInfo("Info", "Update Product", "This functionality will be implemented soon.");
     }
-
-    // ... existing code ...
 
     /**
      * Configure navigation events for the sidebar
@@ -785,6 +861,7 @@ public class AdminProduitController implements Initializable {
             AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
         }
     }
+
     @FXML
     private void searchProducts() {
         setupFilters();
@@ -1410,10 +1487,9 @@ public class AdminProduitController implements Initializable {
             }
         }).start();
     }
+
     @FXML
     private void goToAdmincommande() {
         ProduitApp.navigateTo("/com/esprit/views/produit/commandeview.fxml");
     }
-
-    // More methods to be added...
 }

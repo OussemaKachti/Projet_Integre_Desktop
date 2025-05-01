@@ -148,8 +148,7 @@
                </VBox>
                
                <!-- Popular Club Card -->
-               <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
-                  <children>
+               <VBox fx:id="popularClubCard" alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5); -fx-cursor: hand;">                  <children>
                      <Label style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="Club Populaire" />
                      <Label fx:id="popularClubLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #FF9800;" text="N/A" />
                      <Label fx:id="popularClubProductsLabel" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="0 produits" />
@@ -160,6 +159,12 @@
                </VBox>
             </children>
          </HBox>
+         <!-- Chart Container -->
+         <StackPane fx:id="chartContainer" visible="false" managed="false" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
+            </VBox.margin>
+         </StackPane>
          
          <!-- Search and Filter Section -->
          <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">

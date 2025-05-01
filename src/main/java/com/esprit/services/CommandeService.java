@@ -1,4 +1,5 @@
-package com.esprit.services;
+
+        package com.esprit.services;
 
 import com.esprit.models.Commande;
 import com.esprit.models.Orderdetails;
@@ -153,7 +154,7 @@ public class CommandeService {
     public List<Commande> getAllCommandes(String keyword) {
         List<Commande> commandes = new ArrayList<>();
         try {
-            String query = "SELECT c.*, u.id as user_id, u.nom as user_nom, u.prenom as user_prenom " +
+            String query = "SELECT c.*, u.id as user_id, u.nom as user_nom, u.prenom as user_prenom, u.email as user_email " +
                     "FROM commande c " +
                     "LEFT JOIN user u ON c.user_id = u.id";
             if (keyword != null && !keyword.isEmpty()) {
@@ -177,12 +178,20 @@ public class CommandeService {
                 int userId = rs.getInt("user_id");
                 String userNom = rs.getString("user_nom");
                 String userPrenom = rs.getString("user_prenom");
-                if (userNom != null && userPrenom != null) {
+                String userEmail = rs.getString("user_email");
+
+                // Only create a User object if the user exists (i.e., user_id is not NULL)
+                if (!rs.wasNull()) { // Check if user_id was NULL
                     User user = new User();
                     user.setId(userId);
                     user.setNom(userNom);
                     user.setPrenom(userPrenom);
+                    user.setEmail(userEmail);
+                    System.out.println("Loaded user for commande ID " + commande.getId() + ": " + user);
                     commande.setUser(user);
+                } else {
+                    System.err.println("Warning: No user found for commande ID " + commande.getId() + " with user_id " + userId);
+                    commande.setUser(null);
                 }
 
                 // Fetch order details for this commande
@@ -195,6 +204,7 @@ public class CommandeService {
                 detailsPs.setInt(1, commande.getId());
                 ResultSet detailsRs = detailsPs.executeQuery();
 
+                double total = 0.0;
                 while (detailsRs.next()) {
                     Orderdetails detail = new Orderdetails();
                     detail.setId(detailsRs.getInt("id"));
@@ -210,7 +220,9 @@ public class CommandeService {
                     detail.setCommande(commande);
 
                     orderDetails.add(detail);
+                    total += detail.getTotal();
                 }
+                commande.setTotal(total); // Set the total for the commande
                 commande.setOrderDetails(orderDetails);
 
                 commandes.add(commande);
