@@ -46,9 +46,7 @@
                 </cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="colActions" text="Actions" prefWidth="200">
-                <cellValueFactory>
-                    <PropertyValueFactory property="dummy" />
-                </cellValueFactory>
+
             </TableColumn>
         </columns>
     </TableView>

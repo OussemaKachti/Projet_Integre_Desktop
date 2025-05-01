@@ -17,8 +17,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -67,6 +72,14 @@ public class AdminCommandeController implements Initializable {
     @FXML
     private Pane toastContainer;
 
+    // New components for popular products
+    @FXML
+    private VBox popularProductsCard;
+    @FXML
+    private StackPane chartContainer;
+    private BarChart<String, Number> barChart;
+    private boolean isChartVisible = false;
+
     // Service
     private final CommandeService commandeService;
 
@@ -97,6 +110,7 @@ public class AdminCommandeController implements Initializable {
             loadAllCommandes();
             calculateStats();
             setupPagination();
+            setupPopularProductsCard(); // Added to set up the popular products card
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -310,6 +324,7 @@ public class AdminCommandeController implements Initializable {
             });
         }
     }
+
     @FXML
     private void searchProducts() {
         setupFilters();
@@ -503,7 +518,6 @@ public class AdminCommandeController implements Initializable {
 
             int pendingCommandes = 0;
             int completedCommandes = 0;
-            int cancelledCommandes = 0;
 
             for (Commande commande : allCommandes) {
                 switch (commande.getStatut()) {
@@ -513,19 +527,74 @@ public class AdminCommandeController implements Initializable {
                     case CONFIRMEE:
                         completedCommandes++;
                         break;
-                    case ANNULEE:
-                        cancelledCommandes++;
-                        break;
                 }
             }
 
             pendingCommandesLabel.setText(String.valueOf(pendingCommandes));
             completedCommandesLabel.setText(String.valueOf(completedCommandes));
-            cancelledCommandesLabel.setText(String.valueOf(cancelledCommandes));
 
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Erreur lors du calcul des statistiques : " + e.getMessage());
+        }
+    }
+
+    private void setupPopularProductsCard() {
+        // Initialize the bar chart
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Produit");
+        yAxis.setLabel("Quantité Vendue");
+        barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Produits les plus populaires");
+        barChart.setPrefHeight(300);
+        barChart.setPrefWidth(600);
+
+        // Add the chart to the chartContainer
+        chartContainer.getChildren().add(barChart);
+
+        // Set up the click handler for the popular products card
+        popularProductsCard.setOnMouseClicked(event -> {
+            if (!isChartVisible) {
+                // Load the data and show the chart
+                loadPopularProductsChart();
+                chartContainer.setVisible(true);
+                chartContainer.setManaged(true);
+                isChartVisible = true;
+            } else {
+                // Hide the chart
+                chartContainer.setVisible(false);
+                chartContainer.setManaged(false);
+                isChartVisible = false;
+            }
+        });
+    }
+
+    private void loadPopularProductsChart() {
+        try {
+            // Clear any existing data in the chart
+            barChart.getData().clear();
+
+            // Fetch the most popular products
+            List<Object[]> topProducts = commandeService.getTopProduits();
+
+            // Create a series for the chart
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Ventes");
+
+            // Add data to the series
+            for (Object[] product : topProducts) {
+                String productName = (String) product[0];
+                int totalSales = (int) product[1];
+                series.getData().add(new XYChart.Data<>(productName, totalSales));
+            }
+
+            // Add the series to the chart
+            barChart.getData().add(series);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Erreur lors du chargement des produits populaires: " + e.getMessage(), "error");
         }
     }
 

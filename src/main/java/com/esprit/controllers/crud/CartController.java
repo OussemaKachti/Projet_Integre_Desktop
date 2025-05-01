@@ -210,7 +210,7 @@ public class CartController implements Initializable {
             commande.setUser(staticUser);
 
             CommandeService commandeService = new CommandeService();
-            commandeService.createCommande(commande);
+
 
             for (CartItem item : cartItems) {
                 Produit produit = produitService.getProduitById(item.getProductId());
@@ -227,6 +227,7 @@ public class CartController implements Initializable {
                 produit.setQuantity(String.valueOf(newStock));
                 produitService.updateProduit(produit);
             }
+            commandeService.createCommande(commande);
 
             cartItems.clear();
             ProduitCardItemController.updateCart(new HashMap<>());
@@ -295,7 +296,9 @@ public class CartController implements Initializable {
      */
     private void navigateToCatalogue() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/produit/ProduitView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/ProduitView.fxml"));
+            URL fxmlLocation = getClass().getResource("/com/esprit/views/produit/ProduitView.fxml");
+            System.out.println("FXML Location: " + fxmlLocation);
             Parent catalogueView = loader.load();
 
             Scene currentScene = tableView.getScene();

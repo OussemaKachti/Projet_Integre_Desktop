@@ -127,10 +127,10 @@
                         </padding>
                     </VBox>
 
-                    <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                    <VBox fx:id="popularProductsCard" alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
                         <children>
-                            <Label text="Commandes Annulées" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
-                            <Label fx:id="cancelledCommandesLabel" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #F44336;" />
+                            <Label text="Produits les plus populaires" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" />
+                            <Label fx:id="popularProductsLabel" text="Cliquez pour voir" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #6200EE;" />
                         </children>
                         <padding>
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
@@ -138,6 +138,13 @@
                     </VBox>
                 </children>
             </HBox>
+
+            <!-- Chart Container -->
+            <StackPane fx:id="chartContainer" visible="false" managed="false" prefHeight="300.0" prefWidth="100.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                <padding>
+                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                </padding>
+            </StackPane>
 
             <!-- Search and Filter Section -->
             <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">

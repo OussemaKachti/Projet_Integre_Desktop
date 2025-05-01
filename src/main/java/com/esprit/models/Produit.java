@@ -19,6 +19,9 @@ public class Produit {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Produit(int produitId, String nomProd) {
+    }
+
     // Getters et setters
 
     public int getId() {

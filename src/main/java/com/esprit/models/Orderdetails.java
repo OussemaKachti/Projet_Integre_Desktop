@@ -5,8 +5,8 @@ public class Orderdetails {
     private Commande commande;
     private Produit produit;
     private int quantity;
-    private int price;
-    private float total;
+    private double price;
+    private double total;
 
     public Orderdetails() {
     }
@@ -53,24 +53,29 @@ public class Orderdetails {
         calculateTotal(); // Recalculer à chaque changement
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
         calculateTotal(); // Recalculer à chaque changement
     }
 
-    public float getTotal() {
+    public double getTotal() {
         return total;
     }
 
-    public void setTotal(float total) {
+    public void setTotal(double total) {
         this.total = total;
     }
 
     public void calculateTotal() {
         this.total = this.price * this.quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Orderdetails{id=" + id + ", quantity=" + quantity + ", price=" + price + ", total=" + total + "}";
     }
 }
