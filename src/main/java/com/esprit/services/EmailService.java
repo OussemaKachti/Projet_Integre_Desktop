@@ -173,4 +173,39 @@ public class EmailService {
             return false;
         }
     }
+
+    /**
+     * Sends a password change notification email to a user asynchronously
+     * 
+     * @param email User's email
+     * @param name  User's name
+     * @return CompletableFuture that completes with true if sent successfully
+     */
+    public CompletableFuture<Boolean> sendPasswordChangeNotificationAsync(String email, String name) {
+        String subject = "Your UNICLUBS Password Has Been Changed";
+
+        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+                "<h2 style='color: #00A0E3;'>Password Changed Successfully</h2>" +
+                "<p>Hello " + name + ",</p>" +
+                "<p>This email is to confirm that your UNICLUBS account password has been successfully changed.</p>" +
+                "<p>If you did not make this change, please contact our support team immediately.</p>" +
+                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
+                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+                "</div>";
+
+        return sendEmailAsync(email, subject, content);
+    }
+
+    /**
+     * Synchronous version for backward compatibility
+     */
+    public boolean sendPasswordChangeNotification(String email, String name) {
+        try {
+            return sendPasswordChangeNotificationAsync(email, name).join();
+        } catch (Exception e) {
+            System.out.println("Sync password change notification email send failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

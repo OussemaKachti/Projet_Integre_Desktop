@@ -312,10 +312,10 @@ public class AdminCommentsController implements Initializable {
                         // Configure click handler
                         deleteButton.setOnAction(event -> {
                             Commentaire commentaire = getTableView().getItems().get(getIndex());
-                            deleteComment(commentaire);
+                                deleteComment(commentaire);
                         });
                     }
-
+                    
                     @Override
                     protected void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);
@@ -347,79 +347,79 @@ public class AdminCommentsController implements Initializable {
     }
 
     private void loadClubs() throws SQLException {
-        // Get all clubs from database
-        List<Club> clubsList = clubService.getAll();
+            // Get all clubs from database
+            List<Club> clubsList = clubService.getAll();
 
-        // Create a new ObservableList with "All Clubs" as first option
-        this.clubsList = FXCollections.observableArrayList();
-        this.clubsList.add("All Clubs");
+            // Create a new ObservableList with "All Clubs" as first option
+            this.clubsList = FXCollections.observableArrayList();
+            this.clubsList.add("All Clubs");
 
-        // Add the actual club names
-        this.clubsList.addAll(clubsList.stream()
-                .map(Club::getNom)
-                .sorted() // Sort clubs alphabetically
-                .collect(Collectors.toList()));
+            // Add the actual club names
+            this.clubsList.addAll(clubsList.stream()
+                    .map(Club::getNom)
+                    .sorted() // Sort clubs alphabetically
+                    .collect(Collectors.toList()));
 
-        // Set items to the ComboBox
-        clubFilterComboBox.setItems(this.clubsList);
+            // Set items to the ComboBox
+            clubFilterComboBox.setItems(this.clubsList);
 
-        // Set custom cell factory for better display
-        clubFilterComboBox.setCellFactory(listView -> new ListCell<String>() {
-            @Override
-            protected void updateItem(String club, boolean empty) {
-                super.updateItem(club, empty);
+            // Set custom cell factory for better display
+            clubFilterComboBox.setCellFactory(listView -> new ListCell<String>() {
+                @Override
+                protected void updateItem(String club, boolean empty) {
+                    super.updateItem(club, empty);
 
-                if (empty || club == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    // Create an HBox for the cell content
-                    HBox cellBox = new HBox(10);
-                    cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                    // Create icon based on whether it's "All Clubs" or a specific club
-                    Label icon = new Label();
-                    if ("All Clubs".equals(club)) {
-                        icon.setText("🌐");
+                    if (empty || club == null) {
+                        setText(null);
+                        setGraphic(null);
                     } else {
-                        icon.setText("🏢");
+                        // Create an HBox for the cell content
+                        HBox cellBox = new HBox(10);
+                        cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                        // Create icon based on whether it's "All Clubs" or a specific club
+                        Label icon = new Label();
+                        if ("All Clubs".equals(club)) {
+                            icon.setText("🌐");
+                        } else {
+                            icon.setText("🏢");
+                        }
+                        icon.setStyle("-fx-font-size: 14px;");
+
+                        // Create label for club name
+                        Label clubLabel = new Label(club);
+                        clubLabel.setStyle("-fx-font-size: 14px;");
+
+                        // Add components to cell
+                        cellBox.getChildren().addAll(icon, clubLabel);
+
+                        setGraphic(cellBox);
+                        setText(null);
                     }
-                    icon.setStyle("-fx-font-size: 14px;");
-
-                    // Create label for club name
-                    Label clubLabel = new Label(club);
-                    clubLabel.setStyle("-fx-font-size: 14px;");
-
-                    // Add components to cell
-                    cellBox.getChildren().addAll(icon, clubLabel);
-
-                    setGraphic(cellBox);
-                    setText(null);
                 }
-            }
-        });
+            });
 
-        // Set custom button cell for the selected value display
-        clubFilterComboBox.setButtonCell(new ListCell<String>() {
-            @Override
-            protected void updateItem(String club, boolean empty) {
-                super.updateItem(club, empty);
-                if (empty || club == null) {
+            // Set custom button cell for the selected value display
+            clubFilterComboBox.setButtonCell(new ListCell<String>() {
+                @Override
+                protected void updateItem(String club, boolean empty) {
+                    super.updateItem(club, empty);
+                    if (empty || club == null) {
                     setText(null);
-                    setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
-                } else {
+                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                    } else {
                     setText(club);
-                    setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                        setStyle("-fx-text-fill: #333333;"); // S'assurer que le texte est noir
+                    }
                 }
-            }
-        });
+            });
 
-        // Select first item (All Clubs)
-        clubFilterComboBox.getSelectionModel().selectFirst();
-        selectedClub = "all"; // Default value
+            // Select first item (All Clubs)
+            clubFilterComboBox.getSelectionModel().selectFirst();
+            selectedClub = "all"; // Default value
 
-        // Add style class for custom styling
-        clubFilterComboBox.getStyleClass().add("club-filter-combo");
+            // Add style class for custom styling
+            clubFilterComboBox.getStyleClass().add("club-filter-combo");
     }
 
     private void loadComments() {
@@ -473,7 +473,7 @@ public class AdminCommentsController implements Initializable {
 
             // Update pagination
             setupPagination();
-
+            
         } catch (SQLException e) {
             commentsTable.setPlaceholder(new Label("Error loading comments: " + e.getMessage()));
             AlertUtils.showError("Error", "Unable to load comments: " + e.getMessage());
@@ -489,14 +489,14 @@ public class AdminCommentsController implements Initializable {
             // Calculer le nombre total de commentaires
             totalComments = allComments.size();
             totalCommentsLabel.setText(String.valueOf(totalComments));
-
+            
             // Calculer le nombre de commentaires d'aujourd'hui
             LocalDate today = LocalDate.now();
             todayComments = (int) allComments.stream()
                     .filter(c -> c.getDateComment() != null && c.getDateComment().equals(today))
                     .count();
             todayCommentsLabel.setText(String.valueOf(todayComments));
-
+            
             // Calculer le nombre de commentaires signalés (à implémenter selon votre
             // logique métier)
             // Pour l'exemple, on considère qu'un commentaire contenant le mot "hidden" est
@@ -506,7 +506,7 @@ public class AdminCommentsController implements Initializable {
                             && c.getContenuComment().toLowerCase().contains("hidden"))
                     .count();
             flaggedCommentsLabel.setText(String.valueOf(flaggedComments));
-
+            
             // Trouver l'utilisateur le plus actif
             findMostActiveUser(allComments);
 
@@ -597,7 +597,7 @@ public class AdminCommentsController implements Initializable {
 
     private void setupPagination() {
         paginationContainer.getChildren().clear();
-
+        
         if (totalPages <= 1) {
             // Hide pagination container if there's only one page
             paginationContainer.setVisible(false);
@@ -608,7 +608,7 @@ public class AdminCommentsController implements Initializable {
         // Show pagination if more than one page
         paginationContainer.setVisible(true);
         paginationContainer.setManaged(true);
-
+        
         // Previous button
         Button prevButton = new Button("←");
         prevButton.getStyleClass().add(currentPage == 1 ? "pagination-button-disabled" : "pagination-button");
@@ -619,13 +619,13 @@ public class AdminCommentsController implements Initializable {
                 loadComments();
             }
         });
-
+        
         paginationContainer.getChildren().add(prevButton);
-
+        
         // Pages numbered buttons
         int startPage = Math.max(1, currentPage - 2);
         int endPage = Math.min(startPage + 4, totalPages);
-
+        
         for (int i = startPage; i <= endPage; i++) {
             Button pageButton = new Button(String.valueOf(i));
             pageButton.getStyleClass().addAll("pagination-button");
@@ -635,7 +635,7 @@ public class AdminCommentsController implements Initializable {
                 pageButton.getStyleClass().add("pagination-button-active");
                 pageButton.setStyle("-fx-font-weight: bold;");
             }
-
+            
             final int pageNum = i;
             pageButton.setOnAction(e -> {
                 currentPage = pageNum;
@@ -643,7 +643,7 @@ public class AdminCommentsController implements Initializable {
             });
             paginationContainer.getChildren().add(pageButton);
         }
-
+        
         // Next button
         Button nextButton = new Button("→");
         nextButton.getStyleClass().add(currentPage == totalPages ? "pagination-button-disabled" : "pagination-button");
@@ -654,7 +654,7 @@ public class AdminCommentsController implements Initializable {
                 loadComments();
             }
         });
-
+        
         paginationContainer.getChildren().add(nextButton);
 
         // Add page count information
@@ -694,18 +694,18 @@ public class AdminCommentsController implements Initializable {
 
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
-                commentaireService.delete(commentaire.getId());
-                showToast("Comment deleted successfully", "success");
+                    commentaireService.delete(commentaire.getId());
+                    showToast("Comment deleted successfully", "success");
                 loadComments();
                 calculateStats();
             }
-        } catch (SQLException e) {
-            showToast("Error deleting comment: " + e.getMessage(), "error");
+                } catch (SQLException e) {
+                    showToast("Error deleting comment: " + e.getMessage(), "error");
             e.printStackTrace();
         } catch (Exception e) {
             showToast("Unexpected error: " + e.getMessage(), "error");
             e.printStackTrace();
-        }
+                }
     }
 
     private void showToast(String message, String type) {
@@ -726,7 +726,7 @@ public class AdminCommentsController implements Initializable {
 
         toastLabel.setText(message);
         toastContainer.setVisible(true);
-
+        
         // Add a fade-in animation
         FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toastContainer);
         fadeIn.setFromValue(0);
@@ -768,17 +768,17 @@ public class AdminCommentsController implements Initializable {
                 // Charger la vue des sondages
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
-                
+
                 // Configurer la scène
                 Scene scene = new Scene(root);
-                
+
                 // S'assurer que les styles sont correctement appliqués
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -788,7 +788,7 @@ public class AdminCommentsController implements Initializable {
                 showToast("Erreur lors de la navigation vers la gestion des sondages: " + e.getMessage(), "error");
             }
         });
-        
+
         // Pour le bouton principal Survey Management, on peut ajouter une animation pour montrer/cacher le sous-menu
         surveyManagementBtn.setOnAction(event -> {
             // Toggle la visibilité du sous-menu
@@ -796,19 +796,19 @@ public class AdminCommentsController implements Initializable {
             surveySubMenu.setVisible(!isVisible);
             surveySubMenu.setManaged(!isVisible);
         });
-        
+
         // Navigation vers admin_dashboard
         userManagementBtn.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) userManagementBtn.getScene().getWindow();
-                
+
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -818,7 +818,7 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to user management: " + e.getMessage(), "error");
             }
         });
-        
+
         // Configurer les autres boutons de navigation si nécessaire
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
         eventManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));

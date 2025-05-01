@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import com.esprit.MainApp;
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
+import com.esprit.services.EmailService;
 import com.esprit.utils.SessionManager;
 
 import javafx.event.ActionEvent;
@@ -112,6 +113,7 @@ public class ProfileController {
     private Label specialCheckLabel;
 
     private final AuthService authService = new AuthService();
+    private final EmailService emailService = new EmailService();
     private User currentUser;
     private final String UPLOADS_DIRECTORY = "uploads/profiles/";
     private final String DEFAULT_IMAGE_PATH = "/images/default_profile.png";
@@ -246,6 +248,11 @@ public class ProfileController {
 
         confirmPasswordField.textProperty().addListener((obs, oldText, newText) -> {
             validateConfirmPassword();
+        });
+
+        // Show password requirements when password field is focused
+        newPasswordField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            passwordRequirementsBox.setVisible(newValue);
         });
     }
 
@@ -435,21 +442,31 @@ public class ProfileController {
         }
 
         // Attempt to change password
-        boolean success = authService.changePassword(currentUser.getEmail(), currentPassword, newPassword);
-
-        if (success) {
-            // Reset password fields
-            currentPasswordField.clear();
-            newPasswordField.clear();
-            confirmPasswordField.clear();
-            passwordRequirementsBox.setVisible(false);
-
-            // Show success message
-            passwordSuccessMessage.setText("Your password has been updated successfully!");
-            passwordSuccessMessage.setVisible(true);
-        } else {
-            // Show error message
-            passwordErrorMessage.setText("Failed to update password. Please check your current password.");
+        try {
+            boolean updateSuccess = authService.changePassword(currentUser.getEmail(), currentPassword, newPassword);
+            
+            if (updateSuccess) {
+                // Clear password fields
+                currentPasswordField.clear();
+                newPasswordField.clear();
+                confirmPasswordField.clear();
+                
+                // Show success message
+                passwordSuccessMessage.setVisible(true);
+                
+                // Send password change notification email
+                String fullName = currentUser.getFirstName() + " " + currentUser.getLastName();
+                emailService.sendPasswordChangeNotificationAsync(
+                    currentUser.getEmail(),
+                    fullName
+                );
+            } else {
+                passwordErrorMessage.setText("Failed to update password. Please try again.");
+                passwordErrorMessage.setVisible(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            passwordErrorMessage.setText("Error: " + e.getMessage());
             passwordErrorMessage.setVisible(true);
         }
     }
