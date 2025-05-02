@@ -16,8 +16,19 @@ public class AiContentValidator {
     private static final Logger LOGGER = Logger.getLogger(AiContentValidator.class.getName());
     private static final AiValidationService aiService = new AiValidationService();
     
+    // Track the last validation result
+    private static AiValidationService.ValidationResult lastImageValidationResult = null;
+    
     // Constants to define minimum lengths for validation
     private static final int MIN_LENGTH_FOR_VALIDATION = 2;
+    
+    /**
+     * Get the last image validation result
+     * @return The last validation result or null if no validation has been performed
+     */
+    public static AiValidationService.ValidationResult getLastValidationResult() {
+        return lastImageValidationResult;
+    }
     
     /**
      * Validates if a name contains appropriate content
@@ -89,7 +100,9 @@ public class AiContentValidator {
             return false;
         }
         
-        AiValidationService.ValidationResult result = aiService.validateProfileImage(imageFile);
+        // Force a fresh validation by creating a new service instance
+        AiValidationService freshService = new AiValidationService();
+        AiValidationService.ValidationResult result = freshService.validateProfileImage(imageFile);
         if (!result.isValid()) {
             LOGGER.log(Level.INFO, "Image validation failed: {0}", result.getMessage());
         }
@@ -109,12 +122,23 @@ public class AiContentValidator {
             return;
         }
         
-        CompletableFuture<AiValidationService.ValidationResult> future = aiService.validateProfileImageAsync(imageFile);
+        // Create a fresh service to avoid caching issues
+        AiValidationService freshService = new AiValidationService();
+        
+        // Log the validation attempt
+        LOGGER.log(Level.INFO, "Starting async validation for image: {0}", imageFile.getAbsolutePath());
+        
+        CompletableFuture<AiValidationService.ValidationResult> future = freshService.validateProfileImageAsync(imageFile);
         future.thenAccept(result -> {
+            // Store the validation result
+            lastImageValidationResult = result;
+            
             Platform.runLater(() -> {
                 if (callback != null) {
                     if (!result.isValid()) {
                         LOGGER.log(Level.INFO, "Async image validation failed: {0}", result.getMessage());
+                    } else {
+                        LOGGER.log(Level.INFO, "Async image validation succeeded");
                     }
                     callback.onValidationComplete(result.isValid(), result.getMessage());
                 }

@@ -1,4 +1,3 @@
-// Path: src/main/java/controllers/EditProfileController.java
 package com.esprit.controllers;
 
 import com.esprit.models.User;
@@ -94,6 +93,12 @@ public class EditProfileController {
         
         // Setup AI validations
         setupAiValidations();
+        
+        // Add a small delay to ensure the save button is enabled after all initializations
+        javafx.application.Platform.runLater(() -> {
+            // Ensure save button is enabled by default - this must run after all other initialization
+            saveButton.setDisable(false);
+        });
     }
     
     private void setupAiValidations() {
@@ -109,23 +114,25 @@ public class EditProfileController {
                             firstNameErrorLabel.setVisible(false);
                             firstNameValidationStatus.setText("✓");
                             firstNameValidationStatus.setStyle("-fx-text-fill: green;");
-                            updateSaveButtonState();
                         } else {
                             firstNameErrorLabel.setText(message);
                             firstNameErrorLabel.setVisible(true);
                             firstNameValidationStatus.setText("✗");
                             firstNameValidationStatus.setStyle("-fx-text-fill: red;");
-                            saveButton.setDisable(true);
                             // Log the detected inappropriate content
                             System.out.println("Edit profile - first name validation failed: " + message + " for text: " + newValue);
                         }
                         firstNameValidationStatus.setVisible(true);
+                        // Always make sure the save button is enabled regardless of validation
+                        saveButton.setDisable(false);
                     });
                 });
             } else if (firstNameValidationStatus != null) {
                 firstNameValidationStatus.setVisible(false);
                 firstNameErrorLabel.setVisible(false);
             }
+            // Keep save button enabled no matter what
+            saveButton.setDisable(false);
         });
         
         lastNameField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -139,36 +146,37 @@ public class EditProfileController {
                             lastNameErrorLabel.setVisible(false);
                             lastNameValidationStatus.setText("✓");
                             lastNameValidationStatus.setStyle("-fx-text-fill: green;");
-                            updateSaveButtonState();
                         } else {
                             lastNameErrorLabel.setText(message);
                             lastNameErrorLabel.setVisible(true);
                             lastNameValidationStatus.setText("✗");
                             lastNameValidationStatus.setStyle("-fx-text-fill: red;");
-                            saveButton.setDisable(true);
                             // Log the detected inappropriate content
                             System.out.println("Edit profile - last name validation failed: " + message + " for text: " + newValue);
                         }
                         lastNameValidationStatus.setVisible(true);
+                        // Always make sure the save button is enabled regardless of validation
+                        saveButton.setDisable(false);
                     });
                 });
             } else if (lastNameValidationStatus != null) {
                 lastNameValidationStatus.setVisible(false);
                 lastNameErrorLabel.setVisible(false);
             }
+            // Keep save button enabled no matter what
+            saveButton.setDisable(false);
         });
+        
+        // Add listeners to other fields that also ensure the save button stays enabled
+        emailField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
+        phoneField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
+        passwordField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
     }
     
-    // Method to update save button state based on validation results
+    // Method to update save button state - always enabled
     private void updateSaveButtonState() {
-        // Enable save button if all visible error labels are hidden
-        boolean hasErrors = firstNameErrorLabel.isVisible() || 
-                          lastNameErrorLabel.isVisible() || 
-                          emailErrorLabel.isVisible() || 
-                          phoneErrorLabel.isVisible() || 
-                          passwordErrorLabel.isVisible();
-        
-        saveButton.setDisable(hasErrors);
+        // Always enable the save button regardless of validation
+        saveButton.setDisable(false);
     }
     
     public void setCurrentUser(User user) {
@@ -186,6 +194,9 @@ public class EditProfileController {
             lastNameField.setText(currentUser.getLastName());
             emailField.setText(currentUser.getEmail());
             phoneField.setText(currentUser.getPhone());
+            
+            // Explicitly enable the save button after populating fields
+            saveButton.setDisable(false);
         }
     }
     
@@ -201,6 +212,18 @@ public class EditProfileController {
         String email = emailField.getText().trim();
         String phone = phoneField.getText().trim();
         String password = passwordField.getText();
+        
+        // Password is required - check this first
+        if (password.isEmpty()) {
+            validator.showError(passwordField, "Current password is required");
+            return; // Stop here if no password
+        }
+        
+        boolean contentViolationDetected = false;
+        
+        // Add warning flags to prevent double counting
+        boolean firstNameWarningIssued = false;
+        boolean lastNameWarningIssued = false;
         
         // Validate first name
         boolean isFirstNameValid = validator.validateRequired(firstNameField, "First name is required");
@@ -223,6 +246,11 @@ public class EditProfileController {
                 severity, 
                 "Profile update rejected"
             );
+            
+            // Add warning and send email notification
+            authService.addContentWarning(currentUser, "profile first name");
+            contentViolationDetected = true;
+            firstNameWarningIssued = true; // Set flag to prevent duplicate warning
         }
         
         // Add AI validation for first name
@@ -239,6 +267,12 @@ public class EditProfileController {
                 severity, 
                 "Profile update rejected by AI validation"
             );
+            
+            // Add warning and send email notification ONLY if not already issued
+            if (!firstNameWarningIssued) {
+                authService.addContentWarning(currentUser, "profile first name");
+                contentViolationDetected = true;
+            }
         }
         
         // Validate last name
@@ -253,7 +287,7 @@ public class EditProfileController {
             validator.showError(lastNameField, "Last name contains inappropriate language");
             isLastNameValid = false;
             
-            // Log the profanity incident and increment warning count
+            // Log the profanity incident
             String severity = ProfanityLogManager.determineSeverity("Last Name");
             ProfanityLogManager.logProfanityIncident(
                 currentUser, 
@@ -262,6 +296,11 @@ public class EditProfileController {
                 severity, 
                 "Profile update rejected"
             );
+            
+            // Add warning and send email notification
+            authService.addContentWarning(currentUser, "profile last name");
+            contentViolationDetected = true;
+            lastNameWarningIssued = true; // Set flag to prevent duplicate warning
         }
         
         // Add AI validation for last name
@@ -278,6 +317,55 @@ public class EditProfileController {
                 severity, 
                 "Profile update rejected by AI validation"
             );
+            
+            // Add warning and send email notification ONLY if not already issued
+            if (!lastNameWarningIssued) {
+                authService.addContentWarning(currentUser, "profile last name");
+                contentViolationDetected = true;
+            }
+        }
+        
+        // Display special error message if content violation was detected
+        if (contentViolationDetected) {
+            // Refresh current user to get updated warning count
+            currentUser = authService.findUserByEmail(currentUser.getEmail());
+            
+            // Check if account has been deactivated (3+ warnings)
+            if (currentUser.getWarningCount() >= 3) {
+                // Display account suspension message
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
+                alert.setTitle("Account Suspended");
+                alert.setHeaderText("Your account has been deactivated");
+                alert.setContentText("Due to repeated content policy violations, your account has been suspended. You will now be logged out. Please contact support for assistance.");
+                
+                // Ensure dialog is properly sized and resizable
+                alert.getDialogPane().setPrefWidth(500);
+                alert.getDialogPane().setPrefHeight(200);
+                alert.setResizable(true);
+                
+                alert.showAndWait();
+                
+                // Close the edit dialog
+                close();
+                
+                // Logout the user via the parent controller
+                if (parentController != null) {
+                    javafx.application.Platform.runLater(() -> {
+                        try {
+                            // Clear session
+                            com.esprit.utils.SessionManager.getInstance().clearSession();
+                            // Navigate to login
+                            parentController.handleLogout(null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                return;
+            }
+            
+            showError("Your profile contains inappropriate content. A warning has been recorded on your account.");
+            return;
         }
         
         // Validate email
@@ -294,11 +382,8 @@ public class EditProfileController {
             isPhoneValid = false;
         }
         
-        // Validate password (required)
-        boolean isPasswordValid = validator.validateRequired(passwordField, "Current password is required");
-        
         // If any validation failed, stop here
-        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || !isPhoneValid || !isPasswordValid) {
+        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || !isPhoneValid) {
             return;
         }
         
@@ -314,7 +399,7 @@ public class EditProfileController {
             return;
         }
         
-        // Verify current password
+        // Verify current password - do this BEFORE updating the user object
         User authenticatedUser = authService.authenticate(currentUser.getEmail(), password);
         
         if (authenticatedUser == null) {

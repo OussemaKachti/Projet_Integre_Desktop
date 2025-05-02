@@ -239,12 +239,18 @@ public class AdminProfileController {
     private void loadDefaultImage() {
         try {
             // First try to load the default image from resources
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile-png.png"));
+            Image defaultImage = new Image(getClass().getResourceAsStream(DEFAULT_IMAGE_PATH));
             if (defaultImage != null && !defaultImage.isError()) {
                 profileImageView.setImage(defaultImage);
             } else {
-                // If default image couldn't be loaded, create a fallback image
-                createDefaultImageFallback();
+                // Try the alternative path format
+                defaultImage = new Image(DEFAULT_IMAGE_PATH);
+                if (defaultImage != null && !defaultImage.isError()) {
+                    profileImageView.setImage(defaultImage);
+                } else {
+                    // If default image couldn't be loaded, create a fallback image
+                    createDefaultImageFallback();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -421,41 +427,131 @@ public class AdminProfileController {
         
         if (selectedFile != null) {
             try {
-                // Create uploads directory if it doesn't exist
-                File directory = new File(UPLOADS_DIRECTORY);
-                if (!directory.exists()) {
-                    directory.mkdirs();
+                // Validate file size (max 5MB)
+                if (selectedFile.length() > 5 * 1024 * 1024) {
+                    showError("Image is too large. Maximum size is 5MB.");
+                    return;
                 }
                 
-                // Generate unique filename
-                String fileName = currentUser.getId() + "_" + System.currentTimeMillis() + 
-                                 selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
+                // Show loading indicator
+                showLoading("Validating image content with AI...");
+                changeImageBtn.setDisable(true);
                 
-                // Copy file to uploads directory
-                Path sourcePath = selectedFile.toPath();
-                Path targetPath = Paths.get(UPLOADS_DIRECTORY + fileName);
-                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                // Create a unique file for this validation attempt to prevent caching issues
+                File tempFile = new File(selectedFile.getAbsolutePath() + "_" + System.currentTimeMillis());
+                Files.copy(selectedFile.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 
-                // Update user profile picture in database
-                currentUser.setProfilePicture(fileName);
-                boolean updateSuccess = authService.updateUserProfile(currentUser);
-                
-                if (updateSuccess) {
-                    // Update image in UI
-                    Image image = new Image(targetPath.toUri().toString());
-                    profileImageView.setImage(image);
-                    
-                    // Show success message
-                    showSuccess("Profile picture updated successfully");
-                } else {
-                    showError("Failed to update profile picture in database");
-                }
-                
-            } catch (IOException e) {
+                com.esprit.utils.AiContentValidator.validateImageAsync(tempFile, new com.esprit.utils.AiContentValidator.ValidationCallback() {
+                    @Override
+                    public void onValidationComplete(boolean isValid, String message) {
+                        // Delete temp file
+                        tempFile.delete();
+                        
+                        // Re-enable button
+                        changeImageBtn.setDisable(false);
+                        
+                        if (!isValid) {
+                            // Get the image caption from the AiValidationService result
+                            String imageCaption = null;
+                            if (com.esprit.utils.AiContentValidator.getLastValidationResult() != null) {
+                                imageCaption = com.esprit.utils.AiContentValidator.getLastValidationResult().getImageCaption();
+                            }
+                            
+                            // Record the inappropriate content warning with the caption
+                            authService.addContentWarning(currentUser, "profile image", imageCaption);
+                            
+                            // Refresh current user to get updated warning count
+                            currentUser = authService.findUserByEmail(currentUser.getEmail());
+                            
+                            // Check if account has been deactivated (3+ warnings)
+                            if (currentUser.getWarningCount() >= 3) {
+                                // Display account suspension message
+                                Alert alert = new Alert(Alert.AlertType.WARNING);
+                                alert.setTitle("Account Suspended");
+                                alert.setHeaderText("Your account has been deactivated");
+                                alert.setContentText("Due to repeated content policy violations, your account has been suspended. You will now be logged out. Please contact support for assistance.");
+                                
+                                // Ensure dialog is properly sized and resizable
+                                alert.getDialogPane().setPrefWidth(500);
+                                alert.getDialogPane().setPrefHeight(200);
+                                alert.setResizable(true);
+                                
+                                alert.showAndWait();
+                                
+                                // Logout the user and redirect to login page
+                                SessionManager.getInstance().clearSession();
+                                try {
+                                    navigateToLogin();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    showAlert("Error", "Navigation Error", "Could not navigate to login page");
+                                }
+                                return;
+                            }
+                            
+                            // Show error message with warning notification
+                            showError(message + " This violation has been recorded.");
+                            return;
+                        }
+                        
+                        // Proceed with upload if valid
+                        try {
+                            // Create uploads directory if it doesn't exist
+                            File directory = new File(UPLOADS_DIRECTORY);
+                            if (!directory.exists()) {
+                                directory.mkdirs();
+                            }
+                            
+                            // Generate unique filename
+                            String fileName = currentUser.getId() + "_" + System.currentTimeMillis() + 
+                                            selectedFile.getName().substring(selectedFile.getName().lastIndexOf("."));
+                            
+                            // Copy file to uploads directory
+                            Path sourcePath = selectedFile.toPath();
+                            Path targetPath = Paths.get(UPLOADS_DIRECTORY + fileName);
+                            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                            
+                            // Update user profile picture in database
+                            currentUser.setProfilePicture(fileName);
+                            boolean updateSuccess = authService.updateUserProfile(currentUser);
+                            
+                            if (updateSuccess) {
+                                // Update image in UI
+                                Image image = new Image(targetPath.toUri().toString());
+                                profileImageView.setImage(image);
+                                
+                                // Show success message
+                                showSuccess("Profile picture updated successfully");
+                            } else {
+                                showError("Failed to update profile picture in database");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            showAlert("Error", "File Error", "Could not save the profile image: " + e.getMessage());
+                        }
+                    }
+                });
+            } catch (Exception e) {
                 e.printStackTrace();
-                showAlert("Error", "File Error", "Could not save the profile image: " + e.getMessage());
+                changeImageBtn.setDisable(false);
+                showAlert("Error", "Processing Error", "Could not process the profile image: " + e.getMessage());
             }
         }
+    }
+    
+    /**
+     * Shows a loading message
+     */
+    public void showLoading(String message) {
+        // Hide error message if visible
+        profileInfoError.setVisible(false);
+        
+        // Show loading message
+        profileInfoMessage.setText(message);
+        profileInfoMessage.setVisible(true);
+        
+        // Add a loading spinner animation if desired
+        // This can be done by adding a ProgressIndicator to the FXML
     }
     
     @FXML

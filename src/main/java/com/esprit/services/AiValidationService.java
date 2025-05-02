@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.esprit.utils.ProfanityFilter;
@@ -71,110 +72,110 @@ public class AiValidationService {
      * @return ValidationResult with status and message
      */
     public ValidationResult validateName(String name) {
-    if (name == null || name.trim().isEmpty()) {
-        return new ValidationResult(true, "Valid name");
-    }
-    
-    try {
-        LOGGER.log(Level.INFO, "Starting validation for name: {0}", name);
-        
-        // First check using profanity filter as a quick check
-        if (profanityFilter.containsProfanity(name)) {
-            LOGGER.log(Level.WARNING, "Profanity filter detected inappropriate content in \"{0}\"", name);
-            return new ValidationResult(false, "This name contains inappropriate language");
+        if (name == null || name.trim().isEmpty()) {
+            return new ValidationResult(true, "Valid name", null);
         }
         
-        // Text model classification - with proper candidate labels
-        JSONObject result = huggingFaceClient.classifyText(textModel, name);
-        
-        // Dump full JSON response for debugging
-        LOGGER.log(Level.INFO, "Full JSON response for {0}: {1}", 
-                new Object[]{name, result != null ? result.toString() : "null"});
-        
-        // Check all harmful categories from the model results
-        if (result != null && !result.has("error")) {
-            // Check all possible negative categories
-            double offensiveScore = result.has("offensive") ? result.getDouble("offensive") : 0.0;
-            double hateSpeechScore = result.has("hate speech") ? result.getDouble("hate speech") : 0.0;
-            double inappropriateScore = result.has("inappropriate") ? result.getDouble("inappropriate") : 0.0;
+        try {
+            LOGGER.log(Level.INFO, "Starting validation for name: {0}", name);
             
-            // Log all scores for debugging
-            LOGGER.log(Level.INFO, "Scores for {0}: offensive={1}, hate_speech={2}, inappropriate={3}", 
-                    new Object[]{name, offensiveScore, hateSpeechScore, inappropriateScore});
+            // First check using profanity filter as a quick check
+            if (profanityFilter.containsProfanity(name)) {
+                LOGGER.log(Level.WARNING, "Profanity filter detected inappropriate content in \"{0}\"", name);
+                return new ValidationResult(false, "This name contains inappropriate language", null);
+            }
             
-            // Get the highest score among negative categories
-            double highestNegativeScore = Math.max(Math.max(offensiveScore, hateSpeechScore), inappropriateScore);
+            // Text model classification - with proper candidate labels
+            JSONObject result = huggingFaceClient.classifyText(textModel, name);
             
-            // If any negative category exceeds threshold
-            if (highestNegativeScore >= inappropriateThreshold) {
-                String category = "inappropriate content";
-                if (offensiveScore >= inappropriateThreshold) category = "offensive content";
-                if (hateSpeechScore >= inappropriateThreshold) category = "hate speech";
+            // Dump full JSON response for debugging
+            LOGGER.log(Level.INFO, "Full JSON response for {0}: {1}", 
+                    new Object[]{name, result != null ? result.toString() : "null"});
+            
+            // Check all harmful categories from the model results
+            if (result != null && !result.has("error")) {
+                // Check all possible negative categories
+                double offensiveScore = result.has("offensive") ? result.getDouble("offensive") : 0.0;
+                double hateSpeechScore = result.has("hate speech") ? result.getDouble("hate speech") : 0.0;
+                double inappropriateScore = result.has("inappropriate") ? result.getDouble("inappropriate") : 0.0;
                 
-                LOGGER.log(Level.WARNING, "Text model detected {0} in \"{1}\" with score {2} (threshold: {3})", 
-                        new Object[]{category, name, highestNegativeScore, inappropriateThreshold});
-                return new ValidationResult(false, "This name contains " + category);
+                // Log all scores for debugging
+                LOGGER.log(Level.INFO, "Scores for {0}: offensive={1}, hate_speech={2}, inappropriate={3}", 
+                        new Object[]{name, offensiveScore, hateSpeechScore, inappropriateScore});
+                
+                // Get the highest score among negative categories
+                double highestNegativeScore = Math.max(Math.max(offensiveScore, hateSpeechScore), inappropriateScore);
+                
+                // If any negative category exceeds threshold
+                if (highestNegativeScore >= inappropriateThreshold) {
+                    String category = "inappropriate content";
+                    if (offensiveScore >= inappropriateThreshold) category = "offensive content";
+                    if (hateSpeechScore >= inappropriateThreshold) category = "hate speech";
+                    
+                    LOGGER.log(Level.WARNING, "Text model detected {0} in \"{1}\" with score {2} (threshold: {3})", 
+                            new Object[]{category, name, highestNegativeScore, inappropriateThreshold});
+                    return new ValidationResult(false, "This name contains " + category, null);
+                }
+                
+                // If appropriate score is higher than all negative scores, mark as valid
+                double appropriateScore = result.has("appropriate") ? result.getDouble("appropriate") : 0.0;
+                if (appropriateScore > 0 && appropriateScore > highestNegativeScore) {
+                    LOGGER.log(Level.INFO, "Name \"{0}\" classified as appropriate with score {1}", 
+                            new Object[]{name, appropriateScore});
+                    return new ValidationResult(true, "Valid name", null);
+                }
+                
+                // If we got here and have valid results, consider it safe
+                if (highestNegativeScore < inappropriateThreshold) {
+                    LOGGER.log(Level.INFO, "Text model validation passed for \"{0}\"", name);
+                    return new ValidationResult(true, "Valid name", null);
+                }
+            } else {
+                LOGGER.log(Level.WARNING, "Text model check failed: {0}", 
+                        result != null ? result.optString("error", "Unknown error") : "Null result");
+                // Fall back to violence model
             }
             
-            // If appropriate score is higher than all negative scores, mark as valid
-            double appropriateScore = result.has("appropriate") ? result.getDouble("appropriate") : 0.0;
-            if (appropriateScore > 0 && appropriateScore > highestNegativeScore) {
-                LOGGER.log(Level.INFO, "Name \"{0}\" classified as appropriate with score {1}", 
-                        new Object[]{name, appropriateScore});
-                return new ValidationResult(true, "Valid name");
-            }
+            // Only proceed to violence model if text model didn't give a clear result
+            JSONObject violenceResult = huggingFaceClient.classifyText(violenceModel, name);
             
-            // If we got here and have valid results, consider it safe
-            if (highestNegativeScore < inappropriateThreshold) {
-                LOGGER.log(Level.INFO, "Text model validation passed for \"{0}\"", name);
-                return new ValidationResult(true, "Valid name");
-            }
-        } else {
-            LOGGER.log(Level.WARNING, "Text model check failed: {0}", 
-                    result != null ? result.optString("error", "Unknown error") : "Null result");
-            // Fall back to violence model
-        }
-        
-        // Only proceed to violence model if text model didn't give a clear result
-        JSONObject violenceResult = huggingFaceClient.classifyText(violenceModel, name);
-        
-        if (violenceResult != null && !violenceResult.has("error")) {
-            // Extract violence score 
-            double abusiveScore = 0.0;
-            
-            // For specialized profanity detection model, use the abusive score
-            if (violenceResult.has("abusive")) {
-                abusiveScore = violenceResult.getDouble("abusive");
-            } else if (violenceResult.has("LABEL_1")) {
-                // Some models use LABEL_1 for the abusive category
-                abusiveScore = violenceResult.getDouble("LABEL_1");
-            }
-            
-            LOGGER.log(Level.INFO, "Violence model score for {0}: {1} (threshold: {2})", 
-                    new Object[]{name, abusiveScore, inappropriateThreshold});
-            
-            // Check against threshold
-            if (abusiveScore >= inappropriateThreshold) {
-                LOGGER.log(Level.WARNING, "Violence model detected abusive content in \"{0}\" with score {1} (threshold: {2})", 
+            if (violenceResult != null && !violenceResult.has("error")) {
+                // Extract violence score 
+                double abusiveScore = 0.0;
+                
+                // For specialized profanity detection model, use the abusive score
+                if (violenceResult.has("abusive")) {
+                    abusiveScore = violenceResult.getDouble("abusive");
+                } else if (violenceResult.has("LABEL_1")) {
+                    // Some models use LABEL_1 for the abusive category
+                    abusiveScore = violenceResult.getDouble("LABEL_1");
+                }
+                
+                LOGGER.log(Level.INFO, "Violence model score for {0}: {1} (threshold: {2})", 
                         new Object[]{name, abusiveScore, inappropriateThreshold});
-                return new ValidationResult(false, "This name contains abusive language");
+                
+                // Check against threshold
+                if (abusiveScore >= inappropriateThreshold) {
+                    LOGGER.log(Level.WARNING, "Violence model detected abusive content in \"{0}\" with score {1} (threshold: {2})", 
+                            new Object[]{name, abusiveScore, inappropriateThreshold});
+                    return new ValidationResult(false, "This name contains abusive language", null);
+                }
+                
+                // If passed the checks, content is appropriate
+                LOGGER.log(Level.INFO, "Name \"{0}\" passed all validation checks", name);
+                return new ValidationResult(true, "Valid name", null);
+            } else {
+                LOGGER.log(Level.WARNING, "Violence model check failed: {0}",
+                        violenceResult != null ? violenceResult.optString("error", "Unknown error") : "Null result");
+                // Fall back to profanity filter
+                return fallbackToProfanityFilter(name);
             }
-            
-            // If passed the checks, content is appropriate
-            LOGGER.log(Level.INFO, "Name \"{0}\" passed all validation checks", name);
-            return new ValidationResult(true, "Valid name");
-        } else {
-            LOGGER.log(Level.WARNING, "Violence model check failed: {0}",
-                    violenceResult != null ? violenceResult.optString("error", "Unknown error") : "Null result");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during name validation", e);
             // Fall back to profanity filter
             return fallbackToProfanityFilter(name);
         }
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error during name validation", e);
-        // Fall back to profanity filter
-        return fallbackToProfanityFilter(name);
     }
-}
 
     /**
      * Check if a name is in the list of common safe names
@@ -195,14 +196,14 @@ public class AiValidationService {
 
     private ValidationResult fallbackToProfanityFilter(String text) {
         if (!fallbackEnabled) {
-            return new ValidationResult(true, "Valid text"); // Default to accepting if fallback disabled
+            return new ValidationResult(true, "Valid text", null); // Default to accepting if fallback disabled
         }
 
         LOGGER.log(Level.INFO, "AI validation failed, falling back to profanity filter");
         if (profanityFilter.containsProfanity(text)) {
-            return new ValidationResult(false, "This text contains inappropriate words");
+            return new ValidationResult(false, "This text contains inappropriate words", null);
         }
-        return new ValidationResult(true, "Valid text");
+        return new ValidationResult(true, "Valid text", null);
     }
 
     /**
@@ -228,42 +229,109 @@ public class AiValidationService {
      */
     public ValidationResult validateProfileImage(File imageFile) {
         try {
-            JSONObject result = huggingFaceClient.classifyImage(imageModel, imageFile);
-
-            if (result != null) {
-                // Check if there was an error
-                if (result.has("error")) {
-                    LOGGER.log(Level.WARNING, "AI image validation error: {0}", result.getString("error"));
-                    return new ValidationResult(false, "Unable to validate image content, please try another image");
-                }
-
-                double nsfwScore = 0.0;
-
-                // Try different fields that might contain NSFW/adult content score
-                if (result.has("nsfw")) {
-                    nsfwScore = result.getDouble("nsfw");
-                } else if (result.has("adult")) {
-                    nsfwScore = result.getDouble("adult");
-                } else if (result.has("porn")) {
-                    nsfwScore = result.getDouble("porn");
-                } else if (result.has("unsafe")) {
-                    nsfwScore = result.getDouble("unsafe");
-                }
-
-                if (nsfwScore > inappropriateThreshold) {
-                    LOGGER.log(Level.INFO, "Image model {0} detected inappropriate content with score {1}",
-                            new Object[]{imageModel, nsfwScore});
-                    return new ValidationResult(false, "This image may contain inappropriate content");
-                }
-                return new ValidationResult(true, "Valid image");
-            } else {
-                // No fallback for images, use a conservative approach
-                LOGGER.log(Level.WARNING, "Image validation failed, using conservative approach");
-                return new ValidationResult(false, "Unable to validate image content, please try another image");
+            LOGGER.log(Level.INFO, "Starting image validation for file: {0}", imageFile.getName());
+            
+            // Step 1: Generate image caption using the image captioning model
+            JSONObject captionResult = huggingFaceClient.classifyImage(imageModel, imageFile);
+            
+            if (captionResult == null || captionResult.has("error")) {
+                String errorMsg = captionResult != null ? captionResult.getString("error") : "No response";
+                LOGGER.log(Level.WARNING, "Image captioning failed: {0}", errorMsg);
+                return new ValidationResult(false, "Unable to verify image content. Please try another image.", null);
             }
+            
+            // Extract caption from the model response
+            String imageCaption = "";
+            if (captionResult.has("generated_text")) {
+                imageCaption = captionResult.getString("generated_text");
+            } else if (captionResult.has("caption")) {
+                imageCaption = captionResult.getString("caption");
+            } else if (captionResult.has("results") && captionResult.getJSONArray("results").length() > 0) {
+                // Try to extract from results array
+                JSONArray results = captionResult.getJSONArray("results");
+                for (int i = 0; i < results.length(); i++) {
+                    Object item = results.get(i);
+                    if (item instanceof JSONObject) {
+                        JSONObject resultObj = (JSONObject) item;
+                        if (resultObj.has("generated_text")) {
+                            imageCaption = resultObj.getString("generated_text");
+                            break;
+                        }
+                    } else if (item instanceof String) {
+                        imageCaption = (String) item;
+                        break;
+                    }
+                }
+            }
+            
+            // Check if caption was successfully extracted
+            if (imageCaption == null || imageCaption.trim().isEmpty()) {
+                LOGGER.log(Level.WARNING, "Could not extract caption from image");
+                return new ValidationResult(false, "Unable to analyze image content. Please try another image.", null);
+            }
+            
+            LOGGER.log(Level.INFO, "Image caption generated: {0}", imageCaption);
+            
+            // Step 2: Analyze caption for inappropriate content
+            // Check for explicit NSFW terms
+            String lowercaseCaption = imageCaption.toLowerCase();
+            String[] nsfwTerms = {"nude", "naked", "sex", "porn", "explicit", "nsfw", "xxx", 
+                                 "adult content", "obscene", "sexual", "private parts"};
+            
+            for (String term : nsfwTerms) {
+                if (lowercaseCaption.contains(term)) {
+                    LOGGER.log(Level.WARNING, "NSFW term '{0}' detected in image caption", term);
+                    return new ValidationResult(false, "This image appears to contain inappropriate content.", imageCaption);
+                }
+            }
+            
+            // Check for violence/gore terms
+            String[] violenceTerms = {"blood", "gore", "violent", "dead body", "corpse", "murder", 
+                                     "killed", "injury", "wounded", "graphic", "disturbing", 
+                                     "cut", "wound", "severed", "dismembered", "mutilated"};
+            
+            for (String term : violenceTerms) {
+                if (lowercaseCaption.contains(term)) {
+                    LOGGER.log(Level.WARNING, "Violence/gore term '{0}' detected in image caption", term);
+                    return new ValidationResult(false, "This image appears to contain violent or graphic content.", imageCaption);
+                }
+            }
+            
+            // Step 3: Double-check with text model for safety
+            JSONObject textResult = huggingFaceClient.classifyText(textModel, 
+                    "Is this image safe and appropriate as a profile picture: " + imageCaption);
+            
+            if (textResult != null && !textResult.has("error")) {
+                // Look for inappropriate signals
+                double unsafeScore = 0.0;
+                
+                if (textResult.has("inappropriate")) {
+                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("inappropriate"));
+                }
+                if (textResult.has("unsafe")) {
+                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("unsafe"));
+                }
+                if (textResult.has("violence")) {
+                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("violence"));
+                }
+                if (textResult.has("adult")) {
+                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("adult"));
+                }
+                
+                LOGGER.log(Level.INFO, "Text analysis of caption - unsafe score: {0}", unsafeScore);
+                
+                if (unsafeScore > inappropriateThreshold) {
+                    return new ValidationResult(false, "This image may not be appropriate for a profile picture.", imageCaption);
+                }
+            }
+            
+            // Image passed all checks
+            LOGGER.log(Level.INFO, "Image passed all validation checks");
+            return new ValidationResult(true, "Valid image", imageCaption);
+            
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during image validation", e);
-            return new ValidationResult(false, "Error validating image, please try another one");
+            return new ValidationResult(false, "Error validating image. Please try another one.", null);
         }
     }
 
@@ -287,10 +355,12 @@ public class AiValidationService {
 
         private final boolean valid;
         private final String message;
+        private final String imageCaption;
 
-        public ValidationResult(boolean valid, String message) {
+        public ValidationResult(boolean valid, String message, String imageCaption) {
             this.valid = valid;
             this.message = message;
+            this.imageCaption = imageCaption;
         }
 
         public boolean isValid() {
@@ -299,6 +369,10 @@ public class AiValidationService {
 
         public String getMessage() {
             return message;
+        }
+        
+        public String getImageCaption() {
+            return imageCaption;
         }
     }
 }
