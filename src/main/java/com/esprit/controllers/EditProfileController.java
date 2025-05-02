@@ -3,11 +3,13 @@ package com.esprit.controllers;
 
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
+import com.esprit.utils.AiContentValidator;
 import com.esprit.utils.ProfanityFilter;
 import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.ValidationHelper;
 import com.esprit.utils.ValidationUtils;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -56,6 +58,13 @@ public class EditProfileController {
     @FXML
     private Button cancelButton;
     
+    // Add validation status labels
+    @FXML
+    private Label firstNameValidationStatus;
+    
+    @FXML
+    private Label lastNameValidationStatus;
+    
     private User currentUser;
     private ProfileController parentController;
     private final AuthService authService = new AuthService();
@@ -73,6 +82,93 @@ public class EditProfileController {
             
         // Hide status message initially
         statusMessage.setVisible(false);
+        
+        // Initialize AI validation status labels
+        if (firstNameValidationStatus != null) {
+            firstNameValidationStatus.setVisible(false);
+        }
+        
+        if (lastNameValidationStatus != null) {
+            lastNameValidationStatus.setVisible(false);
+        }
+        
+        // Setup AI validations
+        setupAiValidations();
+    }
+    
+    private void setupAiValidations() {
+        // Add AI validation to name fields
+        firstNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty() && !newValue.equals(oldValue) && firstNameValidationStatus != null) {
+                firstNameValidationStatus.setText("Validating...");
+                firstNameValidationStatus.setVisible(true);
+                
+                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
+                    Platform.runLater(() -> {
+                        if (isValid) {
+                            firstNameErrorLabel.setVisible(false);
+                            firstNameValidationStatus.setText("✓");
+                            firstNameValidationStatus.setStyle("-fx-text-fill: green;");
+                            updateSaveButtonState();
+                        } else {
+                            firstNameErrorLabel.setText(message);
+                            firstNameErrorLabel.setVisible(true);
+                            firstNameValidationStatus.setText("✗");
+                            firstNameValidationStatus.setStyle("-fx-text-fill: red;");
+                            saveButton.setDisable(true);
+                            // Log the detected inappropriate content
+                            System.out.println("Edit profile - first name validation failed: " + message + " for text: " + newValue);
+                        }
+                        firstNameValidationStatus.setVisible(true);
+                    });
+                });
+            } else if (firstNameValidationStatus != null) {
+                firstNameValidationStatus.setVisible(false);
+                firstNameErrorLabel.setVisible(false);
+            }
+        });
+        
+        lastNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty() && !newValue.equals(oldValue) && lastNameValidationStatus != null) {
+                lastNameValidationStatus.setText("Validating...");
+                lastNameValidationStatus.setVisible(true);
+                
+                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
+                    Platform.runLater(() -> {
+                        if (isValid) {
+                            lastNameErrorLabel.setVisible(false);
+                            lastNameValidationStatus.setText("✓");
+                            lastNameValidationStatus.setStyle("-fx-text-fill: green;");
+                            updateSaveButtonState();
+                        } else {
+                            lastNameErrorLabel.setText(message);
+                            lastNameErrorLabel.setVisible(true);
+                            lastNameValidationStatus.setText("✗");
+                            lastNameValidationStatus.setStyle("-fx-text-fill: red;");
+                            saveButton.setDisable(true);
+                            // Log the detected inappropriate content
+                            System.out.println("Edit profile - last name validation failed: " + message + " for text: " + newValue);
+                        }
+                        lastNameValidationStatus.setVisible(true);
+                    });
+                });
+            } else if (lastNameValidationStatus != null) {
+                lastNameValidationStatus.setVisible(false);
+                lastNameErrorLabel.setVisible(false);
+            }
+        });
+    }
+    
+    // Method to update save button state based on validation results
+    private void updateSaveButtonState() {
+        // Enable save button if all visible error labels are hidden
+        boolean hasErrors = firstNameErrorLabel.isVisible() || 
+                          lastNameErrorLabel.isVisible() || 
+                          emailErrorLabel.isVisible() || 
+                          phoneErrorLabel.isVisible() || 
+                          passwordErrorLabel.isVisible();
+        
+        saveButton.setDisable(hasErrors);
     }
     
     public void setCurrentUser(User user) {
@@ -129,6 +225,22 @@ public class EditProfileController {
             );
         }
         
+        // Add AI validation for first name
+        if (isFirstNameValid && !AiContentValidator.isAppropriateContent(firstName)) {
+            validator.showError(firstNameField, "First name contains inappropriate content");
+            isFirstNameValid = false;
+            
+            // Log the AI validation incident
+            String severity = "High";
+            ProfanityLogManager.logProfanityIncident(
+                currentUser, 
+                "First Name (AI detection)", 
+                firstName,
+                severity, 
+                "Profile update rejected by AI validation"
+            );
+        }
+        
         // Validate last name
         boolean isLastNameValid = validator.validateRequired(lastNameField, "Last name is required");
         if (isLastNameValid && lastName.length() < 2) {
@@ -149,6 +261,22 @@ public class EditProfileController {
                 lastName,
                 severity, 
                 "Profile update rejected"
+            );
+        }
+        
+        // Add AI validation for last name
+        if (isLastNameValid && !AiContentValidator.isAppropriateContent(lastName)) {
+            validator.showError(lastNameField, "Last name contains inappropriate content");
+            isLastNameValid = false;
+            
+            // Log the AI validation incident
+            String severity = "High";
+            ProfanityLogManager.logProfanityIncident(
+                currentUser, 
+                "Last Name (AI detection)", 
+                lastName,
+                severity, 
+                "Profile update rejected by AI validation"
             );
         }
         
@@ -236,30 +364,29 @@ public class EditProfileController {
         close();
     }
     
-  private void close() {
-    try {
-        // Get the current stage and close it
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
-    } catch (Exception e) {
-        e.printStackTrace();
-        // If there's an error closing normally, try alternative approach
+    private void close() {
         try {
-            javafx.application.Platform.runLater(() -> {
-                if (cancelButton != null && cancelButton.getScene() != null && 
-                    cancelButton.getScene().getWindow() != null) {
-                    cancelButton.getScene().getWindow().hide();
-                } else if (saveButton != null && saveButton.getScene() != null && 
-                           saveButton.getScene().getWindow() != null) {
-                    saveButton.getScene().getWindow().hide();
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            // Get the current stage and close it
+            Stage stage = (Stage) cancelButton.getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // If there's an error closing normally, try alternative approach
+            try {
+                javafx.application.Platform.runLater(() -> {
+                    if (cancelButton != null && cancelButton.getScene() != null && 
+                        cancelButton.getScene().getWindow() != null) {
+                        cancelButton.getScene().getWindow().hide();
+                    } else if (saveButton != null && saveButton.getScene() != null && 
+                              saveButton.getScene().getWindow() != null) {
+                        saveButton.getScene().getWindow().hide();
+                    }
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
-
-}
     
     private void showError(String message) {
         statusMessage.setText(message);
@@ -275,4 +402,3 @@ public class EditProfileController {
         statusMessage.setVisible(true);
     }
 }
-

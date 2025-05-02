@@ -14,23 +14,23 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" 
-            xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="com.esprit.controllers.RegisterController"
-            stylesheets="@../styles/uniclubs.css">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+   xmlns:fx="http://javafx.com/fxml/1"
+   fx:controller="com.esprit.controllers.RegisterController"
+   stylesheets="@../styles/uniclubs.css">
    <center>
       <VBox alignment="TOP_CENTER" maxWidth="600.0" spacing="0">
          <padding>
             <Insets left="40.0" right="40.0" top="5.0" bottom="10.0" />
          </padding>
-         
+
          <!-- Title Section - ultra compact -->
          <Label styleClass="title" text="Create Your Account" textFill="#0096c9">
             <font>
                <Font name="System Bold" size="22.0" />
             </font>
          </Label>
-         
+
          <Label styleClass="subtitle" text="Join UNICLUBS to manage your club activities">
             <font>
                <Font size="13.0" />
@@ -39,11 +39,11 @@
                <Insets bottom="0.0" />
             </VBox.margin>
          </Label>
-         
+
          <!-- Error message area - hidden by default -->
          <Label fx:id="errorLabel" styleClass="alert-error"
-                text="Please correct the errors below" visible="false" wrapText="true" />
-         
+            text="Please correct the errors below" visible="false" wrapText="true" />
+
          <!-- Registration Form - ultra compact spacing -->
          <VBox alignment="CENTER" spacing="3" styleClass="form-container">
             <!-- Name Fields in one row -->
@@ -51,59 +51,61 @@
                <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
                   <Label text="First Name" />
                   <TextField fx:id="firstNameField" promptText="Enter your first name" />
-                  <Label fx:id="firstNameErrorLabel" styleClass="error-message" 
-                         visible="false" />
+                  <Label fx:id="firstNameErrorLabel" styleClass="error-message"
+                     visible="false" />
+                  <Label fx:id="firstNameValidationStatus" text="" visible="false" />
                </VBox>
-               
+
                <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
                   <Label text="Last Name" />
                   <TextField fx:id="lastNameField" promptText="Enter your last name" />
-                  <Label fx:id="lastNameErrorLabel" styleClass="error-message" 
-                         visible="false" />
+                  <Label fx:id="lastNameErrorLabel" styleClass="error-message"
+                     visible="false" />
+                  <Label fx:id="lastNameValidationStatus" text="" visible="false" />
                </VBox>
             </HBox>
-            
+
             <!-- Email field -->
             <VBox styleClass="field-container" spacing="1">
                <Label text="Email Address" />
                <TextField fx:id="emailField" promptText="Enter your email address" />
-               <Label fx:id="emailErrorLabel" styleClass="error-message" 
-                      visible="false" />
+               <Label fx:id="emailErrorLabel" styleClass="error-message"
+                  visible="false" />
             </VBox>
-            
+
             <!-- Phone field - compact -->
             <VBox styleClass="field-container" spacing="1">
                <HBox alignment="CENTER_LEFT" spacing="5.0">
                   <Label text="Phone Number" />
                </HBox>
                <TextField fx:id="phoneField" promptText="Tunisian format (e.g. +21655123456)" />
-               <Label fx:id="phoneErrorLabel" styleClass="error-message" 
-                      visible="false" />
-               <Label styleClass="text-small, text-muted" 
-                      text="Phone numbers must be in Tunisian format">
+               <Label fx:id="phoneErrorLabel" styleClass="error-message"
+                  visible="false" />
+               <Label styleClass="text-small, text-muted"
+                  text="Phone numbers must be in Tunisian format">
                   <font>
                      <Font size="10.0" />
                   </font>
                </Label>
             </VBox>
-            
+
             <!-- Password Fields in one row -->
             <HBox spacing="10.0">
                <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
                   <Label text="Password" />
                   <PasswordField fx:id="passwordField" promptText="Create a secure password" />
-                  <Label fx:id="passwordErrorLabel" styleClass="error-message" 
-                         visible="false" wrapText="true" />
+                  <Label fx:id="passwordErrorLabel" styleClass="error-message"
+                     visible="false" wrapText="true" />
                </VBox>
-               
+
                <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
                   <Label text="Confirm Password" />
                   <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" />
-                  <Label fx:id="confirmPasswordErrorLabel" styleClass="error-message" 
-                         visible="false" />
+                  <Label fx:id="confirmPasswordErrorLabel" styleClass="error-message"
+                     visible="false" />
                </VBox>
             </HBox>
-            
+
             <!-- Terms Checkbox -->
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <padding>
@@ -111,21 +113,20 @@
                </padding>
                <CheckBox fx:id="termsCheckBox" text="I agree to the Terms and Conditions" />
             </HBox>
-            
+
             <!-- Buttons -->
             <HBox spacing="10.0" alignment="CENTER">
                <padding>
                   <Insets top="5.0" bottom="5.0" />
                </padding>
-               <Button onAction="#navigateToLogin" 
-                       styleClass="button-secondary" text="Back to Login" 
-                       prefWidth="150.0" />
-               <Button defaultButton="true" onAction="#handleRegister" 
-                       styleClass="button-primary" text="Create Account" 
-                       prefWidth="150.0" />
+               <Button onAction="#navigateToLogin"
+                  styleClass="button-secondary" text="Back to Login"
+                  prefWidth="150.0" />
+               <Button defaultButton="true" onAction="#handleRegister"
+                  styleClass="button-primary" text="Create Account"
+                  prefWidth="150.0" />
             </HBox>
          </VBox>
       </VBox>
    </center>
 </BorderPane>
-
