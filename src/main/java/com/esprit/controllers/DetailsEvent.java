@@ -59,6 +59,10 @@ public class DetailsEvent implements Initializable {
 
     @FXML
     private Button presidentButton3; // View Participants button
+    @FXML
+    private Button qrCodeButton;      // Generate QR code for participants
+    @FXML
+    private Button scanQrCodeButton;  // Scan QR code for organizers
 
     private Evenement currentEvent;
     private ServiceEvent serviceEvent = new ServiceEvent();
@@ -78,7 +82,17 @@ public class DetailsEvent implements Initializable {
         presidentButton1.setOnAction(event -> handleDelete());
         registerButton.setOnAction(event -> handleRegister());
         presidentButton3.setOnAction(event -> handleViewParticipants());
+
+        if (qrCodeButton != null) {
+            qrCodeButton.setOnAction(event -> handleQRCode());
+        }
+
+        if (scanQrCodeButton != null) {
+            scanQrCodeButton.setOnAction(event -> handleScanQRCode());
+        }
+
     }
+
 
     /**
      * Charge les données de l'événement dans la vue
@@ -112,7 +126,81 @@ public class DetailsEvent implements Initializable {
         // Vérifier si l'utilisateur participe déjà à cet événement
         updateRegisterButtonStatus();
     }
+    @FXML
+    private void handleQRCode() {
+        if (currentEvent == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
+                    "Impossible de générer un QR code car aucun événement n'est sélectionné.");
+            return;
+        }
 
+        try {
+            // Check if the user is registered first
+            boolean isRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
+
+            if (!isRegistered) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Inscription requise");
+                alert.setHeaderText("Inscription nécessaire");
+                alert.setContentText("Vous devez vous inscrire à l'événement avant de pouvoir générer un QR code de confirmation.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Load QR code generation view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/QRConfirmation.fxml"));
+            Parent root = loader.load();
+
+            // Get controller and set data
+            QRConfirmation controller = loader.getController();
+            controller.setData(currentEvent, currentUserId);
+
+            // Create new stage for QR code window
+            Stage stage = new Stage();
+            stage.setTitle("QR Code de participation - " + currentEvent.getNom_event());
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
+                    "Impossible de charger l'écran de génération de QR code: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleScanQRCode() {
+        if (currentEvent == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
+                    "Impossible de scanner un QR code car aucun événement n'est sélectionné.");
+            return;
+        }
+
+        try {
+            // Check if current user is organizer/has permission
+            // For demo purposes we'll skip this check
+            // In a real app, you'd verify the user has permission to scan QR codes
+
+            // Load QR scanner view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/QRScanner.fxml"));
+            Parent root = loader.load();
+
+            // Get controller and set data
+            QRScanner controller = loader.getController();
+            controller.setEvent(currentEvent);
+
+            // Create new stage for scanner window
+            Stage stage = new Stage();
+            stage.setTitle("Scanner QR Code - " + currentEvent.getNom_event());
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
+                    "Impossible de charger l'écran de scan de QR code: " + e.getMessage());
+        }
+    }
     /**
      * Met à jour l'état du bouton d'inscription en fonction de la participation de l'utilisateur
      */
@@ -279,9 +367,31 @@ public class DetailsEvent implements Initializable {
      */
     @FXML
     private void handleBack() {
-        // Fermer la fenêtre actuelle
-        Stage stage = (Stage) backButton.getScene().getWindow();
-        stage.close();
+        try {
+            // Charger la vue précédente (page événements)
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+            Parent root = loader.load();
+
+            // Obtenir le contrôleur de la page précédente si nécessaire
+            // AfficherEventController controller = loader.getController();
+            // controller.initialiserDonnees(...); // Si vous devez passer des données
+
+            // Obtenir la fenêtre actuelle à partir du bouton
+            Stage stage = (Stage) backButton.getScene().getWindow();
+
+            // Définir la nouvelle scène
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Gérer l'erreur, par exemple afficher une alerte
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de Navigation");
+            alert.setHeaderText("Impossible de retourner à la page précédente");
+            alert.setContentText("Une erreur s'est produite: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     /**
