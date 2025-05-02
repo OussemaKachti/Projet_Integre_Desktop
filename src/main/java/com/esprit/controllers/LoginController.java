@@ -95,6 +95,10 @@ private void handleLogin(ActionEvent event) {
                 errorLabel.setText("Invalid email or password");
                 errorLabel.setVisible(true);
                 return;
+            } else if (errorCode == AuthService.AUTH_ACCOUNT_INACTIVE) {
+                // Account inactive due to policy violations
+                showAccountInactiveError(email);
+                return;
             } else {
                 // Regular authentication failure
                 errorLabel.setText(authService.getLastAuthErrorMessage());
@@ -343,6 +347,34 @@ private void navigateToForgotPassword(ActionEvent event) throws IOException {
         Stage stage = (Stage) emailField.getScene().getWindow();
         MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
         stage.show();
+    }
+
+    /**
+     * Shows an error dialog when an account is inactive due to policy violations
+     */
+    private void showAccountInactiveError(String email) {
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("Account Inactive");
+        alert.setHeaderText("Account Temporarily Suspended");
+        alert.setContentText("Your account has been deactivated due to repeated content policy violations. " +
+                             "Please contact support for assistance if you believe this was done in error.");
+        
+        // Add a button to contact support (this would be implemented fully in a real app)
+        ButtonType contactButton = new ButtonType("Contact Support");
+        ButtonType closeButton = ButtonType.CLOSE;
+        
+        alert.getButtonTypes().setAll(contactButton, closeButton);
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == contactButton) {
+            // In a real app, this would open a contact form or provide contact information
+            Alert contactAlert = new Alert(AlertType.INFORMATION);
+            contactAlert.setTitle("Contact Support");
+            contactAlert.setHeaderText("Support Information");
+            contactAlert.setContentText("Please email support@uniclubs.com with your account details " +
+                                       "and we will review your case within 24-48 hours.");
+            contactAlert.showAndWait();
+        }
     }
 }
 

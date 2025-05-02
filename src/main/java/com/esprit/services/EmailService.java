@@ -4,10 +4,10 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import com.esprit.utils.EmailConfig;
-import jakarta.mail.Authenticator;
+
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -207,5 +207,97 @@ public class EmailService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Sends a content warning notification email to a user asynchronously
+     * 
+     * @param email User's email
+     * @param name User's name
+     * @param warningCount Number of warnings the user has received
+     * @param contentType Type of inappropriate content (e.g., "profile image", "profile data")
+     * @param imageCaption Optional image caption to include if the warning is for an image
+     * @return CompletableFuture that completes with true if sent successfully
+     */
+    public CompletableFuture<Boolean> sendContentWarningEmailAsync(String email, String name, int warningCount, String contentType, String imageCaption) {
+        String subject = "UNICLUBS Content Policy Warning";
+
+        // Set warning level
+        String warningLevel = "first";
+        if (warningCount == 2) {
+            warningLevel = "second";
+        } else if (warningCount >= 3) {
+            warningLevel = "final";
+        }
+
+        // Set color based on severity
+        String headerColor = "#FFA726"; // Orange for first warning
+        String borderColor = "#FFB74D";
+        
+        if (warningCount == 2) {
+            headerColor = "#F57C00"; // Darker orange for second warning
+            borderColor = "#EF6C00";
+        } else if (warningCount >= 3) {
+            headerColor = "#D32F2F"; // Red for final warning
+            borderColor = "#B71C1C";
+        }
+
+        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid " + borderColor + "; border-radius: 8px; overflow: hidden;'>" +
+                "<div style='background-color: " + headerColor + "; padding: 15px; color: white;'>" +
+                "<h2 style='margin: 0;'>Content Policy Warning</h2>" +
+                "</div>" +
+                "<div style='padding: 20px;'>" +
+                "<p>Hello " + name + ",</p>" +
+                "<p>Our automated system has detected potentially inappropriate content in your recent " + contentType + " submission.</p>" +
+                "<p>This is your <strong>" + warningLevel + " warning</strong>. Please be mindful of our community guidelines and ensure all content you upload complies with our terms of use.</p>";
+
+        // Add image caption if provided
+        if (imageCaption != null && !imageCaption.isEmpty()) {
+            content += "<div style='background-color: #f4f4f4; padding: 15px; border-left: 4px solid " + headerColor + "; margin: 15px 0;'>" +
+                    "<p><strong>AI detected content:</strong> \"" + imageCaption + "\"</p>" +
+                    "</div>";
+        }
+
+        // Add stronger warning for repeat offenders
+        if (warningCount == 2) {
+            content += "<p style='color: #F57C00; font-weight: bold;'>Please note that a third violation may result in your account being restricted.</p>";
+        } else if (warningCount >= 3) {
+            content += "<p style='color: #D32F2F; font-weight: bold;'>Important: Your account has been temporarily deactivated due to repeated content policy violations.</p>" +
+                      "<p>To restore access to your account, please contact our support team.</p>";
+        }
+
+        content += "<p>If you believe this is a mistake, you can contact our support team.</p>" +
+                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
+                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+                "</div></div>";
+
+        return sendEmailAsync(email, subject, content);
+    }
+
+    /**
+     * Synchronous version for backward compatibility
+     */
+    public boolean sendContentWarningEmail(String email, String name, int warningCount, String contentType, String imageCaption) {
+        try {
+            return sendContentWarningEmailAsync(email, name, warningCount, contentType, imageCaption).join();
+        } catch (Exception e) {
+            System.out.println("Sync content warning email send failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Overloaded version without image caption for backward compatibility
+     */
+    public CompletableFuture<Boolean> sendContentWarningEmailAsync(String email, String name, int warningCount, String contentType) {
+        return sendContentWarningEmailAsync(email, name, warningCount, contentType, null);
+    }
+
+    /**
+     * Synchronous overloaded version without image caption for backward compatibility
+     */
+    public boolean sendContentWarningEmail(String email, String name, int warningCount, String contentType) {
+        return sendContentWarningEmail(email, name, warningCount, contentType, null);
     }
 }

@@ -87,13 +87,63 @@ public class HomeController implements Initializable {
     
     private void loadDefaultProfilePic() {
         try {
+            // First try to load using class resource stream
             Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
-            userProfilePic.setImage(defaultImage);
-            userProfilePic.setPreserveRatio(true);
-            userProfilePic.setFitHeight(40);
-            userProfilePic.setFitWidth(40);
+            if (defaultImage == null || defaultImage.isError()) {
+                // Try alternative paths
+                try {
+                    defaultImage = new Image(getClass().getResourceAsStream("/images/default_profile.png"));
+                } catch (Exception e) {
+                    // If that fails, try another common path
+                    try {
+                        defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default_profile.png"));
+                    } catch (Exception ex) {
+                        // If all resource paths fail, create a colored circle as fallback
+                        createDefaultImageFallback();
+                        return;
+                    }
+                }
+            }
+            
+            if (defaultImage != null && !defaultImage.isError()) {
+                userProfilePic.setImage(defaultImage);
+                userProfilePic.setPreserveRatio(true);
+                userProfilePic.setFitHeight(40);
+                userProfilePic.setFitWidth(40);
+            } else {
+                // If loading fails, create a colored circle as fallback
+                createDefaultImageFallback();
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            // Create a colored circle as fallback
+            createDefaultImageFallback();
+        }
+    }
+    
+    private void createDefaultImageFallback() {
+        // Create a colored circle as default profile image
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(20);
+        circle.setFill(javafx.scene.paint.Color.web("#00A0E3")); // UNICLUBS blue
+
+        // Convert the circle to an image
+        javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+        params.setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+        javafx.scene.image.WritableImage writableImage = new javafx.scene.image.WritableImage(40, 40);
+        circle.snapshot(params, writableImage);
+
+        userProfilePic.setImage(writableImage);
+
+        // Add text initials if available
+        if (currentUser != null && currentUser.getFirstName() != null && !currentUser.getFirstName().isEmpty()) {
+            String initials = String.valueOf(currentUser.getFirstName().charAt(0));
+            if (currentUser.getLastName() != null && !currentUser.getLastName().isEmpty()) {
+                initials += String.valueOf(currentUser.getLastName().charAt(0));
+            }
+            
+            // Store initials as user data for potential future use
+            userProfilePic.setUserData(initials.toUpperCase());
         }
     }
     

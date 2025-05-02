@@ -3,6 +3,8 @@ package com.esprit.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.esprit.models.User;
 import com.esprit.models.enums.RoleEnum;
@@ -19,6 +21,7 @@ public class AuthService {
     public static final int AUTH_SUCCESS = 0;
     public static final int AUTH_INVALID_CREDENTIALS = 1;
     public static final int AUTH_NOT_VERIFIED = 2;
+    public static final int AUTH_ACCOUNT_INACTIVE = 3;
     
     // Verification settings
     private static final int MAX_VERIFICATION_ATTEMPTS = 5;
@@ -26,6 +29,8 @@ public class AuthService {
     private static final int VERIFICATION_EXPIRY_HOURS = 2;
     
     private int lastAuthErrorCode = AUTH_SUCCESS;
+    
+    private static final Logger LOGGER = Logger.getLogger(AuthService.class.getName());
     
     public AuthService() {
         this.userService = new UserService();
@@ -52,6 +57,12 @@ public class AuthService {
         // Check if the user is verified
         if (!user.isVerified()) {
             lastAuthErrorCode = AUTH_NOT_VERIFIED;
+            return null;
+        }
+        
+        // Check if the account is inactive (e.g., due to warnings)
+        if ("inactive".equals(user.getStatus())) {
+            lastAuthErrorCode = AUTH_ACCOUNT_INACTIVE;
             return null;
         }
         
@@ -103,6 +114,8 @@ public class AuthService {
                 return "Invalid email or password";
             case AUTH_NOT_VERIFIED:
                 return "Account not verified. Please check your email for verification instructions.";
+            case AUTH_ACCOUNT_INACTIVE:
+                return "Your account has been deactivated due to policy violations. Please contact support for assistance.";
             default:
                 return "Unknown authentication error";
         }
@@ -444,6 +457,107 @@ public class AuthService {
         try {
             // Hash the new password
             user.setPassword(PasswordUtils.hashPassword(newPassword));
+            userService.modifier(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Increments the warning count for a user and sends a warning email
+     * @param user The user to warn
+     * @param contentType The type of content that triggered the warning
+     * @param imageCaption Optional image caption to include in the warning email
+     * @return True if warning was successfully recorded and email sent
+     */
+    public boolean addContentWarning(User user, String contentType, String imageCaption) {
+        try {
+            if (user == null) {
+                return false;
+            }
+            
+            // Increment warning count
+            int currentWarningCount = user.getWarningCount();
+            user.setWarningCount(currentWarningCount + 1);
+            
+            // If user reaches 3 warnings, deactivate the account
+            if (user.getWarningCount() >= 3) {
+                user.setStatus("inactive");
+                LOGGER.log(Level.WARNING, "User {0} (ID: {1}) account deactivated after 3 warnings",
+                        new Object[]{user.getEmail(), user.getId()});
+            }
+            
+            // Save updated user
+            userService.modifier(user);
+            
+            // Send warning email
+            EmailService emailService = new EmailService();
+            String fullName = user.getFirstName() + " " + user.getLastName();
+            emailService.sendContentWarningEmailAsync(user.getEmail(), fullName, user.getWarningCount(), contentType, imageCaption);
+            
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Overloaded method without image caption for backward compatibility
+     */
+    public boolean addContentWarning(User user, String contentType) {
+        return addContentWarning(user, contentType, null);
+    }
+
+    /**
+     * Increments the warning count for a user identified by their email and sends a warning email
+     * @param email The user's email
+     * @param contentType The type of content that triggered the warning
+     * @param imageCaption Optional image caption to include in the warning email
+     * @return True if warning was successfully recorded and email sent
+     */
+    public boolean addContentWarningByEmail(String email, String contentType, String imageCaption) {
+        User user = userService.findByEmail(email);
+        return addContentWarning(user, contentType, imageCaption);
+    }
+
+    /**
+     * Overloaded method without image caption for backward compatibility
+     */
+    public boolean addContentWarningByEmail(String email, String contentType) {
+        return addContentWarningByEmail(email, contentType, null);
+    }
+
+    /**
+     * Gets the current warning count for a user
+     * @param userId The user's ID
+     * @return The number of warnings or 0 if user not found
+     */
+    public int getUserWarningCount(int userId) {
+        try {
+            User user = userService.getById(userId);
+            return user != null ? user.getWarningCount() : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * Resets the warning count for a user
+     * @param userId The user's ID
+     * @return True if warning count was reset successfully
+     */
+    public boolean resetWarningCount(int userId) {
+        try {
+            User user = userService.getById(userId);
+            if (user == null) {
+                return false;
+            }
+            
+            user.setWarningCount(0);
             userService.modifier(user);
             return true;
         } catch (Exception e) {
