@@ -16,6 +16,7 @@ import com.esprit.models.Evenement;
 import com.esprit.models.Participation_event;
 import com.esprit.services.ServiceEvent;
 import com.esprit.services.ServiceParticipation;
+import com.esprit.services.ServiceWeather;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
+import org.json.simple.JSONObject;
 
 public class DetailsEvent implements Initializable {
 
@@ -42,6 +44,16 @@ public class DetailsEvent implements Initializable {
     private Label endDateLabel;
     @FXML
     private Label locationLabel;
+
+    // Weather components
+    @FXML
+    private Label weatherTempLabel;
+    @FXML
+    private Label weatherDescLabel;
+    @FXML
+    private ImageView weatherIconView;
+    @FXML
+    private Label weatherTitleLabel;
 
     @FXML
     private ImageView eventImageView;
@@ -67,18 +79,33 @@ public class DetailsEvent implements Initializable {
     private Evenement currentEvent;
     private ServiceEvent serviceEvent = new ServiceEvent();
     private ServiceParticipation serviceParticipation = new ServiceParticipation();
+    private ServiceWeather serviceWeather = new ServiceWeather(); // Weather service
 
     // Changed from long to Long to match the required type
-    private Long currentUserId = 1L; // À remplacer par l'ID de l'utilisateur connecté
+    private Long currentUserId = 1L; // Replace with the connected user's ID
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Rendre le bouton de participation visible
+        // Make the participation button visible
         registerButton.setVisible(true);
         editButton.setVisible(true);
         shareButton.setVisible(false);
 
-        // Configure les gestionnaires d'événements
+        // By default, hide weather components until data is loaded
+        if (weatherTitleLabel != null) {
+            weatherTitleLabel.setVisible(false);
+        }
+        if (weatherTempLabel != null) {
+            weatherTempLabel.setVisible(false);
+        }
+        if (weatherDescLabel != null) {
+            weatherDescLabel.setVisible(false);
+        }
+        if (weatherIconView != null) {
+            weatherIconView.setVisible(false);
+        }
+
+        // Configure event handlers
         presidentButton1.setOnAction(event -> handleDelete());
         registerButton.setOnAction(event -> handleRegister());
         presidentButton3.setOnAction(event -> handleViewParticipants());
@@ -93,44 +120,177 @@ public class DetailsEvent implements Initializable {
 
     }
 
-
     /**
-     * Charge les données de l'événement dans la vue
-     * @param event L'événement à afficher
+     * Loads event data into the view
+     * @param event The event to display
      */
     public void setEventData(Evenement event) {
         this.currentEvent = event;
 
-        // Définir les informations de base de l'événement
+        // Set basic event information
         eventTitleLabel.setText(event.getNom_event());
         eventTypeLabel.setText(event.getType());
         eventDescriptionLabel.setText(event.getDesc_event());
         locationLabel.setText(event.getLieux());
 
-        // Formater les dates
+        // Format dates
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
-        startDateLabel.setText("Du: " + dateFormat.format(event.getStart_date()));
-        endDateLabel.setText("Au: " + dateFormat.format(event.getEnd_date()));
+        startDateLabel.setText("From: " + dateFormat.format(event.getStart_date()));
+        endDateLabel.setText("To: " + dateFormat.format(event.getEnd_date()));
 
-        // Obtenir et définir le nom du club
+        // Get and set club name
         String clubName = serviceEvent.getClubNameById(event.getClub_id());
         clubNameLabel.setText(clubName);
 
-        // Obtenir et définir le nom de la catégorie
+        // Get and set category name
         String categoryName = serviceEvent.getCategoryNameById(event.getCategorie_id());
         eventCategoryLabel.setText(categoryName);
 
-        // Charger l'image de l'événement si disponible
+        // Load event image if available
         loadEventImage(event.getImage_description());
 
-        // Vérifier si l'utilisateur participe déjà à cet événement
+        // Check if the user is already participating in this event
         updateRegisterButtonStatus();
+
+        // Load weather information for the event location and date
+        loadWeatherData(event.getLieux(), event.getStart_date());
     }
+
+    /**
+     * Loads weather data for the event location and date
+     * @param location Event location
+     * @param eventDate Event date
+     */
+    private void loadWeatherData(String location, Date eventDate) {
+        try {
+            // Check if weather UI components exist
+            if (weatherTitleLabel == null || weatherTempLabel == null ||
+                    weatherDescLabel == null || weatherIconView == null) {
+                System.err.println("Weather display components are not available in the FXML");
+                return;
+            }
+
+            // Get weather forecast for the event location and date
+            JSONObject weatherData = serviceWeather.getWeatherForecast(location, eventDate);
+
+            if (weatherData != null) {
+                // Display weather section title
+                weatherTitleLabel.setText("Weather Forecast for Event");
+                weatherTitleLabel.setVisible(true);
+
+                // Extract and display temperature
+                double temperature = serviceWeather.getTemperature(weatherData);
+                if (!Double.isNaN(temperature)) {
+                    weatherTempLabel.setText(String.format("%.1f°C", temperature));
+                    weatherTempLabel.setVisible(true);
+                } else {
+                    weatherTempLabel.setText("Temperature not available");
+                    weatherTempLabel.setVisible(true);
+                }
+
+                // Extract and display weather description
+                String weatherDesc = serviceWeather.getWeatherDescription(weatherData);
+                weatherDescLabel.setText(weatherDesc);
+                weatherDescLabel.setVisible(true);
+
+                // Load weather icon
+                String iconCode = serviceWeather.getWeatherIcon(weatherData);
+                loadWeatherIcon(iconCode);
+            } else {
+                // Display message if weather data is not available
+                weatherTitleLabel.setText("Weather forecast not available");
+                weatherTitleLabel.setVisible(true);
+                weatherTempLabel.setVisible(false);
+                weatherDescLabel.setVisible(false);
+                weatherIconView.setVisible(false);
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading weather data: " + e.getMessage());
+            e.printStackTrace();
+            // Hide weather components in case of error
+            if (weatherTitleLabel != null) weatherTitleLabel.setText("Weather data unavailable");
+            if (weatherTempLabel != null) weatherTempLabel.setVisible(false);
+            if (weatherDescLabel != null) weatherDescLabel.setVisible(false);
+            if (weatherIconView != null) weatherIconView.setVisible(false);
+        }
+    }
+
+    /**
+     * Loads the weather icon corresponding to the code provided by the API
+     * @param iconCode Weather icon code
+     */
+    /**
+     * Loads the weather icon corresponding to the code provided by the API
+     * @param iconCode Weather icon code
+     */
+    private void loadWeatherIcon(String iconCode) {
+        try {
+            // Construction cohérente du chemin vers l'icône météo
+            String iconPath = "/com/esprit/weather/icon/" + iconCode + ".png";
+            Image iconImage = null;
+
+            try {
+                // Tentative de chargement depuis les resources
+                iconImage = new Image(getClass().getResourceAsStream(iconPath));
+                System.out.println("Tentative de chargement de l'icône: " + iconPath);
+
+                if (iconImage == null || iconImage.isError()) {
+                    System.err.println("Échec du premier chargement d'icône, essai avec un chemin alternatif");
+
+                    // Alternative: essai avec un autre format de chemin
+                    iconPath = "/resources" + iconPath;
+                    iconImage = new Image(getClass().getResourceAsStream(iconPath));
+                    System.out.println("Tentative avec le chemin alternatif: " + iconPath);
+                }
+            } catch (Exception e) {
+                System.err.println("Impossible de charger l'icône depuis les ressources: " + e.getMessage());
+
+                // Tentative de chargement depuis un chemin local
+                File iconFile = new File("resources/com/esprit/weather/icon/" + iconCode + ".png");
+                System.out.println("Tentative avec le chemin local: " + iconFile.getAbsolutePath());
+
+                if (iconFile.exists()) {
+                    iconImage = new Image(iconFile.toURI().toString());
+                } else {
+                    // Recherche avec un autre chemin si le premier échoue
+                    iconFile = new File("src/resources/com/esprit/weather/icon/" + iconCode + ".png");
+                    System.out.println("Tentative avec le chemin local alternatif: " + iconFile.getAbsolutePath());
+
+                    if (iconFile.exists()) {
+                        iconImage = new Image(iconFile.toURI().toString());
+                    } else {
+                        // Utilisation d'une icône par défaut si l'icône spécifique n'est pas trouvée
+                        System.out.println("Utilisation de l'icône par défaut");
+                        iconImage = new Image(getClass().getResourceAsStream("/com/esprit/weather/icon/01d.png"));
+
+                        // Si l'icône par défaut n'est pas trouvée, essai avec un autre chemin
+                        if (iconImage == null || iconImage.isError()) {
+                            iconImage = new Image(getClass().getResourceAsStream("/resources/com/esprit/weather/icon/01d.png"));
+                        }
+                    }
+                }
+            }
+
+            if (iconImage != null && !iconImage.isError()) {
+                weatherIconView.setImage(iconImage);
+                weatherIconView.setVisible(true);
+                System.out.println("Icône météo chargée avec succès");
+            } else {
+                System.err.println("Échec du chargement de l'icône météo");
+                weatherIconView.setVisible(false);
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'icône météo: " + e.getMessage());
+            e.printStackTrace();
+            weatherIconView.setVisible(false);
+        }
+    }
+
     @FXML
     private void handleQRCode() {
         if (currentEvent == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
-                    "Impossible de générer un QR code car aucun événement n'est sélectionné.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No event selected",
+                    "Cannot generate QR code because no event is selected.");
             return;
         }
 
@@ -140,9 +300,9 @@ public class DetailsEvent implements Initializable {
 
             if (!isRegistered) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Inscription requise");
-                alert.setHeaderText("Inscription nécessaire");
-                alert.setContentText("Vous devez vous inscrire à l'événement avant de pouvoir générer un QR code de confirmation.");
+                alert.setTitle("Registration Required");
+                alert.setHeaderText("Registration Needed");
+                alert.setContentText("You must register for the event before you can generate a confirmation QR code.");
                 alert.showAndWait();
                 return;
             }
@@ -157,22 +317,22 @@ public class DetailsEvent implements Initializable {
 
             // Create new stage for QR code window
             Stage stage = new Stage();
-            stage.setTitle("QR Code de participation - " + currentEvent.getNom_event());
+            stage.setTitle("Participation QR Code - " + currentEvent.getNom_event());
             stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
-                    "Impossible de charger l'écran de génération de QR code: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Loading Error",
+                    "Unable to load QR code generation screen: " + e.getMessage());
         }
     }
 
     @FXML
     private void handleScanQRCode() {
         if (currentEvent == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
-                    "Impossible de scanner un QR code car aucun événement n'est sélectionné.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No event selected",
+                    "Cannot scan QR code because no event is selected.");
             return;
         }
 
@@ -191,18 +351,18 @@ public class DetailsEvent implements Initializable {
 
             // Create new stage for scanner window
             Stage stage = new Stage();
-            stage.setTitle("Scanner QR Code - " + currentEvent.getNom_event());
+            stage.setTitle("Scan QR Code - " + currentEvent.getNom_event());
             stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
-                    "Impossible de charger l'écran de scan de QR code: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Loading Error",
+                    "Unable to load QR code scanning screen: " + e.getMessage());
         }
     }
     /**
-     * Met à jour l'état du bouton d'inscription en fonction de la participation de l'utilisateur
+     * Updates the registration button status based on user participation
      */
     private void updateRegisterButtonStatus() {
         if (currentEvent == null) return;
@@ -219,108 +379,108 @@ public class DetailsEvent implements Initializable {
     }
 
     /**
-     * Gère l'inscription/désinscription à un événement
+     * Handles event registration/deregistration
      */
     @FXML
     private void handleRegister() {
         if (currentEvent == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
-                    "Impossible de s'inscrire à l'événement car aucun événement n'est sélectionné.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No event selected",
+                    "Unable to register for the event because no event is selected.");
             return;
         }
 
-        // Vérifier si l'utilisateur est déjà inscrit
+        // Check if the user is already registered
         boolean isAlreadyRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
 
         if (isAlreadyRegistered) {
-            // L'utilisateur est déjà inscrit, proposer d'annuler l'inscription
+            // User is already registered, offer to cancel registration
             Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmDialog.setTitle("Annulation d'inscription");
-            confirmDialog.setHeaderText("Annuler votre inscription");
-            confirmDialog.setContentText("Êtes-vous sûr de vouloir annuler votre inscription à l'événement \"" +
-                    currentEvent.getNom_event() + "\" ?");
+            confirmDialog.setTitle("Cancel Registration");
+            confirmDialog.setHeaderText("Cancel Your Registration");
+            confirmDialog.setContentText("Are you sure you want to cancel your registration for the event \"" +
+                    currentEvent.getNom_event() + "\"?");
 
             Optional<ButtonType> result = confirmDialog.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Supprimer la participation
+                // Delete the participation
                 boolean cancelled = serviceParticipation.annulerParticipation(currentUserId, currentEvent.getId());
 
                 if (cancelled) {
-                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Inscription annulée",
-                            "Votre inscription à l'événement a été annulée avec succès.");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Registration Cancelled",
+                            "Your registration for the event has been successfully cancelled.");
                     updateRegisterButtonStatus();
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'annulation",
-                            "L'annulation de votre inscription a échoué. Veuillez réessayer.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Cancellation Failed",
+                            "The cancellation of your registration failed. Please try again.");
                 }
             }
         } else {
-            // L'utilisateur n'est pas inscrit, proposer de l'inscrire
+            // User is not registered, offer to register
             Date currentDate = new Date();
 
-            // Vérifier si l'événement n'est pas déjà passé
+            // Check if the event hasn't already ended
             if (currentEvent.getEnd_date().before(currentDate)) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Événement terminé",
-                        "Cet événement est déjà terminé. Vous ne pouvez plus vous y inscrire.");
+                showAlert(Alert.AlertType.ERROR, "Error", "Event Ended",
+                        "This event has already ended. You can no longer register for it.");
                 return;
             }
 
-            // Créer une nouvelle participation
+            // Create a new participation
             Participation_event participation = new Participation_event();
             participation.setUser_id(currentUserId);
             participation.setEvenement_id(Long.valueOf(currentEvent.getId()));
             participation.setDateparticipation(currentDate);
 
-            // Enregistrer la participation
+            // Register the participation
             boolean registered = serviceParticipation.ajouterParticipation(participation);
 
             if (registered) {
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Inscription confirmée",
-                        "Vous êtes maintenant inscrit à l'événement.");
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Registration Confirmed",
+                        "You are now registered for the event.");
                 updateRegisterButtonStatus();
             } else {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de l'inscription",
-                        "L'inscription à l'événement a échoué. Veuillez réessayer.");
+                showAlert(Alert.AlertType.ERROR, "Error", "Registration Failed",
+                        "Registration for the event failed. Please try again.");
             }
         }
     }
 
     /**
-     * Gère l'affichage de la liste des participants
+     * Handles displaying the list of participants
      */
     @FXML
     private void handleViewParticipants() {
         if (currentEvent == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement sélectionné",
-                    "Impossible d'afficher les participants car aucun événement n'est sélectionné.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No event selected",
+                    "Unable to display participants because no event is selected.");
             return;
         }
 
         try {
-            // Charger la vue de la liste des participants (à implémenter ultérieurement)
+            // Load the participant list view (to be implemented later)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ParticipantsList.fxml"));
             Parent root = loader.load();
 
-            // Passer l'ID de l'événement au contrôleur
+            // Pass the event ID to the controller
             // ParticipantsListController controller = loader.getController();
             // controller.setEventId(currentEvent.getId());
 
             Stage stage = new Stage();
-            stage.setTitle("Participants à l'événement " + currentEvent.getNom_event());
+            stage.setTitle("Participants for event " + currentEvent.getNom_event());
             stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
-            System.err.println("Erreur lors du chargement de la liste des participants: " + e.getMessage());
+            System.err.println("Error loading participant list: " + e.getMessage());
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de chargement",
-                    "Impossible de charger la liste des participants: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Loading Error",
+                    "Unable to load participant list: " + e.getMessage());
         }
     }
 
     /**
-     * Charge l'image de l'événement
-     * @param imagePath le chemin de l'image
+     * Loads the event image
+     * @param imagePath the image path
      */
     private void loadEventImage(String imagePath) {
         if (imagePath != null && !imagePath.isEmpty()) {
@@ -333,7 +493,7 @@ public class DetailsEvent implements Initializable {
                     setDefaultEventImage();
                 }
             } catch (Exception e) {
-                System.err.println("Erreur lors du chargement de l'image de l'événement: " + e.getMessage());
+                System.err.println("Error loading event image: " + e.getMessage());
                 setDefaultEventImage();
             }
         } else {
@@ -342,151 +502,151 @@ public class DetailsEvent implements Initializable {
     }
 
     /**
-     * Définit une image par défaut pour l'événement
+     * Sets a default image for the event
      */
     private void setDefaultEventImage() {
         try {
-            // Essayez d'abord de charger depuis les ressources
+            // First try to load from resources
             Image defaultImage = new Image(getClass().getResourceAsStream("/resources/images/default_event.png"));
             eventImageView.setImage(defaultImage);
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement de l'image par défaut: " + e.getMessage());
+            System.err.println("Error loading default image: " + e.getMessage());
 
-            // Si le chargement depuis les ressources échoue, essayez un chemin alternatif
+            // If loading from resources fails, try an alternative path
             try {
                 Image fallbackImage = new Image("file:resources/images/default_event.png");
                 eventImageView.setImage(fallbackImage);
             } catch (Exception ex) {
-                System.err.println("Impossible de charger l'image par défaut: " + ex.getMessage());
+                System.err.println("Unable to load default image: " + ex.getMessage());
             }
         }
     }
 
     /**
-     * Gère l'action du bouton Retour
+     * Handles the Back button action
      */
     @FXML
     private void handleBack() {
         try {
-            // Charger la vue précédente (page événements)
+            // Load the previous view (events page)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
             Parent root = loader.load();
 
-            // Obtenir le contrôleur de la page précédente si nécessaire
+            // Get the controller of the previous page if necessary
             // AfficherEventController controller = loader.getController();
-            // controller.initialiserDonnees(...); // Si vous devez passer des données
+            // controller.initialiserDonnees(...); // If you need to pass data
 
-            // Obtenir la fenêtre actuelle à partir du bouton
+            // Get the current window from the button
             Stage stage = (Stage) backButton.getScene().getWindow();
 
-            // Définir la nouvelle scène
+            // Set the new scene
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            // Gérer l'erreur, par exemple afficher une alerte
+            // Handle the error, for example display an alert
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur de Navigation");
-            alert.setHeaderText("Impossible de retourner à la page précédente");
-            alert.setContentText("Une erreur s'est produite: " + e.getMessage());
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Unable to return to previous page");
+            alert.setContentText("An error occurred: " + e.getMessage());
             alert.showAndWait();
         }
     }
 
     /**
-     * Gère l'action du bouton Edit
+     * Handles the Edit button action
      */
     @FXML
     private void handleEdit() {
         try {
-            // Charger le FXML ModifierEvent
+            // Load the ModifierEvent FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ModifierEvent.fxml"));
             Parent root = loader.load();
 
-            // Obtenir le contrôleur et lui passer l'ID de l'événement à modifier
+            // Get the controller and pass the ID of the event to modify
             ModifierEvent modifierController = loader.getController();
             modifierController.setEventId(currentEvent.getId());
 
-            // Créer une nouvelle scène pour la vue ModifierEvent
+            // Create a new scene for the ModifierEvent view
             Stage stage = new Stage();
-            stage.setTitle("Modifier l'événement");
+            stage.setTitle("Edit event");
             stage.setScene(new Scene(root));
 
-            // Afficher la scène
+            // Show the scene
             stage.show();
 
         } catch (IOException e) {
-            System.err.println("Erreur lors du chargement de la page de modification: " + e.getMessage());
+            System.err.println("Error loading the modification page: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * Gère l'action du bouton Delete
+     * Handles the Delete button action
      */
     @FXML
     private void handleDelete() {
         if (currentEvent == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun événement à supprimer",
-                    "Impossible de supprimer l'événement car aucun événement n'est sélectionné.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No event to delete",
+                    "Unable to delete event because no event is selected.");
             return;
         }
 
-        // Afficher une confirmation avant de supprimer
+        // Display a confirmation before deleting
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Confirmation de suppression");
-        confirmDialog.setHeaderText("Supprimer l'événement");
-        confirmDialog.setContentText("Êtes-vous sûr de vouloir supprimer l'événement \"" +
-                currentEvent.getNom_event() + "\" ? Cette action est irréversible.");
+        confirmDialog.setTitle("Delete Confirmation");
+        confirmDialog.setHeaderText("Delete Event");
+        confirmDialog.setContentText("Are you sure you want to delete the event \"" +
+                currentEvent.getNom_event() + "\"? This action is irreversible.");
 
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Appeler le service pour supprimer l'événement
+                // Call the service to delete the event
                 boolean deleted = serviceEvent.supprimerEvenement(currentEvent.getId());
 
                 if (deleted) {
-                    showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement supprimé",
-                            "L'événement a été supprimé avec succès.");
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Event Deleted",
+                            "The event has been successfully deleted.");
 
-                    // Fermer la fenêtre actuelle
+                    // Close the current window
                     Stage currentStage = (Stage) presidentButton1.getScene().getWindow();
 
                     try {
-                        // Charger la page AfficherEvent
+                        // Load the AfficherEvent page
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
                         Parent root = loader.load();
 
-                        // Créer une nouvelle scène avec la page AfficherEvent
+                        // Create a new scene with the AfficherEvent page
                         Scene scene = new Scene(root);
 
-                        // Utiliser la même fenêtre pour afficher la nouvelle scène
+                        // Use the same window to display the new scene
                         currentStage.setScene(scene);
-                        currentStage.setTitle("Liste des événements");
+                        currentStage.setTitle("Event List");
                         currentStage.show();
 
                     } catch (IOException e) {
                         e.printStackTrace();
-                        System.err.println("Erreur lors du chargement de la page AfficherEvent: " + e.getMessage());
-                        // En cas d'erreur, fermez simplement la fenêtre actuelle
+                        System.err.println("Error loading AfficherEvent page: " + e.getMessage());
+                        // In case of error, simply close the current window
                         currentStage.close();
                     }
 
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression",
-                            "La suppression de l'événement a échoué. Veuillez réessayer.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Deletion Failed",
+                            "The deletion of the event failed. Please try again.");
                 }
             } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression",
-                        "Une erreur s'est produite lors de la suppression: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error", "Deletion Failed",
+                        "An error occurred during deletion: " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 
     /**
-     * Affiche une boîte de dialogue d'alerte
+     * Displays an alert dialog box
      */
     private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
         Alert alert = new Alert(alertType);

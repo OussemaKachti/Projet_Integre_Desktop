@@ -234,11 +234,7 @@
                                                     <Font name="Arial Bold" size="13" />
                                                 </font>
                                             </Button>
-                                            <Button style="-fx-background-color: white; -fx-text-fill: #1e90ff; -fx-background-radius: 20; -fx-border-color: #1e90ff; -fx-border-radius: 20; -fx-padding: 8 15;" text="Register">
-                                                <font>
-                                                    <Font name="Arial Bold" size="13" />
-                                                </font>
-                                            </Button>
+
                                         </HBox>
                                     </VBox>
                                 </VBox>
