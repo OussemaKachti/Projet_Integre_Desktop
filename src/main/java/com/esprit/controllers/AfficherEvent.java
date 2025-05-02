@@ -403,17 +403,11 @@ public class AfficherEvent implements Initializable {
             }
         });
 
-        Button registerButton = new Button("Register");
-        registerButton.setStyle("-fx-background-color: white; -fx-text-fill: #1e90ff; -fx-background-radius: 20; -fx-border-color: #1e90ff; -fx-border-radius: 20; -fx-padding: 8 15;");
-        registerButton.setFont(new javafx.scene.text.Font("Arial Bold", 13));
 
         // Disable registration if event is closed
-        if ("Closed".equalsIgnoreCase(eventType)) {
-            registerButton.setDisable(true);
-            registerButton.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #999999; -fx-background-radius: 20; -fx-border-color: #cccccc; -fx-border-radius: 20; -fx-padding: 8 15;");
-        }
 
-        buttonsBox.getChildren().addAll(viewDetailsButton, registerButton);
+
+        buttonsBox.getChildren().addAll(viewDetailsButton);
 
         // Add all elements to details container
         detailsContainer.getChildren().addAll(
