@@ -44,15 +44,19 @@
          <VBox styleClass="field-container" spacing="3.0" HBox.hgrow="ALWAYS">
             <Label text="First Name" />
             <TextField fx:id="firstNameField" promptText="Enter your first name" />
-            <Label fx:id="firstNameErrorLabel" styleClass="error-message" 
-                   visible="false" />
+            <HBox spacing="5.0" alignment="CENTER_LEFT">
+               <Label fx:id="firstNameErrorLabel" styleClass="error-message" visible="false" />
+               <Label fx:id="firstNameValidationStatus" styleClass="validation-status" visible="false" />
+            </HBox>
          </VBox>
          
          <VBox styleClass="field-container" spacing="3.0" HBox.hgrow="ALWAYS">
             <Label text="Last Name" />
             <TextField fx:id="lastNameField" promptText="Enter your last name" />
-            <Label fx:id="lastNameErrorLabel" styleClass="error-message" 
-                   visible="false" />
+            <HBox spacing="5.0" alignment="CENTER_LEFT">
+               <Label fx:id="lastNameErrorLabel" styleClass="error-message" visible="false" />
+               <Label fx:id="lastNameValidationStatus" styleClass="validation-status" visible="false" />
+            </HBox>
          </VBox>
       </HBox>
       
@@ -104,4 +108,3 @@
       </HBox>
    </VBox>
 </VBox>
-

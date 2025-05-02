@@ -1,14 +1,17 @@
-// Path: src/main/java/controllers/RegisterController.java
 package com.esprit.controllers;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.esprit.MainApp;
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
+import com.esprit.utils.AiContentValidator;
 import com.esprit.utils.ValidationHelper;
 import com.esprit.utils.ValidationUtils;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,6 +22,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class RegisterController {
+
+    private static final Logger LOGGER = Logger.getLogger(RegisterController.class.getName());
 
     @FXML
     private TextField firstNameField;
@@ -59,6 +64,13 @@ public class RegisterController {
     @FXML
     private Label confirmPasswordErrorLabel;
     
+    // Add new validation status labels for AI feedback
+    @FXML
+    private Label firstNameValidationStatus;
+    
+    @FXML
+    private Label lastNameValidationStatus;
+    
     private final AuthService authService = new AuthService();
     private ValidationHelper validator;
     
@@ -74,114 +86,220 @@ public class RegisterController {
             .addField(phoneField, phoneErrorLabel)
             .addField(passwordField, passwordErrorLabel)
             .addField(confirmPasswordField, confirmPasswordErrorLabel);
+            
+        // Initialize AI validation status labels
+        if (firstNameValidationStatus != null) {
+            firstNameValidationStatus.setVisible(false);
+        }
+        
+        if (lastNameValidationStatus != null) {
+            lastNameValidationStatus.setVisible(false);
+        }
+        
+        // Setup AI-powered content validation
+        setupValidations();
+    }
+    
+    private void setupValidations() {
+        // Add real-time AI validation to name fields
+        firstNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty() && firstNameValidationStatus != null) {
+                firstNameValidationStatus.setText("Validating...");
+                firstNameValidationStatus.setVisible(true);
+                
+                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
+                    Platform.runLater(() -> {
+                        if (isValid) {
+                            firstNameValidationStatus.setText("✓");
+                            firstNameValidationStatus.setStyle("-fx-text-fill: green;");
+                            firstNameErrorLabel.setVisible(false);
+                        } else {
+                            firstNameValidationStatus.setText("✗");
+                            firstNameValidationStatus.setStyle("-fx-text-fill: red;");
+                            firstNameErrorLabel.setText(message);
+                            firstNameErrorLabel.setVisible(true);
+                            // Log the detected inappropriate content
+                            System.out.println("First name validation failed: " + message + " for text: " + newValue);
+                        }
+                        firstNameValidationStatus.setVisible(true);
+                    });
+                });
+            } else if (firstNameValidationStatus != null) {
+                firstNameValidationStatus.setVisible(false);
+                firstNameErrorLabel.setVisible(false);
+            }
+        });
+        
+        lastNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty() && lastNameValidationStatus != null) {
+                lastNameValidationStatus.setText("Validating...");
+                lastNameValidationStatus.setVisible(true);
+                
+                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
+                    Platform.runLater(() -> {
+                        if (isValid) {
+                            lastNameValidationStatus.setText("✓");
+                            lastNameValidationStatus.setStyle("-fx-text-fill: green;");
+                            lastNameErrorLabel.setVisible(false);
+                        } else {
+                            lastNameValidationStatus.setText("✗");
+                            lastNameValidationStatus.setStyle("-fx-text-fill: red;");
+                            lastNameErrorLabel.setText(message);
+                            lastNameErrorLabel.setVisible(true);
+                            // Log the detected inappropriate content
+                            System.out.println("Last name validation failed: " + message + " for text: " + newValue);
+                        }
+                        lastNameValidationStatus.setVisible(true);
+                    });
+                });
+            } else if (lastNameValidationStatus != null) {
+                lastNameValidationStatus.setVisible(false);
+                lastNameErrorLabel.setVisible(false);
+            }
+        });
     }
     
     @FXML
-    private void handleRegister(ActionEvent event) {
-        // Reset validation state
-        validator.reset();
-        errorLabel.setVisible(false);
-        
-        // Get form data
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String email = emailField.getText().trim();
-        String phone = phoneField.getText().trim();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
-        
-        // Validate first name
-        boolean isFirstNameValid = validator.validateRequired(firstNameField, "First name is required");
-        if (isFirstNameValid && firstName.length() < 2) {
-            validator.showError(firstNameField, "First name must be at least 2 characters");
-            isFirstNameValid = false;
-        }
-        // Check for profanity in first name
-        if (isFirstNameValid && !ValidationUtils.isCleanText(firstName)) {
-            validator.showError(firstNameField, "First name contains inappropriate language");
-            isFirstNameValid = false;
-        }
-        
-        // Validate last name
-        boolean isLastNameValid = validator.validateRequired(lastNameField, "Last name is required");
-        if (isLastNameValid && lastName.length() < 2) {
-            validator.showError(lastNameField, "Last name must be at least 2 characters");
-            isLastNameValid = false;
-        }
-        // Check for profanity in last name
-        if (isLastNameValid && !ValidationUtils.isCleanText(lastName)) {
-            validator.showError(lastNameField, "Last name contains inappropriate language");
-            isLastNameValid = false;
-        }
-        
-        // Validate email
-        boolean isEmailValid = validator.validateRequired(emailField, "Email is required");
-        if (isEmailValid && !ValidationUtils.isValidEmail(email)) {
-            validator.showError(emailField, "Please enter a valid email address");
-            isEmailValid = false;
-        }
-        
-        // Validate phone (now required)
-        boolean isPhoneValid = validator.validateRequired(phoneField, "Phone number is required");
-        if (isPhoneValid && !ValidationUtils.isValidPhone(phone)) {
-            validator.showError(phoneField, "Please enter a valid Tunisian phone number");
-            isPhoneValid = false;
-        }
-        
-        // Validate password
-        boolean isPasswordValid = validator.validateRequired(passwordField, "Password is required");
-        if (isPasswordValid && !ValidationUtils.isValidPassword(password)) {
-            validator.showError(passwordField, "Password must include uppercase, lowercase, numbers, and special characters");
-            isPasswordValid = false;
-        }
-        
-        // Validate confirm password
-        boolean isConfirmPasswordValid = validator.validateRequired(confirmPasswordField, "Please confirm your password");
-        if (isConfirmPasswordValid && !password.equals(confirmPassword)) {
-            validator.showError(confirmPasswordField, "Passwords do not match");
-            isConfirmPasswordValid = false;
-        }
-        
-        // If any validation failed, stop here
-        if (!isFirstNameValid || !isLastNameValid || !isEmailValid || 
-            !isPhoneValid || !isPasswordValid || !isConfirmPasswordValid) {
+private void handleRegister(ActionEvent event) {
+    // Reset validation state
+    validator.reset();
+    errorLabel.setVisible(false);
+    
+    // Get form data
+    String firstName = firstNameField.getText().trim();
+    String lastName = lastNameField.getText().trim();
+    String email = emailField.getText().trim();
+    String phone = phoneField.getText().trim();
+    String password = passwordField.getText();
+    String confirmPassword = confirmPasswordField.getText();
+    
+    // Track validation errors
+    boolean hasRealTimeValidationErrors = false;
+    
+    // Check if real-time validation has already detected issues - without early returns
+    if (firstNameValidationStatus != null && 
+        firstNameValidationStatus.isVisible() && 
+        firstNameValidationStatus.getText().equals("✗")) {
+        validator.showError(firstNameField, firstNameErrorLabel.getText());
+        LOGGER.log(Level.INFO, "Registration blocked - First name failed real-time validation: {0}", firstName);
+        hasRealTimeValidationErrors = true; // Set flag instead of returning
+    }
+    
+    if (lastNameValidationStatus != null && 
+        lastNameValidationStatus.isVisible() && 
+        lastNameValidationStatus.getText().equals("✗")) {
+        validator.showError(lastNameField, lastNameErrorLabel.getText());
+        LOGGER.log(Level.INFO, "Registration blocked - Last name failed real-time validation: {0}", lastName);
+        hasRealTimeValidationErrors = true; // Set flag instead of returning
+    }
+    
+    // Return only after checking both fields if any errors were found
+    if (hasRealTimeValidationErrors) {
+        return;
+    }
+    
+    // Validate first name
+    boolean isFirstNameValid = validator.validateRequired(firstNameField, "First name is required");
+    if (isFirstNameValid && firstName.length() < 2) {
+        validator.showError(firstNameField, "First name must be at least 2 characters");
+        isFirstNameValid = false;
+    }
+    // Check for profanity in first name
+    if (isFirstNameValid && !ValidationUtils.isCleanText(firstName)) {
+        validator.showError(firstNameField, "First name contains inappropriate language");
+        isFirstNameValid = false;
+    }
+    // AI validation for first name
+    if (isFirstNameValid && !AiContentValidator.isAppropriateContent(firstName)) {
+        validator.showError(firstNameField, "First name contains inappropriate content");
+        isFirstNameValid = false;
+    }
+    
+    // Validate last name
+    boolean isLastNameValid = validator.validateRequired(lastNameField, "Last name is required");
+    if (isLastNameValid && lastName.length() < 2) {
+        validator.showError(lastNameField, "Last name must be at least 2 characters");
+        isLastNameValid = false;
+    }
+    // Check for profanity in last name
+    if (isLastNameValid && !ValidationUtils.isCleanText(lastName)) {
+        validator.showError(lastNameField, "Last name contains inappropriate language");
+        isLastNameValid = false;
+    }
+    // AI validation for last name
+    if (isLastNameValid && !AiContentValidator.isAppropriateContent(lastName)) {
+        validator.showError(lastNameField, "Last name contains inappropriate content");
+        isLastNameValid = false;
+    }
+    
+    // Validate email
+    boolean isEmailValid = validator.validateRequired(emailField, "Email is required");
+    if (isEmailValid && !ValidationUtils.isValidEmail(email)) {
+        validator.showError(emailField, "Please enter a valid email address");
+        isEmailValid = false;
+    }
+    
+    // Validate phone (now required)
+    boolean isPhoneValid = validator.validateRequired(phoneField, "Phone number is required");
+    if (isPhoneValid && !ValidationUtils.isValidPhone(phone)) {
+        validator.showError(phoneField, "Please enter a valid Tunisian phone number");
+        isPhoneValid = false;
+    }
+    
+    // Validate password
+    boolean isPasswordValid = validator.validateRequired(passwordField, "Password is required");
+    if (isPasswordValid && !ValidationUtils.isValidPassword(password)) {
+        validator.showError(passwordField, "Password must include uppercase, lowercase, numbers, and special characters");
+        isPasswordValid = false;
+    }
+    
+    // Validate confirm password
+    boolean isConfirmPasswordValid = validator.validateRequired(confirmPasswordField, "Please confirm your password");
+    if (isConfirmPasswordValid && !password.equals(confirmPassword)) {
+        validator.showError(confirmPasswordField, "Passwords do not match");
+        isConfirmPasswordValid = false;
+    }
+    
+    // If any validation failed, stop here
+    if (!isFirstNameValid || !isLastNameValid || !isEmailValid || 
+        !isPhoneValid || !isPasswordValid || !isConfirmPasswordValid) {
+        return;
+    }
+    
+    // Create user object
+    User user = new User();
+    user.setFirstName(firstName);
+    user.setLastName(lastName);
+    user.setEmail(email);
+    user.setPassword(password);
+    user.setPhone(phone); // Phone is now always set (no null check)
+    
+    // Register user
+    try {
+        User registeredUser = authService.registerUser(user);
+        if (registeredUser == null) {
+            errorLabel.setText("Registration failed. Please try again.");
+            errorLabel.setVisible(true);
             return;
         }
         
-        // Create user object
-        User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setPhone(phone); // Phone is now always set (no null check)
+        // Show success and navigate to verification page
+        navigateToVerification(registeredUser);
+    } catch (Exception e) {
+        e.printStackTrace();
         
-        // Register user
-        try {
-            User registeredUser = authService.registerUser(user);
-            if (registeredUser == null) {
-                errorLabel.setText("Registration failed. Please try again.");
-                errorLabel.setVisible(true);
-                return;
-            }
-            
-            // Show success and navigate to verification page
-            navigateToVerification(registeredUser);
-        } catch (Exception e) {
-            e.printStackTrace();
-            
-            // Check if it's a unique constraint violation and provide specific error message
-            if (ValidationUtils.isUniqueConstraintViolation(e, "email")) {
-                validator.showError(emailField, "This email is already registered");
-            } else if (ValidationUtils.isUniqueConstraintViolation(e, "tel")) {
-                validator.showError(phoneField, "This phone number is already registered");
-            } else {
-                // Generic error message for other exceptions
-                errorLabel.setText("Error: " + e.getMessage());
-                errorLabel.setVisible(true);
-            }
+        // Check if it's a unique constraint violation and provide specific error message
+        if (ValidationUtils.isUniqueConstraintViolation(e, "email")) {
+            validator.showError(emailField, "This email is already registered");
+        } else if (ValidationUtils.isUniqueConstraintViolation(e, "tel")) {
+            validator.showError(phoneField, "This phone number is already registered");
+        } else {
+            // Generic error message for other exceptions
+            errorLabel.setText("Error: " + e.getMessage());
+            errorLabel.setVisible(true);
         }
     }
+}
     
     private void navigateToVerification(User user) {
         try {
@@ -231,4 +349,3 @@ public class RegisterController {
         errorLabel.setVisible(true);
     }
 }
-

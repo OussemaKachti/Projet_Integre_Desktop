@@ -382,3 +382,7 @@
     -fx-spacing: 10;
     -fx-alignment: center-right;
 }
+.validation-status {
+    -fx-font-size: 12px;
+    -fx-padding: 0 0 0 5px; /* Add some padding to the left */
+}
