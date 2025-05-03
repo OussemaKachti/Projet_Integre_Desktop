@@ -359,6 +359,9 @@ public class ProfileController {
         File selectedFile = fileChooser.showOpenDialog(changeImageBtn.getScene().getWindow());
         if (selectedFile != null) {
             try {
+                // Clear warning tracking to ensure new validations can trigger warnings
+                authService.clearWarningTracking();
+                
                 // Validate file size (max 5MB)
                 if (selectedFile.length() > 5 * 1024 * 1024) {
                     showError("Image is too large. Maximum size is 5MB.");
@@ -391,6 +394,15 @@ public class ProfileController {
                             
                             // Record the inappropriate content warning with the caption
                             authService.addContentWarning(currentUser, "profile image", imageCaption);
+                            
+                            // Log the profanity incident for admin dashboard visibility
+                            com.esprit.utils.ProfanityLogManager.logProfanityIncident(
+                                currentUser, 
+                                "profile image", 
+                                imageCaption != null ? imageCaption : "Inappropriate image content", 
+                                "High", 
+                                "Profile image rejected"
+                            );
                             
                             // Refresh current user to get updated warning count
                             currentUser = authService.findUserByEmail(currentUser.getEmail());

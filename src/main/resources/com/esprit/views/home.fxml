@@ -16,7 +16,7 @@
             <Insets top="10" right="20" bottom="10" left="20"/>
         </padding>
         
-        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+        <ImageView fitHeight="60" fitWidth="150" preserveRatio="true">
             <Image url="@../images/logo.png"/>
         </ImageView>
         

@@ -3,6 +3,7 @@ package com.esprit.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +13,7 @@ import com.esprit.utils.PasswordUtils;
 
 import jakarta.persistence.TypedQuery;
 
-public class AuthService {
+public class AuthService implements AutoCloseable {
     
     private final UserService userService;
     private final EmailService emailService;
@@ -32,8 +33,30 @@ public class AuthService {
     
     private static final Logger LOGGER = Logger.getLogger(AuthService.class.getName());
     
+    // Track users who have already received warnings in the current session - make it static
+    private static final java.util.Set<Integer> usersWithWarningsThisSession = 
+        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+    
+    // Singleton pattern
+    private static AuthService instance;
+    private static final Object LOCK = new Object();
+    
+    public static AuthService getInstance() {
+        AuthService localInstance = instance;
+        if (localInstance == null) {
+            synchronized (LOCK) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = new AuthService();
+                    localInstance = instance;
+                }
+            }
+        }
+        return localInstance;
+    }
+    
     public AuthService() {
-        this.userService = new UserService();
+        this.userService = UserService.getInstance(); // Use the singleton for UserService
         this.emailService = new EmailService();
     }
     
@@ -404,8 +427,13 @@ public class AuthService {
         return resendVerificationCode(email);
     }
     
+    @Override
     public void close() {
-        userService.close();
+        if (userService != null) {
+            userService.close();
+        }
+        
+        LOGGER.info("AuthService closed");
     }
     
     // Find user by email
@@ -466,6 +494,13 @@ public class AuthService {
     }
 
     /**
+     * Clear warning tracking (useful for testing)
+     */
+    public void clearWarningTracking() {
+        usersWithWarningsThisSession.clear();
+    }
+
+    /**
      * Increments the warning count for a user and sends a warning email
      * @param user The user to warn
      * @param contentType The type of content that triggered the warning
@@ -478,13 +513,31 @@ public class AuthService {
                 return false;
             }
             
+            // Generate a unique key that includes both user ID and content type
+            // This ensures we don't double-count warnings for the same content type
+            String warningKey = user.getId() + "_" + contentType;
+            
+            // Check if this user has already received a warning for this content type in this session
+            if (usersWithWarningsThisSession.contains(warningKey.hashCode())) {
+                LOGGER.log(Level.INFO, "User {0} (ID: {1}) already received a warning for {2} in this session, skipping", 
+                        new Object[]{user.getEmail(), user.getId(), contentType});
+                return true; // Return true to indicate success, but we didn't actually increment
+            }
+            
+            // Log the action for debugging
+            LOGGER.log(Level.INFO, "Adding content warning to user {0} (ID: {1}) for {2}, current count: {3}", 
+                    new Object[]{user.getEmail(), user.getId(), contentType, user.getWarningCount()});
+            
             // Increment warning count
             int currentWarningCount = user.getWarningCount();
-            user.setWarningCount(currentWarningCount + 1);
+            int newWarningCount = currentWarningCount + 1;
+            user.setWarningCount(newWarningCount);
             
-            // If user reaches 3 warnings, deactivate the account
-            if (user.getWarningCount() >= 3) {
-                user.setStatus("inactive");
+            // Update status if needed
+            String newStatus = user.getStatus();
+            if (newWarningCount >= 3) {
+                newStatus = "inactive";
+                user.setStatus(newStatus);
                 LOGGER.log(Level.WARNING, "User {0} (ID: {1}) account deactivated after 3 warnings",
                         new Object[]{user.getEmail(), user.getId()});
             }
@@ -492,10 +545,23 @@ public class AuthService {
             // Save updated user
             userService.modifier(user);
             
-            // Send warning email
-            EmailService emailService = new EmailService();
-            String fullName = user.getFirstName() + " " + user.getLastName();
-            emailService.sendContentWarningEmailAsync(user.getEmail(), fullName, user.getWarningCount(), contentType, imageCaption);
+            // Important: Capture all user info needed for email BEFORE any other database operations
+            final String userEmail = user.getEmail();
+            final String userFullName = user.getFirstName() + " " + user.getLastName();
+            final int finalWarningCount = newWarningCount;
+            
+            // Add to tracking set IMMEDIATELY to prevent further warnings
+            usersWithWarningsThisSession.add(warningKey.hashCode());
+            
+            // Send email in a separate thread to avoid blocking and prevent additional database ops
+            CompletableFuture.runAsync(() -> {
+                try {
+                    // Use the existing emailService instance with captured values
+                    this.emailService.sendContentWarningEmail(userEmail, userFullName, finalWarningCount, contentType, imageCaption);
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Failed to send warning email: {0}", ex.getMessage());
+                }
+            });
             
             return true;
         } catch (Exception e) {

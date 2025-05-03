@@ -87,16 +87,23 @@ public class HomeController implements Initializable {
     
     private void loadDefaultProfilePic() {
         try {
-            // First try to load using class resource stream
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            // Use the correct filename that exists in the resources
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile-png.png"));
             if (defaultImage == null || defaultImage.isError()) {
                 // Try alternative paths
                 try {
-                    defaultImage = new Image(getClass().getResourceAsStream("/images/default_profile.png"));
+                    defaultImage = new Image(getClass().getClassLoader().getResourceAsStream("com/esprit/images/default-profile-png.png"));
                 } catch (Exception e) {
                     // If that fails, try another common path
                     try {
-                        defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default_profile.png"));
+                        File fallbackFile = new File("src/main/resources/com/esprit/images/default-profile-png.png");
+                        if (fallbackFile.exists()) {
+                            defaultImage = new Image(fallbackFile.toURI().toString());
+                        } else {
+                            // If all resource paths fail, create a colored circle as fallback
+                            createDefaultImageFallback();
+                            return;
+                        }
                     } catch (Exception ex) {
                         // If all resource paths fail, create a colored circle as fallback
                         createDefaultImageFallback();
@@ -170,11 +177,13 @@ public class HomeController implements Initializable {
         // Clear the session
         SessionManager.getInstance().clearSession();
         
-        // Navigate to login page
+        // Navigate to login page using the setupStage method for consistent sizing
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        
+        // Use the utility method for consistent login screen setup
+        MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
     }
     
     // Navigation methods

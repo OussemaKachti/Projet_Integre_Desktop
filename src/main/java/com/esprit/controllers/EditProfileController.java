@@ -3,12 +3,10 @@ package com.esprit.controllers;
 import com.esprit.models.User;
 import com.esprit.services.AuthService;
 import com.esprit.utils.AiContentValidator;
-import com.esprit.utils.ProfanityFilter;
 import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.ValidationHelper;
 import com.esprit.utils.ValidationUtils;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -69,6 +67,10 @@ public class EditProfileController {
     private final AuthService authService = new AuthService();
     private ValidationHelper validator;
     
+    // Static flag to track warnings across instances
+    private static final java.util.Set<Integer> warningsIssuedInSession = 
+        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+    
     @FXML
     private void initialize() {
         // Initialize the validation helper
@@ -82,7 +84,7 @@ public class EditProfileController {
         // Hide status message initially
         statusMessage.setVisible(false);
         
-        // Initialize AI validation status labels
+        // Initialize validation status labels
         if (firstNameValidationStatus != null) {
             firstNameValidationStatus.setVisible(false);
         }
@@ -91,86 +93,13 @@ public class EditProfileController {
             lastNameValidationStatus.setVisible(false);
         }
         
-        // Setup AI validations
-        setupAiValidations();
+        // Remove real-time AI validations
         
         // Add a small delay to ensure the save button is enabled after all initializations
         javafx.application.Platform.runLater(() -> {
             // Ensure save button is enabled by default - this must run after all other initialization
             saveButton.setDisable(false);
         });
-    }
-    
-    private void setupAiValidations() {
-        // Add AI validation to name fields
-        firstNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !newValue.isEmpty() && !newValue.equals(oldValue) && firstNameValidationStatus != null) {
-                firstNameValidationStatus.setText("Validating...");
-                firstNameValidationStatus.setVisible(true);
-                
-                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
-                    Platform.runLater(() -> {
-                        if (isValid) {
-                            firstNameErrorLabel.setVisible(false);
-                            firstNameValidationStatus.setText("✓");
-                            firstNameValidationStatus.setStyle("-fx-text-fill: green;");
-                        } else {
-                            firstNameErrorLabel.setText(message);
-                            firstNameErrorLabel.setVisible(true);
-                            firstNameValidationStatus.setText("✗");
-                            firstNameValidationStatus.setStyle("-fx-text-fill: red;");
-                            // Log the detected inappropriate content
-                            System.out.println("Edit profile - first name validation failed: " + message + " for text: " + newValue);
-                        }
-                        firstNameValidationStatus.setVisible(true);
-                        // Always make sure the save button is enabled regardless of validation
-                        saveButton.setDisable(false);
-                    });
-                });
-            } else if (firstNameValidationStatus != null) {
-                firstNameValidationStatus.setVisible(false);
-                firstNameErrorLabel.setVisible(false);
-            }
-            // Keep save button enabled no matter what
-            saveButton.setDisable(false);
-        });
-        
-        lastNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !newValue.isEmpty() && !newValue.equals(oldValue) && lastNameValidationStatus != null) {
-                lastNameValidationStatus.setText("Validating...");
-                lastNameValidationStatus.setVisible(true);
-                
-                AiContentValidator.validateNameAsync(newValue, (isValid, message) -> {
-                    Platform.runLater(() -> {
-                        if (isValid) {
-                            lastNameErrorLabel.setVisible(false);
-                            lastNameValidationStatus.setText("✓");
-                            lastNameValidationStatus.setStyle("-fx-text-fill: green;");
-                        } else {
-                            lastNameErrorLabel.setText(message);
-                            lastNameErrorLabel.setVisible(true);
-                            lastNameValidationStatus.setText("✗");
-                            lastNameValidationStatus.setStyle("-fx-text-fill: red;");
-                            // Log the detected inappropriate content
-                            System.out.println("Edit profile - last name validation failed: " + message + " for text: " + newValue);
-                        }
-                        lastNameValidationStatus.setVisible(true);
-                        // Always make sure the save button is enabled regardless of validation
-                        saveButton.setDisable(false);
-                    });
-                });
-            } else if (lastNameValidationStatus != null) {
-                lastNameValidationStatus.setVisible(false);
-                lastNameErrorLabel.setVisible(false);
-            }
-            // Keep save button enabled no matter what
-            saveButton.setDisable(false);
-        });
-        
-        // Add listeners to other fields that also ensure the save button stays enabled
-        emailField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
-        phoneField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
-        passwordField.textProperty().addListener((obs, old, newValue) -> saveButton.setDisable(false));
     }
     
     // Method to update save button state - always enabled
@@ -181,6 +110,11 @@ public class EditProfileController {
     
     public void setCurrentUser(User user) {
         this.currentUser = user;
+        
+        // Clear warning tracking sets when a new edit profile form is opened
+        warningsIssuedInSession.clear();
+        authService.clearWarningTracking();
+        
         populateFields();
     }
     
@@ -206,6 +140,9 @@ public class EditProfileController {
         validator.reset();
         statusMessage.setVisible(false);
         
+        // Flag to track if a warning has been issued
+        boolean warningIssued = false;
+        
         // Get form data
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
@@ -221,9 +158,11 @@ public class EditProfileController {
         
         boolean contentViolationDetected = false;
         
-        // Add warning flags to prevent double counting
-        boolean firstNameWarningIssued = false;
-        boolean lastNameWarningIssued = false;
+        // Check if this user already received a warning in this session
+        int userId = currentUser.getId();
+        if (warningsIssuedInSession.contains(userId)) {
+            warningIssued = true;
+        }
         
         // Validate first name
         boolean isFirstNameValid = validator.validateRequired(firstNameField, "First name is required");
@@ -232,29 +171,11 @@ public class EditProfileController {
             isFirstNameValid = false;
         }
         
-        // Check for profanity in first name
-        if (isFirstNameValid && ProfanityFilter.containsProfanity(firstName)) {
-            validator.showError(firstNameField, "First name contains inappropriate language");
-            isFirstNameValid = false;
+        // Validate against inappropriate content using AI only
+        if (isFirstNameValid) {
+            boolean isAppropriate = AiContentValidator.isAppropriateContent(firstName);
             
-            // Log the profanity incident and increment warning count
-            String severity = ProfanityLogManager.determineSeverity("First Name");
-            ProfanityLogManager.logProfanityIncident(
-                currentUser, 
-                "First Name", 
-                firstName,
-                severity, 
-                "Profile update rejected"
-            );
-            
-            // Add warning and send email notification
-            authService.addContentWarning(currentUser, "profile first name");
-            contentViolationDetected = true;
-            firstNameWarningIssued = true; // Set flag to prevent duplicate warning
-        }
-        
-        // Add AI validation for first name
-        if (isFirstNameValid && !AiContentValidator.isAppropriateContent(firstName)) {
+            if (!isAppropriate) {
             validator.showError(firstNameField, "First name contains inappropriate content");
             isFirstNameValid = false;
             
@@ -268,9 +189,13 @@ public class EditProfileController {
                 "Profile update rejected by AI validation"
             );
             
-            // Add warning and send email notification ONLY if not already issued
-            if (!firstNameWarningIssued) {
+                // Add warning and send email notification only if no warning issued yet
+                if (!warningIssued) {
                 authService.addContentWarning(currentUser, "profile first name");
+                    warningIssued = true;
+                    // Add to tracking set
+                    warningsIssuedInSession.add(userId);
+                }
                 contentViolationDetected = true;
             }
         }
@@ -282,29 +207,11 @@ public class EditProfileController {
             isLastNameValid = false;
         }
         
-        // Check for profanity in last name
-        if (isLastNameValid && ProfanityFilter.containsProfanity(lastName)) {
-            validator.showError(lastNameField, "Last name contains inappropriate language");
-            isLastNameValid = false;
+        // Validate against inappropriate content using AI only
+        if (isLastNameValid) {
+            boolean isAppropriate = AiContentValidator.isAppropriateContent(lastName);
             
-            // Log the profanity incident
-            String severity = ProfanityLogManager.determineSeverity("Last Name");
-            ProfanityLogManager.logProfanityIncident(
-                currentUser, 
-                "Last Name", 
-                lastName,
-                severity, 
-                "Profile update rejected"
-            );
-            
-            // Add warning and send email notification
-            authService.addContentWarning(currentUser, "profile last name");
-            contentViolationDetected = true;
-            lastNameWarningIssued = true; // Set flag to prevent duplicate warning
-        }
-        
-        // Add AI validation for last name
-        if (isLastNameValid && !AiContentValidator.isAppropriateContent(lastName)) {
+            if (!isAppropriate) {
             validator.showError(lastNameField, "Last name contains inappropriate content");
             isLastNameValid = false;
             
@@ -318,19 +225,23 @@ public class EditProfileController {
                 "Profile update rejected by AI validation"
             );
             
-            // Add warning and send email notification ONLY if not already issued
-            if (!lastNameWarningIssued) {
+                // Add warning and send email notification only if no warning issued yet
+                if (!warningIssued) {
                 authService.addContentWarning(currentUser, "profile last name");
+                    warningIssued = true;
+                    // Add to tracking set
+                    warningsIssuedInSession.add(userId);
+                }
                 contentViolationDetected = true;
             }
         }
         
         // Display special error message if content violation was detected
         if (contentViolationDetected) {
-            // Refresh current user to get updated warning count
-            currentUser = authService.findUserByEmail(currentUser.getEmail());
+            // Remove the refresh of currentUser to prevent an extra database operation
+            // that might be causing the double increment of warnings
             
-            // Check if account has been deactivated (3+ warnings)
+            // Check if account has been deactivated (3+ warnings) by using the local warning count
             if (currentUser.getWarningCount() >= 3) {
                 // Display account suspension message
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);

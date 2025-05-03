@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.esprit.services.UserService;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -33,6 +35,9 @@ public class MainApp extends Application {
    @Override
 public void start(Stage stage) {
     try {
+        // Reset database connections by ensuring MySQL has enough connections
+        resetDatabaseConnections();
+        
         // Store reference to primary stage
         primaryStage = stage;
         
@@ -56,12 +61,37 @@ public void start(Stage stage) {
         // Ensure stage is centered after showing
         ensureCentered(primaryStage);
         
+        // Add shutdown hook to close database connections
+        primaryStage.setOnCloseRequest(event -> {
+            cleanup();
+        });
+        
         LOGGER.info("Application started successfully");
     } catch (Exception e) {
         LOGGER.log(Level.SEVERE, "Failed to start application", e);
         e.printStackTrace();
     }
 }
+
+    @Override
+    public void stop() {
+        // Ensure all resources are closed when the application exits
+        cleanup();
+        LOGGER.info("Application stopped, all resources cleaned up");
+    }
+    
+    /**
+     * Cleans up resources when the application is closing
+     */
+    private void cleanup() {
+        try {
+            // Close the EntityManagerFactory to free up database connections
+            UserService.closeEntityManagerFactory();
+            LOGGER.info("Database connections closed");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error closing resources", e);
+        }
+    }
     
     /**
      * Centers a stage on the primary screen
@@ -239,4 +269,41 @@ private static void configureMainApplicationScreen(Stage stage) {
 //         e.printStackTrace();
 //     }
 // }
+
+private void resetDatabaseConnections() {
+    try {
+        LOGGER.info("Initializing database connection pool...");
+        
+        // Connect to MySQL directly to reset connections if needed
+        java.sql.Connection connection = null;
+        try {
+            // Load JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            
+            // Create a direct connection to MySQL to run administrative commands
+            connection = java.sql.DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/", "root", "");
+            
+            // Execute a command to show process list and look for sleep connections
+            java.sql.Statement stmt = connection.createStatement();
+            
+            // Just check connection works - don't actually kill connections
+            stmt.execute("SELECT 1");
+            LOGGER.info("Database connection successful");
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not reset database connections: {0}", e.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, "Error closing connection: {0}", e.getMessage());
+                }
+            }
+        }
+    } catch (Exception e) {
+        LOGGER.log(Level.WARNING, "Database connection reset failed: {0}", e.getMessage());
+    }
+}
 }
