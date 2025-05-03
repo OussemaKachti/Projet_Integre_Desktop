@@ -62,10 +62,10 @@ public class FormClubController {
 
         try {
             // ✅ AI moderation call
-            if (AiMService.containsBadWords(description)) {
+            /* if (AiMService.containsBadWords(description)) {
                 showAlert(Alert.AlertType.ERROR, "Contenu inapproprié", "La description contient des mots inappropriés !");
                 return;
-            }
+            } */
 
             String status = "en_attente";
             int points = 0;

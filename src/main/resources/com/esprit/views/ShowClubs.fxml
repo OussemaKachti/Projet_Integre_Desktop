@@ -8,6 +8,8 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.geometry.Insets?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
@@ -15,44 +17,83 @@
             fx:controller="com.esprit.controllers.ShowClubsController"
             prefHeight="600.0" prefWidth="800.0">
 
+    <!-- Header Section -->
+    <HBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT" spacing="20"
+          AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+
+        <Label text="UNICLUBS" style="-fx-font-family: 'Arial'; -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;"
+               prefHeight="50.0" prefWidth="120"/>
+
+        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-padding: 0 10;">
+            <Button text="Home" style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Clubs" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Events" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Products" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Competition" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <!-- Dropdown Menu -->
+            <StackPane fx:id="menuContainer" style="-fx-background-color: #f5f5f5; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5;"
+                       >
+                <Button text="Menu" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-radius: 5; -fx-padding: 5 15;"
+                        />
+
+                <!-- Dropdown Menu -->
+                <VBox fx:id="menuDropdown" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 5;" visible="false" managed="false">
+                    <Button text="My Profile" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 12; -fx-padding: 5;"
+                            />
+                    <Separator/>
+                    <Button text="Logout" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 12; -fx-padding: 5;"
+                           />
+                </VBox>
+            </StackPane>
+        </HBox>
+    </HBox>
+
     <!-- Search bar -->
     <TextField fx:id="searchField" promptText="🔍 Search by club name..."
                prefWidth="250.0"
                style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #b0bec5; -fx-padding: 8 12 8 12; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-color: #ffffff; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2); -fx-text-fill: #333;"
-               AnchorPane.topAnchor="15.0" AnchorPane.leftAnchor="275.0" AnchorPane.rightAnchor="275.0"
+               AnchorPane.topAnchor="80.0" AnchorPane.leftAnchor="275.0" AnchorPane.rightAnchor="275.0"
                onKeyReleased="#handleSearch"/>
 
     <!-- Top section for pagination and Create Club button -->
     <HBox alignment="CENTER_RIGHT"
           prefHeight="50.0"
           spacing="10"
-          AnchorPane.topAnchor="55.0"
+          AnchorPane.topAnchor="130.0"
           AnchorPane.rightAnchor="10.0"
           AnchorPane.leftAnchor="10.0">
         <!-- Pagination controls -->
         <Button fx:id="prevButton" text="Previous"
                 onAction="#previousPage"
                 style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 15; -fx-padding: 8 15 8 15;"
-                styleClass="pagination-button"
                 prefHeight="30.0" prefWidth="90.0"/>
         <Label fx:id="pageLabel" text="Page 1"
                style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 5 15 5 15; -fx-background-color: #f5f5f5; -fx-background-radius: 10;"/>
         <Button fx:id="nextButton" text="Next"
                 onAction="#nextPage"
                 style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 15; -fx-padding: 8 15 8 15;"
-                styleClass="pagination-button"
                 prefHeight="30.0" prefWidth="90.0"/>
         <!-- Create Club button -->
         <Button fx:id="createClubButton" text="CREATE CLUB"
                 onAction="#handleCreateClub"
                 style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-background-radius: 15; -fx-padding: 8 20 8 20;"
-                styleClass="create-club-button"
                 prefHeight="35.0" prefWidth="130.0"/>
     </HBox>
 
     <!-- ScrollPane for club cards -->
     <ScrollPane fitToWidth="true"
-                AnchorPane.topAnchor="110.0"
+                AnchorPane.topAnchor="180.0"
                 AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0"
                 AnchorPane.rightAnchor="0.0">
