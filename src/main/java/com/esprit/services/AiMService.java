@@ -10,6 +10,8 @@ public class AiMService {
     private static final String API_KEY = "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";
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+
+
     public static boolean containsBadWords(String text) throws Exception {
         URL url = new URL(API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
