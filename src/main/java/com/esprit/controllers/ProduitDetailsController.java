@@ -203,20 +203,7 @@ public class ProduitDetailsController implements Initializable {
         }
     }
 
-    /**
-     * Achète le produit immédiatement
-     */
-    @FXML
-    private void acheterMaintenant() {
-        int quantity = spinnerQuantity.getValue();
-        float total = selectedProduit.getPrix() * quantity;
 
-        // TODO: Implémenter le processus d'achat
-        AlertUtils.showInfo("Achat", "Achat direct",
-            String.format("Achat de %d × %s pour un total de %.2f €",
-                quantity, selectedProduit.getNomProd(), total));
-
-    }
 
     /**
      * Retourne au catalogue des produits

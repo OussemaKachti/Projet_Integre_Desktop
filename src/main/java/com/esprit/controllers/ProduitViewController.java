@@ -555,14 +555,7 @@ public class ProduitViewController implements Initializable {
         filterProducts();
     }
 
-    /**
-     * Navigue vers la page du panier
-     */
-    @FXML
-    private void voirPanier() {
-        // TODO: Implémenter la navigation vers le panier
-        AlertUtils.showInfo("Navigation", "Panier", "La vue du panier sera implémentée prochainement.");
-    }
+
 
     /**
      * Navigue vers l'interface d'administration

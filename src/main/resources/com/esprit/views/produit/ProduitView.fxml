@@ -33,14 +33,8 @@
                               <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
                            </padding>
                         </Button>
-                        <Button fx:id="btnPanier" mnemonicParsing="false" onAction="#voirPanier" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="Mon Panier (0)">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                           <padding>
-                              <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
-                           </padding>
-                        </Button>
+
+
                         <Button fx:id="btnAdmin" mnemonicParsing="false" onAction="#goToAdmin" style="-fx-background-color: white; -fx-text-fill: #6200EE; -fx-font-weight: bold; -fx-background-radius: 20;" text="Administration">
                            <HBox.margin>
                               <Insets right="20.0" />

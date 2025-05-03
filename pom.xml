@@ -56,11 +56,11 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.esprit.TestApp</mainClass>
-                                        <!-- <mainClass>com.esprit.ProduitApp</mainClass> -->
+                    <!-- <mainClass>com.esprit.ProduitApp</mainClass> -->
 
                 </configuration>
             </plugin>
-            
+
             <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
