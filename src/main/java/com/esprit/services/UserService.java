@@ -18,15 +18,29 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-public class UserService implements Service<User> {
+public class UserService implements Service<User>, AutoCloseable {
 
-    private final EntityManagerFactory emf;
+    private static EntityManagerFactory emf;
     private final EntityManager em;
+    
+    // Remove the static initializer block and replace with lazy initialization
+    private static synchronized EntityManagerFactory getEntityManagerFactory() {
+        if (emf == null || !emf.isOpen()) {
+            try {
+                emf = Persistence.createEntityManagerFactory("uniclubsPU");
+                System.out.println("EntityManagerFactory created");
+            } catch (PersistenceException e) {
+                System.err.println("Failed to initialize persistence factory: " + e.getMessage());
+                e.printStackTrace();
+                throw e;
+            }
+        }
+        return emf;
+    }
 
     public UserService() {
         try {
-            emf = Persistence.createEntityManagerFactory("uniclubsPU");
-            em = emf.createEntityManager();
+            em = getEntityManagerFactory().createEntityManager();
             System.out.println("EntityManager created successfully");
         } catch (PersistenceException e) {
             System.err.println("Failed to initialize persistence: " + e.getMessage());
@@ -35,20 +49,32 @@ public class UserService implements Service<User> {
         }
     }
 
-    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
-
+    // Improved singleton pattern with proper connection handling
     private static UserService instance;
+    private static final Object LOCK = new Object();
+
+    public static UserService getInstance() {
+        UserService localInstance = instance;
+        if (localInstance == null || !localInstance.em.isOpen()) {
+            synchronized (LOCK) {
+                localInstance = instance;
+                if (localInstance == null || !localInstance.em.isOpen()) {
+                    if (localInstance != null) {
+                        localInstance.close(); // Close existing instance if it exists but EM is closed
+                    }
+                    instance = new UserService();
+                    localInstance = instance;
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
 
     // public UserService() {
     // conn = DataSource.getInstance().getCnx();
     // }
-
-    public static UserService getInstance() {
-        if (instance == null) {
-            instance = new UserService();
-        }
-        return instance;
-    }
 
     /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
     ///
@@ -97,10 +123,14 @@ public class UserService implements Service<User> {
                 // If the entity is already managed, just let Hibernate handle it
                 // No need to call merge explicitly
                 System.out.println("Entity is already managed");
+                // Ensure changes are flushed
+                em.flush();
             } else {
                 // Only merge if the entity is detached
                 User merged = em.merge(user);
                 System.out.println("Entity merged successfully: " + merged.getId());
+                // Ensure changes are written immediately
+                em.flush();
             }
         });
     }
@@ -163,12 +193,21 @@ public class UserService implements Service<User> {
             throw new RuntimeException("Transaction failed", e);
         }
     }
-
+    
+    @Override
     public void close() {
-        if (em != null && em.isOpen())
+        if (em != null && em.isOpen()) {
             em.close();
-        if (emf != null && emf.isOpen())
+            System.out.println("EntityManager closed");
+        }
+    }
+    
+    // Static method to close the factory when application shuts down
+    public static void closeEntityManagerFactory() {
+        if (emf != null && emf.isOpen()) {
             emf.close();
+            System.out.println("EntityManagerFactory closed");
+        }
     }
 
     public void updateLastLoginTime(int userId) {

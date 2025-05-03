@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.esprit.models.User;
 import com.esprit.services.UserService;
@@ -58,8 +59,13 @@ public class ProfanityLogManager {
         }
         
         try {
-            // Partially censor the profane text for logging
-            String censoredText = censorProfanity(profaneText);
+            // Skip censoring for profile images, but still censor text content
+            String textToLog;
+            if (fieldName.toLowerCase().contains("profile image")) {
+                textToLog = profaneText; // Use uncensored text for profile images
+            } else {
+                textToLog = censorProfanity(profaneText); // Censor text for other fields
+            }
             
             // Format: timestamp|userId|fieldName|severity|action|censoredText
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
@@ -69,16 +75,12 @@ public class ProfanityLogManager {
                                           fieldName, 
                                           severity, 
                                           action,
-                                          censoredText);
+                                          textToLog);
             
             // Append to log file
             try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
                 writer.write(logEntry);
             }
-            
-            // Increment warning count and update user in database
-            user.setWarningCount(user.getWarningCount() + 1);
-            userService.modifier(user);
             
             return true;
         } catch (Exception e) {
@@ -207,5 +209,41 @@ public class ProfanityLogManager {
         
         // Default to low severity
         return "Low";
+    }
+    
+    /**
+     * Clears all profanity incidents for a specific user from the log file
+     * 
+     * @param userId The user ID to clear incidents for
+     * @return True if incidents were cleared successfully, false otherwise
+     */
+    public static boolean clearProfanityIncidents(int userId) {
+        try {
+            File logFile = new File(LOG_FILE);
+            if (!logFile.exists()) {
+                return true; // No log file means nothing to clear
+            }
+            
+            // Read all lines from the log file
+            List<String> logLines = Files.readAllLines(Paths.get(LOG_FILE));
+            
+            // Filter out lines related to the specified user
+            List<String> filteredLines = logLines.stream()
+                .filter(line -> {
+                    String[] parts = line.split("\\|");
+                    return parts.length < 2 || !parts[1].equals(String.valueOf(userId));
+                })
+                .collect(Collectors.toList());
+            
+            // Write the filtered lines back to the log file
+            Files.write(Paths.get(LOG_FILE), filteredLines);
+            
+            System.out.println("Cleared profanity incidents for user ID: " + userId);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error clearing profanity incidents: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 } 

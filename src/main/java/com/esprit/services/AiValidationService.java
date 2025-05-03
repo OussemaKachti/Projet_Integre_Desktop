@@ -11,13 +11,10 @@ import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.esprit.utils.ProfanityFilter;
-
 public class AiValidationService {
 
     private static final Logger LOGGER = Logger.getLogger(AiValidationService.class.getName());
     private final HuggingFaceClient huggingFaceClient;
-    private final ProfanityFilter profanityFilter; // Fallback
     private final String textModel;
     private final String violenceModel;
     private final String imageModel;
@@ -32,7 +29,6 @@ public class AiValidationService {
 
     public AiValidationService() {
         this.huggingFaceClient = new HuggingFaceClient();
-        this.profanityFilter = new ProfanityFilter();
 
         // Load configuration
         Properties config = loadConfiguration();
@@ -79,12 +75,6 @@ public class AiValidationService {
         try {
             LOGGER.log(Level.INFO, "Starting validation for name: {0}", name);
             
-            // First check using profanity filter as a quick check
-            if (profanityFilter.containsProfanity(name)) {
-                LOGGER.log(Level.WARNING, "Profanity filter detected inappropriate content in \"{0}\"", name);
-                return new ValidationResult(false, "This name contains inappropriate language", null);
-            }
-            
             // Text model classification - with proper candidate labels
             JSONObject result = huggingFaceClient.classifyText(textModel, name);
             
@@ -105,30 +95,38 @@ public class AiValidationService {
                 
                 // Get the highest score among negative categories
                 double highestNegativeScore = Math.max(Math.max(offensiveScore, hateSpeechScore), inappropriateScore);
+                double appropriateScore = result.has("appropriate") ? result.getDouble("appropriate") : 0.0;
                 
-                // If any negative category exceeds threshold
-                if (highestNegativeScore >= inappropriateThreshold) {
+                // More stringent check: if any negative category is close to appropriate score (within 10%)
+                // or exceeds threshold, reject
+                if (highestNegativeScore >= inappropriateThreshold || 
+                    (appropriateScore > 0 && highestNegativeScore >= (appropriateScore * 0.9))) {
                     String category = "inappropriate content";
-                    if (offensiveScore >= inappropriateThreshold) category = "offensive content";
-                    if (hateSpeechScore >= inappropriateThreshold) category = "hate speech";
+                    if (offensiveScore >= inappropriateThreshold || offensiveScore >= (appropriateScore * 0.9)) 
+                        category = "offensive content";
+                    if (hateSpeechScore >= inappropriateThreshold || hateSpeechScore >= (appropriateScore * 0.9)) 
+                        category = "hate speech";
                     
-                    LOGGER.log(Level.WARNING, "Text model detected {0} in \"{1}\" with score {2} (threshold: {3})", 
-                            new Object[]{category, name, highestNegativeScore, inappropriateThreshold});
+                    LOGGER.log(Level.WARNING, "Text model detected {0} in \"{1}\" with score {2} (threshold: {3}, appropriate: {4})", 
+                            new Object[]{category, name, highestNegativeScore, inappropriateThreshold, appropriateScore});
                     return new ValidationResult(false, "This name contains " + category, null);
                 }
                 
-                // If appropriate score is higher than all negative scores, mark as valid
-                double appropriateScore = result.has("appropriate") ? result.getDouble("appropriate") : 0.0;
-                if (appropriateScore > 0 && appropriateScore > highestNegativeScore) {
+                // If appropriate score is significantly higher than all negative scores, mark as valid
+                if (appropriateScore > 0 && appropriateScore > (highestNegativeScore * 1.2)) {
                     LOGGER.log(Level.INFO, "Name \"{0}\" classified as appropriate with score {1}", 
                             new Object[]{name, appropriateScore});
                     return new ValidationResult(true, "Valid name", null);
                 }
                 
-                // If we got here and have valid results, consider it safe
-                if (highestNegativeScore < inappropriateThreshold) {
+                // If we got here and have valid results with low negative scores, consider it safe
+                if (highestNegativeScore < inappropriateThreshold && highestNegativeScore < 0.3) {
                     LOGGER.log(Level.INFO, "Text model validation passed for \"{0}\"", name);
                     return new ValidationResult(true, "Valid name", null);
+                } else {
+                    // If we're not confident enough, reject
+                    LOGGER.log(Level.WARNING, "Not confident enough in validation for \"{0}\"", name);
+                    return new ValidationResult(false, "This name may contain inappropriate content", null);
                 }
             } else {
                 LOGGER.log(Level.WARNING, "Text model check failed: {0}", 
@@ -154,8 +152,8 @@ public class AiValidationService {
                 LOGGER.log(Level.INFO, "Violence model score for {0}: {1} (threshold: {2})", 
                         new Object[]{name, abusiveScore, inappropriateThreshold});
                 
-                // Check against threshold
-                if (abusiveScore >= inappropriateThreshold) {
+                // Check against threshold - be more stringent here too
+                if (abusiveScore >= inappropriateThreshold * 0.8) {
                     LOGGER.log(Level.WARNING, "Violence model detected abusive content in \"{0}\" with score {1} (threshold: {2})", 
                             new Object[]{name, abusiveScore, inappropriateThreshold});
                     return new ValidationResult(false, "This name contains abusive language", null);
@@ -167,13 +165,13 @@ public class AiValidationService {
             } else {
                 LOGGER.log(Level.WARNING, "Violence model check failed: {0}",
                         violenceResult != null ? violenceResult.optString("error", "Unknown error") : "Null result");
-                // Fall back to profanity filter
-                return fallbackToProfanityFilter(name);
+                // Don't fall back to profanity filter here to prevent double-counting
+                return new ValidationResult(true, "Valid name", null);
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during name validation", e);
-            // Fall back to profanity filter
-            return fallbackToProfanityFilter(name);
+            // Don't fall back to profanity filter to prevent double-counting
+            return new ValidationResult(true, "Valid name", null);
         }
     }
 
@@ -195,14 +193,7 @@ public class AiValidationService {
     }
 
     private ValidationResult fallbackToProfanityFilter(String text) {
-        if (!fallbackEnabled) {
-            return new ValidationResult(true, "Valid text", null); // Default to accepting if fallback disabled
-        }
-
-        LOGGER.log(Level.INFO, "AI validation failed, falling back to profanity filter");
-        if (profanityFilter.containsProfanity(text)) {
-            return new ValidationResult(false, "This text contains inappropriate words", null);
-        }
+        // We've completely removed the profanity filter to prevent double warning counts
         return new ValidationResult(true, "Valid text", null);
     }
 

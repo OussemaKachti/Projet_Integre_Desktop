@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ProgressBar;
@@ -106,6 +108,18 @@ public class AdminDashboardController {
     private TextField searchField;
 
     @FXML
+    private ComboBox<String> roleFilter;
+    
+    @FXML
+    private ComboBox<String> statusFilter;
+    
+    @FXML
+    private ComboBox<String> verifiedFilter;
+    
+    @FXML
+    private Button resetFiltersButton;
+    
+    @FXML
     private ScrollPane userManagementView;
 
     @FXML
@@ -116,9 +130,6 @@ public class AdminDashboardController {
 
     @FXML
     private Button backToUsersButton;
-
-    @FXML
-    private Button createUserButton;
 
     @FXML
     private Button userStatsButton;
@@ -210,6 +221,9 @@ public class AdminDashboardController {
             // Set admin name
             adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
 
+            // Initialize filter ComboBoxes
+            setupFilterComboBoxes();
+            
             // Initialize user management view
             setupUserManagementView();
 
@@ -220,8 +234,43 @@ public class AdminDashboardController {
             showUserManagement();
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "Initialization Error", "Failed to initialize the controller");
+            showAlert("Error", "Initialization Error", "Could not initialize the dashboard: " + e.getMessage());
         }
+    }
+
+    private void setupFilterComboBoxes() {
+        // Role filter setup
+        roleFilter.getItems().clear();
+        roleFilter.getItems().add("Role");
+        Arrays.stream(RoleEnum.values())
+            .filter(role -> !role.equals(RoleEnum.ADMINISTRATEUR)) // Exclude admin role
+            .map(Enum::name)
+            .forEach(roleName -> roleFilter.getItems().add(roleName));
+        roleFilter.setValue("Role");
+        
+        // Status filter setup
+        statusFilter.getItems().clear();
+        statusFilter.getItems().addAll("Status", "active", "inactive");
+        statusFilter.setValue("Status");
+        
+        // Verified filter setup
+        verifiedFilter.getItems().clear();
+        verifiedFilter.getItems().addAll("Verification", "Verified", "Not Verified");
+        verifiedFilter.setValue("Verification");
+        
+        // Add listeners to filters
+        roleFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        statusFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        verifiedFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+    }
+    
+    @FXML
+    private void resetFilters() {
+        roleFilter.setValue("Role");
+        statusFilter.setValue("Status");
+        verifiedFilter.setValue("Verification");
+        searchField.clear();
+        applyFilters();
     }
 
     private void setupUserManagementView() {
@@ -285,25 +334,7 @@ public class AdminDashboardController {
 
         // Setup search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (filteredUsers != null) {
-                filteredUsers.setPredicate(user -> {
-                    if (newValue == null || newValue.isEmpty()) {
-                        return true;
-                    }
-
-                    String lowerCaseFilter = newValue.toLowerCase();
-
-                    // Filter by name, email or phone
-                    return user.getFirstName().toLowerCase().contains(lowerCaseFilter) ||
-                            user.getLastName().toLowerCase().contains(lowerCaseFilter) ||
-                            user.getEmail().toLowerCase().contains(lowerCaseFilter) ||
-                            (user.getPhone() != null && user.getPhone().toLowerCase().contains(lowerCaseFilter));
-                });
-
-                // Reset pagination when search changes
-                currentPage = 0;
-                updatePagination();
-            }
+            applyFilters();
         });
 
         // Setup fixed table display
@@ -420,17 +451,8 @@ public class AdminDashboardController {
                 // Create a fresh filtered list
                 filteredUsers = new FilteredList<>(usersList, p -> true);
 
-                // Apply current search filter if any
-                String currentSearch = searchField.getText();
-                if (currentSearch != null && !currentSearch.isEmpty()) {
-                    String lowerCaseFilter = currentSearch.toLowerCase();
-                    filteredUsers.setPredicate(u -> {
-                        return u.getFirstName().toLowerCase().contains(lowerCaseFilter) ||
-                                u.getLastName().toLowerCase().contains(lowerCaseFilter) ||
-                                u.getEmail().toLowerCase().contains(lowerCaseFilter) ||
-                                (u.getPhone() != null && u.getPhone().toLowerCase().contains(lowerCaseFilter));
-                    });
-                }
+                // Apply current filters
+                applyFilters();
 
                 // Find the page containing the updated user
                 User updatedUser = null;
@@ -671,11 +693,7 @@ public class AdminDashboardController {
             clearWarningsBtn.setStyle("-fx-background-color: #FFA726; -fx-text-fill: white;");
             clearWarningsBtn.setOnAction(e -> clearUserWarnings(user));
             
-            Button reportUserBtn = new Button("Send Warning Email");
-            reportUserBtn.setStyle("-fx-background-color: #F44336; -fx-text-fill: white;");
-            reportUserBtn.setOnAction(e -> sendWarningEmail(user));
-            
-            actionBar.getChildren().addAll(clearWarningsBtn, reportUserBtn);
+            actionBar.getChildren().addAll(clearWarningsBtn);
             
             // Add these to the details container
             detailsContainer.getChildren().addAll(profanityTitle, profanityInfo, actionBar);
@@ -744,31 +762,36 @@ public class AdminDashboardController {
                 // Reset warning count
                 user.setWarningCount(0);
                 
+                // Set status to active
+                user.setStatus("active");
+                
                 // Save to database
                 userService.modifier(user);
+                
+                // Clear profanity incidents from log file
+                boolean logsCleared = ProfanityLogManager.clearProfanityIncidents(user.getId());
+                
+                // Clear warning tracking in AuthService for this user
+                authService.clearWarningTracking();
                 
                 // Refresh the user details view
                 showUserDetails(user);
                 
-                showAlert("Success", "Warnings Cleared", 
-                         "All warnings have been cleared for user " + 
-                         user.getFirstName() + " " + user.getLastName());
+                String message = "All warnings have been cleared for user " + 
+                         user.getFirstName() + " " + user.getLastName() + 
+                         " and account has been reactivated.";
+                
+                if (!logsCleared) {
+                    message += " Note: There was an issue clearing the log history.";
+                }
+                
+                showAlert("Success", "Warnings Cleared", message);
             } catch (Exception e) {
                 e.printStackTrace();
                 showAlert("Error", "Failed to Clear Warnings", 
                          "An error occurred: " + e.getMessage());
             }
         }
-    }
-    
-    // Method to send a warning email
-    private void sendWarningEmail(User user) {
-        if (user == null) return;
-        
-        // In a real application, this would send an actual email
-        showAlert("Notification Sent", "Warning Email", 
-                 "A warning email has been sent to " + user.getEmail() + 
-                 " regarding their use of profanity.");
     }
     
     private void addDetailRow(VBox container, String label, String value) {
@@ -921,14 +944,57 @@ public class AdminDashboardController {
 
     @FXML
     private void handleSearch() {
-        // The filtering is handled by the listener already
+        applyFilters();
     }
 
-    @FXML
-    private void showCreateUser() {
-        // Show a placeholder alert for now
-        showAlert("Create User", "Feature Not Implemented",
-                "The create user functionality will be implemented in a future update.");
+    private void applyFilters() {
+        if (filteredUsers == null) return;
+        
+        String searchTerm = searchField.getText().toLowerCase();
+        String roleValue = roleFilter.getValue();
+        String statusValue = statusFilter.getValue();
+        String verifiedValue = verifiedFilter.getValue();
+        
+        filteredUsers.setPredicate(user -> {
+            // Skip if user is admin
+            if ("ADMINISTRATEUR".equals(user.getRole().toString())) {
+                return false;
+            }
+            
+            // Apply search term filter
+            boolean matchesSearch = searchTerm.isEmpty() || 
+                user.getFirstName().toLowerCase().contains(searchTerm) ||
+                user.getLastName().toLowerCase().contains(searchTerm) ||
+                user.getEmail().toLowerCase().contains(searchTerm) ||
+                (user.getPhone() != null && user.getPhone().toLowerCase().contains(searchTerm));
+            
+            if (!matchesSearch) return false;
+            
+            // Apply role filter
+            if (!"Role".equals(roleValue) && !user.getRole().toString().equals(roleValue)) {
+                return false;
+            }
+            
+            // Apply status filter
+            if (!"Status".equals(statusValue) && !user.getStatus().equalsIgnoreCase(statusValue)) {
+                return false;
+            }
+            
+            // Apply verified filter
+            if (!"Verification".equals(verifiedValue)) {
+                boolean isVerified = user.isVerified();
+                if (("Verified".equals(verifiedValue) && !isVerified) || 
+                    ("Not Verified".equals(verifiedValue) && isVerified)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        // Reset pagination when filters change
+        currentPage = 0;
+        updatePagination();
     }
 
     @FXML
@@ -1460,6 +1526,9 @@ public class AdminDashboardController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        // Close database connections
+        closeResources();
+        
         // Clear session
         SessionManager.getInstance().clearSession();
 
@@ -1469,6 +1538,22 @@ public class AdminDashboardController {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Logout Error", "Failed to navigate to login page");
+        }
+    }
+    
+    // Close all resources when the controller is no longer needed
+    private void closeResources() {
+        try {
+            if (authService != null) {
+                authService.close();
+            }
+            if (userService != null) {
+                userService.close();
+            }
+            System.out.println("Database connections closed");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error closing resources: " + e.getMessage());
         }
     }
 
