@@ -12,7 +12,38 @@
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #e8f0fe;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ShowParticipantController">
-    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+
+    <!-- Header Section -->
+    <HBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT" spacing="20"
+          AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+
+        <Label text="UNICLUBS" style="-fx-font-family: 'Arial'; -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;"
+               prefHeight="50.0" prefWidth="120"/>
+
+        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-padding: 0 10;">
+            <Button text="Home" style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Clubs" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Events" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Products" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                   />
+            <Button text="Competition" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Contact Us" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-radius: 5; -fx-padding: 5 15;"
+                    />
+        </HBox>
+    </HBox>
+
+    <!-- Main Content -->
+    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="80" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
         <padding>
             <Insets bottom="20" left="20" right="20" top="20"/>
         </padding>
@@ -43,7 +74,7 @@
             <!-- Inline styles for table rows -->
             <style>
                 -fx-table-cell-border-color: transparent;
-                .table-row-cell:odd { -fx-background-color:rgb(10, 10, 10); }
+                .table-row-cell:odd { -fx-background-color: rgb(10, 10, 10); }
                 .table-row-cell:even { -fx-background-color: white; }
                 .table-column { -fx-font-family: 'Arial'; -fx-font-size: 13; }
             </style>
