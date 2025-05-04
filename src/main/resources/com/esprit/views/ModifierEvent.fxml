@@ -37,7 +37,7 @@
                     </left>
                     <right>
                         <HBox alignment="CENTER_RIGHT" spacing="10">
-                            <Button style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-padding: 8 15;" text="Back">
+                            <Button fx:id="backButton" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-padding: 8 15;" text="Back">
                                 <font>
                                     <Font name="Arial" size="14" />
                                 </font>

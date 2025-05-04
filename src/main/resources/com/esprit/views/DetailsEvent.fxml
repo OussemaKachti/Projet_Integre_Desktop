@@ -529,8 +529,8 @@
                                                     </font>
                                                 </Label>
 
-                                                <!-- View Participants Button -->
-                                                <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
+                                                <!-- View Participants Button
+                                                   <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="👥" style="-fx-text-fill: white;">
@@ -545,7 +545,7 @@
                                                             </Label>
                                                         </HBox>
                                                     </graphic>
-                                                </Button>
+                                                </Button> -->
 
                                                 <!-- QR Code Scanner -->
                                                 <Button fx:id="scanQrCodeButton" mnemonicParsing="false"
