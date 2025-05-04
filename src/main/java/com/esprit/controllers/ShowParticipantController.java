@@ -1,7 +1,7 @@
 package com.esprit.controllers;
 
-import com.esprit.models.Participant;
-import com.esprit.services.ParticipantService;
+import com.esprit.models.ParticipationMembre;
+import com.esprit.services.ParticipationMembreService;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -16,18 +16,18 @@ import java.util.stream.Collectors;
 
 public class ShowParticipantController {
 
-    @FXML private TableView<Participant> participantTable;
-    @FXML private TableColumn<Participant, Integer> idColumn;
-    @FXML private TableColumn<Participant, String> nameColumn;
-    @FXML private TableColumn<Participant, String> clubNameColumn;
-    @FXML private TableColumn<Participant, String> dateRequestColumn;
-    @FXML private TableColumn<Participant, String> statutColumn;
+    @FXML private TableView<ParticipationMembre> participantTable;
+    @FXML private TableColumn<ParticipationMembre, Integer> idColumn;
+    @FXML private TableColumn<ParticipationMembre, String> nameColumn;
+    @FXML private TableColumn<ParticipationMembre, String> clubNameColumn;
+    @FXML private TableColumn<ParticipationMembre, String> dateRequestColumn;
+    @FXML private TableColumn<ParticipationMembre, String> statutColumn;
     @FXML private TextField searchField;
     @FXML private Pagination pagination;
 
-    private final ParticipantService participantService = new ParticipantService();
-    private List<Participant> allAcceptedParticipants = new ArrayList<>();
-    private List<Participant> filteredParticipants = new ArrayList<>();
+    private final ParticipationMembreService participantService = new ParticipationMembreService();
+    private List<ParticipationMembre> allAcceptedParticipants = new ArrayList<>();
+    private List<ParticipationMembre> filteredParticipants = new ArrayList<>();
     private static final int ITEMS_PER_PAGE = 3;
 
     @FXML
@@ -36,7 +36,7 @@ public class ShowParticipantController {
         idColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getId()).asObject());
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         clubNameColumn.setCellValueFactory(cellData -> {
-            Participant p = cellData.getValue();
+            ParticipationMembre p = cellData.getValue();
             return p.getClub() != null ? p.clubNameProperty() : new SimpleStringProperty("N/A");
         });
         dateRequestColumn.setCellValueFactory(cellData -> cellData.getValue().dateRequestProperty());
@@ -63,7 +63,7 @@ public class ShowParticipantController {
         try {
             // Fetch all participants
             System.out.println("Fetching all participants from ParticipantService...");
-            List<Participant> allParticipants = participantService.getAllParticipants();
+            List<ParticipationMembre> allParticipants = participantService.getAllParticipants();
             System.out.println("Total participants fetched: " + allParticipants.size());
             allParticipants.forEach(participant -> {
                 System.out.println("Participant: " + participant.getId() + ", Name: " + participant.getName() +
@@ -163,7 +163,7 @@ public class ShowParticipantController {
         int startIndex = currentPage * ITEMS_PER_PAGE;
         int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredParticipants.size());
 
-        ObservableList<Participant> pageParticipants = FXCollections.observableArrayList();
+        ObservableList<ParticipationMembre> pageParticipants = FXCollections.observableArrayList();
         if (startIndex < filteredParticipants.size()) {
             pageParticipants.addAll(filteredParticipants.subList(startIndex, endIndex));
         }

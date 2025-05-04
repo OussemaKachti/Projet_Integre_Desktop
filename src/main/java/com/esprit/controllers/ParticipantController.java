@@ -1,9 +1,9 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Club;
-import com.esprit.models.Participant;
+import com.esprit.models.ParticipationMembre;
 import com.esprit.services.ClubService;
-import com.esprit.services.ParticipantService;
+import com.esprit.services.ParticipationMembreService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,14 +30,14 @@ public class ParticipantController {
     @FXML private TextField descriptionField;
     @FXML private TextField statutField;
     @FXML private TextField searchField;
-    @FXML private ListView<Participant> participantList;
+    @FXML private ListView<ParticipationMembre> participantList;
 
-    private final ParticipantService participantService = new ParticipantService();
+    private final ParticipationMembreService participantService = new ParticipationMembreService();
     private final ClubService clubService = new ClubService();
-    private final ObservableList<Participant> participants = FXCollections.observableArrayList();
-    private List<Participant> allParticipants; // To store the full list for filtering
+    private final ObservableList<ParticipationMembre> participants = FXCollections.observableArrayList();
+    private List<ParticipationMembre> allParticipants; // To store the full list for filtering
     private Map<Integer, String> clubIdToNameMap = new HashMap<>(); // Cache for club ID to name mapping
-    private Participant selectedParticipant = null;
+    private ParticipationMembre selectedParticipant = null;
 
     // Assuming a logged-in user (placeholder values)
     private final int currentUserId = 1; // Replace with actual user ID from user management
@@ -59,9 +59,9 @@ public class ParticipantController {
             allParticipants = participantService.afficher(); // Store the full list for filtering
 
             // Configurer l'affichage personnalisé dans la ListView
-            participantList.setCellFactory(param -> new ListCell<Participant>() {
+            participantList.setCellFactory(param -> new ListCell<ParticipationMembre>() {
                 @Override
-                protected void updateItem(Participant participant, boolean empty) {
+                protected void updateItem(ParticipationMembre participant, boolean empty) {
                     super.updateItem(participant, empty);
                     if (empty || participant == null) {
                         setText(null);
@@ -108,7 +108,7 @@ public class ParticipantController {
 
         // Automatically save participation request with default values
         try {
-            Participant participant = new Participant(
+            ParticipationMembre participant = new ParticipationMembre(
                     currentUserId,
                     clubId,
                     "Demande de participation de " + currentUserName, // Default description
@@ -174,7 +174,7 @@ public class ParticipantController {
         if (searchText.isEmpty()) {
             participants.setAll(allParticipants);
         } else {
-            List<Participant> filteredParticipants = allParticipants.stream()
+            List<ParticipationMembre> filteredParticipants = allParticipants.stream()
                     .filter(participant -> {
                         String clubName = clubIdToNameMap.getOrDefault(participant.getClub_id(), "Inconnu").toLowerCase();
                         return clubName.contains(searchText);

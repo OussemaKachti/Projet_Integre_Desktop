@@ -1,8 +1,8 @@
 package com.esprit.controllers;
 
-import com.esprit.models.Participant;
+import com.esprit.models.ParticipationMembre;
 import com.esprit.services.AiMService;
-import com.esprit.services.ParticipantService;
+import com.esprit.services.ParticipationMembreService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
@@ -13,7 +13,7 @@ public class FormParticipationController {
     @FXML
     private TextArea descriptionField;
 
-    private final ParticipantService participantService = new ParticipantService();
+    private final ParticipationMembreService participantService = new ParticipationMembreService();
     private int userId;
     private int clubId;
 
@@ -54,7 +54,7 @@ public class FormParticipationController {
             }
 
             // If everything is fine ➔ Add participant
-            Participant participant = new Participant(
+            ParticipationMembre participant = new ParticipationMembre(
                     userId,
                     clubId,
                     description,

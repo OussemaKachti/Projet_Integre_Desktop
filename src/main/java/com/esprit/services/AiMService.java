@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class AiMService {
 
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 
