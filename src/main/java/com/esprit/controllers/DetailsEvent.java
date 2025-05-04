@@ -108,7 +108,7 @@ public class DetailsEvent implements Initializable {
         // Configure event handlers
         presidentButton1.setOnAction(event -> handleDelete());
         registerButton.setOnAction(event -> handleRegister());
-        presidentButton3.setOnAction(event -> handleViewParticipants());
+        //presidentButton3.setOnAction(event -> handleViewParticipants());
 
         if (qrCodeButton != null) {
             qrCodeButton.setOnAction(event -> handleQRCode());
