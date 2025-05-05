@@ -1,0 +1,245 @@
+/* Path: src/main/resources/com/esprit/styles/competition.css */
+/* CSS for the Competition page */
+
+/* Import common styles */
+@import "common.css";
+
+/* Main container */
+.main-container {
+    -fx-background-color: #f4f7fa;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Header styling */
+.header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 4);
+    -fx-padding: 10 20;
+}
+
+.nav-container {
+    -fx-alignment: center;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #555;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 3 0;
+    -fx-border-color: transparent;
+}
+
+.nav-button:hover {
+    -fx-text-fill: #3498db;
+    -fx-border-color: transparent transparent #3498db transparent;
+}
+
+.nav-button-selected {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3498db;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 3 0;
+    -fx-border-color: transparent transparent #3498db transparent;
+    -fx-font-weight: bold;
+}
+
+.contact-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 15;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.contact-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* User profile styling */
+.user-profile-container {
+    -fx-cursor: hand;
+}
+
+.user-profile-content {
+    -fx-padding: 5 10;
+    -fx-background-radius: 20;
+    -fx-background-color: transparent;
+}
+
+.user-profile-content:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.profile-pic {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+.user-name {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+.profile-dropdown {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 3);
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+    -fx-spacing: 5;
+    -fx-translate-y: 50;
+    -fx-min-width: 150;
+}
+
+.dropdown-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333;
+    -fx-padding: 8 10;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.dropdown-item:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 3;
+}
+
+/* Content styling */
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.content-container {
+    -fx-padding: 30 50;
+}
+
+/* Hero section */
+.hero-section {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 5);
+    -fx-background-radius: 10;
+}
+
+.hero-image {
+    -fx-background-radius: 10;
+}
+
+.hero-content {
+    -fx-padding: 30 50;
+    -fx-spacing: 10;
+    -fx-max-width: 500;
+}
+
+.hero-subtitle {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0, 1, 1);
+}
+
+.hero-title {
+    -fx-text-fill: white;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0, 1, 1);
+}
+
+.hero-description {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-max-width: 400;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0, 1, 1);
+}
+
+.hero-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-margin-top: 15;
+}
+
+.hero-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* Section styling */
+.section {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+    -fx-background-radius: 8;
+}
+
+.section-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+/* Competition card styling */
+.competition-card {
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 15;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-border-color: #eee;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 3, 0, 0, 1);
+}
+
+.competition-card:hover {
+    -fx-background-color: #f0f7ff;
+    -fx-border-color: #c0d8f0;
+}
+
+.competition-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.competition-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #555;
+    -fx-wrap-text: true;
+}
+
+.competition-info {
+    -fx-font-size: 13px;
+    -fx-text-fill: #777;
+}
+
+.competition-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-padding: 8 15;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.competition-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* No data label styling */
+.no-data-label {
+    -fx-text-fill: #888;
+    -fx-font-size: 14px;
+    -fx-padding: 20;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+} 

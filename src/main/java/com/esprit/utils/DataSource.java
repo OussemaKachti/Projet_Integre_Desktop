@@ -12,48 +12,21 @@ public class DataSource {
     private final String url = "jdbc:mysql://localhost:3306/dbpi";
     private final String user = "root";
     private final String password = "";
-    
-    // Maximum number of connection attempts
-    private final int MAX_RETRIES = 3;
-    private final int RETRY_DELAY_MS = 2000; // 2 seconds
 
     private DataSource() {
-        connectWithRetry();
-    }
-    
-    private void connectWithRetry() {
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            try {
-                // Explicitly load MySQL driver
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                
-                // Connection to database
-                cnx = DriverManager.getConnection(url, user, password);
+        try {
+            // Connexion à la base de données
+            cnx = DriverManager.getConnection(url, user, password);
 
-                // Verify connection
-                if (cnx != null && !cnx.isClosed()) {
-                    System.out.println("Connected to Database!");
-                    // Test with a simple query
-                    Statement stmt = cnx.createStatement();
-                    stmt.executeQuery("SELECT 1");
-                    return; // Success, exit the method
-                }
-            } catch (ClassNotFoundException e) {
-                System.err.println("MySQL JDBC driver not found: " + e.getMessage());
-                break; // No need to retry if driver is missing
-            } catch (SQLException ex) {
-                System.err.println("Connection attempt " + attempt + " failed: " + ex.getMessage());
-                if (attempt < MAX_RETRIES) {
-                    System.out.println("Retrying connection in " + (RETRY_DELAY_MS/1000) + " seconds...");
-                    try {
-                        Thread.sleep(RETRY_DELAY_MS);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                    }
-                } else {
-                    System.err.println("Failed to connect to database after " + MAX_RETRIES + " attempts.");
-                }
+            // Vérification si la connexion est réussie en envoyant une requête simple
+            if (cnx != null && !cnx.isClosed()) {
+                System.out.println("Connected to Database!");
+                // Vous pouvez aussi tester avec une requête simple ici, par exemple :
+                Statement stmt = cnx.createStatement();
+                stmt.executeQuery("SELECT 1"); // Requête simple pour tester la connexion
             }
+        } catch (SQLException ex) {
+            System.err.println("Error connecting to database: " + ex.getMessage());
         }
     }
 
@@ -77,36 +50,17 @@ public class DataSource {
         }
         return cnx;
     }
-    
-    private boolean isConnectionValid() {
-        try {
-            if (cnx != null) {
-                // Test if connection is valid with 5 second timeout
-                return cnx.isValid(5);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking connection validity: " + e.getMessage());
-        }
-        return false;
-    }
 
-    // Method to check connection
+    // Méthode pour vérifier la connexion
     public boolean isConnected() {
         try {
-            return cnx != null && !cnx.isClosed() && isConnectionValid();
+            if (cnx != null && !cnx.isClosed()) {
+                return true; // La connexion est ouverte et valide
+            }
         } catch (SQLException ex) {
             System.err.println("Error checking connection: " + ex.getMessage());
-            return false;
         }
-    }
-
-    // Getter for url
-    public String getUrl() {
-        return url;
+        return false; // La connexion est fermée ou invalide
     }
     
-    // Getter for user 
-    public String getUser() {
-        return user;
-    }
 }

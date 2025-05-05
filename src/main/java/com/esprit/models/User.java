@@ -6,144 +6,254 @@ import java.util.List;
 
 import com.esprit.models.enums.RoleEnum;
 
-import javafx.beans.property.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
+@Entity
+@Table(name = "user")
 public class User {
-    private final IntegerProperty id = new SimpleIntegerProperty(this, "id");
-    private final StringProperty prenom = new SimpleStringProperty(this, "prenom");
-    private final StringProperty nom = new SimpleStringProperty(this, "nom");
-    private final StringProperty email = new SimpleStringProperty(this, "email");
-    private final StringProperty password = new SimpleStringProperty(this, "password");
-    private final StringProperty tel = new SimpleStringProperty(this, "tel");
-    private final StringProperty profilePicture = new SimpleStringProperty(this, "profilePicture");
-    private final ObjectProperty<RoleEnum> role = new SimpleObjectProperty<>(this, "role");
-    private final StringProperty status = new SimpleStringProperty(this, "status");
-    private final BooleanProperty isVerified = new SimpleBooleanProperty(this, "isVerified");
-    private final StringProperty confirmationToken = new SimpleStringProperty(this, "confirmationToken");
-    private final ObjectProperty<LocalDateTime> confirmationTokenExpiresAt = new SimpleObjectProperty<>(this,
-            "confirmationTokenExpiresAt");
-    private final ObjectProperty<LocalDateTime> createdAt = new SimpleObjectProperty<>(this, "createdAt");
-    private final ObjectProperty<LocalDateTime> lastLoginAt = new SimpleObjectProperty<>(this, "lastLoginAt");
-    private final IntegerProperty warningCount = new SimpleIntegerProperty(this, "warningCount");
 
-    // Collections
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @NotBlank(message = "First name cannot be empty")
+    @Size(min = 2, message = "First name must be at least 2 characters long")
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\s'-]+", message = "First name can only contain letters, spaces, hyphens and apostrophes")
+    @Column(name = "prenom")
+    private String firstName;
+
+    @NotBlank(message = "Last name cannot be empty")
+    @Size(min = 2, message = "Last name must be at least 2 characters long")
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\s'-]+", message = "Last name can only contain letters, spaces, hyphens and apostrophes")
+    @Column(name = "nom")
+    private String lastName;
+
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
+    @Column(unique = true)
+    private String email;
+
+    @NotBlank(message = "Password cannot be empty")
+    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", message = "Password must include uppercase, lowercase, numbers, and special characters")
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private RoleEnum role;
+
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^((\\+|00)216)?([2579][0-9]{7}|(3[012]|4[01]|8[0128])[0-9]{6}|42[16][0-9]{5})$", message = "Invalid Tunisian phone number format")
+    @Column(name = "tel", unique = true)
+    private String phone;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    @Column(name = "status")
+    private String status = "active";
+
+    @Column(name = "is_verified")
+    private boolean isVerified = false;
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
+
+    @Column(name = "confirmation_token_expires_at")
+    private LocalDateTime confirmationTokenExpiresAt;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    @Column(name = "warning_count")
+    private int warningCount = 0;
+
+    @Column(name = "verification_attempts")
+    private Integer verificationAttempts = 0;
+
+    @Column(name = "last_code_sent_time")
+    private LocalDateTime lastCodeSentTime;
+
+    // Collections with proper JPA annotations
+    @OneToMany(mappedBy = "user")
     private List<Sondage> sondages = new ArrayList<>();
-    // private List<ParticipationMembre> participations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
     private List<Commentaire> commentaires = new ArrayList<>();
-    // private List<Like> likes = new ArrayList<>();
-    // private List<ParticipationEvent> participationEvents = new ArrayList<>();
-    // private List<Commande> commandes = new ArrayList<>();
 
-    // Constants
-    public static final String STATUS_ACTIVE = "active";
-    public static final String STATUS_DISABLED = "disabled";
-
-    // Constructor
+    // Constructors
     public User() {
-        this.createdAt.set(LocalDateTime.now());
-        this.warningCount.set(0);
-        this.status.set(STATUS_ACTIVE);
-        this.isVerified.set(false);
+        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters with Property methods
+    public User(String firstName, String lastName, String email, String password, RoleEnum role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.createdAt = LocalDateTime.now();
+        this.status = "active";
+        this.isVerified = false;
+        this.warningCount = 0;
+    }
+
+    // Getters and Setters (no changes needed)
     public int getId() {
-        return id.get();
-    }
-
-    public IntegerProperty idProperty() {
         return id;
     }
 
     public void setId(int id) {
-        this.id.set(id);
+        this.id = id;
     }
 
-    public String getPrenom() {
-        return prenom.get();
+    public String getFirstName() {
+        return firstName;
     }
 
-    public StringProperty prenomProperty() {
-        return prenom;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public void setPrenom(String prenom) {
-        this.prenom.set(prenom);
+    public String getLastName() {
+        return lastName;
     }
 
-    public String getNom() {
-        return nom.get();
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
     }
 
-    public StringProperty nomProperty() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom.set(nom);
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
-        return email.get();
-    }
-
-    public StringProperty emailProperty() {
         return email;
     }
 
     public void setEmail(String email) {
-        this.email.set(email);
+        this.email = email;
     }
 
     public String getPassword() {
-        return password.get();
-    }
-
-    public StringProperty passwordProperty() {
         return password;
     }
 
     public void setPassword(String password) {
-        this.password.set(password);
-    }
-
-    public String getTel() {
-        return tel.get();
-    }
-
-    public StringProperty telProperty() {
-        return tel;
-    }
-
-    public void setTel(String tel) {
-        this.tel.set(tel);
-    }
-
-    public String getProfilePicture() {
-        return profilePicture.get();
-    }
-
-    public StringProperty profilePictureProperty() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture.set(profilePicture);
+        this.password = password;
     }
 
     public RoleEnum getRole() {
-        return role.get();
-    }
-
-    public ObjectProperty<RoleEnum> roleProperty() {
         return role;
     }
 
     public void setRole(RoleEnum role) {
-        this.role.set(role);
+        this.role = role;
     }
 
-    // Collections getters and setters
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
+    public LocalDateTime getConfirmationTokenExpiresAt() {
+        return confirmationTokenExpiresAt;
+    }
+
+    public void setConfirmationTokenExpiresAt(LocalDateTime confirmationTokenExpiresAt) {
+        this.confirmationTokenExpiresAt = confirmationTokenExpiresAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+
+    public int getWarningCount() {
+        return warningCount;
+    }
+
+    public void setWarningCount(int warningCount) {
+        this.warningCount = warningCount;
+    }
+
+    public Integer getVerificationAttempts() {
+        return verificationAttempts == null ? 0 : verificationAttempts;
+    }
+
+    public void setVerificationAttempts(Integer verificationAttempts) {
+        this.verificationAttempts = verificationAttempts;
+    }
+
+    public LocalDateTime getLastCodeSentTime() {
+        return lastCodeSentTime;
+    }
+
+    public void setLastCodeSentTime(LocalDateTime lastCodeSentTime) {
+        this.lastCodeSentTime = lastCodeSentTime;
+    }
+
+    // Updated collection getters and setters
     public List<Sondage> getSondages() {
         return sondages;
     }
@@ -152,37 +262,27 @@ public class User {
         this.sondages = sondages;
     }
 
-    // public List<ParticipationMembre> getParticipations() {
-    // return participations;
-    // }
+    public List<Commentaire> getCommentaires() {
+        return commentaires;
+    }
 
-    // public void setParticipations(List<ParticipationMembre> participations) {
-    // this.participations = participations;
-    // }
-
-    // Utility methods
-    public String getFullName() {
-        return getNom() + " " + getPrenom();
+    public void setCommentaires(List<Commentaire> commentaires) {
+        this.commentaires = commentaires;
     }
 
     public boolean isAdmin() {
         return getRole() == RoleEnum.ADMINISTRATEUR;
     }
 
-    // public boolean isActive() {
-    // return getStatus().equals(STATUS_ACTIVE);
-    // }
-
-    public void incrementWarningCount() {
-        this.warningCount.set(this.warningCount.get() + 1);
-    }
-
-    public boolean hasReachedMaxWarnings(int maxWarnings) {
-        return this.warningCount.get() >= maxWarnings;
-    }
-
     @Override
     public String toString() {
-        return getFullName();
+        return "User{"
+                + "id=" + id
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + ", role=" + role
+                + ", status='" + status + '\''
+                + '}';
     }
 }

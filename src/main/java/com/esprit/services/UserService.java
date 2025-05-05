@@ -1,19 +1,52 @@
+// Path: src/main/java/services/UserService.java
 package com.esprit.services;
 
-import com.esprit.models.User;
-import com.esprit.models.enums.RoleEnum;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import com.esprit.utils.DataSource; // Ajoutez cet import
+import java.util.Set;
 
-public class UserService {
-    private Connection conn;
-    private static UserService instance;
+import com.esprit.models.User;
+import com.esprit.utils.DataSource;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.TypedQuery;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
+public class UserService implements Service<User> {
+
+    private final EntityManagerFactory emf;
+    private final EntityManager em;
 
     public UserService() {
-        conn = DataSource.getInstance().getCnx();
+        try {
+            emf = Persistence.createEntityManagerFactory("uniclubsPU");
+            em = emf.createEntityManager();
+            System.out.println("EntityManager created successfully");
+        } catch (PersistenceException e) {
+            System.err.println("Failed to initialize persistence: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
+
+    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
+
+    private static UserService instance;
+
+    // public UserService() {
+    // conn = DataSource.getInstance().getCnx();
+    // }
 
     public static UserService getInstance() {
         if (instance == null) {
@@ -22,137 +55,133 @@ public class UserService {
         return instance;
     }
 
-    public void add(User user) throws SQLException {
-        String query = "INSERT INTO user (nom, prenom, email, password, tel, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pst = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setString(1, user.getNom());
-            pst.setString(2, user.getPrenom());
-            pst.setString(3, user.getEmail());
-            pst.setString(4, user.getPassword()); // Consider hashing
-            pst.setString(5, user.getTel());
-            pst.setString(6, user.getRole().toString());
-            // pst.setString(7, user.getStatus());
+    /// FASAKHNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII ///////
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
 
-            pst.executeUpdate();
-
-            try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    user.setId(generatedKeys.getInt(1));
-                }
-            }
-        }
-    }
-
-    public User getById(int id) throws SQLException {
-        String query = "SELECT * FROM user WHERE id = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToUser(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    public List<User> getAll() throws SQLException {
-        List<User> users = new ArrayList<>();
-        String query = "SELECT * FROM user";
-        try (Statement st = conn.createStatement();
-                ResultSet rs = st.executeQuery(query)) {
-            while (rs.next()) {
-                users.add(mapResultSetToUser(rs));
-            }
-        }
-        return users;
-    }
-
-    public void update(User user) throws SQLException {
-        String query = "UPDATE user SET nom=?, prenom=?, email=?, tel=?, role=?, status=? WHERE id=?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setString(1, user.getNom());
-            pst.setString(2, user.getPrenom());
-            pst.setString(3, user.getEmail());
-            pst.setString(4, user.getTel());
-            pst.setString(5, user.getRole().toString());
-            // pst.setString(6, user.getStatus());
-            pst.setInt(7, user.getId());
-
-            pst.executeUpdate();
-        }
-    }
-
-    public void delete(int id) throws SQLException {
-        String query = "DELETE FROM user WHERE id=?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setInt(1, id);
-            pst.executeUpdate();
-        }
-    }
-
-    private User mapResultSetToUser(ResultSet rs) throws SQLException {
-        User user = new User();
-        user.setId(rs.getInt("id"));
-        user.setNom(rs.getString("nom"));
-        user.setPrenom(rs.getString("prenom"));
-        user.setEmail(rs.getString("email"));
-
-        // Le champ tel peut ne pas exister dans la base Symfony
+    @Override
+    public void ajouter(User user) {
         try {
-            user.setTel(rs.getString("tel"));
-        } catch (SQLException e) {
-            // Ignorer si la colonne n'existe pas
-        }
+            // Validate entity first
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        // Gestion adaptative du rôle
-        String roleStr = rs.getString("role");
-        try {
-            // 1. Essayer la valeur directe
-            user.setRole(RoleEnum.valueOf(roleStr));
-        } catch (IllegalArgumentException e) {
-            try {
-                // 2. Essayer la valeur en majuscules
-                user.setRole(RoleEnum.valueOf(roleStr.toUpperCase()));
-            } catch (IllegalArgumentException ex) {
-                try {
-                    // 3. Traiter les cas spécifiques connus
-                    if (roleStr.equalsIgnoreCase("presidentClub") ||
-                            roleStr.equalsIgnoreCase("PRESIDENTCLUB")) {
-                        user.setRole(RoleEnum.PRESIDENT_CLUB);
-                    } else if (roleStr.equalsIgnoreCase("administrateur") ||
-                            roleStr.equalsIgnoreCase("admin")) {
-                        user.setRole(RoleEnum.ADMINISTRATEUR);
-                    } else if (roleStr.equalsIgnoreCase("membre") ||
-                            roleStr.equalsIgnoreCase("user")) {
-                        user.setRole(RoleEnum.MEMBRE);
-                    } else {
-                        // 4. Valeur par défaut
-                        System.out.println("Rôle inconnu: " + roleStr + ", utilisation de MEMBRE par défaut");
-                        user.setRole(RoleEnum.MEMBRE);
-                    }
-                } catch (Exception exc) {
-                    // En cas d'erreur, utiliser MEMBRE par défaut
-                    user.setRole(RoleEnum.MEMBRE);
+            if (!violations.isEmpty()) {
+                for (ConstraintViolation<User> v : violations) {
+                    System.err.println(
+                            "Validation Error: " + v.getPropertyPath() + " " + v.getMessage());
                 }
+                throw new ConstraintViolationException(violations);
             }
-        }
 
-        return user;
+            // Proceed with persistence
+            executeInTransaction(() -> {
+                em.persist(user);
+                em.flush(); // Force immediate insert to verify operation
+                System.out.println("Persisted: " + user.getId());
+            });
+        } catch (Exception e) {
+            System.err.println("Persistence Error: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to ensure transaction rollback
+        }
     }
 
-    public User authenticate(String email, String password) throws SQLException {
-        String query = "SELECT * FROM user WHERE email = ? AND password = ?";
-        try (PreparedStatement pst = conn.prepareStatement(query)) {
-            pst.setString(1, email);
-            pst.setString(2, password); // Consider using hashing
-
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToUser(rs);
-                }
+    @Override
+    public void modifier(User user) {
+        executeInTransaction(() -> {
+            // Check if the entity is already managed by the current session
+            boolean isManaged = em.contains(user);
+            if (isManaged) {
+                // If the entity is already managed, just let Hibernate handle it
+                // No need to call merge explicitly
+                System.out.println("Entity is already managed");
+            } else {
+                // Only merge if the entity is detached
+                User merged = em.merge(user);
+                System.out.println("Entity merged successfully: " + merged.getId());
             }
+        });
+    }
+
+    @Override
+    public void supprimer(User user) {
+        executeInTransaction(() -> {
+            User managedUser = em.merge(user);
+            em.remove(managedUser);
+        });
+    }
+
+    @Override
+    public List<User> recuperer() {
+        return em.createQuery("SELECT u FROM User u", User.class).getResultList();
+    }
+
+    public User getById(int id) {
+        return em.find(User.class, id);
+    }
+
+    public List<User> rechercherParNom(String keyword) {
+        TypedQuery<User> query = em.createQuery(
+                "SELECT u FROM User u WHERE u.lastName LIKE :keyword OR u.firstName LIKE :keyword",
+                User.class);
+        query.setParameter("keyword", "%" + keyword + "%");
+        return query.getResultList();
+    }
+
+    public User findByEmail(String email) {
+        try {
+            TypedQuery<User> query = em.createQuery(
+                    "SELECT u FROM User u WHERE u.email = :email",
+                    User.class);
+            query.setParameter("email", email);
+            List<User> result = query.getResultList();
+            return result.isEmpty() ? null : result.get(0);
+        } catch (Exception e) {
+            System.err.println("Error finding user by email: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-        return null;
+    }
+
+    public EntityManager getEntityManager() {
+        return em;
+    }
+
+    private void executeInTransaction(Runnable operation) {
+        try {
+            em.getTransaction().begin();
+            operation.run();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            System.err.println("Transaction failed: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Transaction failed", e);
+        }
+    }
+
+    public void close() {
+        if (em != null && em.isOpen())
+            em.close();
+        if (emf != null && emf.isOpen())
+            emf.close();
+    }
+
+    public void updateLastLoginTime(int userId) {
+        executeInTransaction(() -> {
+            em.createQuery("UPDATE User u SET u.lastLoginAt = :now WHERE u.id = :id")
+                    .setParameter("now", LocalDateTime.now())
+                    .setParameter("id", userId)
+                    .executeUpdate();
+        });
     }
 }

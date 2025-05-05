@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.HomeController" 
+      styleClass="main-container" stylesheets="@../styles/home.css">
+
+    <!-- Header Section -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+        <padding>
+            <Insets top="15" right="25" bottom="15" left="25"/>
+        </padding>
+        
+        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+            <Image url="@../images/logo.png"/>
+        </ImageView>
+        
+        <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button-selected"/>
+            
+            <!-- Add a direct Polls button to the main navbar -->
+            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
+            
+            <!-- Clubs dropdown container -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                
+                <!-- Clubs Dropdown Menu - Initially hidden -->
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                        <Label text="👥" styleClass="dropdown-item-icon"/>
+                        <Label text="Club Management" styleClass="dropdown-item-text"/>
+                    </HBox>
+                    <Separator styleClass="dropdown-divider"/>
+                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                        <Label text="🏆" styleClass="dropdown-item-icon"/>
+                        <Label text="My Club" styleClass="dropdown-item-text"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+            
+            <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+            <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+            <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+        </HBox>
+        
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <!-- User Profile Section -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                        <Image url="@../images/default-profile.png"/>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                </HBox>
+                
+                <!-- Dropdown Menu -->
+                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                    <Separator styleClass="dropdown-divider"/>
+                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                </VBox>
+            </StackPane>
+            
+            <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+        </HBox>
+    </HBox>
+
+    <!-- Main Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
+        <VBox spacing="30" styleClass="content-container">
+            <!-- Hero Section -->
+            <StackPane styleClass="hero-section">
+                <ImageView fitWidth="1200" fitHeight="400" preserveRatio="false" styleClass="hero-image">
+                    <Image url="@../images/hero-bg.jpg"/>
+                </ImageView>
+                <VBox alignment="CENTER_LEFT" styleClass="hero-content">
+                    <Label text="Esprit Club Management" styleClass="hero-subtitle"/>
+                    <Label text="Empower, Organize, and Thrive" styleClass="hero-title"/>
+                    <Label text="Simplify club management, engage members, and create impactful events" 
+                           styleClass="hero-description" wrapText="true"/>
+                    <Button text="Find Clubs" styleClass="hero-button" onAction="#navigateToClubs"/>
+                </VBox>
+            </StackPane>
+
+            <!-- Popular Clubs Section -->
+            <VBox spacing="20" styleClass="section">
+                <Label text="Most Popular Clubs" styleClass="section-title"/>
+                <HBox spacing="20" alignment="CENTER">
+                    <!-- AIESEC Club Card -->
+                    <VBox styleClass="club-card">
+                        <ImageView fitHeight="200" fitWidth="300" preserveRatio="true">
+                            <Image url="@../images/aiesec.jpg"/>
+                        </ImageView>
+                        <VBox styleClass="club-content">
+                            <Label text="AIESEC" styleClass="club-name"/>
+                            <Label text="Global platform for young people to develop their leadership potential" 
+                                   styleClass="club-description" wrapText="true"/>
+                            <Label text="1520 Points" styleClass="club-points"/>
+                        </VBox>
+                    </VBox>
+                    
+                    <!-- Lions Club Card -->
+                    <VBox styleClass="club-card">
+                        <ImageView fitHeight="200" fitWidth="300" preserveRatio="true">
+                            <Image url="@../images/lions.png"/>
+                        </ImageView>
+                        <VBox styleClass="club-content">
+                            <Label text="Lions Club" styleClass="club-name"/>
+                            <Label text="Global network of volunteers dedicated to serving communities" 
+                                   styleClass="club-description" wrapText="true"/>
+                            <Label text="1480 Points" styleClass="club-points"/>
+                        </VBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Events Section -->
+            <VBox spacing="20" styleClass="section">
+                <Label text="Upcoming Events" styleClass="section-title"/>
+                <VBox spacing="15">
+                    <!-- Event Card -->
+                    <HBox styleClass="event-card" spacing="20">
+                        <VBox styleClass="event-date" alignment="CENTER">
+                            <Label text="02" styleClass="event-day"/>
+                            <Label text="April, 2025" styleClass="event-month"/>
+                        </VBox>
+                        <VBox HBox.hgrow="ALWAYS" spacing="5">
+                            <Label text="CodeStorm: The Ultimate Hackathon Challenge" styleClass="event-title"/>
+                            <HBox spacing="10" styleClass="event-info">
+                                <Label text="📍 Menzah 4, Tunisia" styleClass="event-location"/>
+                                <Label text="🕒 10:30am - 12:30pm" styleClass="event-time"/>
+                            </HBox>
+                        </VBox>
+                        <Button text="View Details" styleClass="event-button" onAction="#viewEventDetails"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox> 

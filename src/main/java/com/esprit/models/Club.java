@@ -1,108 +1,192 @@
 package com.esprit.models;
 
-import javafx.beans.property.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+@Entity
+@Table(name = "club")
 public class Club {
-    private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty nom = new SimpleStringProperty();
-    private final StringProperty description = new SimpleStringProperty();
-    private final StringProperty logo = new SimpleStringProperty();
-    private final ObjectProperty<LocalDateTime> dateCreation = new SimpleObjectProperty<>();
-    private final ObjectProperty<User> president = new SimpleObjectProperty<>();
-    private final StringProperty status = new SimpleStringProperty();
+    // JPA fields
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "nom")
+    private String nom;
+    @Column(name = "nom_c")
+    private String nomC;
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "logo")
+    private String logo;
+
+    @Column(name = "date_creation")
+    private LocalDateTime dateCreation;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "president_id")
+    private User president;
+
+    @Column(name = "status")
+    private String status;
+    @Column(name = "image")
+    private String image;
+
+    @Column(name = "points")
+    private int points;
+
+    // JavaFX properties for UI binding
+    @Transient
+    private final IntegerProperty idProperty = new SimpleIntegerProperty();
+
+    @Transient
+    private final StringProperty nomProperty = new SimpleStringProperty();
+
+    @Transient
+    private final StringProperty descriptionProperty = new SimpleStringProperty();
+
+    @Transient
+    private final StringProperty logoProperty = new SimpleStringProperty();
+
+    @Transient
+    private final ObjectProperty<LocalDateTime> dateCreationProperty = new SimpleObjectProperty<>();
+
+    @Transient
+    private final ObjectProperty<User> presidentProperty = new SimpleObjectProperty<>();
+
+    @Transient
+    private final StringProperty statusProperty = new SimpleStringProperty();
+
+    // JPA relationships
+    @Transient
     private List<User> membres = new ArrayList<>();
+
+    @OneToMany(mappedBy = "club", fetch = FetchType.EAGER)
     private List<Sondage> sondages = new ArrayList<>();
 
     public Club() {
-        this.dateCreation.set(LocalDateTime.now());
+        this.dateCreation = LocalDateTime.now();
+        this.dateCreationProperty.set(LocalDateTime.now());
     }
 
-    // Getters and Setters with Properties
+    // Getters and Setters
     public int getId() {
-        return id.get();
-    }
-
-    public IntegerProperty idProperty() {
         return id;
     }
 
     public void setId(int id) {
-        this.id.set(id);
+        this.id = id;
+        this.idProperty.set(id);
     }
 
     public String getNom() {
-        return nom.get();
-    }
-
-    public StringProperty nomProperty() {
         return nom;
     }
 
     public void setNom(String nom) {
-        this.nom.set(nom);
+        this.nom = nom;
+        this.nomProperty.set(nom);
     }
 
     public String getDescription() {
-        return description.get();
-    }
-
-    public StringProperty descriptionProperty() {
         return description;
     }
 
     public void setDescription(String description) {
-        this.description.set(description);
+        this.description = description;
+        this.descriptionProperty.set(description);
     }
 
     public String getLogo() {
-        return logo.get();
-    }
-
-    public StringProperty logoProperty() {
         return logo;
     }
 
     public void setLogo(String logo) {
-        this.logo.set(logo);
+        this.logo = logo;
+        this.logoProperty.set(logo);
     }
 
     public LocalDateTime getDateCreation() {
-        return dateCreation.get();
-    }
-
-    public ObjectProperty<LocalDateTime> dateCreationProperty() {
         return dateCreation;
     }
 
     public void setDateCreation(LocalDateTime date) {
-        this.dateCreation.set(date);
+        this.dateCreation = date;
+        this.dateCreationProperty.set(date);
     }
 
     public User getPresident() {
-        return president.get();
-    }
-
-    public ObjectProperty<User> presidentProperty() {
         return president;
     }
 
     public void setPresident(User president) {
-        this.president.set(president);
+        this.president = president;
+        this.presidentProperty.set(president);
     }
 
     public String getStatus() {
-        return status.get();
-    }
-
-    public StringProperty statusProperty() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status.set(status);
+        this.status = status;
+        this.statusProperty.set(status);
+    }
+
+    // Property accessors for JavaFX
+    public IntegerProperty idProperty() {
+        idProperty.set(id);
+        return idProperty;
+    }
+
+    public StringProperty nomProperty() {
+        nomProperty.set(nom);
+        return nomProperty;
+    }
+
+    public StringProperty descriptionProperty() {
+        descriptionProperty.set(description);
+        return descriptionProperty;
+    }
+
+    public StringProperty logoProperty() {
+        logoProperty.set(logo);
+        return logoProperty;
+    }
+
+    public ObjectProperty<LocalDateTime> dateCreationProperty() {
+        dateCreationProperty.set(dateCreation);
+        return dateCreationProperty;
+    }
+
+    public ObjectProperty<User> presidentProperty() {
+        presidentProperty.set(president);
+        return presidentProperty;
+    }
+
+    public StringProperty statusProperty() {
+        statusProperty.set(status);
+        return statusProperty;
     }
 
     // List management
@@ -128,10 +212,31 @@ public class Club {
         }
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public void addSondage(Sondage sondage) {
         if (!this.sondages.contains(sondage)) {
             this.sondages.add(sondage);
             sondage.setClub(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.getNom();
     }
 }

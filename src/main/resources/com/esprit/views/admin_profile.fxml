@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AdminProfileController">
+   <top>
+      <HBox alignment="CENTER_LEFT" styleClass="header">
+         <padding>
+            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+         </padding>
+         
+         <Button fx:id="backToDashboardButton" styleClass="button-secondary" text="Back to Dashboard">
+            <HBox.margin>
+               <Insets right="20.0" />
+            </HBox.margin>
+         </Button>
+         
+         <Label text="Administrator Profile" textFill="WHITE">
+            <font>
+               <Font name="System Bold" size="20.0" />
+            </font>
+         </Label>
+         
+         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <Button fx:id="logoutButton" onAction="#handleLogout" style="-fx-background-color: white; -fx-text-fill: #00A0E3;" text="Logout" />
+         </HBox>
+      </HBox>
+   </top>
+   
+   <center>
+      <VBox fillWidth="true" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="admin-profile-header">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            
+            <!-- Profile Image -->
+            <AnchorPane prefHeight="150.0" prefWidth="150.0" styleClass="profile-image-container">
+               <ImageView fx:id="profileImageView" fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" styleClass="profile-image" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               <Button fx:id="changeImageBtn" mnemonicParsing="false" onAction="#handleChangeImage" opacity="0.0" prefHeight="150.0" prefWidth="150.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            </AnchorPane>
+            
+            <!-- User Info -->
+            <VBox alignment="CENTER_LEFT" spacing="5.0">
+               <Label fx:id="usernameLabel" styleClass="title" text="Admin Name">
+                  <font>
+                     <Font name="System Bold" size="28.0" />
+                  </font>
+               </Label>
+               
+               <Label fx:id="userRoleLabel" styleClass="badge, badge-primary" text="ADMINISTRATEUR">
+                  <padding>
+                     <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                  </padding>
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+               </Label>
+               
+               <Label fx:id="userStatusLabel" styleClass="text-muted" text="Administrator Account">
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+               </Label>
+            </VBox>
+            
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+               <Button fx:id="editProfileBtn" onAction="#handleEditProfile" styleClass="button-primary" text="Edit Profile">
+                  <graphic>
+                     <Label text="✏️" textFill="WHITE" />
+                  </graphic>
+               </Button>
+            </HBox>
+         </HBox>
+         
+         <!-- Tabs and Content -->
+         <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <tabs>
+               <!-- Profile Information Tab -->
+               <Tab text="Profile Information">
+                  <content>
+                     <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <content>
+                           <VBox fillWidth="true" spacing="20.0">
+                              <padding>
+                                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                              </padding>
+                              
+                              <!-- Status Messages -->
+                              <Label fx:id="profileInfoMessage" styleClass="alert-success" text="Your profile has been updated successfully!" visible="false" wrapText="true" />
+                              <Label fx:id="profileInfoError" styleClass="alert-error" text="An error occurred while updating your profile." visible="false" wrapText="true" />
+                              
+                              <!-- Admin Information Cards - Changed from HBox to FlowPane for better wrapping -->
+                              <FlowPane hgap="20.0" vgap="20.0" prefWrapLength="1200.0">
+                                 <VBox styleClass="card" minWidth="300.0" maxWidth="600.0" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                       <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                    </padding>
+                                    <Label styleClass="text-small, text-muted" text="Name" />
+                                    <Label fx:id="nameValueLabel" styleClass="title" text="Admin Full Name">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    
+                                    <FlowPane.margin>
+                                       <Insets right="10.0" />
+                                    </FlowPane.margin>
+                                 </VBox>
+                                 
+                                 <VBox styleClass="card" minWidth="300.0" maxWidth="600.0" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                       <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                    </padding>
+                                    <Label styleClass="text-small, text-muted" text="Email" />
+                                    <Label fx:id="emailValueLabel" styleClass="title" text="admin@example.com">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    
+                                    <FlowPane.margin>
+                                       <Insets right="10.0" />
+                                    </FlowPane.margin>
+                                 </VBox>
+                              
+                                 <VBox styleClass="card" minWidth="300.0" maxWidth="600.0" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                       <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                    </padding>
+                                    <Label styleClass="text-small, text-muted" text="Phone" />
+                                    <Label fx:id="phoneValueLabel" styleClass="title" text="+216 12 345 678">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    
+                                    <FlowPane.margin>
+                                       <Insets right="10.0" />
+                                    </FlowPane.margin>
+                                 </VBox>
+                                 
+                                 <VBox styleClass="card" minWidth="300.0" maxWidth="600.0" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                       <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                    </padding>
+                                    <Label styleClass="text-small, text-muted" text="Account Created" />
+                                    <Label fx:id="accountCreatedLabel" styleClass="title" text="January 1, 2024">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </VBox>
+                              </FlowPane>
+                              
+                              <!-- Admin System Access Card -->
+                              <VBox styleClass="card">
+                                 <padding>
+                                    <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                 </padding>
+                                 <Label text="System Access" styleClass="section-title">
+                                    <font>
+                                       <Font name="System Bold" size="16.0" />
+                                    </font>
+                                 </Label>
+                                 <Label styleClass="text-muted" text="As an administrator, you have full access to all system features and functionality."/>
+                                 <FlowPane hgap="10.0" vgap="10.0" prefWrapLength="1000.0">
+                                    <VBox.margin>
+                                       <Insets top="10.0" />
+                                    </VBox.margin>
+                                    <Label styleClass="badge, badge-primary" text="User Management">
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" bottom="5.0" />
+                                       </FlowPane.margin>
+                                    </Label>
+                                    <Label styleClass="badge, badge-primary" text="Club Management">
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" bottom="5.0" />
+                                       </FlowPane.margin>
+                                    </Label>
+                                    <Label styleClass="badge, badge-primary" text="Event Management">
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" bottom="5.0" />
+                                       </FlowPane.margin>
+                                    </Label>
+                                    <Label styleClass="badge, badge-primary" text="System Settings">
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" bottom="5.0" />
+                                       </FlowPane.margin>
+                                    </Label>
+                                    <Label styleClass="badge, badge-primary" text="Reports">
+                                       <FlowPane.margin>
+                                          <Insets right="5.0" bottom="5.0" />
+                                       </FlowPane.margin>
+                                    </Label>
+                                 </FlowPane>
+                              </VBox>
+                              
+                              <!-- Login Activity Information (Moved from Security tab) -->
+                              <VBox styleClass="card">
+                                 <padding>
+                                    <Insets top="15.0" right="15.0" bottom="15.0" left="15.0" />
+                                 </padding>
+                                 <Label text="Account Activity" styleClass="section-title">
+                                    <font>
+                                       <Font name="System Bold" size="16.0" />
+                                    </font>
+                                 </Label>
+                                 
+                                 <VBox spacing="10.0">
+                                    <Label fx:id="lastLoginLabel" text="Last login: April 10, 2024 at 09:15 AM" />
+                                    <Label fx:id="loginCountLabel" text="Total logins: --" />
+                                 </VBox>
+                              </VBox>
+                           </VBox>
+                        </content>
+                     </ScrollPane>
+                  </content>
+               </Tab>
+               
+               <!-- Change Password Tab -->
+               <Tab text="Change Password">
+                  <content>
+                     <BorderPane>
+                        <center>
+                           <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="hide-horizontal-scrollbar">
+                              <content>
+                                 <VBox alignment="TOP_CENTER" spacing="20.0">
+                                    <padding>
+                                       <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                                    </padding>
+                                    
+                                    <!-- Card Container -->
+                                    <VBox styleClass="card" maxWidth="600.0" minWidth="450.0">
+                                       <padding>
+                                          <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                                       </padding>
+                                       
+                                       <!-- Header -->
+                                       <HBox alignment="CENTER">
+                                          <Label styleClass="title" text="Administrator Password">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                             <graphic>
+                                                <Label text="🔐" />
+                                             </graphic>
+                                          </Label>
+                                       </HBox>
+                                       
+                                       <Label styleClass="text-muted" text="Administrator passwords require high security standards. Update it regularly." wrapText="true" textAlignment="CENTER">
+                                          <VBox.margin>
+                                             <Insets bottom="20.0" top="10.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       
+                                       <!-- Status Messages -->
+                                       <Label fx:id="passwordSuccessMessage" styleClass="alert-success" text="Your password has been updated successfully!" visible="false" wrapText="true">
+                                          <VBox.margin>
+                                             <Insets bottom="15.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       <Label fx:id="passwordErrorMessage" styleClass="alert-error" text="An error occurred while updating your password." visible="false" wrapText="true">
+                                          <VBox.margin>
+                                             <Insets bottom="15.0" />
+                                          </VBox.margin>
+                                       </Label>
+                                       
+                                       <!-- Current Password -->
+                                       <VBox fillWidth="true" styleClass="field-container">
+                                          <HBox alignment="CENTER_LEFT">
+                                             <Label text="Current Password" styleClass="field-label" />
+                                             <Label text="*" textFill="RED" />
+                                          </HBox>
+                                          <PasswordField fx:id="currentPasswordField" promptText="Enter current password" />
+                                          <Label fx:id="currentPasswordError" styleClass="error-message" visible="false" />
+                                          
+                                          <VBox.margin>
+                                             <Insets bottom="15.0" />
+                                          </VBox.margin>
+                                       </VBox>
+                                       
+                                       <!-- Divider -->
+                                       <HBox style="-fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                                          <VBox.margin>
+                                             <Insets bottom="15.0" />
+                                          </VBox.margin>
+                                       </HBox>
+                                       
+                                       <!-- New Password -->
+                                       <VBox fillWidth="true" styleClass="field-container">
+                                          <HBox alignment="CENTER_LEFT">
+                                             <Label text="New Password" styleClass="field-label" />
+                                             <Label text="*" textFill="RED" />
+                                          </HBox>
+                                          <PasswordField fx:id="newPasswordField" promptText="Enter new password" />
+                                          <Label fx:id="newPasswordError" styleClass="error-message" visible="false" />
+                                          
+                                          <VBox.margin>
+                                             <Insets bottom="15.0" />
+                                          </VBox.margin>
+                                       </VBox>
+                                       
+                                       <!-- Confirm Password -->
+                                       <VBox fillWidth="true" styleClass="field-container">
+                                          <HBox alignment="CENTER_LEFT">
+                                             <Label text="Confirm Password" styleClass="field-label" />
+                                             <Label text="*" textFill="RED" />
+                                          </HBox>
+                                          <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" />
+                                          <Label fx:id="confirmPasswordError" styleClass="error-message" visible="false" />
+                                          
+                                          <VBox.margin>
+                                             <Insets bottom="25.0" />
+                                          </VBox.margin>
+                                       </VBox>
+                                       
+                                       <!-- Button -->
+                                       <HBox alignment="CENTER">
+                                          <Button defaultButton="true" onAction="#handleUpdatePassword" 
+                                                styleClass="button-primary" text="Update Password">
+                                             <graphic>
+                                                <Label text="✓" textFill="WHITE"/>
+                                             </graphic>
+                                             <padding>
+                                                <Insets top="12.0" right="25.0" bottom="12.0" left="25.0" />
+                                             </padding>
+                                          </Button>
+                                       </HBox>
+                                    </VBox>
+                                 </VBox>
+                              </content>
+                           </ScrollPane>
+                        </center>
+                     </BorderPane>
+                  </content>
+               </Tab>
+            </tabs>
+         </TabPane>
+      </VBox>
+   </center>
+   
+   <bottom>
+      <HBox alignment="CENTER" styleClass="header-light">
+         <Label styleClass="text-muted, text-small" text="© 2024 UNICLUBS - Administrator Panel" />
+      </HBox>
+   </bottom>
+</BorderPane>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane  stylesheets="@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ProfileController">
+   <top>
+      <HBox alignment="CENTER_LEFT" styleClass="header">
+         <padding>
+            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+         </padding>
+         
+         <Label text="UNICLUBS" textFill="WHITE">
+            <font>
+               <Font name="System Bold" size="20.0" />
+            </font>
+         </Label>
+         
+         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <!-- Dashboard button for admin users -->
+            <Button fx:id="dashboardButton" onAction="#navigateToDashboard" style="-fx-background-color: transparent; -fx-text-fill: white;" text="Dashboard">
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin>
+            </Button>
+            
+            <Button fx:id="homeButton" onAction="#navigateToHome" style="-fx-background-color: transparent; -fx-text-fill: white;" text="Home">
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin>
+            </Button>
+            
+            <Button fx:id="logoutButton" onAction="#handleLogout" style="-fx-background-color: white; -fx-text-fill: #00A0E3;" text="Logout" />
+         </HBox>
+      </HBox>
+   </top>
+   
+   <center>
+      <VBox fillWidth="true" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <HBox alignment="CENTER_LEFT" spacing="20.0">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            
+            <!-- Profile Image -->
+            <AnchorPane prefHeight="120.0" prefWidth="120.0" styleClass="profile-image-container">
+               <ImageView fx:id="profileImageView" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" styleClass="profile-image" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               <Button fx:id="changeImageBtn" mnemonicParsing="false" onAction="#handleChangeImage" opacity="0.0" prefHeight="120.0" prefWidth="120.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            </AnchorPane>
+            
+            <!-- User Info -->
+            <VBox alignment="CENTER_LEFT" spacing="5.0">
+               <Label fx:id="usernameLabel" styleClass="title" text="Nour balti">
+                  <font>
+                     <Font name="System Bold" size="24.0" />
+                  </font>
+               </Label>
+               
+               <Label fx:id="userRoleLabel" styleClass="badge, badge-primary" text="NON_MEMBRE">
+                  <padding>
+                     <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                  </padding>
+               </Label>
+            </VBox>
+            
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+               <Button fx:id="editProfileBtn" onAction="#handleEditProfile" styleClass="button-primary" text="Edit Profile">
+                  <graphic>
+                     <Label text="✏️" textFill="WHITE" />
+                  </graphic>
+               </Button>
+            </HBox>
+         </HBox>
+         
+         <!-- Tabs and Content -->
+         <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <tabs>
+               <!-- Profile Information Tab -->
+               <Tab text="Profile Information">
+                  <content>
+                     <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <content>
+                           <VBox fillWidth="true" spacing="20.0">
+                              <padding>
+                                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                              </padding>
+                              
+                              <!-- Status Messages -->
+                              <Label fx:id="profileInfoMessage" styleClass="alert-success" text="Your profile has been updated successfully!" visible="false" wrapText="true" />
+                              <Label fx:id="profileInfoError" styleClass="alert-error" text="An error occurred while updating your profile." visible="false" wrapText="true" />
+                              
+                              <!-- Profile Information Cards -->
+                              <VBox fillWidth="true" spacing="15.0" VBox.vgrow="ALWAYS">
+                                 <VBox fillWidth="true" styleClass="card">
+                                    <Label styleClass="text-small, text-muted" text="Name" />
+                                    <Label fx:id="nameValueLabel" styleClass="title" text="Nour balti">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </VBox>
+                                 
+                                 <VBox fillWidth="true" styleClass="card">
+                                    <Label styleClass="text-small, text-muted" text="Email" />
+                                    <Label fx:id="emailValueLabel" styleClass="title" text="baltinour118@gmail.com">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </VBox>
+                                 
+                                 <VBox fillWidth="true" styleClass="card">
+                                    <Label styleClass="text-small, text-muted" text="Phone" />
+                                    <Label fx:id="phoneValueLabel" styleClass="title" text="29103858">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </VBox>
+                              </VBox>
+                           </VBox>
+                        </content>
+                     </ScrollPane>
+                  </content>
+               </Tab>
+               
+               <!-- Change Password Tab -->
+               <Tab text="Change Password">
+                  <content>
+                     <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <content>
+                           <VBox fillWidth="true" spacing="20.0" alignment="TOP_CENTER">
+                              <padding>
+                                 <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                              </padding>
+                              
+                              <VBox alignment="CENTER" spacing="10" styleClass="card" maxWidth="680.0">
+                                 <padding>
+                                    <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                                 </padding>
+                                 
+                                 <!-- Header -->
+                                 <HBox alignment="CENTER">
+                                    <Label styleClass="subtitle" text="Change Password">
+                                       <graphic>
+                                          <Label text="🔐" />
+                                       </graphic>
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                 </HBox>
+                                 
+                                 <Label styleClass="text-muted" text="Update your password to keep your account secure" wrapText="true" textAlignment="CENTER" />
+                                 
+                                 <VBox minHeight="10" />
+                              
+                                 <!-- Password Change Form -->
+                                 <VBox fillWidth="true" maxWidth="500.0" spacing="20.0">
+                                    <!-- Status Messages -->
+                                    <Label fx:id="passwordSuccessMessage" styleClass="alert-success" text="Your password has been updated successfully!" visible="false" wrapText="true" />
+                                    <Label fx:id="passwordErrorMessage" styleClass="alert-error" text="An error occurred while updating your password." visible="false" wrapText="true" />
+                                    
+                                    <!-- Current Password -->
+                                    <VBox fillWidth="true" styleClass="field-container">
+                                       <HBox alignment="CENTER_LEFT">
+                                          <Label text="Current Password" styleClass="field-label" />
+                                          <Label text="*" textFill="RED" />
+                                       </HBox>
+                                       <PasswordField fx:id="currentPasswordField" promptText="Enter current password" />
+                                       <Label fx:id="currentPasswordError" styleClass="error-message" visible="false" />
+                                    </VBox>
+                                    
+                                    <!-- Divider -->
+                                    <HBox style="-fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0; -fx-padding: 5 0;" />
+                                    
+                                    <!-- New Password -->
+                                    <VBox fillWidth="true" styleClass="field-container">
+                                       <HBox alignment="CENTER_LEFT">
+                                          <Label text="New Password" styleClass="field-label" />
+                                          <Label text="*" textFill="RED" />
+                                       </HBox>
+                                       <PasswordField fx:id="newPasswordField" promptText="Enter new password" />
+                                       <Label fx:id="newPasswordError" styleClass="error-message" visible="false" />
+                                    </VBox>
+                                    
+                                    <!-- Confirm Password -->
+                                    <VBox fillWidth="true" styleClass="field-container">
+                                       <HBox alignment="CENTER_LEFT">
+                                          <Label text="Confirm Password" styleClass="field-label" />
+                                          <Label text="*" textFill="RED" />
+                                       </HBox>
+                                       <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" />
+                                       <Label fx:id="confirmPasswordError" styleClass="error-message" visible="false" />
+                                    </VBox>
+                                    
+                                    <!-- Button -->
+                                    <HBox alignment="CENTER">
+                                       <Button defaultButton="true" onAction="#handleUpdatePassword" 
+                                               styleClass="button-primary" text="Update Password">
+                                           <graphic>
+                                               <Label text="✓" textFill="WHITE"/>
+                                           </graphic>
+                                           <padding>
+                                               <Insets top="12.0" right="20.0" bottom="12.0" left="20.0" />
+                                           </padding>
+                                       </Button>
+                                    </HBox>
+                                 </VBox>
+                              </VBox>
+                           </VBox>
+                        </content>
+                     </ScrollPane>
+                  </content>
+               </Tab>
+            </tabs>
+         </TabPane>
+      </VBox>
+   </center>
+   
+   <bottom>
+      <HBox alignment="CENTER" styleClass="header-light">
+         <Label styleClass="text-muted, text-small" text="© 2024 UNICLUBS - All rights reserved" />
+      </HBox>
+   </bottom>
+</BorderPane>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<AnchorPane prefHeight="750.0" prefWidth="1000.0" stylesheets="@../styles/sondage-style.css, @../styles/home.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.SondageViewController">
+   <children>
+      <VBox styleClass="main-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <!-- Header with Navbar from home.fxml -->
+            <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="15" right="25" bottom="15" left="25"/>
+                </padding>
+                
+                <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+                    <Image url="@../images/logo.png"/>
+                </ImageView>
+                
+                <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+                    <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+                    
+                    <!-- Direct Polls button that is active -->
+                    <Button text="Polls" styleClass="nav-button-selected"/>
+                    
+                    <!-- Clubs dropdown container -->
+                    <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                        <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                        
+                        <!-- Clubs Dropdown Menu - Initially hidden -->
+                        <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                            <HBox styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                                <Label text="👥" styleClass="dropdown-item-icon"/>
+                                <Label text="Club Management" styleClass="dropdown-item-text"/>
+                            </HBox>
+                            <Separator styleClass="dropdown-divider"/>
+                            <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                                <Label text="🏆" styleClass="dropdown-item-icon"/>
+                                <Label text="My Club" styleClass="dropdown-item-text"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+                    
+                    <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+                    <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+                    <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+                </HBox>
+                
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <!-- User Profile Section -->
+                    <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                        <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                            <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                                <Image url="@../images/default-profile.png"/>
+                            </ImageView>
+                            <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                        </HBox>
+                        
+                        <!-- Dropdown Menu -->
+                        <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                            <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                            <Separator styleClass="dropdown-divider"/>
+                            <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                        </VBox>
+                    </StackPane>
+                    
+                    <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+                </HBox>
+            </HBox>
+            
+            <!-- Original SondageView header section -->
+            <HBox alignment="CENTER_LEFT" prefHeight="120.0" spacing="15.0" styleClass="header-section">
+               <padding>
+                  <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+               </padding>
+               <children>
+                 
+                  <Label styleClass="header-title" text="Our Polls">
+                     <font>
+                        <Font name="System Bold" size="38.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" spacing="10.0" styleClass="breadcrumb">
+                     <children>
+                        <Label styleClass="breadcrumb-item" text="Home" />
+                        <Label styleClass="breadcrumb-separator" text="&gt;" />
+                        <Label styleClass="breadcrumb-item-active" text="Polls" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="content-section" VBox.vgrow="ALWAYS">
+               <content>
+                  <HBox spacing="25.0">
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                     <children>
+                        <!-- Main Polls Section -->
+                        <VBox fx:id="sondagesContainer" prefHeight="600.0" prefWidth="650.0" spacing="25.0" styleClass="polls-section" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                        </VBox>
+                        
+                        <!-- Sidebar Section -->
+                        <VBox prefHeight="600.0" prefWidth="300.0" spacing="20.0" styleClass="sidebar-section">
+                           <children>
+                              <VBox prefWidth="100.0" styleClass="poll-creation-container">
+                                 <children>
+                                    <Label styleClass="section-title" text="Create a Poll">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="15.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <TextField fx:id="pollQuestionField" promptText="Type your question here" styleClass="input-box">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" />
+                                       </VBox.margin>
+                                    </TextField>
+                                    <Label fx:id="questionErrorLabel" styleClass="validation-error" visible="false" text="Question cannot be empty" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Label styleClass="section-subtitle" text="Options">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <VBox fx:id="pollOptionsContainer" prefWidth="100.0" spacing="10.0" styleClass="options-container">
+                                       <children>
+                                          <TextField fx:id="option1Field" promptText="Option 1" styleClass="input-box" />
+                                          <TextField fx:id="option2Field" promptText="Option 2" styleClass="input-box" />
+                                       </children>
+                                    </VBox>
+                                    <Label fx:id="optionsErrorLabel" styleClass="validation-error" visible="false" text="Options cannot be empty" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" top="3.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Button fx:id="addOptionButton" mnemonicParsing="false" onAction="#handleAddOption" styleClass="add-option-button" text="+ Add option">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <VBox prefWidth="100.0" styleClass="admin-message">
+                                       <children>
+                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Note: Ensure the question and options follow club rules." wrappingWidth="240.0">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                       <VBox.margin>
+                                          <Insets bottom="15.0" />
+                                       </VBox.margin>
+                                    </VBox>
+                                    <Button fx:id="createPollButton" mnemonicParsing="false" onAction="#handleCreatePoll" styleClass="create-poll-button" text="Create Poll" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                 </padding>
+                              </VBox>
+                              <Button fx:id="viewAllPollsButton" mnemonicParsing="false" prefWidth="250.0" styleClass="view-all-polls-button" text="View all polls">
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </Button>
+                              <ComboBox fx:id="filterClubComboBox" prefWidth="250.0" promptText="Filter by club" />
+                           </children>
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane> 
