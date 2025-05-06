@@ -1,26 +1,12 @@
 package com.esprit.controllers;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Club;
-import com.esprit.models.Commentaire;
 import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
 import com.esprit.models.User;
 import com.esprit.services.ChoixSondageService;
-import com.esprit.services.ChoixSondageService;
 import com.esprit.services.ClubService;
-import com.esprit.services.CommentaireService;
-import com.esprit.services.OpenAIService;
-import com.esprit.services.ReponseService;
 import com.esprit.services.CommentaireService;
 import com.esprit.services.OpenAIService;
 import com.esprit.services.ReponseService;
@@ -31,7 +17,6 @@ import com.esprit.utils.NavigationManager;
 import com.esprit.utils.SessionManager;
 
 import javafx.application.Platform;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,11 +26,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -54,36 +36,25 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
-import javafx.scene.input.KeyCode;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 
-import java.io.File;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
-import java.util.concurrent.CompletableFuture;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -155,11 +126,9 @@ public class PollManagementController implements Initializable {
     private final ClubService clubService = new ClubService();
     private final UserService userService = new UserService();
     private final ReponseService reponseService = new ReponseService();
-    private final ReponseService reponseService = new ReponseService();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private User currentUser;
-    private Club currentClub;
     private Club currentClub;
     private Scene previousScene;
     private ObservableList<Sondage> allPolls;
@@ -196,8 +165,6 @@ public class PollManagementController implements Initializable {
             }
 
             // Get the club where the user is president
-            currentClub = clubService.findByPresident(currentUser.getId());
-            if (currentClub == null) {
             currentClub = clubService.findByPresident(currentUser.getId());
             if (currentClub == null) {
                 AlertUtils.showError("Access Denied", "You must be a club president to access this view.");
@@ -243,7 +210,6 @@ public class PollManagementController implements Initializable {
             updateUserInfo();
 
         } catch (SQLException e) {
-            AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
             AlertUtils.showError("Initialization Error", "An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
@@ -451,7 +417,6 @@ public class PollManagementController implements Initializable {
 
         if (searchTerm.isEmpty()) {
             filteredPolls = null;
-            filteredPolls = null;
         } else {
             filteredPolls = new FilteredList<>(this.allPolls,
                     sondage -> sondage.getQuestion().toLowerCase().contains(searchTerm));
@@ -473,10 +438,8 @@ public class PollManagementController implements Initializable {
 
     /**
      * Configure toast animation
-     * Configure toast animation
      */
     private void setupToast() {
-        // Configure toast animation for the toast container
         // Configure toast animation for the toast container
         toastContainer.setVisible(false);
         toastContainer.setOpacity(0);
@@ -531,7 +494,6 @@ public class PollManagementController implements Initializable {
     }
 
     /**
-     * Charge les sondages dans la liste avec filtre optionnel
      * Charge les sondages dans la liste avec filtre optionnel
      */
     private void loadPolls(int clubId) throws SQLException {
