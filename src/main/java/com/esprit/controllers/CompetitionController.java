@@ -5,6 +5,7 @@ import com.esprit.models.Saison;
 import com.esprit.models.enums.GoalTypeEnum;
 import com.esprit.services.CompetitionService;
 import com.esprit.services.SaisonService;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +16,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.sql.SQLException;

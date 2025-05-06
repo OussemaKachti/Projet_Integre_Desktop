@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminProduitController">
+   <top>
+      <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
+         <children>
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="Administration des Produits">
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </Label>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+               <children>
+                  <Button fx:id="btnShowCatalog" mnemonicParsing="false" onAction="#goToCatalog" style="-fx-background-color: white; -fx-text-fill: #6200EE; -fx-font-weight: bold; -fx-background-radius: 20;" text="Voir le Catalogue">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
+                     </padding>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+   </top>
+   
+   <left>
+      <!-- Sidebar Menu (Similar to AdminCommentsController) -->
+      <VBox prefWidth="220.0" style="-fx-background-color: #303030;" BorderPane.alignment="CENTER">
+         <children>
+            <!-- Admin Name and Profile Section -->
+            <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: #252525;">
+               <children>
+                  <Label fx:id="adminNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Admin User">
+                     <HBox.margin>
+                        <Insets left="15.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            
+            <!-- Navigation Menu -->
+            <Button fx:id="userManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Utilisateurs">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="clubManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Clubs">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="eventManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Événements">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="productOrdersBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-size: 14px;" text="Produits &amp; Commandes" onAction="#goToAdmincommande">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+               <Button fx:id="btnCommandes" text="Commandes" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+            </Button>
+            <Button fx:id="competitionBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Compétitions">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="surveyManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Sondages">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <!-- Survey Sub-Menu (initially hidden) -->
+            <VBox fx:id="surveySubMenu" managed="false" prefHeight="100.0" prefWidth="220.0" visible="false">
+               <children>
+                  <Button fx:id="pollsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Sondages">
+                     <padding>
+                        <Insets left="30.0" />
+                     </padding>
+                  </Button>
+                  <Button fx:id="commentsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Commentaires">
+                     <padding>
+                        <Insets left="30.0" />
+                     </padding>
+                  </Button>
+               </children>
+            </VBox>
+            <Button fx:id="profileBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Mon Profil">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+            <Button fx:id="logoutBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Déconnexion">
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </Button>
+         </children>
+      </VBox>
+   </left>
+   
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <!-- Statistics Cards -->
+         <HBox spacing="20.0">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+               <!-- Total Products Card -->
+               <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                  <children>
+                     <Label style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="Total des Produits" />
+                     <Label fx:id="totalProductsLabel" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #6200EE;" text="0" />
+                  </children>
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+               </VBox>
+               
+               <!-- Products in Stock Card -->
+               <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                  <children>
+                     <Label style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="Produits en Stock" />
+                     <Label fx:id="inStockProductsLabel" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="0" />
+                  </children>
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+               </VBox>
+               
+               <!-- Out of Stock Products Card -->
+               <VBox alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                  <children>
+                     <Label style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="Produits en Rupture" />
+                     <Label fx:id="outOfStockProductsLabel" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #F44336;" text="0" />
+                  </children>
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+               </VBox>
+               
+               <!-- Popular Club Card -->
+               <VBox fx:id="popularClubCard" alignment="CENTER" prefHeight="100.0" prefWidth="250.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5); -fx-cursor: hand;">                  <children>
+                     <Label style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="Club Populaire" />
+                     <Label fx:id="popularClubLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #FF9800;" text="N/A" />
+                     <Label fx:id="popularClubProductsLabel" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" text="0 produits" />
+                  </children>
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+               </VBox>
+            </children>
+         </HBox>
+         <!-- Chart Container -->
+         <StackPane fx:id="chartContainer" visible="false" managed="false" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
+            </VBox.margin>
+         </StackPane>
+         
+         <!-- Search and Filter Section -->
+         <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+            <padding>
+               <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+            <HBox.margin>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+            </HBox.margin>
+            <VBox.margin>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+            </VBox.margin>
+            <children>
+               <HBox alignment="CENTER_LEFT" spacing="15.0">
+                  <children>
+                     <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Rechercher et Filtrer" />
+                     <TextField fx:id="txtSearch" promptText="Rechercher un produit..." HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnSearchh" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher"/>
+                     <ComboBox fx:id="filterClubComboBox" prefWidth="200.0" promptText="Filtrer par club" />
+                     <Button fx:id="btnAddProduct" mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4;" text="+ Ajouter un Produit">
+                        <padding>
+                           <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
+                        </padding>
+                     </Button>
+                  </children>
+               </HBox>
+            </children>
+         </VBox>
+         
+         <!-- Main Content -->
+         <StackPane VBox.vgrow="ALWAYS">
+            <VBox.margin>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+            </VBox.margin>
+            <children>
+               <!-- Table View -->
+               <VBox style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+                  <padding>
+                     <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                  </padding>
+                  <children>
+                     <TableView fx:id="tableView" styleClass="product-table" VBox.vgrow="ALWAYS">
+                        <columns>
+                           <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
+                           <TableColumn fx:id="colNom" prefWidth="150.0" text="Nom du Produit" />
+                           <TableColumn fx:id="colPrix" prefWidth="100.0" style="-fx-alignment: CENTER_RIGHT;" text="Prix" />
+                           <TableColumn fx:id="colQuantity" prefWidth="80.0" style="-fx-alignment: CENTER;" text="Quantité" />
+                           <TableColumn fx:id="colDescription" prefWidth="200.0" text="Description" />
+                           <TableColumn fx:id="colClub" prefWidth="120.0" text="Club" />
+                           <TableColumn fx:id="colCreatedAt" prefWidth="120.0" text="Date de Création" />
+                           <TableColumn fx:id="colActions" prefWidth="160.0" style="-fx-alignment: CENTER;" text="Actions" />
+                        </columns>
+                     </TableView>
+                     
+                     <!-- Pagination -->
+                     <HBox fx:id="paginationContainer" alignment="CENTER" prefHeight="50.0" spacing="5.0">
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </HBox>
+                  </children>
+               </VBox>
+               
+               <!-- Empty State Container -->
+               <VBox fx:id="noProductsContainer" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);" visible="false">
+                  <children>
+                     <Label style="-fx-font-size: 24px; -fx-text-fill: #6c757d;" text="Aucun produit trouvé" />
+                     <Label style="-fx-font-size: 16px; -fx-text-fill: #6c757d;" text="Ajoutez des produits ou modifiez vos critères de recherche" />
+                     <Button mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4;" text="Ajouter un Produit">
+                        <padding>
+                           <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                        </padding>
+                     </Button>
+                  </children>
+                  <padding>
+                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  </padding>
+               </VBox>
+            </children>
+         </StackPane>
+      </VBox>
+   </center>
+   
+   <!-- Toast notification container -->
+   <Pane fx:id="toastContainer" prefHeight="60.0" prefWidth="300.0" visible="false" BorderPane.alignment="BOTTOM_RIGHT">
+      <BorderPane.margin>
+         <Insets bottom="20.0" right="20.0" />
+      </BorderPane.margin>
+      <children>
+         <HBox alignment="CENTER_LEFT" layoutX="0.0" layoutY="0.0" prefHeight="60.0" prefWidth="300.0" style="-fx-background-color: #28a745; -fx-background-radius: 4px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 10);">
+            <children>
+               <Label style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" text="Message">
+                  <HBox.margin>
+                     <Insets left="15.0" />
+                  </HBox.margin>
+               </Label>
+            </children>
+         </HBox>
+      </children>
+   </Pane>
+</BorderPane> 

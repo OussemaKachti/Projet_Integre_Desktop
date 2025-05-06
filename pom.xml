@@ -108,10 +108,15 @@
             <version>12.3.1</version>
         </dependency>
 
-        <!-- Ikonli JavaFX Support -->
+        <!-- Ikonli JavaFX Icons -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
 
@@ -153,14 +158,30 @@
             <version>2.0.1</version>
         </dependency>
         
-        <!-- FontAwesomeFX -->
+        <!-- Legacy JavaMail for compatibility with existing code -->
+        <!-- <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency> -->
+
+        <!-- FontAwesomeFX - consolidate dependencies -->
         <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-fontawesome</artifactId>
             <version>4.7.0-9.1.2</version>
         </dependency>
-        
-        <!-- Additional FontAwesomeFX Dependencies -->
         <dependency>
             <groupId>de.jensd</groupId>
             <artifactId>fontawesomefx-commons</artifactId>
@@ -275,8 +296,9 @@
                 <version>0.0.8</version>
                 <configuration>
                   <!--  <mainClass>com.esprit.SondageApplication</mainClass>-->
-                     <mainClass>com.esprit.MainApp</mainClass> 
- 
+                     <!-- <mainClass>com.esprit.MainApp</mainClass>  -->
+                     <mainClass>com.esprit.MainApp</mainClass>
+
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
                     <options>

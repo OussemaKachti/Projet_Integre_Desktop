@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.esprit.controllers.crud.ProduitFormController"
+          hgap="10" vgap="10" alignment="CENTER">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <columnConstraints>
+        <ColumnConstraints minWidth="100" />
+        <ColumnConstraints minWidth="300" />
+    </columnConstraints>
+
+    <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <TextField fx:id="txtNom" promptText="Nom du produit" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+    <Label text="Prix:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <TextField fx:id="txtPrix" promptText="Prix du produit" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+    <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <TextField fx:id="txtQuantity" promptText="Quantité disponible" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+    <Label text="Description:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+    <TextArea fx:id="txtDescription" promptText="Description du produit" prefHeight="80" wrapText="true"
+              GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+    <Label text="Image:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+    <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="4">
+        <TextField fx:id="txtImage" promptText="Chemin de l'image" HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnBrowse" text="Parcourir" onAction="#browseImage" />
+    </HBox>
+
+    <Label text="Club:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+    <ComboBox fx:id="comboClub" prefWidth="300" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+    <!-- Boutons -->
+    <HBox spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="6">
+        <Button fx:id="btnSave" text="Ajouter" onAction="#saveProduit"/>
+        <Button fx:id="btnUpdate" text="Modifier" onAction="#updateProduit" visible="false"/>
+        <Button fx:id="btnCancel" text="Annuler" onAction="#resetForm"/>
+    </HBox>
+</GridPane>

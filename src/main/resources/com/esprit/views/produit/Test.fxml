@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -17,7 +18,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 
 <BorderPane prefHeight="900.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/admin-polls-style.css,@../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AdminCommentsController">
    <left>
@@ -70,29 +70,11 @@
                </graphic>
             </Button>
             
-            <!-- Event Management dropdown menu -->
-            <VBox spacing="2.0">
-               <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-                  <graphic>
-                     <Label text="📅" />
-                  </graphic>
-               </Button>
-               
-               <!-- Sous-menu Event Management -->
-               <VBox fx:id="eventsSubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
-                  <Button styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-                     <graphic>
-                        <Label text="📅" />
-                     </graphic>
-                  </Button>
-                  
-                  <Button styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-                     <graphic>
-                        <Label text="🗂️" />
-                     </graphic>
-                  </Button>
-               </VBox>
-            </VBox>
+            <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="📅" />
+               </graphic>
+            </Button>
             
             <Button fx:id="productOrdersBtn" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
@@ -308,7 +290,7 @@
                      <HBox.hgrow>ALWAYS</HBox.hgrow>
                   </HBox>
                   
-                  <!-- No Comments Message Container -->
+                  <!-- No Comments Message Container (manquant et référencé dans le contrôleur) -->
                   <VBox fx:id="noCommentsContainer" alignment="CENTER" prefHeight="100.0" styleClass="admin-container" visible="false">
                      <Label styleClass="no-data-message" text="No comments found">
                         <font>
@@ -319,43 +301,6 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                   </VBox>
-                  
-                  <!-- AI Insights Dashboard Title -->
-                  <HBox alignment="CENTER" spacing="20" style="-fx-padding: 10px;">
-                     <Label text="AI Comment Analysis" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #5e72e4;" />
-                     
-                     <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Select Club:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #5e72e4;" />
-                        <ComboBox fx:id="clubFilterComboBox" prefWidth="250.0" />
-                        <Pane HBox.hgrow="ALWAYS" />
-                     </HBox>
-                     
-                     <Button fx:id="generateInsightsBtn" styleClass="refresh-button" text="Show Comments Chart">
-                        <graphic>
-                           <FontAwesomeIconView glyphName="BAR_CHART" size="14" />
-                        </graphic>
-                     </Button>
-                  </HBox>
-                  
-                  <!-- AI Insights Dashboard Container -->
-                  <VBox fx:id="aiInsightsContainer" styleClass="visualization-container" prefHeight="500.0" alignment="CENTER">
-                     <Label fx:id="insightsLoadingLabel" text="Sélectionnez un club et cliquez sur 'Show Comments Chart' pour afficher les statistiques" styleClass="loading-label" alignment="CENTER" />
-                     
-                     <!-- Container for bar chart visualization -->
-                     <HBox fx:id="insightsChartContainer" VBox.vgrow="ALWAYS" alignment="CENTER" prefHeight="450.0">
-                        <!-- Bar chart will be added here programmatically -->
-                     </HBox>
-                     
-                     <!-- Help text for the user -->
-                     <HBox alignment="CENTER" styleClass="insights-help-container" spacing="10.0">
-                        <padding>
-                           <Insets top="10.0" right="10.0" bottom="5.0" left="10.0" />
-                        </padding>
-                        <Label text="📊" style="-fx-font-size: 16px;" />
-                        <Label text="Le graphique montre le nombre de commentaires par mois pour le club sélectionné. Changez le club dans le filtre en haut pour voir les données correspondantes." wrapText="true" styleClass="help-text" />
-                     </HBox>
-                  </VBox>
-                  
                 </VBox>
             </content>
          </ScrollPane>

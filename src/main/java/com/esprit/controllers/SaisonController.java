@@ -13,7 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +23,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+
 public class SaisonController {
 
     private final SaisonService saisonService = new SaisonService();
@@ -32,26 +33,42 @@ public class SaisonController {
     private String uploadDirectory = "uploads/images/";
     private boolean isEditMode = false;
 
-    @FXML private AnchorPane saisonListPane;
-    @FXML private VBox seasonListContainer;
-    @FXML private VBox seasonFormContainer;
+    @FXML
+    private AnchorPane saisonListPane;
+    @FXML
+    private VBox seasonListContainer;
+    @FXML
+    private VBox seasonFormContainer;
 
     // Form fields
-    @FXML private TextField saisonNameField;
-    @FXML private TextArea saisonDescField;
-    @FXML private DatePicker saisonDateField;
-    @FXML private ImageView imagePreview;
-    @FXML private Label selectedImageLabel;
-    @FXML private Label formTitleLabel;
+    @FXML
+    private TextField saisonNameField;
+    @FXML
+    private TextArea saisonDescField;
+    @FXML
+    private DatePicker saisonDateField;
+    @FXML
+    private ImageView imagePreview;
+    @FXML
+    private Label selectedImageLabel;
+    @FXML
+    private Label formTitleLabel;
 
     // Buttons
-    @FXML private Button saveButton;
-    @FXML private Button addButton;
-    @FXML private Button cancelButton;
-    @FXML private Button closeFormButton;
-    @FXML private Button refreshButton;
-    @FXML private Button backButton;
-    @FXML private Button chooseImageButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button cancelButton;
+    @FXML
+    private Button closeFormButton;
+    @FXML
+    private Button refreshButton;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button chooseImageButton;
 
     @FXML
     public void initialize() throws SQLException {
@@ -67,6 +84,7 @@ public class SaisonController {
         // Apply Skydash-like styling to form controls
         applyCustomStyling();
     }
+
     private void applyCustomStyling() {
         // Add specific styling for form elements if needed
         saisonDateField.getEditor().setStyle("-fx-background-color: #F3F4F6; -fx-border-color: #e4e9f0;");
@@ -138,7 +156,6 @@ public class SaisonController {
             emptyLabel.setMaxWidth(Double.MAX_VALUE);
             emptyLabel.setAlignment(Pos.CENTER);
 
-
             seasonListContainer.getChildren().add(emptyLabel);
             return;
         }
@@ -163,7 +180,6 @@ public class SaisonController {
         icon.setIconSize(32);
         icon.getStyleClass().add("season-icon");
 
-
         // Image view for season image
         ImageView imageView = new ImageView();
         imageView.setFitWidth(120);
@@ -172,7 +188,6 @@ public class SaisonController {
 
         // Add border and rounded corners to image
         imageView.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
-
 
         // Load image if available
         if (saison.getImage() != null && !saison.getImage().isEmpty()) {
@@ -190,7 +205,8 @@ public class SaisonController {
                     // Create placeholder container
                     StackPane placeholderPane = new StackPane(placeholder);
                     placeholderPane.setPrefSize(120, 80);
-                    placeholderPane.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
+                    placeholderPane.setStyle(
+                            "-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
                 }
             } catch (Exception e) {
                 System.err.println("Error loading image: " + e.getMessage());
@@ -203,7 +219,8 @@ public class SaisonController {
 
             StackPane placeholderPane = new StackPane(placeholder);
             placeholderPane.setPrefSize(120, 80);
-            placeholderPane.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
+            placeholderPane
+                    .setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
         }
 
         // Season content
@@ -223,7 +240,6 @@ public class SaisonController {
         HBox dateBox = new HBox();
         dateBox.setAlignment(Pos.CENTER_LEFT);
         dateBox.setPadding(new Insets(5, 0, 0, 0));
-
 
         Label dateLabel = new Label();
         if (saison.getDateFin() != null) {
@@ -336,8 +352,7 @@ public class SaisonController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Image");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
 
         File selectedFile = fileChooser.showOpenDialog(saisonListPane.getScene().getWindow());
         if (selectedFile != null) {
@@ -362,8 +377,6 @@ public class SaisonController {
         String saisonName = saisonNameField.getText();
         String saisonDesc = saisonDescField.getText();
         LocalDate endDate = saisonDateField.getValue();
-
-
 
         Saison newSaison = new Saison();
         newSaison.setNomSaison(saisonName);
@@ -398,8 +411,6 @@ public class SaisonController {
         String saisonName = saisonNameField.getText();
         String saisonDesc = saisonDescField.getText();
         LocalDate endDate = saisonDateField.getValue();
-
-
 
         selectedSaison.setNomSaison(saisonName);
         selectedSaison.setDescSaison(saisonDesc);
@@ -470,6 +481,7 @@ public class SaisonController {
         }
         return "";
     }
+
     private boolean validateForm() {
         StringBuilder errorMessage = new StringBuilder();
 
@@ -501,6 +513,7 @@ public class SaisonController {
 
         return true;
     }
+
     private void goBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/dashboard.fxml"));
@@ -517,7 +530,6 @@ public class SaisonController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-
         DialogPane dialogPane = alert.getDialogPane();
 
         // Style the dialog pane background and border
@@ -528,8 +540,7 @@ public class SaisonController {
                         "-fx-border-radius: 12px;" +
                         "-fx-background-radius: 12px;" +
                         "-fx-padding: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);");
 
         // Style the content text
         Label content = (Label) dialogPane.lookup(".content");
@@ -537,10 +548,8 @@ public class SaisonController {
             content.setStyle(
                     "-fx-font-size: 14px;" +
                             "-fx-text-fill: #4b5c7b;" +
-                            "-fx-padding: 0 0 10 0;"
-            );
+                            "-fx-padding: 0 0 10 0;");
         }
-
 
         // Style the buttons
         dialogPane.getButtonTypes().forEach(buttonType -> {
@@ -552,10 +561,8 @@ public class SaisonController {
                             "-fx-padding: 6 14 6 14;" +
                             "-fx-font-size: 13px;" +
                             "-fx-font-weight: bold;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);"
-            );
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);");
         });
-
 
         alert.showAndWait();
     }
