@@ -4,7 +4,7 @@ import com.esprit.models.Club;
 import com.esprit.models.Produit;
 import com.esprit.services.ClubService;
 import com.esprit.services.ProduitService;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 import com.esprit.ProduitApp;
 import com.esprit.utils.DataSource;
 
@@ -205,7 +205,7 @@ public class AdminProduitController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface",
+            AlertUtilsSirine.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface",
                     "Une erreur est survenue: " + e.getMessage());
         }
     }
@@ -321,11 +321,11 @@ public class AdminProduitController implements Initializable {
             if (ProduitApp.getPrimaryStage() != null) {
                 ProduitApp.navigateTo("/com/esprit/views/produit/ProduitView.fxml");
             } else {
-                AlertUtils.showError("Erreur", "Navigation impossible",
+                AlertUtilsSirine.showError("Erreur", "Navigation impossible",
                         "Impossible d'accéder à la fenêtre principale.");
             }
         } catch (Exception e) {
-            AlertUtils.showError("Erreur", "Navigation impossible", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Navigation impossible", e.getMessage());
         }
     }
 
@@ -352,7 +352,7 @@ public class AdminProduitController implements Initializable {
     public void saveProduit() {
         // This is a placeholder to make the FXML happy
         // The actual implementation would be added later
-        AlertUtils.showInfo("Info", "Save Product", "This functionality will be implemented soon.");
+        AlertUtilsSirine.showInfo("Info", "Save Product", "This functionality will be implemented soon.");
     }
 
     /**
@@ -362,7 +362,7 @@ public class AdminProduitController implements Initializable {
     public void updateProduit() {
         // This is a placeholder to make the FXML happy
         // The actual implementation would be added later
-        AlertUtils.showInfo("Info", "Update Product", "This functionality will be implemented soon.");
+        AlertUtilsSirine.showInfo("Info", "Update Product", "This functionality will be implemented soon.");
     }
 
     /**
@@ -644,7 +644,7 @@ public class AdminProduitController implements Initializable {
                 if (empty || club == null) {
                     setText(null);
                 } else {
-                    setText(club.getNom());
+                    setText(club.getNomC());
                 }
             }
         });
@@ -728,137 +728,133 @@ public class AdminProduitController implements Initializable {
                         return produit.getNomProd().toLowerCase().contains(lowerCaseFilter) ||
                                 produit.getDescProd().toLowerCase().contains(lowerCaseFilter) ||
                                 (produit.getClub() != null
-                                        && produit.getClub().getNom().toLowerCase().contains(lowerCaseFilter));
+                                        && produit.getClub().getNomC().toLowerCase().contains(lowerCaseFilter));
                     });
                     updatePagination();
                 }
             });
         }
 
-        try {
-            List<Club> clubs = clubService.getAll();
-            ObservableList<String> clubNames = FXCollections.observableArrayList();
-            clubNames.add("Tous les Clubs");
+        List<Club> clubs = clubService.getAll();
+        ObservableList<String> clubNames = FXCollections.observableArrayList();
+        clubNames.add("Tous les Clubs");
 
-            clubs.forEach(club -> clubNames.add(club.getNom()));
+        clubs.forEach(club -> clubNames.add(club.getNomC()));
 
-            if (filterClubComboBox != null) {
-                filterClubComboBox.setItems(clubNames);
-                filterClubComboBox.setValue("Tous les Clubs");
+        if (filterClubComboBox != null) {
+            filterClubComboBox.setItems(clubNames);
+            filterClubComboBox.setValue("Tous les Clubs");
 
-                filterClubComboBox.setCellFactory(listView -> new ListCell<String>() {
-                    @Override
-                    protected void updateItem(String club, boolean empty) {
-                        super.updateItem(club, empty);
+            filterClubComboBox.setCellFactory(listView -> new ListCell<String>() {
+                @Override
+                protected void updateItem(String club, boolean empty) {
+                    super.updateItem(club, empty);
 
-                        if (empty || club == null) {
-                            setText(null);
-                            setGraphic(null);
+                    if (empty || club == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        // Create an HBox for the cell content
+                        HBox cellBox = new HBox(10);
+                        cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                        // Create icon based on whether it's "All Clubs" or a specific club
+                        Label icon = new Label();
+                        if ("Tous les Clubs".equals(club)) {
+                            icon.setText("🌐");
                         } else {
-                            // Create an HBox for the cell content
-                            HBox cellBox = new HBox(10);
-                            cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                            // Create icon based on whether it's "All Clubs" or a specific club
-                            Label icon = new Label();
-                            if ("Tous les Clubs".equals(club)) {
-                                icon.setText("🌐");
-                            } else {
-                                icon.setText("🏢");
-                            }
-                            icon.setStyle("-fx-font-size: 14px;");
-
-                            // Create label for club name
-                            Label clubLabel = new Label(club);
-                            clubLabel.setStyle("-fx-font-size: 14px;");
-
-                            // Add components to cell
-                            cellBox.getChildren().addAll(icon, clubLabel);
-
-                            setGraphic(cellBox);
-                            setText(null);
+                            icon.setText("🏢");
                         }
+                        icon.setStyle("-fx-font-size: 14px;");
+
+                        // Create label for club name
+                        Label clubLabel = new Label(club);
+                        clubLabel.setStyle("-fx-font-size: 14px;");
+
+                        // Add components to cell
+                        cellBox.getChildren().addAll(icon, clubLabel);
+
+                        setGraphic(cellBox);
+                        setText(null);
                     }
-                });
+                }
+            });
 
-                filterClubComboBox.setButtonCell(new ListCell<String>() {
-                    @Override
-                    protected void updateItem(String club, boolean empty) {
-                        super.updateItem(club, empty);
+            filterClubComboBox.setButtonCell(new ListCell<String>() {
+                @Override
+                protected void updateItem(String club, boolean empty) {
+                    super.updateItem(club, empty);
 
-                        if (empty || club == null) {
-                            setText("Tous les Clubs");
-                            setGraphic(null);
+                    if (empty || club == null) {
+                        setText("Tous les Clubs");
+                        setGraphic(null);
+                    } else {
+                        HBox cellBox = new HBox(10);
+                        cellBox.setAlignment(Pos.CENTER_LEFT);
+
+                        Label icon = new Label();
+                        if ("Tous les Clubs".equals(club)) {
+                            icon.setText("🌐");
                         } else {
-                            HBox cellBox = new HBox(10);
-                            cellBox.setAlignment(Pos.CENTER_LEFT);
-
-                            Label icon = new Label();
-                            if ("Tous les Clubs".equals(club)) {
-                                icon.setText("🌐");
-                            } else {
-                                icon.setText("🏢");
-                            }
-                            icon.setStyle("-fx-font-size: 14px;");
-
-                            Label clubLabel = new Label(club);
-                            clubLabel.setStyle("-fx-font-size: 14px;");
-
-                            cellBox.getChildren().addAll(icon, clubLabel);
-
-                            setGraphic(cellBox);
-                            setText(null);
+                            icon.setText("🏢");
                         }
+                        icon.setStyle("-fx-font-size: 14px;");
+
+                        Label clubLabel = new Label(club);
+                        clubLabel.setStyle("-fx-font-size: 14px;");
+
+                        cellBox.getChildren().addAll(icon, clubLabel);
+
+                        setGraphic(cellBox);
+                        setText(null);
                     }
-                });
+                }
+            });
 
-                filterClubComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                    if (filteredList != null) {
-                        filterClubComboBox.setDisable(true); // Temporarily disable to show processing
+            filterClubComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (filteredList != null) {
+                    filterClubComboBox.setDisable(true); // Temporarily disable to show processing
 
-                        // Convert "Tous les Clubs" to internal value "all"
-                        selectedClub = "Tous les Clubs".equals(newValue) ? "all" : newValue;
+                    // Convert "Tous les Clubs" to internal value "all"
+                    selectedClub = "Tous les Clubs".equals(newValue) ? "all" : newValue;
 
-                        // Apply filter
-                        filteredList.setPredicate(produit -> {
-                            // First check the search text
-                            String searchText = txtSearch.getText();
-                            boolean matchesSearch = searchText == null || searchText.isEmpty() ||
-                                    produit.getNomProd().toLowerCase().contains(searchText.toLowerCase()) ||
-                                    produit.getDescProd().toLowerCase().contains(searchText.toLowerCase());
+                    // Apply filter
+                    filteredList.setPredicate(produit -> {
+                        // First check the search text
+                        String searchText = txtSearch.getText();
+                        boolean matchesSearch = searchText == null || searchText.isEmpty() ||
+                                produit.getNomProd().toLowerCase().contains(searchText.toLowerCase()) ||
+                                produit.getDescProd().toLowerCase().contains(searchText.toLowerCase());
 
-                            // Then check the club filter
-                            boolean matchesClub = "all".equals(selectedClub) ||
-                                    (produit.getClub() != null && produit.getClub().getNom().equals(selectedClub));
+                        // Then check the club filter
+                        boolean matchesClub = "all".equals(selectedClub) ||
+                                (produit.getClub() != null && produit.getClub().getNomC().equals(selectedClub));
 
-                            return matchesSearch && matchesClub;
-                        });
+                        return matchesSearch && matchesClub;
+                    });
 
-                        // Reset to page 1 when changing filter
-                        currentPage = 1;
-                        updatePagination();
+                    // Reset to page 1 when changing filter
+                    currentPage = 1;
+                    updatePagination();
 
-                        // Re-enable after short delay
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(300);
-                                Platform.runLater(() -> filterClubComboBox.setDisable(false));
-                            } catch (InterruptedException e) {
-                                Platform.runLater(() -> filterClubComboBox.setDisable(false));
-                                e.printStackTrace();
-                            }
-                        }).start();
+                    // Re-enable after short delay
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(300);
+                            Platform.runLater(() -> filterClubComboBox.setDisable(false));
+                        } catch (InterruptedException e) {
+                            Platform.runLater(() -> filterClubComboBox.setDisable(false));
+                            e.printStackTrace();
+                        }
+                    }).start();
 
-                        // Show toast with filter info
-                        showToast(
-                                "Filtré par "
-                                        + ("all".equals(selectedClub) ? "tous les clubs" : "club: " + selectedClub),
-                                "info");
-                    }
-                });
-            }
-        } catch (SQLException e) {
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
+                    // Show toast with filter info
+                    showToast(
+                            "Filtré par "
+                                    + ("all".equals(selectedClub) ? "tous les clubs" : "club: " + selectedClub),
+                            "info");
+                }
+            });
         }
     }
 
@@ -903,7 +899,7 @@ public class AdminProduitController implements Initializable {
                 updatePagination();
             }
         } catch (SQLException e) {
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des produits", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Erreur lors du chargement des produits", e.getMessage());
             // Set empty placeholder message
             tableView.setPlaceholder(new Label("Erreur lors du chargement des produits"));
         }
@@ -1098,7 +1094,7 @@ public class AdminProduitController implements Initializable {
 
                 // Count products by club
                 if (produit.getClub() != null) {
-                    String clubName = produit.getClub().getNom();
+                    String clubName = produit.getClub().getNomC();
                     clubProductCount.put(clubName, clubProductCount.getOrDefault(clubName, 0) + 1);
                 }
             }
@@ -1172,27 +1168,22 @@ public class AdminProduitController implements Initializable {
 
         // Create club combobox
         ComboBox<Club> clubComboBox = new ComboBox<>();
-        try {
-            List<Club> clubs = clubService.getAll();
-            clubComboBox.setItems(FXCollections.observableArrayList(clubs));
-            clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-            clubComboBox.setButtonCell(new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
-        }
+        List<Club> clubs = clubService.getAll();
+        clubComboBox.setItems(FXCollections.observableArrayList(clubs));
+        clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
+        clubComboBox.setButtonCell(new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
 
         HBox imageBox = new HBox(10);
         imageBox.setAlignment(Pos.CENTER_LEFT);
@@ -1236,7 +1227,7 @@ public class AdminProduitController implements Initializable {
                 try {
                     // Validate inputs
                     if (nomField.getText().isEmpty()) {
-                        AlertUtils.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
+                        AlertUtilsSirine.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
                         return null;
                     }
 
@@ -1249,7 +1240,7 @@ public class AdminProduitController implements Initializable {
                         float prix = Float.parseFloat(prixField.getText().replace(',', '.'));
                         produit.setPrix(prix);
                     } catch (NumberFormatException ex) {
-                        AlertUtils.showError("Erreur", "Prix invalide",
+                        AlertUtilsSirine.showError("Erreur", "Prix invalide",
                                 "Veuillez entrer un prix valide (exemple: 29.99)");
                         return null;
                     }
@@ -1262,7 +1253,7 @@ public class AdminProduitController implements Initializable {
 
                     return produit;
                 } catch (Exception ex) {
-                    AlertUtils.showError("Erreur", "Erreur lors de la création du produit", ex.getMessage());
+                    AlertUtilsSirine.showError("Erreur", "Erreur lors de la création du produit", ex.getMessage());
                     return null;
                 }
             }
@@ -1284,7 +1275,7 @@ public class AdminProduitController implements Initializable {
                 // Show success message
                 showToast("Produit ajouté avec succès", "success");
             } catch (SQLException ex) {
-                AlertUtils.showError("Erreur", "Erreur lors de l'enregistrement du produit", ex.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de l'enregistrement du produit", ex.getMessage());
             }
         });
     }
@@ -1327,30 +1318,25 @@ public class AdminProduitController implements Initializable {
 
         // Create club combobox
         ComboBox<Club> clubComboBox = new ComboBox<>();
-        try {
-            List<Club> clubs = clubService.getAll();
-            clubComboBox.setItems(FXCollections.observableArrayList(clubs));
-            clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-            clubComboBox.setButtonCell(new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
+        List<Club> clubs = clubService.getAll();
+        clubComboBox.setItems(FXCollections.observableArrayList(clubs));
+        clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
+        clubComboBox.setButtonCell(new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
 
-            // Select the current club
-            clubComboBox.setValue(produit.getClub());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
-        }
+        // Select the current club
+        clubComboBox.setValue(produit.getClub());
 
         HBox imageBox = new HBox(10);
         imageBox.setAlignment(Pos.CENTER_LEFT);
@@ -1394,7 +1380,7 @@ public class AdminProduitController implements Initializable {
                 try {
                     // Validate inputs
                     if (nomField.getText().isEmpty()) {
-                        AlertUtils.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
+                        AlertUtilsSirine.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
                         return null;
                     }
 
@@ -1406,7 +1392,7 @@ public class AdminProduitController implements Initializable {
                         float prix = Float.parseFloat(prixField.getText().replace(',', '.'));
                         produit.setPrix(prix);
                     } catch (NumberFormatException ex) {
-                        AlertUtils.showError("Erreur", "Prix invalide",
+                        AlertUtilsSirine.showError("Erreur", "Prix invalide",
                                 "Veuillez entrer un prix valide (exemple: 29.99)");
                         return null;
                     }
@@ -1418,7 +1404,7 @@ public class AdminProduitController implements Initializable {
 
                     return produit;
                 } catch (Exception ex) {
-                    AlertUtils.showError("Erreur", "Erreur lors de la modification du produit", ex.getMessage());
+                    AlertUtilsSirine.showError("Erreur", "Erreur lors de la modification du produit", ex.getMessage());
                     return null;
                 }
             }
@@ -1440,7 +1426,7 @@ public class AdminProduitController implements Initializable {
                 // Show success message
                 showToast("Produit modifié avec succès", "success");
             } catch (SQLException ex) {
-                AlertUtils.showError("Erreur", "Erreur lors de la mise à jour du produit", ex.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de la mise à jour du produit", ex.getMessage());
             }
         });
     }

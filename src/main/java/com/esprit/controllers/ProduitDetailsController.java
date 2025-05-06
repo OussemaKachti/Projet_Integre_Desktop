@@ -2,7 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.ProduitApp;
 import com.esprit.models.Produit;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -48,7 +48,7 @@ public class ProduitDetailsController implements Initializable {
             setupProductDetails();
             setupQuantitySpinner();
         } else {
-            AlertUtils.showError("Erreur", "Produit non disponible",
+            AlertUtilsSirine.showError("Erreur", "Produit non disponible",
                 "Impossible d'afficher les détails du produit. Veuillez réessayer.");
             retourCatalogue();
         }
@@ -81,8 +81,8 @@ public class ProduitDetailsController implements Initializable {
         }
 
         // Afficher le club
-        if (selectedProduit.getClub() != null && selectedProduit.getClub().getNom() != null) {
-            lblClub.setText(selectedProduit.getClub().getNom().toUpperCase());
+        if (selectedProduit.getClub() != null && selectedProduit.getClub().getNomC() != null) {
+            lblClub.setText(selectedProduit.getClub().getNomC().toUpperCase());
         } else {
             lblClub.setText("");
         }
@@ -164,14 +164,14 @@ public class ProduitDetailsController implements Initializable {
                 // Vérifier si le produit a du stock disponible
                 int availableQuantity = Integer.parseInt(selectedProduit.getQuantity());
                 if (availableQuantity <= 0) {
-                    AlertUtils.showError("Erreur", "Stock épuisé",
+                    AlertUtilsSirine.showError("Erreur", "Stock épuisé",
                             "Ce produit n'est plus disponible en stock.");
                     return;
                 }
 
                 // Vérifier si on peut ajouter la quantité demandée
                 if (quantity > availableQuantity) {
-                    AlertUtils.showError("Erreur", "Quantité non disponible",
+                    AlertUtilsSirine.showError("Erreur", "Quantité non disponible",
                             String.format("Il ne reste que %d unité(s) disponible(s) pour ce produit.", availableQuantity));
                     return;
                 }
@@ -187,18 +187,18 @@ public class ProduitDetailsController implements Initializable {
                 ProduitCardItemController.updateCart(cart);
 
                 // Afficher un message de succès
-                AlertUtils.showInfo("Panier", "Produit ajouté",
+                AlertUtilsSirine.showInfo("Panier", "Produit ajouté",
                         String.format("%d × %s ajouté(s) au panier", quantity, selectedProduit.getNomProd()));
 
                 // Navigation vers la page du panier
                 ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
 
             } catch (NumberFormatException e) {
-                AlertUtils.showError("Erreur", "Problème de quantité",
+                AlertUtilsSirine.showError("Erreur", "Problème de quantité",
                         "La quantité disponible pour ce produit est invalide.");
             } catch (Exception e) {
                 e.printStackTrace();
-                AlertUtils.showError("Erreur", "Impossible d'ajouter au panier", e.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Impossible d'ajouter au panier", e.getMessage());
             }
         }
     }

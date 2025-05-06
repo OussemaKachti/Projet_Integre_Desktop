@@ -5,9 +5,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import com.esprit.utils.EmailConfig;
+
+// Jakarta Mail imports
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -67,7 +68,7 @@ public class EmailService {
                     EmailConfig.getProperties().getProperty("mail.smtp.starttls.enable"));
 
             // Create session with authentication
-            Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+            Session session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(
@@ -108,14 +109,18 @@ public class EmailService {
         String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<h2 style='color: #00A0E3;'>Welcome to UNICLUBS!</h2>" +
                 "<p>Hello " + name + ",</p>" +
-                "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>" +
-                "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
+                "<p>Thank you for creating an account. To verify your email address, please use the following verification code:</p>"
+                +
+                "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>"
+                +
                 "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + code + "</h2>" +
                 "</div>" +
                 "<p>This verification code will expire in <strong>2 hours</strong>.</p>" +
                 "<p>If you did not request this code, please ignore this email.</p>" +
-                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
-                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>"
+                +
+                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>"
+                +
                 "</div>";
 
         return sendEmailAsync(email, subject, content);
@@ -149,13 +154,17 @@ public class EmailService {
                 "<h2 style='color: #00A0E3;'>Password Reset</h2>" +
                 "<p>Hello " + name + ",</p>" +
                 "<p>We received a request to reset your password. To proceed, please use the following code:</p>" +
-                "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>" +
+                "<div style='background-color: #f4f4f4; padding: 20px; margin: 20px 0; text-align: center; border-radius: 5px;'>"
+                +
                 "<h2 style='margin: 0; color: #00A0E3; font-size: 32px; letter-spacing: 5px;'>" + token + "</h2>" +
                 "</div>" +
                 "<p>This reset code will expire in <strong>2 hours</strong>.</p>" +
-                "<p>If you did not request this code, please ignore this email or contact support if you have concerns.</p>" +
-                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>" +
-                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>" +
+                "<p>If you did not request this code, please ignore this email or contact support if you have concerns.</p>"
+                +
+                "<p style='margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #666;'>"
+                +
+                "This is an automated message, please do not reply. If you need assistance, please contact support.</p>"
+                +
                 "</div>";
 
         return sendEmailAsync(email, subject, content);
@@ -174,8 +183,13 @@ public class EmailService {
         }
     }
 
-    public static EmailService getInstance() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    // Singleton implementation
+    private static EmailService instance;
+    
+    public static synchronized EmailService getInstance() {
+        if (instance == null) {
+            instance = new EmailService();
+        }
+        return instance;
     }
 }

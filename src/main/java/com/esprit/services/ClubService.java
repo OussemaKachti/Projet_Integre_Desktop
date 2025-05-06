@@ -20,7 +20,7 @@ public class ClubService {
     public ClubService() {
         cnx = DatabaseConnection.getInstance();
     }
-    
+
     public static ClubService getInstance() {
         if (instance == null) {
             instance = new ClubService();
@@ -95,7 +95,7 @@ public class ClubService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return clubs;
     }
 
@@ -128,16 +128,16 @@ public class ClubService {
     public Club getById(int id) {
         return getClubById(id);
     }
-    
+
     // Find clubs by president ID
-    public List<Club> findByPresident(int presidentId) {
+    public List<Club> findByPresident2(int presidentId) {
         List<Club> clubs = new ArrayList<>();
         String query = "SELECT * FROM club WHERE president_id = ?";
-        
+
         try (PreparedStatement stmt = cnx.prepareStatement(query)) {
             stmt.setInt(1, presidentId);
             ResultSet rs = stmt.executeQuery();
-            
+
             while (rs.next()) {
                 Club club = new Club();
                 club.setId(rs.getInt("id"));
@@ -152,10 +152,23 @@ public class ClubService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return clubs;
     }
-    
+
+    public Club findByPresident(int presidentId) throws SQLException {
+        String query = "SELECT * FROM club WHERE president_id = ?";
+        try (PreparedStatement pst = cnx.prepareStatement(query)) {
+            pst.setInt(1, presidentId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToClub(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     // Get all clubs (renamed to match standard service pattern)
     public List<Club> getAll() {
         return afficher();
@@ -163,13 +176,13 @@ public class ClubService {
 
     // Find the first club by president ID
     public Club findFirstByPresident(int presidentId) {
-        List<Club> clubs = findByPresident(presidentId);
+        List<Club> clubs = findByPresident2(presidentId);
         if (clubs != null && !clubs.isEmpty()) {
             return clubs.get(0);
         }
         return null;
     }
-    
+
     // Helper method to map result set to Club object
     private Club mapResultSetToClub(ResultSet rs) throws SQLException {
         Club club = new Club();

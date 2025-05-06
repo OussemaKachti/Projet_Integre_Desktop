@@ -5,7 +5,7 @@ import com.esprit.models.Club;
 import com.esprit.models.Produit;
 import com.esprit.services.ClubService;
 import com.esprit.services.ProduitService;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -73,43 +73,38 @@ public class ProduitViewController implements Initializable {
      * Configure le filtre par club
      */
     private void setupClubFilter() {
-        try {
-            // Ajouter l'option "Tous les clubs"
-            Club allClubsOption = new Club();
-            allClubsOption.setId(-1);
-            allClubsOption.setNom("Tous les clubs");
+        // Ajouter l'option "Tous les clubs"
+        Club allClubsOption = new Club();
+        allClubsOption.setId(-1);
+        allClubsOption.setNomC("Tous les clubs");
 
-            List<Club> clubs = clubService.getAll();
-            clubs.add(0, allClubsOption); // Ajouter en première position
+        List<Club> clubs = clubService.getAll();
+        clubs.add(0, allClubsOption); // Ajouter en première position
 
-            comboFilterClub.getItems().setAll(clubs);
-            comboFilterClub.setCellFactory(cell -> new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-            comboFilterClub.setButtonCell(new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
+        comboFilterClub.getItems().setAll(clubs);
+        comboFilterClub.setCellFactory(cell -> new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
+        comboFilterClub.setButtonCell(new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
 
-            comboFilterClub.getSelectionModel().selectFirst();
+        comboFilterClub.getSelectionModel().selectFirst();
 
-            // Ajouter un écouteur de sélection
-            comboFilterClub.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal != null) {
-                    filterProducts();
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
-        }
+        // Ajouter un écouteur de sélection
+        comboFilterClub.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                filterProducts();
+            }
+        });
     }
 
     /**
@@ -153,27 +148,22 @@ public class ProduitViewController implements Initializable {
 
         // Create club combobox
         ComboBox<Club> clubComboBox = new ComboBox<>();
-        try {
-            List<Club> clubs = clubService.getAll();
-            clubComboBox.setItems(FXCollections.observableArrayList(clubs));
-            clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-            clubComboBox.setButtonCell(new ListCell<Club>() {
-                @Override
-                protected void updateItem(Club club, boolean empty) {
-                    super.updateItem(club, empty);
-                    setText(empty || club == null ? "" : club.getNom());
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des clubs", e.getMessage());
-        }
+        List<Club> clubs = clubService.getAll();
+        clubComboBox.setItems(FXCollections.observableArrayList(clubs));
+        clubComboBox.setCellFactory(cell -> new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
+        clubComboBox.setButtonCell(new ListCell<Club>() {
+            @Override
+            protected void updateItem(Club club, boolean empty) {
+                super.updateItem(club, empty);
+                setText(empty || club == null ? "" : club.getNomC());
+            }
+        });
 
         HBox imageBox = new HBox(10);
         imageBox.setAlignment(Pos.CENTER_LEFT);
@@ -217,7 +207,7 @@ public class ProduitViewController implements Initializable {
                 try {
                     // Validate inputs
                     if (nomField.getText().isEmpty()) {
-                        AlertUtils.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
+                        AlertUtilsSirine.showError("Erreur", "Nom invalide", "Le nom du produit est obligatoire.");
                         return null;
                     }
 
@@ -230,7 +220,7 @@ public class ProduitViewController implements Initializable {
                         float prix = Float.parseFloat(prixField.getText().replace(',', '.'));
                         produit.setPrix(prix);
                     } catch (NumberFormatException ex) {
-                        AlertUtils.showError("Erreur", "Prix invalide",
+                        AlertUtilsSirine.showError("Erreur", "Prix invalide",
                                 "Veuillez entrer un prix valide (exemple: 29.99)");
                         return null;
                     }
@@ -243,7 +233,7 @@ public class ProduitViewController implements Initializable {
 
                     return produit;
                 } catch (Exception ex) {
-                    AlertUtils.showError("Erreur", "Erreur lors de la création du produit", ex.getMessage());
+                    AlertUtilsSirine.showError("Erreur", "Erreur lors de la création du produit", ex.getMessage());
                     return null;
                 }
             }
@@ -264,7 +254,7 @@ public class ProduitViewController implements Initializable {
                 // Show success message using the new showToast method
                 showToast("Produit ajouté avec succès", "success");
             } catch (SQLException ex) {
-                AlertUtils.showError("Erreur", "Erreur lors de l'enregistrement du produit", ex.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de l'enregistrement du produit", ex.getMessage());
             }
         });
     }
@@ -278,7 +268,7 @@ public class ProduitViewController implements Initializable {
             filterProducts();
         } catch (SQLException e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des produits", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Erreur lors du chargement des produits", e.getMessage());
         }
     }
 
@@ -359,7 +349,7 @@ public class ProduitViewController implements Initializable {
                 productContainer.getChildren().add(cardNode);
             } catch (IOException e) {
                 e.printStackTrace();
-                AlertUtils.showError("Erreur", "Erreur lors de l'affichage des produits", e.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de l'affichage des produits", e.getMessage());
             }
         }
     }
@@ -472,8 +462,8 @@ public class ProduitViewController implements Initializable {
         lblQuantity.setText("Stock: " + produit.getQuantity());
 
         // Safely handle null club or null club name
-        if (produit.getClub() != null && produit.getClub().getNom() != null) {
-            lblClub.setText(produit.getClub().getNom().toUpperCase());
+        if (produit.getClub() != null && produit.getClub().getNomC() != null) {
+            lblClub.setText(produit.getClub().getNomC().toUpperCase());
         } else {
             lblClub.setText("");
         }
@@ -524,7 +514,7 @@ public class ProduitViewController implements Initializable {
             ProduitApp.navigateTo("/com/esprit/views/produit/ProduitDetailsView.fxml");
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
         }
     }
 
@@ -533,7 +523,7 @@ public class ProduitViewController implements Initializable {
      */
     private void addToCart(Produit produit) {
         // TODO: Implémenter la gestion du panier
-        AlertUtils.showInfo("Panier", "Produit ajouté",
+        AlertUtilsSirine.showInfo("Panier", "Produit ajouté",
                 "Le produit \"" + produit.getNomProd() + "\" a été ajouté au panier.");
     }
 

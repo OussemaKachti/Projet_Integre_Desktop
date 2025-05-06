@@ -70,11 +70,29 @@
                </graphic>
             </Button>
             
-            <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-               <graphic>
-                  <Label text="📅" />
-               </graphic>
-            </Button>
+            <!-- Event Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📅" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Event Management -->
+               <VBox fx:id="eventsSubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                  <Button styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📅" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="🗂️" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
             
             <Button fx:id="productOrdersBtn" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>

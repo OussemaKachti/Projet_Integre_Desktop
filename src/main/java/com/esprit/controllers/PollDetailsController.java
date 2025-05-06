@@ -251,7 +251,7 @@ public class PollDetailsController implements Initializable {
             questionLabel.setText(currentSondage.getQuestion());
             
             if (currentSondage.getClub() != null) {
-                clubLabel.setText(currentSondage.getClub().getNom());
+                clubLabel.setText(currentSondage.getClub().getNomC());
             } else {
                 clubLabel.setText("N/A");
             }

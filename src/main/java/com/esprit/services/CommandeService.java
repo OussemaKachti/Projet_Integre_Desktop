@@ -1,5 +1,5 @@
 
-        package com.esprit.services;
+package com.esprit.services;
 
 import com.esprit.models.Commande;
 import com.esprit.models.Orderdetails;
@@ -184,8 +184,8 @@ public class CommandeService {
                 if (!rs.wasNull()) { // Check if user_id was NULL
                     User user = new User();
                     user.setId(userId);
-                    user.setNom(userNom);
-                    user.setPrenom(userPrenom);
+                    user.setFirstName(userNom);
+                    user.setLastName(userPrenom);
                     user.setEmail(userEmail);
                     System.out.println("Loaded user for commande ID " + commande.getId() + ": " + user);
                     commande.setUser(user);
@@ -250,7 +250,7 @@ public class CommandeService {
                 String nomProd = rs.getString("nom_prod");
                 int totalVentes = rs.getInt("total_ventes");
                 System.out.println("Product: " + nomProd + ", Sales: " + totalVentes);
-                stats.add(new Object[]{nomProd, totalVentes});
+                stats.add(new Object[] { nomProd, totalVentes });
             }
 
         } catch (SQLException e) {

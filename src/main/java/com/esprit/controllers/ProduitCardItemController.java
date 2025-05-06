@@ -3,7 +3,7 @@ package com.esprit.controllers;
 import com.esprit.ProduitApp;
 import com.esprit.models.Produit;
 import com.esprit.services.ProduitService;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -58,7 +58,7 @@ public class ProduitCardItemController {
             lblQuantity.setText("Stock: " + produit.getQuantity());
             
             if (produit.getClub() != null) {
-                lblClub.setText(produit.getClub().getNom().toUpperCase());
+                lblClub.setText(produit.getClub().getNomC().toUpperCase());
             } else {
                 lblClub.setText("");
             }
@@ -98,7 +98,7 @@ public class ProduitCardItemController {
                 ProduitApp.navigateTo("/com/esprit/views/produit/ProduitForm.fxml");
             } catch (Exception e) {
                 e.printStackTrace();
-                AlertUtils.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
             }
         }
     }
@@ -115,7 +115,7 @@ public class ProduitCardItemController {
                 // Check if product has available stock
                 int availableQuantity = Integer.parseInt(produit.getQuantity());
                 if (availableQuantity <= 0) {
-                    AlertUtils.showError("Erreur", "Stock épuisé",
+                    AlertUtilsSirine.showError("Erreur", "Stock épuisé",
                             "Ce produit n'est plus disponible en stock.");
                     return;
                 }
@@ -125,7 +125,7 @@ public class ProduitCardItemController {
 
                 // Check if we can add more
                 if (currentCartQuantity >= availableQuantity) {
-                    AlertUtils.showError("Erreur", "Quantité maximale atteinte",
+                    AlertUtilsSirine.showError("Erreur", "Quantité maximale atteinte",
                             "Vous ne pouvez pas ajouter plus de ce produit que ce qui est disponible en stock.");
                     return;
                 }
@@ -134,7 +134,7 @@ public class ProduitCardItemController {
                 cart.put(produit.getId(), currentCartQuantity + 1);
 
                 // Show success message
-                AlertUtils.showInfo("Panier", "Produit ajouté",
+                AlertUtilsSirine.showInfo("Panier", "Produit ajouté",
                         String.format("Le produit \"%s\" a été ajouté au panier.", produit.getNomProd()));
 
                 // Navigate to cart view
@@ -153,16 +153,16 @@ public class ProduitCardItemController {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    AlertUtils.showError("Erreur", "Navigation",
+                    AlertUtilsSirine.showError("Erreur", "Navigation",
                             "Impossible d'afficher la page du panier: " + e.getMessage());
                 }
 
             } catch (NumberFormatException e) {
-                AlertUtils.showError("Erreur", "Problème de quantité",
+                AlertUtilsSirine.showError("Erreur", "Problème de quantité",
                         "La quantité disponible pour ce produit est invalide.");
             } catch (Exception e) {
                 e.printStackTrace();
-                AlertUtils.showError("Erreur", "Impossible d'accéder au panier", e.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Impossible d'accéder au panier", e.getMessage());
             }
         }*/
         if (produit != null) {
@@ -174,7 +174,7 @@ public class ProduitCardItemController {
                 //ProduitApp.navigateTo("/com/esprit/views/produit/produit_card.fxml");
             } catch (Exception e) {
                 e.printStackTrace();
-                AlertUtils.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
+                AlertUtilsSirine.showError("Erreur", "Erreur lors de l'affichage des détails", e.getMessage());
             }
         }
     }

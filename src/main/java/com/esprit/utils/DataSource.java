@@ -38,16 +38,6 @@ public class DataSource {
     }
 
     public Connection getCnx() {
-        try {
-            // Check if connection is still valid
-            if (cnx == null || cnx.isClosed() || !isConnectionValid()) {
-                System.out.println("Connection is invalid or closed, attempting to reconnect...");
-                connectWithRetry();
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking connection: " + e.getMessage());
-            connectWithRetry();
-        }
         return cnx;
     }
 
@@ -62,5 +52,12 @@ public class DataSource {
         }
         return false; // La connexion est fermée ou invalide
     }
+    public String getUrl() {
+        return url;
+    }
     
+    // Getter for user 
+    public String getUser() {
+        return user;
+    }
 }

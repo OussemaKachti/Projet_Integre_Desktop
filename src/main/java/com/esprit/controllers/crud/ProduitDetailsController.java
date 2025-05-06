@@ -38,7 +38,7 @@ public class ProduitDetailsController implements Initializable {
         lblDescProd.setText(produit.getDescProd());
         lblPrix.setText(String.valueOf(produit.getPrix()) + " TND");
         lblQuantity.setText("Quantité disponible: " + produit.getQuantity());
-        lblClub.setText("Club: " + (produit.getClub() != null ? produit.getClub().getNom() : "Aucun club"));
+        lblClub.setText("Club: " + (produit.getClub() != null ? produit.getClub().getNomC() : "Aucun club"));
 
         try {
             String imagePath = produit.getImgProd();

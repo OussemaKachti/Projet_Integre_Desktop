@@ -9,7 +9,7 @@ import com.esprit.services.UserService;
 import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -193,14 +193,14 @@ public class CartController implements Initializable {
     public void proceedToCheckout() {
         try {
             if (cartItems.isEmpty()) {
-                AlertUtils.showError("Erreur", "Panier vide", "Votre panier est vide.");
+                AlertUtilsSirine.showError("Erreur", "Panier vide", "Votre panier est vide.");
                 return;
             }
             UserService userService = UserService.getInstance();
             User staticUser = userService.getById(1);  // make sure this ID exists in your DB
 
             if (staticUser == null) {
-                AlertUtils.showError("Erreur", "Utilisateur non trouvé", "L'utilisateur statique n'existe pas.");
+                AlertUtilsSirine.showError("Erreur", "Utilisateur non trouvé", "L'utilisateur statique n'existe pas.");
                 return;
             }
 
@@ -236,7 +236,7 @@ public class CartController implements Initializable {
             showSuccessPopup(commande.getId());
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur lors de la commande", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Erreur lors de la commande", e.getMessage());
         }
     }
     /**
@@ -287,7 +287,7 @@ public class CartController implements Initializable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur", "Erreur d'affichage", "Impossible d'afficher la confirmation.");
+            AlertUtilsSirine.showError("Erreur", "Erreur d'affichage", "Impossible d'afficher la confirmation.");
         }
     }
 
@@ -309,7 +309,7 @@ public class CartController implements Initializable {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur", "Navigation", "Impossible de charger le catalogue.");
+            AlertUtilsSirine.showError("Erreur", "Navigation", "Impossible de charger le catalogue.");
         }
     }
 

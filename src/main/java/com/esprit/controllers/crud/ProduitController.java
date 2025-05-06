@@ -101,7 +101,7 @@ public class ProduitController implements Initializable {
                         if (empty || club == null) {
                             setText(null);
                         } else {
-                            setText(club.getNom()); // Utilisez la propriété appropriée du club
+                            setText(club.getNomC()); // Utilisez la propriété appropriée du club
                         }
                     }
                 });
@@ -113,7 +113,7 @@ public class ProduitController implements Initializable {
                         if (empty || club == null) {
                             setText(null);
                         } else {
-                            setText(club.getNom()); // Utilisez la propriété appropriée du club
+                            setText(club.getNomC()); // Utilisez la propriété appropriée du club
                         }
                     }
                 });
@@ -141,7 +141,7 @@ public class ProduitController implements Initializable {
                 new SimpleStringProperty(cellData.getValue().getImgProd()));
         colClub.setCellValueFactory(cellData -> {
             Club club = cellData.getValue().getClub();
-            return new SimpleStringProperty(club != null ? club.getNom() : "");
+            return new SimpleStringProperty(club != null ? club.getNomC() : "");
         });
 
         setupActionsColumn();

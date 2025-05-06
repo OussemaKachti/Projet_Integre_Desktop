@@ -3,8 +3,15 @@ package com.esprit.controllers.crud;
 import com.esprit.models.Commande;
 import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.CommandeService;
-import com.esprit.utils.AlertUtils;
+import com.esprit.utils.AlertUtilsSirine;
 import com.esprit.utils.DataSource;
+
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -25,13 +32,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.PasswordAuthentication;
+
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
@@ -120,7 +121,7 @@ public class AdminCommandeController implements Initializable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            AlertUtils.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface",
+            AlertUtilsSirine.showError("Erreur d'initialisation", "Erreur lors du chargement de l'interface",
                     "Une erreur est survenue: " + e.getMessage());
         }
     }
@@ -158,7 +159,7 @@ public class AdminCommandeController implements Initializable {
 
         colUser.setCellValueFactory(cellData -> {
             if (cellData.getValue().getUser() != null) {
-                return new javafx.beans.property.SimpleStringProperty(cellData.getValue().getUser().getNom());
+                return new javafx.beans.property.SimpleStringProperty(cellData.getValue().getUser().getFirstName());
             }
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
@@ -279,7 +280,7 @@ public class AdminCommandeController implements Initializable {
                         return true;
                     }
                     String lowerCaseFilter = newValue.toLowerCase();
-                    return (commande.getUser() != null && commande.getUser().getNom().toLowerCase().contains(lowerCaseFilter)) ||
+                    return (commande.getUser() != null && commande.getUser().getFirstName().toLowerCase().contains(lowerCaseFilter)) ||
                             commande.getStatut().name().toLowerCase().contains(lowerCaseFilter) ||
                             String.valueOf(commande.getId()).contains(newValue);
                 });
@@ -307,7 +308,7 @@ public class AdminCommandeController implements Initializable {
 
                     String searchText = txtSearch.getText();
                     boolean matchesSearch = searchText == null || searchText.isEmpty() ||
-                            (commande.getUser() != null && commande.getUser().getNom().toLowerCase().contains(searchText.toLowerCase())) ||
+                            (commande.getUser() != null && commande.getUser().getFirstName().toLowerCase().contains(searchText.toLowerCase())) ||
                             commande.getStatut().name().toLowerCase().contains(searchText.toLowerCase()) ||
                             String.valueOf(commande.getId()).contains(searchText);
 
@@ -370,7 +371,7 @@ public class AdminCommandeController implements Initializable {
                 updatePagination();
             }
         } catch (Exception e) {
-            AlertUtils.showError("Erreur", "Erreur lors du chargement des commandes", e.getMessage());
+            AlertUtilsSirine.showError("Erreur", "Erreur lors du chargement des commandes", e.getMessage());
             tableView.setPlaceholder(new Label("Erreur lors du chargement des commandes"));
         }
     }
@@ -530,10 +531,10 @@ public class AdminCommandeController implements Initializable {
         final String senderPassword = "rmiv tndu ffjc deob"; // Replace with your Gmail App Password
 
         // Create a session with authentication
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
             @Override
-            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new javax.mail.PasswordAuthentication(senderEmail, senderPassword); // Pass String directly
+            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new jakarta.mail.PasswordAuthentication(senderEmail, senderPassword); // Pass String directly
             }
         });
 
@@ -542,7 +543,7 @@ public class AdminCommandeController implements Initializable {
         message.setFrom(new InternetAddress(senderEmail));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
         message.setSubject("Confirmation de votre commande #" + commande.getId());
-        message.setText("Bonjour " + commande.getUser().getNom() + ",\n\n" +
+        message.setText("Bonjour " + commande.getUser().getFirstName() + ",\n\n" +
                 "Votre commande #" + commande.getId() + " a été validée avec succès.\n" +
                 "Montant total : " + String.format("%.2f €", commande.getTotal()) + "\n" +
                 "Date de commande : " + commande.getDateComm() + "\n\n" +
