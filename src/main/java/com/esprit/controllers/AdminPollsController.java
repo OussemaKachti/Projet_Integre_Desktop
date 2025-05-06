@@ -30,6 +30,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -119,6 +120,9 @@ public class AdminPollsController implements Initializable {
     @FXML
     private BorderPane borderPane;
 
+    @FXML
+    private BorderPane borderPane;
+
     // Services
     public SondageService sondageService;
     private ClubService clubService;
@@ -151,6 +155,12 @@ public class AdminPollsController implements Initializable {
 
             // Configurer les événements
             setupEventHandlers();
+
+            // Configurer les événements de navigation
+            setupNavigationEvents();
+
+            // Configurer les informations de l'administrateur
+            setupAdminInfo();
 
             // Configurer les événements de navigation
             setupNavigationEvents();
@@ -247,6 +257,7 @@ public class AdminPollsController implements Initializable {
             return new SimpleStringProperty("N/A");
         });
         clubColumn.setStyle("-fx-alignment: CENTER;");
+        clubColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Date
         createdAtColumn.setCellValueFactory(cellData -> {
@@ -257,8 +268,13 @@ public class AdminPollsController implements Initializable {
             return new SimpleStringProperty("N/A");
         });
         createdAtColumn.setStyle("-fx-alignment: CENTER;");
+        createdAtColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Actions
+        actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
+            // Créer des boutons avec des images au lieu de texte
+            private final Button viewButton = new Button();
+            private final Button deleteButton = new Button();
         actionsColumn.setCellFactory(col -> new TableCell<Sondage, Void>() {
             // Créer des boutons avec des images au lieu de texte
             private final Button viewButton = new Button();
@@ -322,6 +338,7 @@ public class AdminPollsController implements Initializable {
                 }
             }
         });
+        actionsColumn.setStyle("-fx-alignment: CENTER;");
         actionsColumn.setStyle("-fx-alignment: CENTER;");
     }
 
@@ -674,6 +691,7 @@ public class AdminPollsController implements Initializable {
         try {
             // Create a custom confirmation dialog
             Alert confirmDialog = new Alert(Alert.AlertType.NONE);
+            Alert confirmDialog = new Alert(Alert.AlertType.NONE);
             confirmDialog.setTitle("Confirmation");
             confirmDialog.setHeaderText("Delete poll?");
             confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
@@ -748,7 +766,9 @@ public class AdminPollsController implements Initializable {
 
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
+            if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
                 try {
+                    // First delete comments linked to this poll
                     // First delete comments linked to this poll
                     sondageService.deleteCommentsByPollId(sondage.getId());
 
@@ -767,10 +787,12 @@ public class AdminPollsController implements Initializable {
                 } catch (SQLException e) {
                     e.printStackTrace();
                     showToast("Error while deleting: " + e.getMessage(), "error");
+                    showToast("Error while deleting: " + e.getMessage(), "error");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
             showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
         }
     }
