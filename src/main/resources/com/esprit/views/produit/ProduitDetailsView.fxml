@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ProduitDetailsController">
+   <top>
+      <!-- Navigation Bar -->
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: #FFFFFF; -fx-border-color: #EEEEEE; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <!-- Logo -->
+                  <HBox alignment="CENTER_LEFT" HBox.hgrow="NEVER">
+                     <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../images/logo.png" />
+                           </image>
+                        </ImageView>
+                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #4361EE;" text="Uniclubs">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </HBox>
+                  
+                  <!-- Menu Items -->
+                  <HBox alignment="CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="Home" />
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="About" />
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="Courses" />
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="Pages" />
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="Blog" />
+                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #000000;" text="Contact" />
+                     </children>
+                  </HBox>
+                  
+                  <!-- Search Box -->
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="NEVER">
+                     <children>
+                        <TextField promptText="Search..." style="-fx-background-color: #F5F5F5; -fx-background-radius: 20;">
+                           <padding>
+                              <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                           </padding>
+                        </TextField>
+                     </children>
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </HBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   
+   <center>
+      <!-- Product Details Content -->
+      <HBox alignment="CENTER" spacing="30.0" style="-fx-background-color: #F8F8F8;" BorderPane.alignment="CENTER">
+         <children>
+            <!-- Product Image Card -->
+            <VBox alignment="CENTER" maxWidth="450.0" prefWidth="450.0" style="-fx-background-color: #FFFFFF; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-background-radius: 5;">
+               <children>
+                  <ImageView fx:id="imgProduit" fitHeight="400.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true">
+                     <VBox.margin>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </VBox.margin>
+                  </ImageView>
+               </children>
+               <HBox.margin>
+                  <Insets bottom="30.0" left="30.0" top="30.0" />
+               </HBox.margin>
+            </VBox>
+            
+            <!-- Product Info Card -->
+            <VBox maxWidth="450.0" prefWidth="450.0" spacing="15.0" style="-fx-background-color: #FFFFFF; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5); -fx-background-radius: 5;">
+               <children>
+                  <!-- Product Title -->
+                  <Label fx:id="lblNomProduit" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4361EE;" text="HOODIE ENACTUS">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  
+                  <!-- Description Section -->
+                  <HBox>
+                     <children>
+                        <Label text="Description : " style="-fx-font-weight: bold;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblDescription" text="GREY Hoodie made with cotton" wrapText="true" />
+                     </children>
+                  </HBox>
+                  
+                  <!-- Club Section -->
+                  <HBox>
+                     <children>
+                        <Label text="Club : " style="-fx-font-weight: bold;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblClub" text="ENACTUS" />
+                     </children>
+                  </HBox>
+                  
+                  <!-- Stock Section -->
+                  <HBox>
+                     <children>
+                        <Label text="Stock : " style="-fx-font-weight: bold;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblQuantity" text="En stock (50 disponibles)" />
+                     </children>
+                  </HBox>
+                  
+                  <!-- Price Section -->
+                  <HBox>
+                     <children>
+                        <Label text="Prix : " style="-fx-font-weight: bold;">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Label>
+                        <Label fx:id="lblPrix" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4361EE;" text="50 TND" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+                  
+                  <!-- Quantity Selector -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#decrementQuantity" style="-fx-background-color: #EEEEEE; -fx-text-fill: #000000; -fx-font-weight: bold;" text="-" />
+                        <Spinner fx:id="spinnerQuantity" editable="true" prefWidth="80.0" />
+                        <Button mnemonicParsing="false" onAction="#incrementQuantity" style="-fx-background-color: #EEEEEE; -fx-text-fill: #000000; -fx-font-weight: bold;" text="+" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="20.0" top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+                  
+
+                  
+                  <!-- Add to Cart Button -->
+                  <Button fx:id="btnAddToCart" mnemonicParsing="false" onAction="#ajouterAuPanier" style="-fx-background-color: #4361EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3;" text="Add to Cart">
+                     <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                     </padding>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Button>
+                  
+                  <!-- Back Button -->
+                  <Button fx:id="btnBack" mnemonicParsing="false" onAction="#retourCatalogue" style="-fx-background-color: transparent; -fx-text-fill: #4361EE; -fx-border-color: #4361EE; -fx-border-radius: 3;" text="Back to Catalog">
+                     <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+               <HBox.margin>
+                  <Insets bottom="30.0" right="30.0" top="30.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

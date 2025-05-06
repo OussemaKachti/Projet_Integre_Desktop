@@ -112,6 +112,8 @@ public class AdminPollsController implements Initializable {
     @FXML
     private VBox surveySubMenu;
     @FXML
+    private VBox eventsSubMenu;
+    @FXML
     private Label adminNameLabel;
 
     @FXML
@@ -264,12 +266,15 @@ public class AdminPollsController implements Initializable {
             private final HBox buttonsBox = new HBox(8);
 
             {
-                // Créer les ImageView pour les icônes - Update paths to use common resources folder
-                ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/esprit/images/eye.png")));
+                // Créer les ImageView pour les icônes - Update paths to use common resources
+                // folder
+                ImageView eyeIcon = new ImageView(
+                        new Image(getClass().getResourceAsStream("/com/esprit/images/eye.png")));
                 eyeIcon.setFitHeight(20);
                 eyeIcon.setFitWidth(20);
 
-                ImageView trashIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/esprit/images/trash.png")));
+                ImageView trashIcon = new ImageView(
+                        new Image(getClass().getResourceAsStream("/com/esprit/images/trash.png")));
                 trashIcon.setFitHeight(20);
                 trashIcon.setFitWidth(20);
 
@@ -592,7 +597,7 @@ public class AdminPollsController implements Initializable {
                 }
 
                 controller.setSondage(sondage);
-//borderPane.setCenter(root);
+                // borderPane.setCenter(root);
                 // Get current stage directly from a scene component
                 Stage currentStage = (Stage) pollsTable.getScene().getWindow();
                 double width = currentStage.getWidth();
@@ -903,6 +908,14 @@ public class AdminPollsController implements Initializable {
 
         // Le bouton pollsManagementBtn est déjà actif, pas besoin d'action
 
+        // For Events Management, add submenu toggle similar to survey management
+        eventManagementBtn.setOnAction(event -> {
+            // Toggle the visibility of the submenu
+            boolean isVisible = eventsSubMenu.isVisible();
+            eventsSubMenu.setVisible(!isVisible);
+            eventsSubMenu.setManaged(!isVisible);
+        });
+
         // Pour le bouton principal Survey Management, on peut ajouter une animation
         // pour montrer/cacher le sous-menu
         surveyManagementBtn.setOnAction(event -> {
@@ -933,13 +946,79 @@ public class AdminPollsController implements Initializable {
                 showToast("Error navigating to user management: " + e.getMessage(), "error");
             }
         });
+
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        eventManagementBtn
-                .setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
+
+        // Competition button handler to navigate to AdminSaisons.fxml
+        competitionBtn.setOnAction(event -> {
+            try {
+                // Load the seasons management view
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminSaisons.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) competitionBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to seasons management: " + e.getMessage(), "error");
+            }
+        });
+
         productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
-        competitionBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Compétitions", "info"));
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
         logoutBtn.setOnAction(e -> handleLogout());
+
+        // Add event handlers for submenu options
+        if (eventsSubMenu != null && eventsSubMenu.getChildren().size() >= 2) {
+            // Event Management navigation
+            ((Button) eventsSubMenu.getChildren().get(0)).setOnAction(event -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                    stage.setScene(scene);
+                    stage.setMaximized(true);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showToast("Error navigating to event management: " + e.getMessage(), "error");
+                }
+            });
+
+            // Category Management navigation
+            ((Button) eventsSubMenu.getChildren().get(1)).setOnAction(event -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                    stage.setScene(scene);
+                    stage.setMaximized(true);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showToast("Error navigating to category management: " + e.getMessage(), "error");
+                }
+            });
+        }
     }
 
     /**

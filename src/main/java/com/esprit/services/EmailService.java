@@ -9,7 +9,6 @@ import com.esprit.utils.EmailConfig;
 // Replace imports with proper Jakarta Mail imports
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -184,8 +183,13 @@ public class EmailService {
         }
     }
 
-    public static EmailService getInstance() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    // Singleton implementation
+    private static EmailService instance;
+    
+    public static synchronized EmailService getInstance() {
+        if (instance == null) {
+            instance = new EmailService();
+        }
+        return instance;
     }
 }

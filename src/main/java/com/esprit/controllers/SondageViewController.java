@@ -94,7 +94,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import com.esprit.services.AiService;
-import java.awt.Desktop;
+// import java.awt.Desktop;
 import java.net.URI;
 import javafx.scene.layout.GridPane;
 import javafx.scene.input.Clipboard;
@@ -916,14 +916,14 @@ public class SondageViewController implements Initializable {
         
         Hyperlink emailLink = new Hyperlink("support@uniclubs.com");
         emailLink.setStyle("-fx-font-size: 14px;");
-        emailLink.setOnAction(e -> {
-            // Open default mail client
-            try {
-                Desktop.getDesktop().mail(new URI("mailto:support@uniclubs.com?subject=Comment%20Ban%20Appeal"));
-            } catch (Exception ex) {
-                showToast("Unable to open email client", "error");
-            }
-        });
+        // emailLink.setOnAction(e -> {
+        //     // Open default mail client
+        //     try {
+        //         Desktop.getDesktop().mail(new URI("mailto:support@uniclubs.com?subject=Comment%20Ban%20Appeal"));
+        //     } catch (Exception ex) {
+        //         showToast("Unable to open email client", "error");
+        //     }
+        // });
         
         contactBox.getChildren().addAll(contactLabel, emailLink);
         
