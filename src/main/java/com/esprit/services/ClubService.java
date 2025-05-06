@@ -5,16 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.esprit.models.Club;
-import com.esprit.utils.DatabaseConnection;
 
 import com.esprit.models.Club;
 import com.esprit.utils.DatabaseConnection;
@@ -22,17 +14,13 @@ import com.esprit.utils.DatabaseConnection;
 public class ClubService {
 
     private final Connection cnx;
-
-    private final Connection cnx;
     private static ClubService instance;
 
     // Constructeur qui initialise la connexion via le singleton DatabaseConnection
-    // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
         cnx = DatabaseConnection.getInstance();
-        cnx = DatabaseConnection.getInstance();
     }
-    
+
     public static ClubService getInstance() {
         if (instance == null) {
             instance = new ClubService();
@@ -174,25 +162,11 @@ public class ClubService {
             pst.setInt(1, presidentId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    club = new Club();
-                    club.setId(rs.getInt("id"));
-                    club.setPresidentId(rs.getInt("president_id"));
-                    club.setNomC(rs.getString("nom_c"));
-                    club.setDescription(rs.getString("description"));
-                    club.setStatus(rs.getString("status"));
-                    club.setImage(rs.getString("image"));
-                    club.setPoints(rs.getInt("points"));
+                    return mapResultSetToClub(rs);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return club;
-    }
-
-    // Get a club by ID (renamed method to match other callers)
-    public Club getById(int id) {
-        return getClubById(id);
+        return null;
     }
 
     // Get all clubs (renamed to match standard service pattern)
@@ -213,12 +187,6 @@ public class ClubService {
     private Club mapResultSetToClub(ResultSet rs) throws SQLException {
         Club club = new Club();
         club.setId(rs.getInt("id"));
-        club.setPresidentId(rs.getInt("president_id"));
-        club.setNomC(rs.getString("nom_c"));
-        club.setDescription(rs.getString("description"));
-        club.setStatus(rs.getString("status"));
-        club.setImage(rs.getString("image"));
-        club.setPoints(rs.getInt("points"));
         club.setPresidentId(rs.getInt("president_id"));
         club.setNomC(rs.getString("nom_c"));
         club.setDescription(rs.getString("description"));

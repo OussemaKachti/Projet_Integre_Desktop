@@ -8,40 +8,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
-import javafx.animation.*;
-import javafx.application.Platform;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import javafx.stage.StageStyle;
-import javafx.util.Duration;
 
-import java.util.LinkedList;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.Queue;
 
 public class AlertUtils {
-
-    private static final Queue<Toast> toastQueue = new LinkedList<>();
-    private static boolean isShowingToast = false;
-
-    // Type d'alerte
-    public enum AlertType {
-        INFORMATION, SUCCESS, ERROR, WARNING
-    }
-
-    // Type de toast
-    public enum ToastType {
-        SUCCESS, ERROR, WARNING, INFO
-    }
 
     private static final Queue<Toast> toastQueue = new LinkedList<>();
     private static boolean isShowingToast = false;
@@ -84,7 +59,6 @@ public class AlertUtils {
      */
     public static void showError(String title, String message) {
         showAlert(title, message, AlertType.ERROR);
-        showAlert(title, message, AlertType.ERROR);
     }
 
     /**
@@ -94,7 +68,6 @@ public class AlertUtils {
      * @param message message à afficher
      */
     public static void showWarning(String title, String message) {
-        showAlert(title, message, AlertType.WARNING);
         showAlert(title, message, AlertType.WARNING);
     }
 
@@ -124,7 +97,6 @@ public class AlertUtils {
         cancelBtn.getStyleClass().add("cancel-button");
 
         Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == okButton;
         return result.isPresent() && result.get() == okButton;
     }
 
@@ -184,7 +156,6 @@ public class AlertUtils {
      * @param alert l'alerte à configurer
      * @param type  type d'alerte
      */
-    private static void setupAlertDialog(Alert alert, AlertType type) {
     private static void setupAlertDialog(Alert alert, AlertType type) {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets()
