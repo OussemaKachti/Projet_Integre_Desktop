@@ -170,7 +170,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);

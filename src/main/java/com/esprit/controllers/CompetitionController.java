@@ -3,16 +3,19 @@ package com.esprit.controllers;
 import com.esprit.models.Competition;
 import com.esprit.models.Saison;
 import com.esprit.models.enums.GoalTypeEnum;
+import com.esprit.services.AIContentGeneratorService;
 import com.esprit.services.CompetitionService;
 import com.esprit.services.SaisonService;
 
 import javafx.application.Platform;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -36,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class CompetitionController {
 
@@ -46,6 +50,7 @@ public class CompetitionController {
     private int currentPage = 1;
     private int itemsPerPage = 5;
     private int totalPages = 1;
+    private final AIContentGeneratorService aiService = new AIContentGeneratorService();
 
     // Main components
     @FXML private BorderPane contentArea;
@@ -65,6 +70,8 @@ public class CompetitionController {
     // Search components
     @FXML private TextField searchField;
     @FXML private Button searchButton;
+    @FXML private Button statisticsButton;
+    @FXML private Button seasonManagementButton;
 
     // Filter components
     @FXML private ComboBox<String> statusFilter;
@@ -82,6 +89,8 @@ public class CompetitionController {
     @FXML private ComboBox<String> statusComboBox;
     @FXML private Label formTitleLabel;
     @FXML private Label paginationInfoLabel;
+    @FXML private Button generateButton;
+
 
     // Buttons
     @FXML private Button saveButton;
@@ -108,6 +117,10 @@ public class CompetitionController {
     @FXML
     public void initialize() {
         try {
+
+            // On initialization, update all competition statuses based on current date
+            competitionService.updateAllStatuses();
+
             // Set current date in header
             LocalDate now = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
@@ -141,12 +154,52 @@ public class CompetitionController {
             Platform.runLater(() -> {
                 System.out.println("Applying styles to form elements");
                 applyStylesToForm();
+                // Hide or disable the status field in the form
+                hideStatusField();
+
             });
         } catch (SQLException e) {
             showAlert(AlertType.ERROR, "Initialization Error",
                     "Failed to initialize mission management", e.getMessage());
         }
     }
+    /**
+     * Hide or disable the status field in the form since status
+     * will now be automatically calculated based on dates
+     */
+    private void hideStatusField() {
+        // Find the status field's parent container (likely a GridPane or similar layout)
+        GridPane gridPane = null;
+        for (Node node : missionFormContainer.getChildren()) {
+            if (node instanceof GridPane) {
+                gridPane = (GridPane) node;
+                break;
+            }
+        }
+
+        if (gridPane != null) {
+            // Find and hide status label and combobox
+            for (Node node : gridPane.getChildren()) {
+                if (node instanceof Label) {
+                    Label label = (Label) node;
+                    if (label.getText() != null && label.getText().toLowerCase().contains("status")) {
+                        label.setVisible(false);
+                        label.setManaged(false);
+                    }
+                }
+            }
+
+            // Hide status combobox
+            statusComboBox.setVisible(false);
+            statusComboBox.setManaged(false);
+
+
+        }
+    }
+
+    /**
+     * Modified createMissionCard method to display and style status based on calculated value
+     */
 
     private void setupFilters() {
         try {
@@ -198,7 +251,7 @@ public class CompetitionController {
             String statusValue = statusFilter.getValue();
             Saison selectedSeason = seasonFilter.getValue();
 
-            // Reset to first page when filtering
+            // Reset to first page when filtering (this is correct behavior)
             currentPage = 1;
             currentPageLabel.setText("1");
 
@@ -293,6 +346,7 @@ public class CompetitionController {
     private void handlePrevPage() {
         if (currentPage > 1) {
             currentPage--;
+            currentPageLabel.setText(String.valueOf(currentPage)); // Add this line
             try {
                 loadPagedCompetitions();
                 updatePaginationControls();
@@ -307,6 +361,7 @@ public class CompetitionController {
     private void handleNextPage() {
         if (currentPage < totalPages) {
             currentPage++;
+            currentPageLabel.setText(String.valueOf(currentPage)); // Add this line
             try {
                 loadPagedCompetitions();
                 updatePaginationControls();
@@ -324,8 +379,13 @@ public class CompetitionController {
     }
 
     private void loadPagedCompetitions() throws SQLException {
-        // Apply any active filters
-        filterCompetitions();
+        // Don't call filterCompetitions() here as it resets currentPage to 1
+        // Instead, directly apply the current filters with the current page
+        String statusValue = statusFilter.getValue();
+        Saison selectedSeason = seasonFilter.getValue();
+
+        // Load filtered competitions without resetting the page
+        loadFilteredCompetitions(statusValue, selectedSeason);
     }
 
     private void updateCompetitionList(List<Competition> competitions) {
@@ -442,7 +502,12 @@ public class CompetitionController {
         cancelButton.setStyle("-fx-background-color: transparent; -fx-border-color: #6c757d; " +
                 "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                 "-fx-padding: 8px 15px; -fx-cursor: hand;");
-
+        // In applyStylesToForm() method, add this after styling other buttons:
+        if (generateButton != null) {
+            generateButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-background-radius: 5px; -fx-padding: 8px 15px; -fx-cursor: hand; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);");
+        }
         // Add hover effects
         setupButtonHoverEffects();
     }
@@ -470,6 +535,19 @@ public class CompetitionController {
                         "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
+        // In setupButtonHoverEffects(), add:
+        if (generateButton != null) {
+            generateButton.setOnMouseEntered(e ->
+                    generateButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-background-radius: 5px; -fx-padding: 8px 15px; -fx-cursor: hand; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+
+            generateButton.setOnMouseExited(e ->
+                    generateButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-background-radius: 5px; -fx-padding: 8px 15px; -fx-cursor: hand; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        }
+
         // Close button hover effect
         closeFormButton.setOnMouseEntered(e ->
                 closeFormButton.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 50%; -fx-padding: 5px;"));
@@ -482,6 +560,7 @@ public class CompetitionController {
         // Add new competition button
         addButton.setOnAction(event -> showAddForm());
 
+        generateButton.setOnAction(event -> handleAIGeneration());
         // Close form button
         closeFormButton.setOnAction(event -> hideForm());
 
@@ -595,6 +674,9 @@ public class CompetitionController {
     }
 
     private HBox createMissionCard(Competition competition) {
+        // Make sure status is up to date before displaying
+        competition.updateStatus();
+
         HBox card = new HBox();
         card.getStyleClass().add("mission-card");
         card.setPrefWidth(Region.USE_COMPUTED_SIZE);
@@ -671,6 +753,7 @@ public class CompetitionController {
         goalTypeValueLabel.getStyleClass().add("detail-value");
         detailsGrid.add(goalTypeValueLabel, 1, 1);
 
+
         // Status info
         Label statusLabel = new Label("Status:");
         statusLabel.getStyleClass().add("detail-label");
@@ -683,7 +766,15 @@ public class CompetitionController {
         statusValueLabel.getStyleClass().addAll("status-badge",
                 "activated".equals(competition.getStatus()) ? "status-active" : "status-inactive");
 
-        statusContainer.getChildren().add(statusValueLabel);
+        // Circle indicator next to status for clearer visual indicator
+        Circle statusIndicator = new Circle(5);
+        statusIndicator.setFill("activated".equals(competition.getStatus()) ? Color.GREEN : Color.RED);
+        statusIndicator.setStroke(Color.TRANSPARENT);
+
+        statusContainer.getChildren().addAll(statusIndicator, statusValueLabel);
+        statusContainer.setSpacing(5);
+
+        // Add to details grid
         detailsGrid.add(statusContainer, 1, 2);
 
         // Date info
@@ -867,6 +958,83 @@ public class CompetitionController {
     }
 
     private void createCompetition() throws SQLException {
+        // Check if AI generation is needed before validation
+        if ((missionTitleField.getText().trim().isEmpty() || missionDescField.getText().trim().isEmpty()) &&
+                goalTypeComboBox.getValue() != null &&
+                !goalValueField.getText().isEmpty() &&
+                !pointsField.getText().isEmpty()) {
+
+            try {
+                int goalValue = Integer.parseInt(goalValueField.getText());
+                int points = Integer.parseInt(pointsField.getText());
+                GoalTypeEnum goalType = goalTypeComboBox.getValue();
+                Saison saison = saisonComboBox.getValue();
+
+                // Show loading indicator
+                Platform.runLater(() -> {
+                    missionTitleField.setPromptText("Generating...");
+                    missionDescField.setPromptText("Generating...");
+                });
+
+                // Generate content
+                AIContentGeneratorService.GeneratedContent content =
+                        aiService.generateMissionContent(goalType, goalValue, points, saison);
+
+                // Update UI with generated content
+                Platform.runLater(() -> {
+                    if (missionTitleField.getText().trim().isEmpty()) {
+                        missionTitleField.setText(content.title);
+                    }
+                    if (missionDescField.getText().trim().isEmpty()) {
+                        missionDescField.setText(content.description);
+                    }
+
+                    // Reset prompts
+                    missionTitleField.setPromptText("Enter mission title");
+                    missionDescField.setPromptText("Enter mission description");
+
+                    // Show a dialog to let user review generated content
+                    Alert reviewAlert = new Alert(AlertType.INFORMATION);
+                    reviewAlert.setTitle("AI Generated Content");
+                    reviewAlert.setHeaderText("AI has generated content for your mission");
+                    reviewAlert.setContentText("Please review the generated title and description. You can modify them if needed before saving.");
+
+                    // Style the dialog
+                    DialogPane dialogPane = reviewAlert.getDialogPane();
+                    dialogPane.setStyle(
+                            "-fx-background-color: white;" +
+                                    "-fx-border-color: #0dcaf0;" +
+                                    "-fx-border-width: 1px;" +
+                                    "-fx-border-radius: 8px;" +
+                                    "-fx-background-radius: 8px;" +
+                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                    );
+
+                    Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+                    okButton.setStyle(
+                            "-fx-background-color: #0dcaf0;" +
+                                    "-fx-text-fill: white;" +
+                                    "-fx-background-radius: 4px;" +
+                                    "-fx-font-weight: bold;"
+                    );
+
+                    reviewAlert.showAndWait();
+                });
+
+                return; // Let user review and manually click save again
+
+            } catch (NumberFormatException e) {
+                // Invalid number format in fields - continue to validation
+            } catch (Exception e) {
+                showAlert(AlertType.WARNING, "AI Generation Failed",
+                        "Could not generate content", "Please enter the title and description manually.");
+
+                // Reset prompts
+                missionTitleField.setPromptText("Enter mission title");
+                missionDescField.setPromptText("Enter mission description");
+            }
+        }
+
         // Validate form
         if (!validateForm()) {
             return;
@@ -890,7 +1058,6 @@ public class CompetitionController {
         newCompetition.setGoalValue(Integer.parseInt(goalValueField.getText()));
         newCompetition.setGoalType(goalTypeComboBox.getValue());
         newCompetition.setSaisonId(saisonComboBox.getValue());
-        newCompetition.setStatus(statusComboBox.getValue());
 
         competitionService.add(newCompetition);
         showAlert(AlertType.INFORMATION, "Mission Created",
@@ -926,7 +1093,6 @@ public class CompetitionController {
         selectedCompetition.setGoalValue(Integer.parseInt(goalValueField.getText()));
         selectedCompetition.setGoalType(goalTypeComboBox.getValue());
         selectedCompetition.setSaisonId(saisonComboBox.getValue());
-        selectedCompetition.setStatus(statusComboBox.getValue());
 
         competitionService.update(selectedCompetition);
         showAlert(AlertType.INFORMATION, "Mission Updated",
@@ -969,7 +1135,14 @@ public class CompetitionController {
                 errorMessage.append("• Start date must be before end date.\n");
             }
         }
+        // Validate dates are provided
+        if (startDateField.getValue() == null) {
+            errorMessage.append("• Please select a start date.\n");
+        }
 
+        if (endDateField.getValue() == null) {
+            errorMessage.append("• Please select an end date.\n");
+        }
         // Validate required dropdowns
         if (goalTypeComboBox.getValue() == null) {
             errorMessage.append("• Please select a goal type.\n");
@@ -979,9 +1152,7 @@ public class CompetitionController {
             errorMessage.append("• Please select a season.\n");
         }
 
-        if (statusComboBox.getValue() == null) {
-            errorMessage.append("• Please select a status.\n");
-        }
+
 
         if (errorMessage.length() > 0) {
             String title = "Form Validation";
@@ -1330,5 +1501,88 @@ public class CompetitionController {
         });
 
         alert.showAndWait();
+    }
+
+    @FXML
+    private void showStatistics() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/CompetitionStatistics.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setTitle("Gamification Statistics Dashboard");
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not open statistics dashboard", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showSeasonManagement() {
+        try {
+            navigateTo("/com/esprit/views/AdminSaisons.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+    private void handleAIGeneration() {
+        // Check if essential fields are filled but name/description are empty
+        if (goalTypeComboBox.getValue() != null &&
+                !goalValueField.getText().isEmpty() &&
+                !pointsField.getText().isEmpty() &&
+                (missionTitleField.getText().trim().isEmpty() || missionDescField.getText().trim().isEmpty())) {
+
+            try {
+                int goalValue = Integer.parseInt(goalValueField.getText());
+                int points = Integer.parseInt(pointsField.getText());
+                GoalTypeEnum goalType = goalTypeComboBox.getValue();
+                Saison saison = saisonComboBox.getValue();
+
+                // Show loading indicator (optional)
+                Platform.runLater(() -> {
+                    missionTitleField.setPromptText("Generating...");
+                    missionDescField.setPromptText("Generating...");
+                });
+
+                // Generate content in background thread
+                new Thread(() -> {
+                    try {
+                        AIContentGeneratorService.GeneratedContent content =
+                                aiService.generateMissionContent(goalType, goalValue, points, saison);
+
+                        // Update UI on JavaFX thread
+                        Platform.runLater(() -> {
+                            if (missionTitleField.getText().trim().isEmpty()) {
+                                missionTitleField.setText(content.title);
+                            }
+                            if (missionDescField.getText().trim().isEmpty()) {
+                                missionDescField.setText(content.description);
+                            }
+
+                            // Reset prompts
+                            missionTitleField.setPromptText("Enter mission title");
+                            missionDescField.setPromptText("Enter mission description");
+                        });
+                    } catch (Exception e) {
+                        Platform.runLater(() -> {
+                            showAlert(AlertType.WARNING, "AI Generation Failed",
+                                    "Could not generate content", "Using default values instead.");
+
+                            // Reset prompts
+                            missionTitleField.setPromptText("Enter mission title");
+                            missionDescField.setPromptText("Enter mission description");
+                        });
+                    }
+                }).start();
+
+            } catch (NumberFormatException e) {
+                // Invalid number format in fields
+            }
+        }
     }
 }
