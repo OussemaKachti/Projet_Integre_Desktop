@@ -194,7 +194,7 @@ public class CommentaireService {
 
         // Load user and poll
         UserService userService = new UserService();
-        SondageService             sondageService = SondageService.getInstance();
+        SondageService sondageService = SondageService.getInstance();
 
 
         commentaire.setUser(userService.getById(rs.getInt("user_id")));

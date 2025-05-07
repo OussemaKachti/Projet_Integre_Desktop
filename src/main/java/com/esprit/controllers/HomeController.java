@@ -56,7 +56,7 @@ public class HomeController implements Initializable {
     private User currentUser;
     private Club userClub;
     private final ClubService clubService = new ClubService();
-    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    private final ParticipationMembreService participationService = new ParticipationMembreService();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -226,7 +226,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToClubs() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) clubsContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -234,7 +234,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToEvents() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Events.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -242,7 +242,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToProducts() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Products.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -250,7 +250,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -270,5 +270,11 @@ public class HomeController implements Initializable {
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToHome() throws IOException {
+        // Since we are already on the home page, we don't need to navigate
+        // But we need this method to satisfy the FXML reference
     }
 }

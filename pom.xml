@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>tn.esprit</groupId>
@@ -12,7 +12,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>17.0.2</javafx.version>
         <hibernate.version>6.4.4.Final</hibernate.version>
     </properties>
@@ -94,6 +93,11 @@
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
 
         <!-- MySQL Connector -->
         <dependency>
@@ -143,22 +147,16 @@
 
         <!-- Jakarta Mail - Single coherent set -->
         <dependency>
-            <groupId>jakarta.mail</groupId>
-            <artifactId>jakarta.mail-api</artifactId>
-            <version>2.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.angus</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>1.0.0</version>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
-            <version>2.0.1</version>
+            <version>2.1.2</version>
         </dependency>
-        
-        <!-- Legacy JavaMail for compatibility with existing code -->
+         <!-- Legacy JavaMail for compatibility with existing code -->
         <!-- <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
@@ -175,7 +173,7 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency> -->
-
+        
         <!-- FontAwesomeFX - consolidate dependencies -->
         <dependency>
             <groupId>de.jensd</groupId>
@@ -194,7 +192,7 @@
             <artifactId>jfoenix</artifactId>
             <version>9.0.10</version>
         </dependency>
-        
+
         <!-- JSON Library -->
         <dependency>
             <groupId>org.json</groupId>
@@ -239,6 +237,36 @@
             <artifactId>controlsfx</artifactId>
             <version>11.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
+        <!-- ZXing Java SE support (for MatrixToImageWriter and others) -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
+        
+
+
+        <dependency>
+            <groupId>com.calendarfx</groupId>
+            <artifactId>view</artifactId>
+            <version>11.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+
     </dependencies>
 
     <repositories>
@@ -286,8 +314,7 @@
                 <version>0.0.8</version>
                 <configuration>
                   <!--  <mainClass>com.esprit.SondageApplication</mainClass>-->
-                     <!-- <mainClass>com.esprit.MainApp</mainClass>  -->
-                     <mainClass>com.esprit.MainApp</mainClass>
+                     <mainClass>com.esprit.MainApp</mainClass> 
 
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
@@ -297,7 +324,12 @@
                         <option>--add-opens</option>
                         <option>javafx.graphics/javafx.scene=ALL-UNNAMED</option>
                     </options>
-
+                    <modules>
+                        <module>javafx.controls</module>
+                        <module>javafx.fxml</module>
+                        <module>javafx.graphics</module>
+                        <module>javafx.swing</module>
+                    </modules>
                 </configuration>
             </plugin>
         </plugins>

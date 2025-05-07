@@ -1,24 +1,20 @@
 package com.esprit.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.esprit.models.Club;
+import com.esprit.utils.DataSource;
+import com.esprit.utils.DatabaseConnection;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.esprit.models.Club;
-import com.esprit.utils.DatabaseConnection;
 
 public class ClubService {
 
     private final Connection cnx;
     private static ClubService instance;
 
-    // Constructeur qui initialise la connexion via le singleton DatabaseConnection
     public ClubService() {
-        cnx = DatabaseConnection.getInstance();
+        this.cnx = DatabaseConnection.getInstance();
     }
 
     public static ClubService getInstance() {
@@ -28,7 +24,6 @@ public class ClubService {
         return instance;
     }
 
-    // Ajouter un club
     public void ajouter(Club club) {
         String query = "INSERT INTO club (president_id, nom_c, description, status, image, points) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -45,7 +40,6 @@ public class ClubService {
         }
     }
 
-    // Modifier un club
     public void modifier(Club club) {
         String query = "UPDATE club SET president_id = ?, nom_c = ?, description = ?, status = ?, image = ?, points = ? WHERE id = ?";
 
@@ -63,7 +57,6 @@ public class ClubService {
         }
     }
 
-    // Supprimer un club
     public void supprimer(int id) {
         String query = "DELETE FROM club WHERE id = ?";
 
@@ -75,7 +68,6 @@ public class ClubService {
         }
     }
 
-    // Afficher tous les clubs
     public List<Club> afficher() {
         List<Club> clubs = new ArrayList<>();
         String query = "SELECT * FROM club";
@@ -99,7 +91,34 @@ public class ClubService {
         return clubs;
     }
 
-    // Afficher un club par ID
+    public List<Object[]> getClubsByPopularity() {
+        List<Object[]> stats = new ArrayList<>();
+        String query = "SELECT c.nom_c, " +
+                "COUNT(CASE WHEN pm.statut = 'accepte' THEN pm.id ELSE NULL END) as participation_count " +
+                "FROM club c " +
+                "LEFT JOIN participation_membre pm ON c.id = pm.club_id " +
+                "GROUP BY c.nom_c " +
+                "ORDER BY participation_count DESC";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String clubName = rs.getString("nom_c");
+                int participationCount = rs.getInt("participation_count");
+                stats.add(new Object[] { clubName, participationCount });
+                System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
+            }
+        } catch (SQLException e) {
+            System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
+        }
+
+        System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
+        return stats;
+    }
+
     public Club getClubById(int id) {
         Club club = null;
         String query = "SELECT * FROM club WHERE id = ?";
@@ -156,6 +175,7 @@ public class ClubService {
         return clubs;
     }
 
+
     public Club findByPresident(int presidentId) throws SQLException {
         String query = "SELECT * FROM club WHERE president_id = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
@@ -195,4 +215,5 @@ public class ClubService {
         club.setPoints(rs.getInt("points"));
         return club;
     }
+
 }

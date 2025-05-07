@@ -66,7 +66,7 @@ public class EditPollModalController implements Initializable {
     private final ChoixSondageService choixSondageService = new ChoixSondageService();
     private final ClubService clubService = new ClubService();
     private final EmailService emailService = EmailService.getInstance();
-    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    private final ParticipationMembreService participationService = new ParticipationMembreService();
 
     private Stage modalStage;
     private Sondage currentPoll;

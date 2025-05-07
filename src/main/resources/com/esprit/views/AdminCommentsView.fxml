@@ -9,11 +9,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -229,7 +226,7 @@
                         <HBox.hgrow>ALWAYS</HBox.hgrow>
                      </VBox>
                      
-                     <!-- Most Active Club Card -->
+                     <!-- Most Active User Card -->
                      <VBox styleClass="stat-card" style="-fx-border-color: #17a2b8; -fx-border-width: 0 0 0 5;">
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <VBox HBox.hgrow="ALWAYS">
@@ -326,7 +323,7 @@
                      
                      <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS">
                         <Label text="Select Club:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #5e72e4;" />
-                        <ComboBox fx:id="clubFilterComboBox" prefWidth="250.0" />
+                        <ComboBox fx:id="insightsClubComboBox" prefWidth="250.0" />
                         <Pane HBox.hgrow="ALWAYS" />
                      </HBox>
                      

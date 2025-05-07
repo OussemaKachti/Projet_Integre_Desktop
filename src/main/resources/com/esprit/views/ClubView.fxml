@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.chart.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/23.0.1"
@@ -12,19 +13,19 @@
 
     <!-- Sidebar -->
     <left>
-        <VBox prefWidth="220" spacing="15" style="-fx-background-color: #2c3e50; -fx-padding: 30;">
+        <VBox prefWidth="220" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 30;">
             <Label text="🎯 Admin Panel"
-                   style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
             <Separator style="-fx-background-color: white;"/>
 
             <Button text="🏆 Clubs"
                     onAction="#showClub"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8;" />
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-padding: 10 20;" />
             <Button text="👥 Participants"
                     onAction="#showParticipant"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" />
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-padding: 10 20;" />
 
-            <VBox/>
+            <VBox VBox.vgrow="ALWAYS"/>
             <Label text="Admin connecté"
                    style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px;"/>
         </VBox>
@@ -34,53 +35,96 @@
     <center>
         <VBox spacing="20" style="-fx-padding: 30;">
             <Label text="Gestion des Clubs"
-                   style="-fx-font-size: 26px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+                   style="-fx-font-size: 28px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
 
-            <GridPane hgap="15" vgap="15">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="50"/>
-                    <ColumnConstraints percentWidth="50"/>
-                </columnConstraints>
+            <!-- TabPane for pagination -->
+            <TabPane fx:id="tabPane" style="-fx-background-color: white; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
+                <!-- Clubs Tab -->
+                <Tab text="Clubs" closable="false">
+                    <VBox spacing="20" style="-fx-padding: 20;">
+                        <!-- Search Bar -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="searchField" promptText="Rechercher par nom du club..."
+                                       style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;"
+                                       prefWidth="300"/>
+                            <Button text="🔍 Rechercher" onAction="#searchClubs"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                        </HBox>
 
-                <TextField fx:id="idField" promptText="ID Club" GridPane.rowIndex="0" GridPane.columnIndex="0"
-                           style="-fx-background-radius: 8; -fx-padding: 10;"/>
-                <TextField fx:id="presidentIdField" promptText="ID Président" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                           style="-fx-background-radius: 8; -fx-padding: 10;"/>
+                        <!-- Club List and Details -->
+                        <HBox spacing="20">
+                            <!-- Club List -->
+                            <VBox spacing="10" prefWidth="300">
+                                <Label text="Liste des Clubs"
+                                       style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+                                <ListView fx:id="clubList" prefHeight="300"
+                                          style="-fx-background-radius: 8; -fx-border-color: #dcdde1; -fx-border-radius: 8;" />
+                            </VBox>
 
-                <TextField fx:id="nomCField" promptText="Nom du Club" GridPane.rowIndex="1" GridPane.columnIndex="0"
-                           style="-fx-background-radius: 8; -fx-padding: 10;" />
-                <TextField fx:id="statusField" promptText="Statut du Club" GridPane.rowIndex="1" GridPane.columnIndex="1"
-                           style="-fx-background-radius: 8; -fx-padding: 10;" />
+                            <!-- Club Details -->
+                            <VBox spacing="15" prefWidth="400"
+                                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
+                                <Label text="Détails du Club"
+                                       style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
 
-                <TextField fx:id="imageField" promptText="Image (URL)" GridPane.rowIndex="2" GridPane.columnIndex="0"
-                           style="-fx-background-radius: 8; -fx-padding: 10;" />
-                <TextField fx:id="pointsField" promptText="Points du Club" GridPane.rowIndex="2" GridPane.columnIndex="1"
-                           style="-fx-background-radius: 8; -fx-padding: 10;" />
+                                <GridPane hgap="15" vgap="15">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50"/>
+                                        <ColumnConstraints percentWidth="50"/>
+                                    </columnConstraints>
 
-                <TextArea fx:id="descriptionField" promptText="Description"
-                          GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                          style="-fx-background-radius: 8; -fx-padding: 10;" prefHeight="80"/>
-            </GridPane>
+                                    <TextField fx:id="idField" promptText="ID Club" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
+                                    <TextField fx:id="presidentIdField" promptText="ID Président" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
 
-            <HBox spacing="20" alignment="CENTER_LEFT">
-                <Button text="➕ Ajouter" onAction="#ajouterClub"
-                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-                <Button text="✏️ Modifier" onAction="#modifierClub"
-                        style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-                <Button text="🗑️ Supprimer" onAction="#supprimerClub"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-            </HBox>
+                                    <TextField fx:id="nomCField" promptText="Nom du Club" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
+                                    <TextField fx:id="statusField" promptText="Statut du Club" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
 
-            <!-- Boutons Accepter/Refuser -->
-            <HBox spacing="20" alignment="CENTER_LEFT">
-                <Button text="✅ Accepter" onAction="#accepterClub"
-                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-                <Button text="❌ Refuser" onAction="#refuserClub"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-            </HBox>
+                                    <TextField fx:id="imageField" promptText="Image (URL)" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
+                                    <TextField fx:id="pointsField" promptText="Points du Club" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                               style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" editable="false"/>
 
-            <ListView fx:id="clubList" prefHeight="200"
-                      style="-fx-background-radius: 8; -fx-border-color: #dcdde1; -fx-border-radius: 8;" />
+                                    <TextArea fx:id="descriptionField" promptText="Description"
+                                              GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2"
+                                              style="-fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #dcdde1; -fx-border-radius: 8;" prefHeight="80" editable="false"/>
+                                </GridPane>
+
+                                <!-- Action Buttons -->
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Button text="✅ Accepter" onAction="#accepterClub"
+                                            style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                                    <Button text="❌ Refuser" onAction="#refuserClub"
+                                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                                    <Button text="🗑️ Supprimer" onAction="#supprimerClub"
+                                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </Tab>
+
+                <!-- Statistics Tab -->
+                <Tab text="Statistiques" closable="false">
+                    <VBox spacing="20" style="-fx-padding: 20;">
+                        <Label text="Popularité des Clubs"
+                               style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+                        <!-- BarChart with horizontal bars -->
+                        <BarChart fx:id="statsChart" prefHeight="400" prefWidth="800"
+                                  style="-fx-background-radius: 8; -fx-border-color: #dcdde1; -fx-border-radius: 8; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
+                            <xAxis>
+                                <NumberAxis label="Nombre de participations" side="BOTTOM" autoRanging="true" forceZeroInRange="false"/>
+                            </xAxis>
+                            <yAxis>
+                                <CategoryAxis label="Clubs" side="LEFT" autoRanging="true"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </Tab>
+            </TabPane>
         </VBox>
     </center>
 </BorderPane>

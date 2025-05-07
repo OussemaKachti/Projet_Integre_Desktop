@@ -48,6 +48,9 @@ public class ModifierEvent implements Initializable {
     @FXML
     private Button cancelButton;
 
+    @FXML
+    private Button backButton; // Add reference to the back button
+
     private final ServiceEvent serviceEvent = new ServiceEvent();
     private String selectedImagePath;
     private Evenement currentEvent;
@@ -59,23 +62,32 @@ public class ModifierEvent implements Initializable {
         addEventButton.setText("Update Event");
 
         // Configuration du bouton d'annulation
-        cancelButton.setOnAction(event -> {
-            try {
-                // Retourner à la page d'affichage des événements
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) cancelButton.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (IOException e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page d'affichage des événements: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
+        cancelButton.setOnAction(event -> navigateToEventsList());
+
+        // Configuration du bouton de retour
+        if (backButton != null) {
+            backButton.setOnAction(event -> navigateToEventsList());
+        } else {
+            System.out.println("Warning: Back button not found in the FXML");
+        }
 
         // Charger les catégories et clubs dans les ComboBox
         loadCategories();
         loadClubs();
+    }
+
+    private void navigateToEventsList() {
+        try {
+            // Retourner à la page d'affichage des événements
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) cancelButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page d'affichage des événements: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void setEventId(int id) {
@@ -253,17 +265,7 @@ public class ModifierEvent implements Initializable {
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement mis à jour avec succès !");
 
             // Rediriger vers la page qui affiche tous les événements
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) addEventButton.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page de liste des événements: " + ex.getMessage());
-            }
-
+            navigateToEventsList();
         } catch (Exception ex) {
             ex.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la mise à jour : " + ex.getMessage());

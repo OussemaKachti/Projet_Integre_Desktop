@@ -364,16 +364,18 @@ public class ReponseService {
     }
 
     /**
-     * Récupère les utilisateurs ayant le plus participé aux sondages d'un club spécifique
+     * Récupère les utilisateurs ayant le plus participé aux sondages d'un club
+     * spécifique
+     * 
      * @param clubId ID du club
-     * @param limit Nombre maximum d'utilisateurs à récupérer
+     * @param limit  Nombre maximum d'utilisateurs à récupérer
      * @return Liste des utilisateurs avec leur nombre de votes
      */
     public List<Map<String, Object>> getTopRespondentsByClub(int clubId, int limit) throws SQLException {
         List<Map<String, Object>> topUsers = new ArrayList<>();
-        
+
         String query = """
-                SELECT u.id, u.prenom as first_name, u.nom as last_name, u.email, u.profile_picture, 
+                SELECT u.id, u.prenom as first_name, u.nom as last_name, u.email, u.profile_picture,
                        COUNT(r.id) as vote_count
                 FROM reponse r
                 JOIN user u ON r.user_id = u.id
@@ -387,7 +389,7 @@ public class ReponseService {
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, clubId);
             pst.setInt(2, limit);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 int rank = 1;
                 while (rs.next()) {
@@ -399,31 +401,33 @@ public class ReponseService {
                     userData.put("email", rs.getString("email"));
                     userData.put("profilePicture", rs.getString("profile_picture"));
                     userData.put("voteCount", rs.getInt("vote_count"));
-                    
+
                     topUsers.add(userData);
                 }
             }
         }
-        
+
         return topUsers;
     }
-    
+
     /**
-     * Récupère les statistiques de participation globales pour tous les sondages d'un club
+     * Récupère les statistiques de participation globales pour tous les sondages
+     * d'un club
+     * 
      * @param clubId ID du club
      * @return Map contenant différentes statistiques
      */
     public Map<String, Object> getParticipationStatsByClub(int clubId) throws SQLException {
         Map<String, Object> stats = new HashMap<>();
-        
+
         // Total des votes
         String voteCountQuery = """
-                SELECT COUNT(*) as total_votes 
+                SELECT COUNT(*) as total_votes
                 FROM reponse r
                 JOIN sondage s ON r.sondage_id = s.id
                 WHERE s.club_id = ?
                 """;
-                
+
         // Nombre de participants uniques
         String uniqueParticipantsQuery = """
                 SELECT COUNT(DISTINCT r.user_id) as unique_participants
@@ -431,7 +435,7 @@ public class ReponseService {
                 JOIN sondage s ON r.sondage_id = s.id
                 WHERE s.club_id = ?
                 """;
-                
+
         // Sondage le plus populaire
         String mostPopularPollQuery = """
                 SELECT s.id, s.question, COUNT(r.id) as vote_count
@@ -442,30 +446,29 @@ public class ReponseService {
                 ORDER BY vote_count DESC
                 LIMIT 1
                 """;
-        
+
         try (
-            PreparedStatement voteCountStmt = connection.prepareStatement(voteCountQuery);
-            PreparedStatement uniqueParticipantsStmt = connection.prepareStatement(uniqueParticipantsQuery);
-            PreparedStatement mostPopularPollStmt = connection.prepareStatement(mostPopularPollQuery)
-        ) {
+                PreparedStatement voteCountStmt = connection.prepareStatement(voteCountQuery);
+                PreparedStatement uniqueParticipantsStmt = connection.prepareStatement(uniqueParticipantsQuery);
+                PreparedStatement mostPopularPollStmt = connection.prepareStatement(mostPopularPollQuery)) {
             voteCountStmt.setInt(1, clubId);
             uniqueParticipantsStmt.setInt(1, clubId);
             mostPopularPollStmt.setInt(1, clubId);
-            
+
             // Récupérer le nombre total de votes
             try (ResultSet rs = voteCountStmt.executeQuery()) {
                 if (rs.next()) {
                     stats.put("totalVotes", rs.getInt("total_votes"));
                 }
             }
-            
+
             // Récupérer le nombre de participants uniques
             try (ResultSet rs = uniqueParticipantsStmt.executeQuery()) {
                 if (rs.next()) {
                     stats.put("uniqueParticipants", rs.getInt("unique_participants"));
                 }
             }
-            
+
             // Récupérer le sondage le plus populaire
             try (ResultSet rs = mostPopularPollStmt.executeQuery()) {
                 if (rs.next()) {
@@ -473,12 +476,12 @@ public class ReponseService {
                     mostPopularPoll.put("id", rs.getInt("id"));
                     mostPopularPoll.put("question", rs.getString("question"));
                     mostPopularPoll.put("voteCount", rs.getInt("vote_count"));
-                    
+
                     stats.put("mostPopularPoll", mostPopularPoll);
                 }
             }
         }
-        
+
         return stats;
     }
 }

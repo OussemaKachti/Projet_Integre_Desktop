@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminProduitController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css,@../../styles/admin-polls-style.css,@../../styles/admin-style.css,@../../styles/no-scrollbar.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminProduitController">
    <top>
       <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
          <children>
@@ -31,78 +31,134 @@
    </top>
    
    <left>
-      <!-- Sidebar Menu (Similar to AdminCommentsController) -->
-      <VBox prefWidth="220.0" style="-fx-background-color: #303030;" BorderPane.alignment="CENTER">
-         <children>
-            <!-- Admin Name and Profile Section -->
-            <HBox alignment="CENTER_LEFT" prefHeight="80.0" style="-fx-background-color: #252525;">
-               <children>
-                  <Label fx:id="adminNameLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Admin User">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
+      <!-- Sidebar Navigation -->
+      <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+         <padding>
+            <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+         </padding>
+         
+         <!-- Application Logo -->
+         <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+            <Label text="UNICLUBS" styleClass="logo-text">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </HBox>
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Admin Info -->
+         <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+            <font>
+               <Font name="System Bold" size="16.0" />
+            </font>
+         </Label>
+         <Label text="Administrator" styleClass="admin-role" />
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Menu Items -->
+         <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+            <Button fx:id="userManagementBtn" styleClass="sidebar-button" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToAdminDashboard">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
             
-            <!-- Navigation Menu -->
-            <Button fx:id="userManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Utilisateurs">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
+            <Button fx:id="clubManagementBtn" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏛️" />
+               </graphic>
             </Button>
-            <Button fx:id="clubManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Clubs">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-            </Button>
-            <Button fx:id="eventManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Événements">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-            </Button>
-            <Button fx:id="productOrdersBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-size: 14px;" text="Produits &amp; Commandes" onAction="#goToAdmincommande">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-               <Button fx:id="btnCommandes" text="Commandes" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
-            </Button>
-            <Button fx:id="competitionBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Compétitions">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-            </Button>
-            <Button fx:id="surveyManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Sondages">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-            </Button>
-            <!-- Survey Sub-Menu (initially hidden) -->
-            <VBox fx:id="surveySubMenu" managed="false" prefHeight="100.0" prefWidth="220.0" visible="false">
-               <children>
-                  <Button fx:id="pollsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Sondages">
-                     <padding>
-                        <Insets left="30.0" />
-                     </padding>
+            
+            <!-- Event Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📅" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Event Management -->
+               <VBox fx:id="eventsSubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                  <Button styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📅" />
+                     </graphic>
                   </Button>
-                  <Button fx:id="commentsManagementBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: #424242; -fx-text-fill: white; -fx-font-size: 14px;" text="Gestion des Commentaires">
-                     <padding>
-                        <Insets left="30.0" />
-                     </padding>
+                  
+                  <Button styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="🗂️" />
+                     </graphic>
                   </Button>
-               </children>
+               </VBox>
             </VBox>
-            <Button fx:id="profileBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Mon Profil">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
+            
+            <Button fx:id="productOrdersBtn" styleClass="sidebar-button, active" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToAdmincommande">
+               <graphic>
+                  <Label text="🛒" />
+               </graphic>
             </Button>
-            <Button fx:id="logoutBtn" alignment="BASELINE_LEFT" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;" text="Déconnexion">
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
+            
+            <Button fx:id="competitionBtn" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🏆" />
+               </graphic>
             </Button>
-         </children>
+            
+            <!-- Survey Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="surveyManagementBtn" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📊" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Survey Management -->
+               <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                  <Button fx:id="pollsManagementBtn" styleClass="sidebar-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📋" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button fx:id="commentsManagementBtn" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="💬" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
+            
+            <VBox.margin>
+               <Insets bottom="20.0" />
+            </VBox.margin>
+         </VBox>
+         
+         <!-- Bottom Menu Options -->
+         <VBox spacing="5.0">
+            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
+            </Button>
+            
+            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <graphic>
+                  <Label text="🚪" />
+               </graphic>
+            </Button>
+         </VBox>
       </VBox>
    </left>
    

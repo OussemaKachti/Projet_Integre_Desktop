@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -14,6 +15,7 @@ import javafx.scene.layout.VBox;
 import com.esprit.models.Evenement;
 import com.esprit.services.ServiceEvent;
 import com.esprit.utils.DataSource;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -361,8 +363,19 @@ public class AdminEvent implements Initializable {
             ModifierEvent modifierController = loader.getController();
             modifierController.setEventId(event.getId());
 
-            // Use a control that is in scope to access the scene
-            addEventButton.getScene().setRoot(root);
+            // Create a new stage for the edit view
+            Stage editStage = new Stage();
+            editStage.setTitle("Modifier l'événement");
+            editStage.setScene(new Scene(root));
+
+            // Add event handler to refresh events list when edit window is closed
+            editStage.setOnHidden(e -> {
+                loadEvents(); // Refresh the events list when edit window is closed
+            });
+
+            // Show the edit window
+            editStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to open Edit Event page", e.getMessage());
@@ -413,14 +426,17 @@ public class AdminEvent implements Initializable {
             DetailsEvent detailsController = loader.getController();
             detailsController.setEventData(event);
 
-            // Use a control that is in scope to access the scene
-            addEventButton.getScene().setRoot(root);
+            // Create a new stage for details view
+            Stage detailsStage = new Stage();
+            detailsStage.setTitle("Détails de l'événement");
+            detailsStage.setScene(new Scene(root));
+            detailsStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to open Event Details page", e.getMessage());
         }
     }
-
     // Added methods referenced in the FXML file
     @FXML
     private void navigateToDashboard() {

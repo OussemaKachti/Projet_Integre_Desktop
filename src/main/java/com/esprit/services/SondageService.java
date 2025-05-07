@@ -217,23 +217,23 @@ public class SondageService {
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sondageId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     ChoixSondage option = new ChoixSondage();
                     option.setId(rs.getInt("id"));
                     option.setContenu(rs.getString("contenu"));
-                    
-                    // Set the sondage reference 
+
+                    // Set the sondage reference
                     Sondage sondage = new Sondage();
                     sondage.setId(sondageId);
                     option.setSondage(sondage);
-                    
+
                     choix.add(option);
                 }
             }
         }
-        
+
         return choix;
     }
 
@@ -249,31 +249,31 @@ public class SondageService {
      */
     public void deleteCommentsByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM commentaire WHERE sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, pollId);
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Delete all responses/votes related to a poll
      */
     public void deleteResponsesByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM reponse WHERE sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, pollId);
             pst.executeUpdate();
         }
     }
-    
+
     /**
      * Delete all options related to a poll
      */
     public void deleteOptionsByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM choix_sondage WHERE sondage_id = ?";
-        
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, pollId);
             pst.executeUpdate();

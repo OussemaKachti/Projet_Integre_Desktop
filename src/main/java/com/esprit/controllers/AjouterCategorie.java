@@ -149,7 +149,7 @@ public class AjouterCategorie implements Initializable {
 
     private void loadCategories() {
         try {
-            List<Categorie> categories = serviceCategorie.getAll();
+            List<Categorie> categories = serviceCategorie.afficher();
             masterData.clear();
             masterData.addAll(categories);
             updateTotalItemsLabel();
@@ -188,7 +188,7 @@ public class AjouterCategorie implements Initializable {
 
         try {
             Categorie categorie = new Categorie(nomcattfText);
-            serviceCategorie.add(categorie);
+            serviceCategorie.ajouter(categorie);
             showAlert("Succès", "La catégorie a été ajoutée avec succès.", Alert.AlertType.INFORMATION);
             nomcattf.clear();
             loadCategories();

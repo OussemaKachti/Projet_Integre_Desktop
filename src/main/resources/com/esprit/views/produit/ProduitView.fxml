@@ -1,110 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #F8F8F8;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ProduitViewController">
-   <top>
-      <VBox BorderPane.alignment="CENTER">
-         <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;">
-               <children>
-                  <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" text="Catalogue des Produits">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </Label>
-                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Button fx:id="btnAddProduct" mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #03DAC5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" text="Ajouter un Produit">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                           <padding>
-                              <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
-                           </padding>
-                        </Button>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.ProduitViewController" 
+      styleClass="main-container" stylesheets="@../../styles/home.css">
 
+    <!-- Header Section -->
+    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+        <padding>
+            <Insets top="15" right="25" bottom="15" left="25"/>
+        </padding>
+        
+        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+            <Image url="@../../images/logo.png"/>
+        </ImageView>
+        
+        <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+            
+            <!-- Add a direct Polls button to the main navbar -->
+            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
+            
+            <!-- Clubs dropdown container -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                
+                <!-- Clubs Dropdown Menu - Initially hidden -->
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                        <Label text="👥" styleClass="dropdown-item-icon"/>
+                        <Label text="Club Management" styleClass="dropdown-item-text"/>
+                    </HBox>
+                    <Separator styleClass="dropdown-divider"/>
+                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                        <Label text="🏆" styleClass="dropdown-item-icon"/>
+                        <Label text="My Club" styleClass="dropdown-item-text"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+            
+            <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+            <Button text="Products" styleClass="nav-button-selected"/>
+            <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+        </HBox>
+        
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <!-- User Profile Section -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                        <Image url="@../../images/default-profile.png"/>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                </HBox>
+                
+                <!-- Dropdown Menu -->
+                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                    <Separator styleClass="dropdown-divider"/>
+                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                </VBox>
+            </StackPane>
+            
+            <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+        </HBox>
+    </HBox>
 
-                        <Button fx:id="btnAdmin" mnemonicParsing="false" onAction="#goToAdmin" style="-fx-background-color: white; -fx-text-fill: #6200EE; -fx-font-weight: bold; -fx-background-radius: 20;" text="Administration">
-                           <HBox.margin>
-                              <Insets right="20.0" />
-                           </HBox.margin>
-                           <padding>
-                              <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
-                           </padding>
-                        </Button>
-                     </children>
-                  </HBox>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="10.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
-               <children>
-                  <Label style="-fx-font-size: 16px;" text="Filtrer par:">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </Label>
-                  <ComboBox fx:id="comboFilterClub" prefWidth="200.0" promptText="Tous les clubs" />
-                  <Label style="-fx-font-size: 16px;" text="Recherche:">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </Label>
-                  <TextField fx:id="txtSearch" prefWidth="250.0" promptText="Rechercher un produit..." />
-                  <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher">
-                     <padding>
-                        <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
-                     </padding>
-                  </Button>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="20.0" top="10.0" />
-               </padding>
-            </HBox>
-         </children>
-      </VBox>
-   </top>
-   <center>
-      <StackPane BorderPane.alignment="CENTER">
-         <children>
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-               <content>
-                  <FlowPane fx:id="productContainer" hgap="20.0" style="-fx-background-color: #F8F8F8;" vgap="20.0">
-                     <padding>
+    <!-- Product Filter Bar -->
+    <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="10.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="20.0" top="10.0" />
+        </padding>
+       
+        <Label style="-fx-font-size: 16px;" text="Filtrer par:">
+            <HBox.margin>
+                <Insets left="20.0" />
+            </HBox.margin>
+        </Label>
+        <ComboBox fx:id="comboFilterClub" prefWidth="200.0" promptText="Tous les clubs" />
+        <Label style="-fx-font-size: 16px;" text="Recherche:">
+            <HBox.margin>
+                <Insets left="20.0" />
+            </HBox.margin>
+        </Label>
+        <TextField fx:id="txtSearch" prefWidth="250.0" promptText="Rechercher un produit..." />
+        <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher">
+            <padding>
+                <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+            </padding>
+        </Button>
+        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <children>
+                <Button fx:id="btnAddProduct" mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #03DAC5; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20;" text="Ajouter un Produit">
+                    <HBox.margin>
+                        <Insets right="10.0" />
+                    </HBox.margin>
+                    <padding>
+                        <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
+                    </padding>
+                </Button>
+
+                <Button fx:id="btnAdmin" mnemonicParsing="false" onAction="#goToAdmin" style="-fx-background-color: white; -fx-text-fill: #6200EE; -fx-font-weight: bold; -fx-background-radius: 20;" text="Administration">
+                    <HBox.margin>
+                        <Insets right="10.0" />
+                    </HBox.margin>
+                    <padding>
+                        <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
+                    </padding>
+                </Button>
+            </children>
+        </HBox>
+    </HBox>
+
+    <!-- Main Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
+        <StackPane>
+            <children>
+                <FlowPane fx:id="productContainer" hgap="20.0" style="-fx-background-color: #F8F8F8;" vgap="20.0">
+                    <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                  </FlowPane>
-               </content>
-            </ScrollPane>
-            <VBox fx:id="emptyState" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" style="-fx-background-color: #F8F8F8;" visible="false">
-               <children>
-                  <Label style="-fx-font-size: 24px; -fx-text-fill: #999999;" text="Aucun produit trouvé" />
-                  <Label style="-fx-font-size: 16px; -fx-text-fill: #999999;" text="Modifiez vos critères de recherche ou essayez un autre club" textAlignment="CENTER" wrapText="true" />
-                  <Button mnemonicParsing="false" onAction="#resetFilters" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Réinitialiser les filtres">
-                     <padding>
-                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-                     </padding>
-                  </Button>
-               </children>
-            </VBox>
-         </children>
-      </StackPane>
-   </center>
-   <bottom>
-      <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5.0" style="-fx-background-color: #FFFFFF; -fx-padding: 10;">
-         <padding>
+                    </padding>
+                </FlowPane>
+                <VBox fx:id="emptyState" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" style="-fx-background-color: #F8F8F8;" visible="false">
+                    <children>
+                        <Label style="-fx-font-size: 24px; -fx-text-fill: #999999;" text="Aucun produit trouvé" />
+                        <Label style="-fx-font-size: 16px; -fx-text-fill: #999999;" text="Modifiez vos critères de recherche ou essayez un autre club" textAlignment="CENTER" wrapText="true" />
+                        <Button mnemonicParsing="false" onAction="#resetFilters" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Réinitialiser les filtres">
+                            <padding>
+                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </ScrollPane>
+    
+    <!-- Pagination -->
+    <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5.0" style="-fx-background-color: #FFFFFF; -fx-padding: 10;">
+        <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </HBox>
-   </bottom>
-</BorderPane>
+        </padding>
+    </HBox>
+</VBox>

@@ -60,6 +60,9 @@ public class AdminCommentsController implements Initializable {
     private ComboBox<String> clubFilterComboBox;
 
     @FXML
+    private ComboBox<String> insightsClubComboBox;
+
+    @FXML
     private TableView<Commentaire> commentsTable;
 
     @FXML
@@ -176,6 +179,7 @@ public class AdminCommentsController implements Initializable {
         // Load data
         loadClubs();
         setupComboBoxCellFactory(clubFilterComboBox);
+        setupComboBoxCellFactory(insightsClubComboBox);
         loadComments();
         setupPagination();
         setupEventHandlers();
@@ -189,6 +193,15 @@ public class AdminCommentsController implements Initializable {
                 updateBarChart();
             }
         });
+
+        // Add listener to insightsClubComboBox to update only the chart when selection
+        // changes
+        insightsClubComboBox.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        updateBarChart();
+                    }
+                });
     }
 
     private void setupTableColumns() {
@@ -395,13 +408,17 @@ public class AdminCommentsController implements Initializable {
 
         // Set items to both ComboBoxes
         clubFilterComboBox.setItems(this.clubsList);
+        insightsClubComboBox.setItems(this.clubsList);
 
+        // Set default selection
         clubFilterComboBox.getSelectionModel().selectFirst();
+        insightsClubComboBox.getSelectionModel().selectFirst();
 
         selectedClub = "all"; // Default value
 
         // Add style class for custom styling
         clubFilterComboBox.getStyleClass().add("club-filter-combo");
+        insightsClubComboBox.getStyleClass().add("club-filter-combo");
     }
 
     private void setupComboBoxCellFactory(ComboBox<String> comboBox) {
@@ -574,7 +591,7 @@ public class AdminCommentsController implements Initializable {
 
     /**
      * Trouve l'utilisateur ayant posté le plus de commentaires
-     * 
+     *
      * @param comments Liste des commentaires
      */
     private void findMostActiveUser(List<Commentaire> comments) {
@@ -882,7 +899,7 @@ public class AdminCommentsController implements Initializable {
 
         // Configurer les autres boutons de navigation si nécessaire
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        
+
         // Competition button handler to navigate to AdminSaisons.fxml
         competitionBtn.setOnAction(event -> {
             try {
@@ -906,8 +923,32 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to seasons management: " + e.getMessage(), "error");
             }
         });
-        
-        productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
+
+        // Add navigation to AdminProduitView for productOrdersBtn
+        productOrdersBtn.setOnAction(event -> {
+            try {
+                // Load the product management view
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to product management: " + e.getMessage(), "error");
+            }
+        });
+
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
         logoutBtn.setOnAction(e -> handleLogout());
 
@@ -918,11 +959,12 @@ public class AdminCommentsController implements Initializable {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
                     Parent root = loader.load();
-                    
+
                     Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                    
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
                     stage.setScene(scene);
                     stage.setMaximized(true);
                     stage.show();
@@ -931,17 +973,18 @@ public class AdminCommentsController implements Initializable {
                     showToast("Error navigating to event management: " + e.getMessage(), "error");
                 }
             });
-            
+
             // Category Management navigation
             ((Button) eventsSubMenu.getChildren().get(1)).setOnAction(event -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
                     Parent root = loader.load();
-                    
+
                     Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                    
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
                     stage.setScene(scene);
                     stage.setMaximized(true);
                     stage.show();
@@ -999,7 +1042,7 @@ public class AdminCommentsController implements Initializable {
 
     private void updateBarChart() {
         // Get the selected club
-        String selectedClub = clubFilterComboBox.getValue();
+        String selectedClub = insightsClubComboBox.getValue();
         System.out.println("Updating bar chart for club: " + selectedClub);
 
         // Show loading message
