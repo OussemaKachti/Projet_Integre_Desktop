@@ -290,10 +290,8 @@ public class CommentsModalController implements Initializable {
             editButton.setOnAction(e -> {
                 commentText.setVisible(false);
                 editTextArea.setVisible(true);
-                errorLabel.setVisible(true);
                 editButton.setVisible(false);
                 updateButton.setVisible(true);
-                validateEditComment(editTextArea.getText(), errorLabel, updateButton);
             });
 
             updateButton.setOnAction(e -> {

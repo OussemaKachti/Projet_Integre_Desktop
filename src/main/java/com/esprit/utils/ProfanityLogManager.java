@@ -11,10 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 import java.util.stream.Collectors;
-=======
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 
 import com.esprit.models.User;
 import com.esprit.services.UserService;
@@ -62,7 +59,6 @@ public class ProfanityLogManager {
         }
         
         try {
-<<<<<<< HEAD
             // Skip censoring for profile images, but still censor text content
             String textToLog;
             if (fieldName.toLowerCase().contains("profile image")) {
@@ -70,10 +66,6 @@ public class ProfanityLogManager {
             } else {
                 textToLog = censorProfanity(profaneText); // Censor text for other fields
             }
-=======
-            // Partially censor the profane text for logging
-            String censoredText = censorProfanity(profaneText);
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             
             // Format: timestamp|userId|fieldName|severity|action|censoredText
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
@@ -83,24 +75,13 @@ public class ProfanityLogManager {
                                           fieldName, 
                                           severity, 
                                           action,
-<<<<<<< HEAD
                                           textToLog);
-=======
-                                          censoredText);
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             
             // Append to log file
             try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
                 writer.write(logEntry);
             }
             
-<<<<<<< HEAD
-=======
-            // Increment warning count and update user in database
-            user.setWarningCount(user.getWarningCount() + 1);
-            userService.modifier(user);
-            
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             return true;
         } catch (Exception e) {
             System.err.println("Error logging profanity incident: " + e.getMessage());
@@ -229,7 +210,6 @@ public class ProfanityLogManager {
         // Default to low severity
         return "Low";
     }
-<<<<<<< HEAD
     
     /**
      * Clears all profanity incidents for a specific user from the log file
@@ -266,6 +246,4 @@ public class ProfanityLogManager {
             return false;
         }
     }
-=======
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 } 
