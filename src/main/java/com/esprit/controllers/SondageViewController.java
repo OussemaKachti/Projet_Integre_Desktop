@@ -2073,7 +2073,7 @@ public class SondageViewController implements Initializable {
 
     @FXML
     public void navigateToEvents() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Events.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) sondagesContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -2081,7 +2081,7 @@ public class SondageViewController implements Initializable {
 
     @FXML
     public void navigateToProducts() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Products.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) sondagesContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
