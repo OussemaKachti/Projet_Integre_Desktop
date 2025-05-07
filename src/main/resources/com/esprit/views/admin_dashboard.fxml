@@ -86,11 +86,29 @@
                </graphic>
             </Button>
             
-            <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-               <graphic>
-                  <Label text="📊" />
-               </graphic>
-            </Button>
+            <!-- Survey Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="📊" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Survey Management -->
+               <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                  <Button fx:id="pollsManagementBtn" onAction="#navigateToPollsManagement" styleClass="sidebar-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📋" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button fx:id="commentsManagementBtn" onAction="#navigateToCommentsManagement" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="💬" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
             
             <VBox.margin>
                <Insets bottom="20.0" />

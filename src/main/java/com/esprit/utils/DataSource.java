@@ -52,4 +52,12 @@ public class DataSource {
         }
         return false; // La connexion est fermée ou invalide
     }
+    public String getUrl() {
+        return url;
+    }
+    
+    // Getter for user 
+    public String getUser() {
+        return user;
+    }
 }

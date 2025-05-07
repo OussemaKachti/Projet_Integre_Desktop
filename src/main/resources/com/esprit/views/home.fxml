@@ -5,7 +5,10 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
+<<<<<<< HEAD
 <?import javafx.scene.Group?>
+=======
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.HomeController" 
       styleClass="main-container" stylesheets="@../styles/home.css">
@@ -13,6 +16,7 @@
     <!-- Header Section -->
     <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
         <padding>
+<<<<<<< HEAD
             <Insets top="10" right="20" bottom="10" left="20"/>
         </padding>
         
@@ -23,11 +27,45 @@
         <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
             <Button text="Home" styleClass="nav-button-selected"/>
             <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
+=======
+            <Insets top="15" right="25" bottom="15" left="25"/>
+        </padding>
+        
+        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+            <Image url="@../images/logo.png"/>
+        </ImageView>
+        
+        <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button-selected"/>
+            
+            <!-- Add a direct Polls button to the main navbar -->
+            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
+            
+            <!-- Clubs dropdown container -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                
+                <!-- Clubs Dropdown Menu - Initially hidden -->
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                        <Label text="👥" styleClass="dropdown-item-icon"/>
+                        <Label text="Club Management" styleClass="dropdown-item-text"/>
+                    </HBox>
+                    <Separator styleClass="dropdown-divider"/>
+                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                        <Label text="🏆" styleClass="dropdown-item-icon"/>
+                        <Label text="My Club" styleClass="dropdown-item-text"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+            
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
             <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
             <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
         </HBox>
         
+<<<<<<< HEAD
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <!-- User Profile Section -->
             <Group>
@@ -47,6 +85,25 @@
                     </VBox>
                 </StackPane>
             </Group>
+=======
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <!-- User Profile Section -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                        <Image url="@../images/default-profile.png"/>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                </HBox>
+                
+                <!-- Dropdown Menu -->
+                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                    <Separator styleClass="dropdown-divider"/>
+                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                </VBox>
+            </StackPane>
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             
             <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
         </HBox>

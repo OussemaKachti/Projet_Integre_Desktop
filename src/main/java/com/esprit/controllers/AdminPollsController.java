@@ -29,6 +29,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -48,42 +49,78 @@ import java.util.stream.Collectors;
 public class AdminPollsController implements Initializable {
 
     // FXML components
-    @FXML private Label totalPollsLabel;
-    @FXML private Label totalVotesLabel;
-    @FXML private Label activePollsLabel;
-    @FXML private Label mostActiveClubLabel;
-    @FXML private Label mostActiveClubPollsLabel;
-    @FXML private ProgressBar activePollsProgressBar;
-    @FXML private Label activePollsPercentLabel;
-    @FXML private TextField searchInput;
-    @FXML private TableView<Sondage> pollsTable;
-    @FXML private TableColumn<Sondage, Integer> idColumn;
-    @FXML private TableColumn<Sondage, String> questionColumn;
-    @FXML private TableColumn<Sondage, String> optionsColumn;
-    @FXML private TableColumn<Sondage, String> clubColumn;
-    @FXML private TableColumn<Sondage, String> createdAtColumn;
-    @FXML private TableColumn<Sondage, Void> actionsColumn;
-    @FXML private HBox paginationContainer;
-    @FXML private Pane toastContainer;
-    @FXML private LineChart<String, Number> activityChart;
-    @FXML private Button backButton;
+    @FXML
+    private Label totalPollsLabel;
+    @FXML
+    private Label totalVotesLabel;
+    @FXML
+    private Label activePollsLabel;
+    @FXML
+    private Label mostActiveClubLabel;
+    @FXML
+    private Label mostActiveClubPollsLabel;
+    @FXML
+    private ProgressBar activePollsProgressBar;
+    @FXML
+    private Label activePollsPercentLabel;
+    @FXML
+    private TextField searchInput;
+    @FXML
+    private TableView<Sondage> pollsTable;
+    @FXML
+    private TableColumn<Sondage, Integer> idColumn;
+    @FXML
+    private TableColumn<Sondage, String> questionColumn;
+    @FXML
+    private TableColumn<Sondage, String> optionsColumn;
+    @FXML
+    private TableColumn<Sondage, String> clubColumn;
+    @FXML
+    private TableColumn<Sondage, String> createdAtColumn;
+    @FXML
+    private TableColumn<Sondage, Void> actionsColumn;
+    @FXML
+    private HBox paginationContainer;
+    @FXML
+    private Pane toastContainer;
+    @FXML
+    private LineChart<String, Number> activityChart;
+    @FXML
+    private Button backButton;
 
     // Sidebar navigation buttons
-    @FXML private Button userManagementBtn;
-    @FXML private Button clubManagementBtn;
-    @FXML private Button eventManagementBtn;
-    @FXML private Button productOrdersBtn;
-    @FXML private Button competitionBtn;
-    @FXML private Button surveyManagementBtn;
-    @FXML private Button pollsManagementBtn;
-    @FXML private Button commentsManagementBtn;
-    @FXML private Button profileBtn;
-    @FXML private Button logoutBtn;
-    @FXML private VBox surveySubMenu;
-    @FXML private Label adminNameLabel;
+    @FXML
+    private Button userManagementBtn;
+    @FXML
+    private Button clubManagementBtn;
+    @FXML
+    private Button eventManagementBtn;
+    @FXML
+    private Button productOrdersBtn;
+    @FXML
+    private Button competitionBtn;
+    @FXML
+    private Button surveyManagementBtn;
+    @FXML
+    private Button pollsManagementBtn;
+    @FXML
+    private Button commentsManagementBtn;
+    @FXML
+    private Button profileBtn;
+    @FXML
+    private Button logoutBtn;
+    @FXML
+    private VBox surveySubMenu;
+    @FXML
+    private VBox eventsSubMenu;
+    @FXML
+    private Label adminNameLabel;
+
+    @FXML
+    private BorderPane borderPane;
 
     // Services
-    private SondageService sondageService;
+    public SondageService sondageService;
     private ClubService clubService;
     private UserService userService;
     private ReponseService reponseService;
@@ -95,7 +132,7 @@ public class AdminPollsController implements Initializable {
 
     // Pagination
     private int currentPage = 1;
-    private final int PAGE_SIZE = 2;
+    private final int PAGE_SIZE = 3;
     private int totalPages = 1;
 
     @Override
@@ -135,11 +172,11 @@ public class AdminPollsController implements Initializable {
      */
     private void loadData() throws SQLException {
         System.out.println("AdminPollsController: Loading data...");
-        
+
         // Charger tous les sondages
         List<Sondage> allPolls = sondageService.getAll();
         pollsList = FXCollections.observableArrayList(allPolls);
-        
+
         System.out.println("Loaded " + pollsList.size() + " polls from database");
 
         // Calculer le nombre total de pages
@@ -153,8 +190,7 @@ public class AdminPollsController implements Initializable {
         ObservableList<Sondage> currentPagePolls;
         if (fromIndex < pollsList.size()) {
             currentPagePolls = FXCollections.observableArrayList(
-                pollsList.subList(fromIndex, toIndex)
-            );
+                    pollsList.subList(fromIndex, toIndex));
         } else {
             currentPagePolls = FXCollections.observableArrayList();
         }
@@ -185,11 +221,11 @@ public class AdminPollsController implements Initializable {
         // Configuration de la colonne ID
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setStyle("-fx-alignment: CENTER;");
-        
+
         // Configuration de la colonne Question
         questionColumn.setCellValueFactory(new PropertyValueFactory<>("question"));
-        questionColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-        
+        questionColumn.setStyle("-fx-alignment: CENTER;");
+
         // Configuration de la colonne Options
         optionsColumn.setCellValueFactory(cellData -> {
             Sondage sondage = cellData.getValue();
@@ -201,12 +237,12 @@ public class AdminPollsController implements Initializable {
             }
             return new SimpleStringProperty("");
         });
-        optionsColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        optionsColumn.setStyle("-fx-alignment: CENTER;");
 
         // Configuration de la colonne Club
         clubColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue() != null && cellData.getValue().getClub() != null) {
-                return new SimpleStringProperty(cellData.getValue().getClub().getNom());
+                return new SimpleStringProperty(cellData.getValue().getClub().getNomC());
             }
             return new SimpleStringProperty("N/A");
         });
@@ -230,40 +266,43 @@ public class AdminPollsController implements Initializable {
             private final HBox buttonsBox = new HBox(8);
             
             {
-                // Créer les ImageView pour les icônes
-                ImageView eyeIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/eye.png")));
+                // Créer les ImageView pour les icônes - Update paths to use common resources
+                // folder
+                ImageView eyeIcon = new ImageView(
+                        new Image(getClass().getResourceAsStream("/com/esprit/images/eye.png")));
                 eyeIcon.setFitHeight(20);
                 eyeIcon.setFitWidth(20);
-                
-                ImageView trashIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/trash.png")));
+
+                ImageView trashIcon = new ImageView(
+                        new Image(getClass().getResourceAsStream("/com/esprit/images/trash.png")));
                 trashIcon.setFitHeight(20);
                 trashIcon.setFitWidth(20);
-                
+
                 // Configurer le bouton de détails avec l'icône d'œil
                 viewButton.setGraphic(eyeIcon);
                 viewButton.getStyleClass().add("icon-button");
                 viewButton.getStyleClass().add("view-button");
                 viewButton.setTooltip(new Tooltip("Voir les détails"));
-                
+
                 // Configurer le bouton de suppression avec l'icône de poubelle
                 deleteButton.setGraphic(trashIcon);
                 deleteButton.getStyleClass().add("icon-button");
                 deleteButton.getStyleClass().add("delete-icon-button");
-                deleteButton.setTooltip(new Tooltip("Supprimer ce sondage"));
-                
+                deleteButton.setTooltip(new Tooltip("Delete this poll"));
+
                 // Ajouter la classe pour centrer les boutons
                 getStyleClass().add("button-cell");
-                
+
                 // Configuration du conteneur des boutons
                 buttonsBox.setAlignment(Pos.CENTER);
                 buttonsBox.getChildren().addAll(viewButton, deleteButton);
-                
+
                 // Action pour le bouton Voir détails
                 viewButton.setOnAction(event -> {
                     Sondage sondage = getTableView().getItems().get(getIndex());
                     viewPollDetails(sondage);
                 });
-                
+
                 // Action pour le bouton Supprimer
                 deleteButton.setOnAction(event -> {
                     Sondage sondage = getTableView().getItems().get(getIndex());
@@ -274,7 +313,7 @@ public class AdminPollsController implements Initializable {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                
+
                 if (empty) {
                     setGraphic(null);
                 } else {
@@ -291,11 +330,11 @@ public class AdminPollsController implements Initializable {
      */
     private void calculateStats() throws SQLException {
         System.out.println("AdminPollsController: Calculating stats...");
-        
+
         // Total des sondages depuis le service
         List<Sondage> allPolls = sondageService.getAll();
         int totalPolls = allPolls.size();
-        
+
         if (totalPollsLabel != null) {
             totalPollsLabel.setText(String.valueOf(totalPolls));
             System.out.println("Total polls: " + totalPolls);
@@ -317,7 +356,7 @@ public class AdminPollsController implements Initializable {
         long activePolls = allPolls.stream()
                 .filter(poll -> poll.getCreatedAt() != null && poll.getCreatedAt().toLocalDate().isAfter(sevenDaysAgo))
                 .count();
-                
+
         if (activePollsLabel != null) {
             activePollsLabel.setText(String.valueOf(activePolls));
             System.out.println("Active polls: " + activePolls);
@@ -335,20 +374,22 @@ public class AdminPollsController implements Initializable {
             System.out.println("Active polls percentage: " + String.format("%.0f%%", activePercentage * 100));
         }
 
-        // Club le plus actif - grouper les sondages par club et trouver le club avec le plus de sondages
+        // Club le plus actif - grouper les sondages par club et trouver le club avec le
+        // plus de sondages
         Map<Club, Long> pollsByClub = allPolls.stream()
                 .filter(poll -> poll.getClub() != null)
                 .collect(Collectors.groupingBy(Sondage::getClub, Collectors.counting()));
-        
+
         Optional<Map.Entry<Club, Long>> mostActive = pollsByClub.entrySet().stream()
                 .max(Map.Entry.comparingByValue());
 
         if (mostActiveClubLabel != null && mostActiveClubPollsLabel != null) {
             if (mostActive.isPresent() && mostActive.get().getKey() != null) {
                 Club club = mostActive.get().getKey();
-                mostActiveClubLabel.setText(club.getNom());
+                mostActiveClubLabel.setText(club.getNomC());
                 mostActiveClubPollsLabel.setText(mostActive.get().getValue() + " polls");
-                System.out.println("Most active club: " + club.getNom() + " with " + mostActive.get().getValue() + " polls");
+                System.out.println(
+                        "Most active club: " + club.getNomC() + " with " + mostActive.get().getValue() + " polls");
             } else {
                 mostActiveClubLabel.setText("No active club");
                 mostActiveClubPollsLabel.setText("0 polls");
@@ -373,16 +414,14 @@ public class AdminPollsController implements Initializable {
         // Grouper les sondages par date
         Map<LocalDate, Long> pollsByDate = pollsList.stream()
                 .collect(Collectors.groupingBy(
-                    poll -> poll.getCreatedAt().toLocalDate(),
-                    Collectors.counting()
-                ));
+                        poll -> poll.getCreatedAt().toLocalDate(),
+                        Collectors.counting()));
 
         // Ajouter les données au graphique
         pollsByDate.forEach((date, count) -> {
             pollsSeries.getData().add(new XYChart.Data<>(
-                date.format(DateTimeFormatter.ofPattern("dd/MM")),
-                count
-            ));
+                    date.format(DateTimeFormatter.ofPattern("dd/MM")),
+                    count));
         });
 
         activityChart.getData().add(pollsSeries);
@@ -478,21 +517,21 @@ public class AdminPollsController implements Initializable {
 
         String lowerSearchText = searchText.toLowerCase();
         ObservableList<Sondage> filteredList = FXCollections.observableArrayList();
-        
+
         for (Sondage poll : pollsList) {
             boolean matches = false;
-            
+
             // Vérifier la question
             if (poll.getQuestion() != null && poll.getQuestion().toLowerCase().contains(lowerSearchText)) {
                 matches = true;
             }
-            
+
             // Vérifier le club
-            if (poll.getClub() != null && poll.getClub().getNom() != null && 
-                poll.getClub().getNom().toLowerCase().contains(lowerSearchText)) {
+            if (poll.getClub() != null && poll.getClub().getNomC() != null &&
+                    poll.getClub().getNomC().toLowerCase().contains(lowerSearchText)) {
                 matches = true;
             }
-            
+
             if (matches) {
                 filteredList.add(poll);
             }
@@ -501,18 +540,17 @@ public class AdminPollsController implements Initializable {
         // Appliquer la pagination à la liste filtrée
         int fromIndex = (currentPage - 1) * PAGE_SIZE;
         int toIndex = Math.min(fromIndex + PAGE_SIZE, filteredList.size());
-        
+
         ObservableList<Sondage> currentPagePolls;
         if (fromIndex < filteredList.size()) {
             currentPagePolls = FXCollections.observableArrayList(
-                filteredList.subList(fromIndex, toIndex)
-            );
+                    filteredList.subList(fromIndex, toIndex));
         } else {
             currentPagePolls = FXCollections.observableArrayList();
         }
 
         pollsTable.setItems(currentPagePolls);
-        
+
         // Mettre à jour la pagination
         totalPages = (int) Math.ceil((double) filteredList.size() / PAGE_SIZE);
         setupPagination();
@@ -524,7 +562,7 @@ public class AdminPollsController implements Initializable {
     private void viewPollDetails(Sondage sondage) {
         try {
             System.out.println("Opening poll details for: " + sondage.getId() + " - " + sondage.getQuestion());
-            
+
             // Vérifier que le fichier FXML est trouvé
             URL fxmlUrl = getClass().getResource("/com/esprit/views/PollDetailsView.fxml");
             if (fxmlUrl == null) {
@@ -533,7 +571,7 @@ public class AdminPollsController implements Initializable {
                 return;
             }
             System.out.println("FXML URL found: " + fxmlUrl);
-            
+
             // Vérifier que le fichier CSS est trouvé
             URL cssUrl = getClass().getResource("/com/esprit/styles/poll-details-style.css");
             if (cssUrl == null) {
@@ -542,14 +580,14 @@ public class AdminPollsController implements Initializable {
             } else {
                 System.out.println("CSS URL found: " + cssUrl);
             }
-            
+
             // Créer le loader avec l'URL du FXML
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            
+
             try {
                 // Charger la vue
                 Parent root = loader.load();
-                
+
                 // Configurer le contrôleur
                 PollDetailsController controller = loader.getController();
                 if (controller == null) {
@@ -557,17 +595,17 @@ public class AdminPollsController implements Initializable {
                     AlertUtils.showError("Controller Error", "Le contrôleur n'a pas pu être chargé.");
                     return;
                 }
-                
+
                 controller.setSondage(sondage);
-                
+                // borderPane.setCenter(root);
                 // Get current stage directly from a scene component
                 Stage currentStage = (Stage) pollsTable.getScene().getWindow();
                 double width = currentStage.getWidth();
                 double height = currentStage.getHeight();
-                
+
                 // Créer la scène avec les dimensions de la fenêtre actuelle
                 Scene scene = new Scene(root, width, height);
-                
+
                 // Ajouter le CSS
                 if (cssUrl != null) {
                     scene.getStylesheets().add(cssUrl.toExternalForm());
@@ -578,18 +616,18 @@ public class AdminPollsController implements Initializable {
                         scene.getStylesheets().add(adminCssUrl.toExternalForm());
                     }
                 }
-                
+
                 // Appliquer la scène directement au stage
                 currentStage.setScene(scene);
                 currentStage.show();
-                
+
             } catch (Exception e) {
                 System.err.println("Error during loading or showing the view: " + e.getMessage());
                 e.printStackTrace();
-                
+
                 StringBuilder details = new StringBuilder();
                 details.append("Erreur de chargement de la vue: ").append(e.getMessage()).append("\n\n");
-                
+
                 Throwable cause = e.getCause();
                 if (cause != null) {
                     details.append("Caused by: ").append(cause.getMessage()).append("\n");
@@ -597,22 +635,22 @@ public class AdminPollsController implements Initializable {
                         details.append("at ").append(cause.getStackTrace()[0].toString()).append("\n");
                     }
                 }
-                
+
                 details.append("\nInspection du contexte:\n");
                 details.append("- Sondage ID: ").append(sondage.getId()).append("\n");
                 details.append("- FXML URL: ").append(fxmlUrl).append("\n");
                 details.append("- CSS URL: ").append(cssUrl != null ? cssUrl : "null").append("\n");
-                
+
                 showToast(details.toString(), "error");
                 throw e;
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
-            
+
             StringBuilder errorMessage = new StringBuilder();
             errorMessage.append("Erreur lors de l'ouverture des détails: ").append(e.getMessage()).append("\n\n");
-            
+
             Throwable cause = e.getCause();
             if (cause != null) {
                 errorMessage.append("Cause: ").append(cause.getMessage()).append("\n");
@@ -624,7 +662,7 @@ public class AdminPollsController implements Initializable {
                     }
                 }
             }
-            
+
             showToast(errorMessage.toString(), "error");
         }
     }
@@ -639,86 +677,90 @@ public class AdminPollsController implements Initializable {
             confirmDialog.setTitle("Confirmation");
             confirmDialog.setHeaderText("Delete poll?");
             confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
-                                        "\" along with all its associated votes and comments. This action is irreversible.");
-    
+                    "\" along with all its associated votes and comments. This action is irreversible.");
+
             // Customize the dialog
             DialogPane dialogPane = confirmDialog.getDialogPane();
-    
+
             // Add icon to header
             Label headerIcon = new Label("⚠️");
             headerIcon.setStyle("-fx-font-size: 24px; -fx-text-fill: #e74c3b;");
-    
+
             HBox headerLayout = new HBox(10);
             headerLayout.setAlignment(Pos.CENTER_LEFT);
-    
+
             Label headerLabel = new Label("Delete poll?");
             headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3b;");
-    
+
             headerLayout.getChildren().addAll(headerIcon, headerLabel);
             dialogPane.setHeader(headerLayout);
-    
+
             // Style for content text
             Label contentLabel = new Label(confirmDialog.getContentText());
             contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
             contentLabel.setWrapText(true);
             contentLabel.setPrefWidth(400);
             dialogPane.setContent(contentLabel);
-    
+
             // Add buttons
             ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
             ButtonType confirmButtonType = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
             confirmDialog.getButtonTypes().addAll(cancelButtonType, confirmButtonType);
-    
+
             // Apply CSS styling
-            dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            dialogPane.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
             dialogPane.getStyleClass().add("custom-alert");
             dialogPane.setPrefWidth(450);
             dialogPane.setPrefHeight(200);
-    
+
             // Add some style to dialog background
-            dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);");
-    
+            dialogPane.setStyle(
+                    "-fx-background-color: white; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);");
+
             // Get the confirm and cancel buttons
             Button confirmButton = (Button) dialogPane.lookupButton(confirmButtonType);
             Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
-    
+
             if (confirmButton != null) {
-                confirmButton.getStyleClass().add("delete-confirm-button"); 
-                confirmButton.setStyle("-fx-background-color: #e74c3b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
-    
+                confirmButton.getStyleClass().add("delete-confirm-button");
+                confirmButton.setStyle(
+                        "-fx-background-color: #e74c3b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
+
                 // Add icon to delete button
                 HBox btnContent = new HBox(5);
                 btnContent.setAlignment(Pos.CENTER);
-    
+
                 Label iconLabel = new Label("🗑️");
                 Label textLabel = new Label("Delete");
                 textLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-    
+
                 btnContent.getChildren().addAll(iconLabel, textLabel);
                 confirmButton.setGraphic(btnContent);
                 confirmButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             }
-    
+
             if (cancelButton != null) {
-                cancelButton.getStyleClass().add("cancel-button"); 
-                cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-border-color: #dee2e6; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
+                cancelButton.getStyleClass().add("cancel-button");
+                cancelButton.setStyle(
+                        "-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-border-color: #dee2e6; -fx-border-radius: 5px; -fx-background-radius: 5px; -fx-padding: 10px 20px;");
             }
-    
+
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == confirmButtonType).isPresent()) {
                 try {
                     // First delete comments linked to this poll
                     sondageService.deleteCommentsByPollId(sondage.getId());
-    
+
                     // Then delete responses linked to this poll
                     sondageService.deleteResponsesByPollId(sondage.getId());
-    
+
                     // Then delete options linked to this poll
                     sondageService.deleteOptionsByPollId(sondage.getId());
-    
+
                     // Finally, delete the poll itself
                     sondageService.delete(sondage.getId());
-    
+
                     // Show success confirmation
                     showToast("✅ The poll was successfully deleted", "success");
                     loadData();
@@ -744,7 +786,7 @@ public class AdminPollsController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Erreur");
                 alert.setHeaderText("Une erreur s'est produite");
-                
+
                 // Créer une zone de texte pour afficher l'erreur complète
                 TextArea textArea = new TextArea(message);
                 textArea.setEditable(false);
@@ -753,15 +795,15 @@ public class AdminPollsController implements Initializable {
                 textArea.setMaxHeight(Double.MAX_VALUE);
                 textArea.setPrefWidth(550);
                 textArea.setPrefHeight(200);
-                
+
                 alert.getDialogPane().setContent(textArea);
                 alert.getDialogPane().setPrefWidth(600);
                 alert.getDialogPane().setPrefHeight(300);
-                
+
                 alert.showAndWait();
                 return;
             }
-            
+
             // Pour les autres types, utiliser le toast existant
             Label toastLabel = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
             HBox toastHBox = (HBox) toastContainer.getChildren().get(0);
@@ -843,17 +885,18 @@ public class AdminPollsController implements Initializable {
                 // Charger la vue des commentaires
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) commentsManagementBtn.getScene().getWindow();
-                
+
                 // Configurer la scène
                 Scene scene = new Scene(root);
-                
+
                 // S'assurer que les styles sont correctement appliqués
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+                scene.getStylesheets()
+                        .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -863,29 +906,38 @@ public class AdminPollsController implements Initializable {
                 showToast("Erreur lors de la navigation vers la gestion des commentaires: " + e.getMessage(), "error");
             }
         });
-        
+
         // Le bouton pollsManagementBtn est déjà actif, pas besoin d'action
-        
-        // Pour le bouton principal Survey Management, on peut ajouter une animation pour montrer/cacher le sous-menu
+
+        // For Events Management, add submenu toggle similar to survey management
+        eventManagementBtn.setOnAction(event -> {
+            // Toggle the visibility of the submenu
+            boolean isVisible = eventsSubMenu.isVisible();
+            eventsSubMenu.setVisible(!isVisible);
+            eventsSubMenu.setManaged(!isVisible);
+        });
+
+        // Pour le bouton principal Survey Management, on peut ajouter une animation
+        // pour montrer/cacher le sous-menu
         surveyManagementBtn.setOnAction(event -> {
             // Toggle la visibilité du sous-menu
             boolean isVisible = surveySubMenu.isVisible();
             surveySubMenu.setVisible(!isVisible);
             surveySubMenu.setManaged(!isVisible);
         });
-        
+
         // Configurer les autres boutons de navigation si nécessaire
         userManagementBtn.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
                 Parent root = loader.load();
-                
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) userManagementBtn.getScene().getWindow();
-                
+
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
+
                 // Appliquer la scène au stage
                 stage.setScene(scene);
                 stage.setMaximized(true);
@@ -895,14 +947,105 @@ public class AdminPollsController implements Initializable {
                 showToast("Error navigating to user management: " + e.getMessage(), "error");
             }
         });
+
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        eventManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des événements", "info"));
-        productOrdersBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Produits & Commandes", "info"));
-        competitionBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Compétitions", "info"));
+
+        // Competition button handler to navigate to AdminSaisons.fxml
+        competitionBtn.setOnAction(event -> {
+            try {
+                // Load the seasons management view
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminSaisons.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) competitionBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to seasons management: " + e.getMessage(), "error");
+            }
+        });
+
+        // Add navigation to AdminProduitView for productOrdersBtn
+        productOrdersBtn.setOnAction(event -> {
+            try {
+                // Load the product management view
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showToast("Error navigating to product management: " + e.getMessage(), "error");
+            }
+        });
+
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
         logoutBtn.setOnAction(e -> handleLogout());
+
+        // Add event handlers for submenu options
+        if (eventsSubMenu != null && eventsSubMenu.getChildren().size() >= 2) {
+            // Event Management navigation
+            ((Button) eventsSubMenu.getChildren().get(0)).setOnAction(event -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                    stage.setScene(scene);
+                    stage.setMaximized(true);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showToast("Error navigating to event management: " + e.getMessage(), "error");
+                }
+            });
+
+            // Category Management navigation
+            ((Button) eventsSubMenu.getChildren().get(1)).setOnAction(event -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                    stage.setScene(scene);
+                    stage.setMaximized(true);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showToast("Error navigating to category management: " + e.getMessage(), "error");
+                }
+            });
+        }
     }
-    
+
     /**
      * Gère la déconnexion de l'utilisateur
      */
@@ -913,11 +1056,12 @@ public class AdminPollsController implements Initializable {
             confirmDialog.setTitle("Déconnexion");
             confirmDialog.setHeaderText("Êtes-vous sûr de vouloir vous déconnecter ?");
             confirmDialog.setContentText("Toutes les données non enregistrées seront perdues.");
-            
+
             // Personnaliser la boîte de dialogue
             DialogPane dialogPane = confirmDialog.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
-            
+            dialogPane.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+
             // Afficher la boîte de dialogue et traiter le résultat
             if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
                 // Naviguer vers la page de connexion ou fermer l'application
@@ -928,7 +1072,7 @@ public class AdminPollsController implements Initializable {
             showToast("Erreur lors de la déconnexion: " + e.getMessage(), "error");
         }
     }
-    
+
     /**
      * Configure les informations de l'administrateur
      */
@@ -941,7 +1085,8 @@ public class AdminPollsController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Erreur lors de la configuration des informations de l'administrateur: " + e.getMessage());
+            System.err
+                    .println("Erreur lors de la configuration des informations de l'administrateur: " + e.getMessage());
         }
     }
-} 
+}

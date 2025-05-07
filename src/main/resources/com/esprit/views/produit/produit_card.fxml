@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.ImageView?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.esprit.controllers.crud.CartController" spacing="20"
+      style="-fx-background-color: #f5f5f5;">
+<padding>
+    <Insets top="20" right="20" bottom="20" left="20"/>
+</padding>
+
+
+    <Label text="Votre Panier" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="tableView" style="-fx-background-color: white;">
+        <columns>
+            <TableColumn fx:id="colImage" text="Image" prefWidth="80">
+                <cellValueFactory>
+                    <PropertyValueFactory property="imageView" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colName" text="Produit" prefWidth="200">
+                <cellValueFactory>
+                    <PropertyValueFactory property="name" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colPrice" text="Prix (TND)" prefWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="price" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="100">
+                <cellValueFactory>
+                    <PropertyValueFactory property="quantity" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="200">
+
+            </TableColumn>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_RIGHT" spacing="20">
+        <Label fx:id="lblTotal" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Button text="Passer la Commande" style="-fx-background-color: #6200EE; -fx-text-fill: white;"
+                onAction="#proceedToCheckout"/>
+    </HBox>
+</VBox>

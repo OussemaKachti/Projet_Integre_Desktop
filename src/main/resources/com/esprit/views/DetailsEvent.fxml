@@ -16,74 +16,138 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.geometry.Insets?>
 <?import java.lang.String?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
 
-<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.DetailsEvent">
+<?import javafx.scene.image.Image?>
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" styleClass="main-container" stylesheets="@../styles/home.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.DetailsEvent">
+
 
     <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <!-- Main background with gradient -->
-        <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
+        <!-- Main background with enhanced gradient -->
+        <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f5f9ff, #e6f0ff);">
 
-            <!-- Header -->
+            <!-- Top Navigation Header -->
             <top>
-                <BorderPane style="-fx-background-color: linear-gradient(to right, #1a237e, #283593); -fx-padding: 18;">
-                    <left>
-                        <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label text="📆" textFill="WHITE">
-                                <font>
-                                    <Font size="24" />
-                                </font>
-                            </Label>
-                            <Label text="Event Details" textFill="WHITE">
-                                <font>
-                                    <Font name="Arial Bold" size="28" />
-                                </font>
-                            </Label>
+                <VBox>
+                    <!-- Navigation Header -->
+                    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+                        <padding>
+                            <Insets bottom="10" left="20" right="20" top="10" />
+                        </padding>
+
+                        <ImageView fitHeight="80" fitWidth="170" preserveRatio="true">
+                            <Image url="@../images/logo.png" />
+                        </ImageView>
+
+                        <HBox alignment="CENTER" spacing="15" styleClass="nav-container" HBox.hgrow="ALWAYS">
+                            <Button styleClass="nav-button" text="Home" />
+                            <Button styleClass="nav-button" text="Clubs" />
+                            <Button styleClass="nav-button-selected" text="Events" />
+                            <Button styleClass="nav-button" text="Products" />
+                            <Button styleClass="nav-button" text="Competition" />
                         </HBox>
-                    </left>
-                    <right>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="10">
+                            <!-- User Profile Section -->
+                            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
+                                <HBox alignment="CENTER" spacing="10" styleClass="user-profile-content">
+                                    <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                                    </ImageView>
+                                    <Label fx:id="userNameLabel" styleClass="user-name" text="John Doe" />
+                                </HBox>
+
+                                <!-- Dropdown Menu -->
+                                <VBox fx:id="profileDropdown" managed="false" styleClass="profile-dropdown" visible="false">
+                                    <Button styleClass="dropdown-item" text="My Profile" />
+                                    <Separator />
+                                    <Button styleClass="dropdown-item" text="Logout" />
+                                </VBox>
+                            </StackPane>
+
+                            <Button styleClass="contact-button" text="Contact Us" />
+                        </HBox>
+
                         <HBox alignment="CENTER_RIGHT" spacing="15">
-                            <Button fx:id="backButton" onAction="#handleBack" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-border-color: transparent; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 20;" text="← Back">
+                            <Button fx:id="backButton" onAction="#handleBack" style="-fx-background-color: rgb(4,15,113); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" text="← Back">
                                 <font>
                                     <Font name="Arial Bold" size="14" />
                                 </font>
+                                <effect>
+                                    <DropShadow color="#00000066" radius="5" spread="0.02" />
+                                </effect>
                             </Button>
                         </HBox>
-                    </right>
-                    <effect>
-                        <DropShadow color="#00000066" radius="8" spread="0.05" />
-                    </effect>
-                </BorderPane>
+                    </HBox>
+
+                    <!-- Event Details Title Bar -->
+                    <BorderPane style="-fx-background-color: linear-gradient(to right, #f5f9ff, #e6f0ff); -fx-padding: 20;">
+                        <left>
+
+                                <Label text="📆" textFill="WHITE">
+                                    <font>
+                                        <Font size="26" />
+                                    </font>
+                                </Label>
+                                <Label text="Event Details" textFill="2E1696FF">
+                                    <font>
+                                        <Font name="Arial Bold" size="30" />
+                                    </font>
+                                </Label>
+
+                        </left>
+                        <effect>
+                            <DropShadow color="#00000066" radius="10" spread="0.05" />
+                        </effect>
+                    </BorderPane>
+                </VBox>
             </top>
+
 
             <!-- Main content -->
             <center>
                 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-                    <BorderPane style="-fx-padding: 25;">
+
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="📆" textFill="WHITE">
+                                <font>
+                                    <Font size="26" />
+                                </font>
+                            </Label>
+                            <Label text="Event Details" textFill="WHITE">
+                                <font>
+                                    <Font name="Arial Bold" size="30" />
+                                </font>
+                            </Label>
+                        </HBox>
+
+                    <BorderPane style="-fx-padding: 30;">
+
                         <center>
                             <VBox spacing="35">
-                                <!-- Enhanced Event Image and Title Section -->
+                                <!-- Enhanced Event Image and Title Section with improved shadows -->
                                 <StackPane>
                                     <!-- Hero Image Container with Enhanced Shadow -->
-                                    <BorderPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 25, 0, 0, 7);">
+                                    <BorderPane style="-fx-background-color: white; -fx-background-radius: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 25, 0, 0, 7);">
                                         <!-- Image with Clip Path for rounded corners -->
                                         <center>
                                             <StackPane>
                                                 <!-- Rectangle clip for the image -->
-                                                <ImageView fx:id="eventImageView" fitHeight="380.0" fitWidth="960.0" preserveRatio="true">
+                                                <ImageView fx:id="eventImageView" fitHeight="400.0" fitWidth="960.0" preserveRatio="true">
                                                     <effect>
                                                         <ColorAdjust brightness="-0.05" contrast="0.15" saturation="0.1" />
                                                     </effect>
                                                     <clip>
-                                                        <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0" />
+                                                        <Rectangle width="960.0" height="400.0" arcWidth="18.0" arcHeight="18.0" />
                                                     </clip>
                                                 </ImageView>
 
                                                 <!-- Subtle image border highlight -->
-                                                <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0" fill="transparent"
+                                                <Rectangle width="960.0" height="400.0" arcWidth="18.0" arcHeight="18.0" fill="transparent"
                                                            stroke="#ffffff44" strokeWidth="2.0" />
 
                                                 <!-- Enhanced image overlay gradient -->
-                                                <Rectangle width="960.0" height="380.0" arcWidth="15.0" arcHeight="15.0"
+                                                <Rectangle width="960.0" height="400.0" arcWidth="18.0" arcHeight="18.0"
                                                            style="-fx-fill: linear-gradient(to bottom,
                                                                   rgba(0,0,0,0.0) 0%,
                                                                   rgba(0,0,0,0.0) 40%,
@@ -95,11 +159,11 @@
                                         <!-- Enhanced Event Title Overlay with better gradient and positioning -->
                                         <bottom>
                                             <StackPane>
-                                                <VBox spacing="18" style="-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, transparent, rgba(0,0,0,0.90)); -fx-padding: 40 40 45 40;">
+                                                <VBox spacing="20" style="-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, transparent, rgba(0,0,0,0.90)); -fx-padding: 45 45 50 45;">
                                                     <!-- Enhanced title with better text effects -->
                                                     <Label fx:id="eventTitleLabel" textFill="WHITE" wrapText="true" style="-fx-font-smoothing-type: lcd;">
                                                         <font>
-                                                            <Font name="Arial Bold" size="40" />
+                                                            <Font name="Arial Bold" size="42" />
                                                         </font>
                                                         <effect>
                                                             <DropShadow color="#000000cc" radius="4" spread="0.15" offsetX="0" offsetY="1" />
@@ -107,16 +171,16 @@
                                                     </Label>
 
                                                     <!-- Enhanced category display with animation prep -->
-                                                    <HBox alignment="CENTER_LEFT" spacing="18">
+                                                    <HBox alignment="CENTER_LEFT" spacing="20">
                                                         <!-- Event Type Badge with enhanced styling -->
                                                         <Label fx:id="eventTypeLabel"
                                                                style="-fx-background-color: linear-gradient(to right, #1565C0, #42a5f5);
-                                                                      -fx-background-radius: 22;
-                                                                      -fx-padding: 8 22;
+                                                                      -fx-background-radius: 24;
+                                                                      -fx-padding: 9 24;
                                                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
                                                                textFill="WHITE">
                                                             <font>
-                                                                <Font name="Arial Bold" size="15" />
+                                                                <Font name="Arial Bold" size="16" />
                                                             </font>
                                                             <!-- Optional: Add hover effect with JavaFX CSS -->
                                                             <styleClass>
@@ -127,17 +191,14 @@
                                                         <!-- Event Category Badge with enhanced styling -->
                                                         <Label fx:id="eventCategoryLabel"
                                                                style="-fx-background-color: linear-gradient(to right, #2e7d32, #66bb6a);
-                                                                      -fx-background-radius: 22;
-                                                                      -fx-padding: 8 22;
+                                                                      -fx-background-radius: 24;
+                                                                      -fx-padding: 9 24;
                                                                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);"
                                                                textFill="WHITE">
                                                             <font>
-                                                                <Font name="Arial Bold" size="15" />
+                                                                <Font name="Arial Bold" size="16" />
                                                             </font>
-
                                                         </Label>
-
-
                                                     </HBox>
                                                 </VBox>
                                             </StackPane>
@@ -145,86 +206,149 @@
                                     </BorderPane>
                                 </StackPane>
 
-                                <!-- Event Information Section -->
+                                <!-- Event Information Section - Reorganized -->
                                 <HBox spacing="30">
                                     <!-- Left Column - Details -->
-                                    <VBox spacing="25" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
-                                        <!-- Event Description -->
+                                    <VBox spacing="25" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 35; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
+                                        <!-- Event Description with improved typography -->
                                         <VBox spacing="15">
-                                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                                <Label text="📝" style="-fx-text-fill: #3949ab;">
+                                                    <font>
+                                                        <Font size="22" />
+                                                    </font>
+                                                </Label>
                                                 <Label style="-fx-text-fill: #333333;" text="About This Event">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="24" />
+                                                    </font>
+                                                </Label>
+                                            </HBox>
+                                            <Line startX="0" endX="600" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
+                                            <Label fx:id="eventDescriptionLabel" style="-fx-text-fill: #444444; -fx-line-height: 1.6;" wrapText="true">
+                                                <font>
+                                                    <Font name="Arial" size="16" />
+                                                </font>
+                                                <VBox.margin>
+                                                    <Insets top="5" />
+                                                </VBox.margin>
+                                            </Label>
+                                        </VBox>
+
+                                        <!-- Host Information with improved styling -->
+                                        <VBox spacing="15">
+                                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                                <Label text="👥" style="-fx-text-fill: #3949ab;">
+                                                    <font>
+                                                        <Font size="20" />
+                                                    </font>
+                                                </Label>
+                                                <Label style="-fx-text-fill: #333333;" text="Hosted By">
                                                     <font>
                                                         <Font name="Arial Bold" size="22" />
                                                     </font>
                                                 </Label>
                                             </HBox>
                                             <Line startX="0" endX="600" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
-                                            <Label fx:id="eventDescriptionLabel" style="-fx-text-fill: #444444; -fx-line-height: 1.5;" wrapText="true">
-                                                <font>
-                                                    <Font name="Arial" size="16" />
-                                                </font>
-                                            </Label>
-                                        </VBox>
-
-                                        <!-- Host Information -->
-                                        <VBox spacing="15">
-                                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                                <Label text="👥" style="-fx-text-fill: #3949ab;">
-                                                    <font>
-                                                        <Font size="18" />
-                                                    </font>
-                                                </Label>
-                                                <Label style="-fx-text-fill: #333333;" text="Hosted By">
-                                                    <font>
-                                                        <Font name="Arial Bold" size="20" />
-                                                    </font>
-                                                </Label>
-                                            </HBox>
-                                            <Line startX="0" endX="600" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
                                             <HBox alignment="CENTER_LEFT" spacing="20">
-                                                <VBox spacing="5">
+                                                <VBox spacing="8">
                                                     <Label fx:id="clubNameLabel" style="-fx-text-fill: #333333;">
                                                         <font>
-                                                            <Font name="Arial Bold" size="18" />
+                                                            <Font name="Arial Bold" size="20" />
                                                         </font>
                                                     </Label>
-                                                    <HBox alignment="CENTER_LEFT" spacing="8">
+                                                    <HBox alignment="CENTER_LEFT" spacing="10">
                                                         <Label text="🏆" style="-fx-text-fill: #4caf50;">
                                                             <font>
-                                                                <Font size="14" />
+                                                                <Font size="16" />
                                                             </font>
                                                         </Label>
                                                         <Label style="-fx-text-fill: #666666;" text="Official Event Organizer">
                                                             <font>
-                                                                <Font name="Arial" size="14" />
+                                                                <Font name="Arial" size="15" />
                                                             </font>
                                                         </Label>
                                                     </HBox>
                                                 </VBox>
                                             </HBox>
                                         </VBox>
+
+                                        <!-- Weather Information Section - NEW ADDITION -->
+                                        <VBox spacing="15">
+                                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                                <Label text="☁️" style="-fx-text-fill: #3949ab;">
+                                                    <font>
+                                                        <Font size="20" />
+                                                    </font>
+                                                </Label>
+                                                <Label fx:id="weatherTitleLabel" style="-fx-text-fill: #333333;" text="Prévisions météo">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="22" />
+                                                    </font>
+                                                </Label>
+                                            </HBox>
+                                            <Line startX="0" endX="600" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
+                                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                                <!-- Weather Icon -->
+                                                <StackPane>
+                                                    <BorderPane style="-fx-background-color: #e1f5fe; -fx-background-radius: 10; -fx-min-width: 80; -fx-min-height: 80; -fx-max-width: 80; -fx-max-height: 80; -fx-alignment: center;">
+                                                        <center>
+                                                            <ImageView fx:id="weatherIconView" fitWidth="60" fitHeight="60" preserveRatio="true">
+                                                                <effect>
+                                                                    <DropShadow color="#00000033" radius="4" spread="0.05" />
+                                                                </effect>
+                                                            </ImageView>
+                                                        </center>
+                                                    </BorderPane>
+                                                </StackPane>
+
+                                                <!-- Weather Details -->
+                                                <VBox spacing="8">
+                                                    <Label fx:id="weatherTempLabel" style="-fx-text-fill: #333333;">
+                                                        <font>
+                                                            <Font name="Arial Bold" size="24" />
+                                                        </font>
+                                                    </Label>
+                                                    <Label fx:id="weatherDescLabel" style="-fx-text-fill: #555555;">
+                                                        <font>
+                                                            <Font name="Arial" size="16" />
+                                                        </font>
+                                                    </Label>
+                                                </VBox>
+                                            </HBox>
+                                        </VBox>
+
+                                        <!-- Share Button for All Users (moved from bottom) -->
+                                        <Button fx:id="shareButton" style="-fx-background-color: linear-gradient(to right, #2e7d32, #43a047); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 14 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0, 0, 2); -fx-cursor: hand;" text="🔗 Partager l'événement">
+                                            <font>
+                                                <Font name="Arial Bold" size="15" />
+                                            </font>
+                                            <VBox.margin>
+                                                <Insets top="15" />
+                                            </VBox.margin>
+                                        </Button>
                                     </VBox>
 
-                                    <!-- Right Column - Event Details & President Actions in a VBox -->
-                                    <VBox spacing="20" prefWidth="320">
-                                        <!-- Event Details Panel -->
+                                    <!-- Right Column - Event Details & Actions -->
+                                    <VBox spacing="25" prefWidth="350">
+                                        <!-- Event Details Panel with improved spacing -->
                                         <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
-                                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <HBox alignment="CENTER_LEFT" spacing="12">
                                                 <Label text="📋" style="-fx-text-fill: #3949ab;">
                                                     <font>
-                                                        <Font size="18" />
+                                                        <Font size="20" />
                                                     </font>
                                                 </Label>
                                                 <Label style="-fx-text-fill: #333333;" text="Event Details">
                                                     <font>
-                                                        <Font name="Arial Bold" size="20" />
+                                                        <Font name="Arial Bold" size="22" />
                                                     </font>
                                                 </Label>
                                             </HBox>
-                                            <Line startX="0" endX="270" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
+                                            <Line startX="0" endX="300" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
 
-                                            <!-- Date & Time -->
-                                            <VBox spacing="10">
+                                            <!-- Date & Time with improved icons -->
+                                            <VBox spacing="12">
                                                 <Label style="-fx-text-fill: #555555;" text="Date &amp; Time">
                                                     <font>
                                                         <Font name="Arial Bold" size="16" />
@@ -232,33 +356,33 @@
                                                 </Label>
                                                 <HBox spacing="15" alignment="CENTER_LEFT">
                                                     <StackPane>
-                                                        <BorderPane style="-fx-background-color: #e3f2fd; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center;">
+                                                        <BorderPane style="-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-min-width: 44; -fx-min-height: 44; -fx-max-width: 44; -fx-max-height: 44; -fx-alignment: center;">
                                                             <center>
                                                                 <Label text="📅" style="-fx-text-fill: #1976d2;">
                                                                     <font>
-                                                                        <Font size="18" />
+                                                                        <Font size="20" />
                                                                     </font>
                                                                 </Label>
                                                             </center>
                                                         </BorderPane>
                                                     </StackPane>
-                                                    <VBox spacing="5">
+                                                    <VBox spacing="6">
                                                         <Label fx:id="startDateLabel" style="-fx-text-fill: #333333;">
                                                             <font>
-                                                                <Font name="Arial Bold" size="15" />
+                                                                <Font name="Arial Bold" size="16" />
                                                             </font>
                                                         </Label>
                                                         <Label fx:id="endDateLabel" style="-fx-text-fill: #555555;">
                                                             <font>
-                                                                <Font name="Arial" size="14" />
+                                                                <Font name="Arial" size="15" />
                                                             </font>
                                                         </Label>
                                                     </VBox>
                                                 </HBox>
                                             </VBox>
 
-                                            <!-- Location -->
-                                            <VBox spacing="10">
+                                            <!-- Location with improved icons -->
+                                            <VBox spacing="12">
                                                 <Label style="-fx-text-fill: #555555;" text="Location">
                                                     <font>
                                                         <Font name="Arial Bold" size="16" />
@@ -266,11 +390,11 @@
                                                 </Label>
                                                 <HBox spacing="15" alignment="CENTER_LEFT">
                                                     <StackPane>
-                                                        <BorderPane style="-fx-background-color: #e8f5e9; -fx-background-radius: 8; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40; -fx-alignment: center;">
+                                                        <BorderPane style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-min-width: 44; -fx-min-height: 44; -fx-max-width: 44; -fx-max-height: 44; -fx-alignment: center;">
                                                             <center>
                                                                 <Label text="📍" style="-fx-text-fill: #43a047;">
                                                                     <font>
-                                                                        <Font size="18" />
+                                                                        <Font size="20" />
                                                                     </font>
                                                                 </Label>
                                                             </center>
@@ -278,70 +402,90 @@
                                                     </StackPane>
                                                     <Label fx:id="locationLabel" style="-fx-text-fill: #333333;" wrapText="true">
                                                         <font>
-                                                            <Font name="Arial" size="15" />
+                                                            <Font name="Arial" size="16" />
                                                         </font>
                                                     </Label>
                                                 </HBox>
                                             </VBox>
 
-                                            <!-- Register Button -->
-                                            <Button fx:id="registerButton" style="-fx-background-color: linear-gradient(to right, #1976d2, #2979ff); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);" text="✓ Register for Event">
+                                            <!-- Register Button with improved styling -->
+                                            <Button fx:id="registerButton" style="-fx-background-color: linear-gradient(to right, #00b300, #00e600); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 16 22; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2); -fx-cursor: hand;" text="✓ S'inscrire à l'événement">
                                                 <VBox.margin>
-                                                    <Insets top="25" />
+                                                    <Insets top="15" />
                                                 </VBox.margin>
                                                 <font>
                                                     <Font name="Arial Bold" size="16" />
                                                 </font>
                                             </Button>
+
+                                            <!-- Participant Button to Generate QR Code -->
+                                            <Button fx:id="qrCodeButton" mnemonicParsing="false"
+                                                    style="-fx-background-color: linear-gradient(to right, #5d4ebb ); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 16 22; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2); -fx-cursor: hand;">
+
+                                                <graphic>
+                                                    <HBox spacing="10" alignment="CENTER">
+                                                        <ImageView fitHeight="20" fitWidth="20">
+                                                            <image>
+                                                                <Image url="@/com/esprit/images/qr-code.png" preserveRatio="true"/>
+                                                            </image>
+                                                        </ImageView>
+                                                        <Label text="Generate QR Code" style="-fx-text-fill: black;">
+                                                            <font>
+                                                                <Font name="Arial Bold" size="16" />
+                                                            </font>
+                                                        </Label>
+                                                    </HBox>
+                                                </graphic>
+
+                                                <tooltip>
+                                                    <Tooltip text="Generate a QR code to confirm your participation" />
+                                                </tooltip>
+
+                                                <VBox.margin>
+                                                    <Insets top="10" />
+                                                </VBox.margin>
+                                            </Button>
+
+
                                         </VBox>
 
-                                        <!-- President Actions Panel (now positioned directly under Event Details) -->
+                                        <!-- Admin Actions Panel (renamed from President) -->
                                         <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
-                                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <HBox alignment="CENTER_LEFT" spacing="12">
                                                 <Label text="👑" style="-fx-text-fill: #ff6f00;">
                                                     <font>
-                                                        <Font size="18" />
+                                                        <Font size="20" />
                                                     </font>
                                                 </Label>
-                                                <Label style="-fx-text-fill: #333333;" text="President Actions">
+                                                <Label style="-fx-text-fill: #333333;" text="Actions Administrateur">
                                                     <font>
-                                                        <Font name="Arial Bold" size="20" />
+                                                        <Font name="Arial Bold" size="22" />
                                                     </font>
                                                 </Label>
                                             </HBox>
-                                            <Line startX="0" endX="270" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
+                                            <Line startX="0" endX="300" style="-fx-stroke: #e0e0e0; -fx-stroke-width: 1.5;" />
 
-                                            <!-- Note about president privileges -->
+                                            <!-- Note about admin privileges -->
                                             <VBox spacing="5">
-                                                <Label style="-fx-text-fill: #666666;" text="Special actions available to club president only" wrapText="true">
+                                                <Label style="-fx-text-fill: #666666;" text="Actions reserved for club administrators" wrapText="true">
                                                     <font>
                                                         <Font name="Arial Italic" size="14" />
                                                     </font>
                                                 </Label>
                                             </VBox>
 
-                                            <!-- President Action Buttons -->
+
+                                            <!-- Reorganized Admin Actions -->
                                             <VBox spacing="15">
-                                                <!-- Delete Button -->
-                                                <Button fx:id="presidentButton1" style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
-                                                    <graphic>
-                                                        <HBox spacing="10" alignment="CENTER">
-                                                            <Label text="🗑️" style="-fx-text-fill: white;">
-                                                                <font>
-                                                                    <Font size="16" />
-                                                                </font>
-                                                            </Label>
-                                                            <Label text="Delete" style="-fx-text-fill: white;">
-                                                                <font>
-                                                                    <Font name="Arial Bold" size="15" />
-                                                                </font>
-                                                            </Label>
-                                                        </HBox>
-                                                    </graphic>
-                                                </Button>
+                                                <!-- Event Management Section -->
+                                                <Label style="-fx-text-fill: #555555;" text="Event Management">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="16" />
+                                                    </font>
+                                                </Label>
 
                                                 <!-- Update Button -->
-                                                <Button fx:id="editButton" onAction="#handleEdit" style="-fx-background-color: linear-gradient(to right, #e65100, #f57c00); -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
+                                                <Button fx:id="editButton" onAction="#handleEdit" style="-fx-background-color: linear-gradient(to right, #e6702f, #f57c00); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="🔄" style="-fx-text-fill: white;">
@@ -349,7 +493,7 @@
                                                                     <Font size="16" />
                                                                 </font>
                                                             </Label>
-                                                            <Label text="Update" style="-fx-text-fill: white;">
+                                                            <Label text="Edit Event" style="-fx-text-fill: white;">
                                                                 <font>
                                                                     <Font name="Arial Bold" size="15" />
                                                                 </font>
@@ -358,8 +502,35 @@
                                                     </graphic>
                                                 </Button>
 
-                                                <!-- View Participants Button -->
-                                                <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-min-width: 220; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1);">
+                                                <!-- Delete Button -->
+                                                <Button fx:id="presidentButton1" style="-fx-background-color: #bd0d06; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
+                                                    <graphic>
+                                                        <HBox spacing="10" alignment="CENTER">
+                                                            <Label text="🗑️" style="-fx-text-fill: white;">
+                                                                <font>
+                                                                    <Font size="16" />
+                                                                </font>
+                                                            </Label>
+                                                            <Label text="Delete Event" style="-fx-text-fill: white;">
+                                                                <font>
+                                                                    <Font name="Arial Bold" size="15" />
+                                                                </font>
+                                                            </Label>
+                                                        </HBox>
+                                                    </graphic>
+                                                </Button>
+
+                                                <Separator style="-fx-background-color: #e0e0e0; -fx-opacity: 0.7;" />
+
+                                                <!-- Participant Management Section -->
+                                                <Label style="-fx-text-fill: #555555;" text="Participant Management">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="16" />
+                                                    </font>
+                                                </Label>
+
+                                                <!-- View Participants Button
+                                                   <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="👥" style="-fx-text-fill: white;">
@@ -367,24 +538,50 @@
                                                                     <Font size="16" />
                                                                 </font>
                                                             </Label>
-                                                            <Label text="View Participants" style="-fx-text-fill: white;">
+                                                            <Label text="Participant List" style="-fx-text-fill: white;">
                                                                 <font>
                                                                     <Font name="Arial Bold" size="15" />
                                                                 </font>
                                                             </Label>
                                                         </HBox>
                                                     </graphic>
+                                                </Button> -->
+
+                                                <!-- QR Code Scanner -->
+                                                <Button fx:id="scanQrCodeButton" mnemonicParsing="false"
+                                                        style="-fx-background-color: linear-gradient(to right, #0069c0, #004a9f);
+               -fx-text-fill: white;
+               -fx-background-radius: 25;
+               -fx-padding: 16 22;
+               -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+               -fx-cursor: hand;">
+                                                    <graphic>
+                                                        <HBox spacing="10" alignment="CENTER">
+                                                            <Label text="🔍" style="-fx-text-fill: white;">
+                                                                <font><Font size="16" /></font>
+                                                            </Label>
+                                                            <Label text="Scan QR Codes" style="-fx-text-fill: white;">
+                                                                <font><Font name="Arial Bold" size="15" /></font>
+                                                            </Label>
+                                                        </HBox>
+                                                    </graphic>
+                                                    <tooltip>
+                                                        <Tooltip text="Scan participants' QR codes (organizers only)" />
+                                                    </tooltip>
                                                 </Button>
+
                                             </VBox>
 
-                                            <!-- Status indicator -->
+                                            <!-- Improved status indicator -->
                                             <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 15 0 0 0;">
                                                 <Label text="🔒" style="-fx-text-fill: #d32f2f;">
                                                     <font>
                                                         <Font size="14" />
                                                     </font>
                                                 </Label>
-                                                <Label style="-fx-text-fill: #666666;" text="President access only" wrapText="true">
+                                                <Label style="-fx-text-fill: #666666;" text="Administrator access only" wrapText="true">
+
                                                     <font>
                                                         <Font name="Arial Italic" size="13" />
                                                     </font>
@@ -393,27 +590,21 @@
                                         </VBox>
                                     </VBox>
                                 </HBox>
-
-                                <!-- Action Buttons -->
-                                <HBox alignment="CENTER" spacing="25" style="-fx-padding: 10 0 20 0;">
-                                    <Button fx:id="shareButton" style="-fx-background-color: linear-gradient(to right, #2e7d32, #43a047); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 14 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0, 0, 2);" text="🔗 Share Event">
-                                        <font>
-                                            <Font name="Arial Bold" size="14" />
-                                        </font>
-                                    </Button>
-                                </HBox>
                             </VBox>
                         </center>
                     </BorderPane>
                 </ScrollPane>
             </center>
 
-            <!-- Footer -->
+
+
+
+            <!-- Improved Footer -->
             <bottom>
-                <HBox alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #eeeeee; -fx-border-width: 1 0 0 0;">
-                    <Label style="-fx-text-fill: #666666;" text="© 2025 - Club Event Management">
+                <HBox alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 18; -fx-border-color: #eeeeee; -fx-border-width: 1 0 0 0;">
+                    <Label style="-fx-text-fill: #666666;" text="© 2025 - Club Event Management System">
                         <font>
-                            <Font name="Arial" size="12" />
+                            <Font name="Arial" size="13" />
                         </font>
                     </Label>
                 </HBox>

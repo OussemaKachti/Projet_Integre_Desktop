@@ -2,6 +2,7 @@
     -fx-background-color: #f8f9fa;
 }
 
+<<<<<<< HEAD
 /* Add this for Group to create a proper stacking context */
 Group {
     -fx-view-order: -2000;
@@ -12,6 +13,13 @@ Group {
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
     -fx-padding: 10 20;
     -fx-min-height: 70;
+=======
+.header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+    -fx-padding: 15 25;
+    -fx-min-height: 80;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-alignment: center-left;
 }
 
@@ -21,29 +29,56 @@ Group {
 
 .nav-button {
     -fx-background-color: transparent;
+<<<<<<< HEAD
     -fx-text-fill: #4B535A;
     -fx-font-size: 14px;
     -fx-cursor: hand;
     -fx-padding: 8 15;
     -fx-border-radius: 5;
     -fx-background-radius: 5;
+=======
+    -fx-text-fill: #333333;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 18;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 3 0;
+    -fx-border-color: transparent;
+    -fx-transition: all 0.2s ease;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .nav-button:hover {
     -fx-background-color: #f8f9fa;
     -fx-text-fill: #2b4eff;
+<<<<<<< HEAD
+=======
+    -fx-border-color: #2b4eff;
+}
+
+.nav-button.active {
+    -fx-text-fill: #2980b9;
+    -fx-border-color: #2980b9;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .nav-button-selected {
     -fx-background-color: #2b4eff;
     -fx-text-fill: white;
+<<<<<<< HEAD
     -fx-font-size: 14px;
     -fx-cursor: hand;
     -fx-padding: 8 15;
+=======
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 12 18;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-border-radius: 5;
     -fx-background-radius: 5;
 }
 
+<<<<<<< HEAD
 .profile-button, .contact-button {
     -fx-background-color: #2b4eff;
     -fx-text-fill: white;
@@ -51,6 +86,17 @@ Group {
     -fx-background-radius: 5;
     -fx-cursor: hand;
     -fx-font-size: 14px;
+=======
+.profile-button,
+.contact-button {
+    -fx-background-color: #2b4eff;
+    -fx-text-fill: white;
+    -fx-padding: 10 18;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .contact-button {
@@ -70,7 +116,11 @@ Group {
     -fx-background-color: transparent;
 }
 
+<<<<<<< HEAD
 .content-scroll > .viewport {
+=======
+.content-scroll>.viewport {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-background-color: transparent;
 }
 
@@ -82,7 +132,11 @@ Group {
 .hero-section {
     -fx-min-height: 400;
     -fx-background-radius: 10;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .hero-image {
@@ -123,19 +177,31 @@ Group {
     -fx-background-radius: 5;
     -fx-cursor: hand;
     -fx-font-weight: bold;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 2);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 2);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .hero-button:hover {
     -fx-background-color: #1e3acc;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 3);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 15, 0, 0, 3);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .section {
     -fx-padding: 30;
     -fx-background-color: white;
     -fx-background-radius: 10;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .section-title {
@@ -148,14 +214,22 @@ Group {
 .club-card {
     -fx-background-color: white;
     -fx-background-radius: 10;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-min-width: 300;
     -fx-max-width: 300;
     -fx-cursor: hand;
 }
 
 .club-card:hover {
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 4);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 4);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-translate-y: -2;
 }
 
@@ -186,12 +260,20 @@ Group {
     -fx-background-color: white;
     -fx-padding: 20;
     -fx-background-radius: 10;
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-cursor: hand;
 }
 
 .event-card:hover {
+<<<<<<< HEAD
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 4);
+=======
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 4);
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-translate-y: -2;
 }
 
@@ -224,7 +306,12 @@ Group {
     -fx-padding: 5 0;
 }
 
+<<<<<<< HEAD
 .event-location, .event-time {
+=======
+.event-location,
+.event-time {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     -fx-text-fill: #4B535A;
     -fx-font-size: 14px;
 }
@@ -268,16 +355,23 @@ Group {
     -fx-background-color: transparent;
 }
 
+<<<<<<< HEAD
 /* User Profile Styles */
 .user-profile-container {
     -fx-cursor: hand;
     -fx-padding: 5;
     -fx-background-radius: 5;
     -fx-position: relative;
+=======
+.user-profile-container {
+    -fx-padding: 5;
+    -fx-cursor: hand;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .user-profile-content {
     -fx-padding: 5;
+<<<<<<< HEAD
     -fx-alignment: center;
     -fx-spacing: 10;
 }
@@ -292,10 +386,26 @@ Group {
     -fx-text-fill: #031220;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
+=======
+    -fx-spacing: 10;
+    -fx-alignment: center;
+}
+
+.profile-pic {
+    -fx-background-radius: 22.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+.user-name {
+    -fx-font-size: 16px;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .profile-dropdown {
     -fx-background-color: white;
+<<<<<<< HEAD
     -fx-padding: 10;
     -fx-spacing: 5;
     -fx-background-radius: 5;
@@ -307,10 +417,22 @@ Group {
     -fx-translate-y: 40; /* Push it down below the profile */
     -fx-background-insets: 0;
     -fx-opacity: 1.0;
+=======
+    -fx-padding: 8;
+    -fx-spacing: 5;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 10, 0, 0, 5);
+    -fx-min-width: 180;
+    -fx-translate-y: 52;
+    -fx-border-color: #f0f0f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 }
 
 .dropdown-item {
     -fx-background-color: transparent;
+<<<<<<< HEAD
     -fx-text-fill: #4B535A;
     -fx-padding: 8 5;
     -fx-alignment: center-left;
@@ -328,3 +450,113 @@ Group {
 .separator {
     -fx-padding: 2 0;
 } 
+=======
+    -fx-text-fill: #333333;
+    -fx-padding: 12 15;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-alignment: center-left;
+    -fx-min-width: 150;
+    -fx-background-radius: 5;
+}
+
+.dropdown-item:hover {
+    -fx-background-color: #f0f7ff;
+    -fx-text-fill: #2b4eff;
+    -fx-font-weight: bold;
+}
+
+.dropdown-divider {
+    -fx-padding: 0;
+    -fx-opacity: 0.2;
+}
+
+/* Navigation Dropdown Styles */
+.nav-dropdown-container {
+    -fx-alignment: top-center;
+}
+
+.nav-dropdown-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 8 0;
+    -fx-spacing: 3;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 8, 0, 0, 5);
+    -fx-min-width: 220px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #f0f0f0;
+    -fx-border-width: 1;
+    -fx-translate-y: 48;
+}
+
+.dropdown-item {
+    -fx-padding: 12 18;
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-min-width: 220px;
+}
+
+.dropdown-item:hover {
+    -fx-background-color: #f0f7ff;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: #2b4eff;
+}
+
+.dropdown-item-icon {
+    -fx-font-size: 16px;
+    -fx-fill: #555555;
+    -fx-text-fill: #555555;
+}
+
+.dropdown-item-text {
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-padding: 0 0 0 10;
+}
+
+.dropdown-item:hover .dropdown-item-text {
+    -fx-text-fill: #2b4eff;
+    -fx-font-weight: bold;
+}
+
+.dropdown-item:hover .dropdown-item-icon {
+    -fx-fill: #2b4eff;
+    -fx-text-fill: #2b4eff;
+}
+
+/* Divider styling */
+.dropdown-divider {
+    -fx-background-color: #eeeeee;
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-opacity: 1.0;
+}
+
+/* Add animation effect for smoother dropdown appearance */
+.nav-dropdown-menu {
+    -fx-opacity: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.polls-item:hover {
+    -fx-background-color: #f0fff7;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: #28a745;
+}
+
+.polls-item:hover .dropdown-item-text {
+    -fx-text-fill: #28a745;
+}
+
+.polls-item:hover .dropdown-item-icon {
+    -fx-fill: #28a745;
+    -fx-text-fill: #28a745;
+}
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87

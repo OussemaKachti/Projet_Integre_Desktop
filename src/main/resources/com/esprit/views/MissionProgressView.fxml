@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.esprit.controllers.MissionProgressViewController"
+            prefHeight="600.0" prefWidth="800.0"
+            stylesheets="@../styles/mission-progress.css">
+
+    <!-- Top header section -->
+    <top>
+        <VBox spacing="10" styleClass="header-container">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Club Mission Progress" styleClass="header-title"/>
+            <Label text="Track each club's mission progress in real-time" styleClass="header-subtitle"/>
+
+            <!-- Filter and controls bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="10" right="0" bottom="0" left="0"/>
+                </padding>
+
+                <Label text="Filter:" styleClass="filter-label"/>
+                <ChoiceBox fx:id="filterBox" prefWidth="150"/>
+
+                <Label text="View:" styleClass="filter-label"/>
+                <ChoiceBox fx:id="viewModeBox" prefWidth="150"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button fx:id="refreshButton" text="Refresh" styleClass="refresh-button" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Main content -->
+    <center>
+        <StackPane>
+            <!-- Main clubs view with card layout -->
+            <VBox fx:id="clubsView" fillWidth="true">
+                <ScrollPane fx:id="scrollPane" fitToWidth="true" fitToHeight="false" pannable="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="clubsContainer" spacing="20" styleClass="clubs-container">
+                            <padding>
+                                <Insets top="20" right="380" bottom="200" left="20"/>
+                            </padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <!-- Mission Detail View (Hidden by default) -->
+            <ScrollPane fx:id="missionDetailScrollPane" fitToWidth="true" fitToHeight="false" pannable="true" visible="false" managed="false">
+                <content>
+                    <VBox fx:id="missionDetailView" styleClass="mission-detail-view">
+                        <padding>
+                            <Insets top="20" right="380" bottom="200" left="20"/>
+                        </padding>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Button fx:id="backButton" text="← Back to Clubs" styleClass="back-button"/>
+                            <Label fx:id="detailClubName" styleClass="detail-club-name"/>
+                        </HBox>
+
+                        <Separator>
+                            <padding>
+                                <Insets top="10" bottom="10"/>
+                            </padding>
+                        </Separator>
+
+                        <VBox fx:id="missionDetailsContainer" spacing="15">
+                            <!-- Mission details will be added here dynamically -->
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </StackPane>
+    </center>
+
+    <!-- Bottom status bar -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="status-bar" minHeight="30" prefHeight="30">
+            <padding>
+                <Insets top="5" right="10" bottom="5" left="10"/>
+            </padding>
+            <Label fx:id="statusLabel" text="Ready" styleClass="status-text"/>
+        </HBox>
+    </bottom>
+</BorderPane>

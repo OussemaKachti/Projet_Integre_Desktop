@@ -1,4 +1,5 @@
 // Path: src/main/java/com/esprit/MainApp.java
+// Path: src/main/java/com/esprit/MainApp.java
 package com.esprit;
 
 import java.net.URL;
@@ -10,8 +11,10 @@ import com.esprit.services.UserService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -151,6 +154,7 @@ public void start(Stage stage) {
         if (stage == null) return;
         stage.setMaximized(true);
     }
+
 
     public static void main(String[] args) {
         launch(args);

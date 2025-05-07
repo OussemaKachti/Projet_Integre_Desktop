@@ -1,4 +1,4 @@
-package com.esprit.controllers.crud;
+/*package com.esprit.controllers.crud;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
@@ -27,7 +27,7 @@ import java.util.Optional;
 /**
  * Contrôleur pour la gestion des commentaires de sondage (CRUD)
  */
-public class CommentaireController implements Initializable {
+/*public class CommentaireController implements Initializable {
     
     // Composants de l'interface utilisateur
     @FXML private ComboBox<Sondage> cbSondages;
@@ -54,7 +54,7 @@ public class CommentaireController implements Initializable {
     /**
      * Constructeur
      */
-    public CommentaireController() {
+    /*public CommentaireController() {
         this.commentaireService = new CommentaireService();
         this.sondageService = SondageService.getInstance();
         this.userService = new UserService();
@@ -70,7 +70,7 @@ public class CommentaireController implements Initializable {
     /**
      * Configure la liste déroulante des sondages
      */
-    private void setupSondageComboBox() {
+    /*private void setupSondageComboBox() {
         try {
             ObservableList<Sondage> sondages = sondageService.getAll();
             cbSondages.setItems(sondages);
@@ -119,7 +119,7 @@ public class CommentaireController implements Initializable {
     /**
      * Configure les colonnes du tableau
      */
-    private void setupTable() {
+   /* private void setupTable() {
         colContenu.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getContenuComment()));
             
@@ -139,7 +139,7 @@ public class CommentaireController implements Initializable {
     /**
      * Configure la colonne des actions
      */
-    private void setupActionsColumn() {
+   /* private void setupActionsColumn() {
         colActions.setCellFactory(col -> new TableCell<Commentaire, String>() {
             private final Button editButton = new Button("Modifier");
             private final Button deleteButton = new Button("Supprimer");
@@ -191,7 +191,7 @@ public class CommentaireController implements Initializable {
     /**
      * Configure les événements des boutons
      */
-    private void setupButtons() {
+    /*private void setupButtons() {
         btnSave.setOnAction(e -> saveCommentaire());
         btnUpdate.setOnAction(e -> updateCommentaire());
         btnCancel.setOnAction(e -> resetForm());
@@ -203,7 +203,7 @@ public class CommentaireController implements Initializable {
     /**
      * Charge les commentaires d'un sondage
      */
-    private void loadCommentairesBySondage(Sondage sondage) {
+    /*private void loadCommentairesBySondage(Sondage sondage) {
         try {
             ObservableList<Commentaire> commentaires = commentaireService.getBySondage(sondage.getId());
             tableCommentaires.setItems(commentaires);
@@ -216,7 +216,7 @@ public class CommentaireController implements Initializable {
     /**
      * Crée un nouveau commentaire
      */
-    @FXML
+    /*@FXML
     private void saveCommentaire() {
         Sondage selectedSondage = cbSondages.getSelectionModel().getSelectedItem();
         
@@ -264,7 +264,7 @@ public class CommentaireController implements Initializable {
     /**
      * Met à jour un commentaire existant
      */
-    @FXML
+    /*@FXML
     private void updateCommentaire() {
         if (currentCommentaire == null) {
             return;
@@ -306,7 +306,7 @@ public class CommentaireController implements Initializable {
     /**
      * Prépare le formulaire pour modifier un commentaire existant
      */
-    private void editCommentaire(Commentaire commentaire) {
+   /* private void editCommentaire(Commentaire commentaire) {
         User currentUser = userService.getById(1);
         if (currentUser == null || commentaire.getUser() == null || 
             commentaire.getUser().getId() != currentUser.getId()) {
@@ -333,7 +333,7 @@ public class CommentaireController implements Initializable {
     /**
      * Supprime un commentaire
      */
-    private void deleteCommentaire(Commentaire commentaire) {
+    /*private void deleteCommentaire(Commentaire commentaire) {
         try {
             // Vérifier si l'utilisateur est l'auteur du commentaire
             User currentUser = userService.getById(1);
@@ -368,7 +368,7 @@ public class CommentaireController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
-    private void resetForm() {
+   /* private void resetForm() {
         txtContenu.clear();
         
         // Réinitialiser l'état
@@ -386,11 +386,11 @@ public class CommentaireController implements Initializable {
     /**
      * Affiche une boîte de dialogue
      */
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+   /* private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
-} 
+} */
