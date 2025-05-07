@@ -297,10 +297,7 @@
                         <option>--add-opens</option>
                         <option>javafx.graphics/javafx.scene=ALL-UNNAMED</option>
                     </options>
-                    <modules>
-                        <module>javafx.controls</module>
-                        <module>javafx.fxml</module>
-                    </modules>
+
                 </configuration>
             </plugin>
         </plugins>
