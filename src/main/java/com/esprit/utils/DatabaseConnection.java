@@ -14,7 +14,7 @@ public class DatabaseConnection {
     private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
     
     // Connection details - these would normally be in a properties file
-    private static final String URL = "jdbc:mysql://localhost:3306/dbpi";
+    private static final String URL = "jdbc:mysql://localhost:3306/dbpic";
     private static final String USER = "root";
     private static final String PASSWORD = "";
     

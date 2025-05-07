@@ -1,0 +1,328 @@
+/* Mission Progress View Styles - Card-based Layout */
+
+/* ----- General Styles ----- */
+.root {
+    -fx-background-color: #F5F5F5;
+    -fx-font-family: 'Segoe UI', 'System', sans-serif;
+}
+
+/* ----- Header Styles ----- */
+.header-container {
+    -fx-background-color: #2196F3;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+
+.header-subtitle {
+    -fx-text-fill: white;
+    -fx-opacity: 0.8;
+}
+
+.filter-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Choice Box styles */
+.choice-box {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-mark-color: #2196F3;
+}
+
+.choice-box .label {
+    -fx-text-fill: #212121;
+}
+
+.refresh-button {
+    -fx-background-color: white;
+    -fx-text-fill: #2196F3;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0, 0, 1);
+    -fx-padding: 8 15 8 15;
+}
+
+.refresh-button:hover {
+    -fx-background-color: #E1F5FE;
+}
+
+/* ----- ScrollPane Styles ----- */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0 15 0 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+/* Ensure content is visible below scrollbar */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+    -fx-padding: 0 4 0 0;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #BDBDBD;
+    -fx-background-radius: 5;
+    -fx-background-insets: 0, 0, 0;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+    -fx-padding: 0 2 0 0;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #BDBDBD;
+    -fx-background-radius: 5;
+}
+
+/* ----- Club Card Styles ----- */
+.clubs-container {
+    -fx-background-color: transparent;
+    -fx-min-height: -Infinity; /* Allow container to grow as needed */
+}
+
+
+
+.club-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-padding: 15 15 20 15;
+    -fx-spacing: 10;
+}
+
+/* Compact card styles */
+.compact-card {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+    -fx-padding: 10;
+    -fx-spacing: 8;
+}
+
+.club-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 4);
+    -fx-translate-y: -1;
+}
+
+.club-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.compact-card .club-name {
+    -fx-font-size: 16px;
+}
+
+.points-label {
+    -fx-text-fill: #2196F3;
+    -fx-font-weight: bold;
+}
+
+.compact-card .points-label {
+    -fx-font-size: 13px;
+}
+
+/* ----- Mission Box Styles ----- */
+.mission-box {
+    -fx-background-color: #F5F5F5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 5 10 5;
+    -fx-spacing: 5;
+}
+
+.mission-name {
+    -fx-font-weight: bold;
+}
+
+.mission-points-label {
+    -fx-text-fill: #FF9800;
+    -fx-font-weight: bold;
+}
+
+.mission-completed-label {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 3;
+}
+
+.goal-type-label {
+    -fx-font-style: italic;
+    -fx-text-fill: #757575;
+}
+
+.deadline-label {
+    -fx-font-style: italic;
+    -fx-text-fill: #757575;
+}
+
+/* ----- Progress Bar Styles ----- */
+.progress-bar {
+    -fx-background-color: #E0E0E0;
+    -fx-background-radius: 5;
+    -fx-accent: #2196F3;
+}
+
+.compact-card .progress-bar {
+    -fx-pref-height: 6;
+}
+
+.progress-bar .track {
+    -fx-background-color: #E0E0E0;
+    -fx-background-radius: 5;
+}
+
+.progress-bar .bar {
+    -fx-background-radius: 5;
+}
+
+.progress-bar-completed {
+    -fx-accent: #4CAF50;
+}
+
+.progress-bar-halfway {
+    -fx-accent: #FFC107;
+}
+
+.progress-bar-starting {
+    -fx-accent: #2196F3;
+}
+
+/* ----- View Details Button ----- */
+.view-button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-min-width: 100;
+}
+
+.view-button:hover {
+    -fx-background-color: #1976D2;
+}
+
+/* ----- Summary Styles ----- */
+.summary-box {
+    -fx-spacing: 20;
+    -fx-padding: 5 0 0 0;
+}
+
+.completed-missions-label {
+    -fx-text-fill: #4CAF50;
+}
+
+.earned-points-label {
+    -fx-text-fill: #FFA000;
+}
+
+/* ----- Status Bar Styles ----- */
+.status-bar {
+    -fx-background-color: #E0E0E0;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #BDBDBD;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+}
+
+.status-text {
+    -fx-text-fill: #616161;
+    -fx-font-size: 11px;
+}
+
+/* ----- Mission Detail Styles ----- */
+.mission-detail-view {
+    -fx-background-color: white;
+    -fx-padding: 20 400 20 20;
+
+    -fx-spacing: 20;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.detail-club-name {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2196F3;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2196F3;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-text-fill: #1976D2;
+}
+
+/* ----- Pagination Styles ----- */
+.pagination-box {
+    -fx-background-color: white;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+.pagination-box Button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-padding: 5 15;
+    -fx-background-radius: 5;
+}
+
+.pagination-box Button:hover {
+    -fx-background-color: #1976D2;
+}
+
+.pagination-box Button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.page-info {
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+}
+
+/* ----- Empty State Styles ----- */
+.empty-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: #757575;
+    -fx-padding: 40;
+}
+
+.no-missions-label {
+    -fx-font-style: italic;
+    -fx-text-fill: #757575;
+    -fx-padding: 5 0 5 0;
+}

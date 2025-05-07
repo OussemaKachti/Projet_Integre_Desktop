@@ -12,11 +12,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -35,36 +38,124 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CompetitionUserController {
+import com.esprit.MainApp;
+import com.esprit.models.User;
+import com.esprit.utils.SessionManager;
+import javafx.fxml.Initializable;
+import java.util.ResourceBundle;
+
+public class CompetitionUserController implements Initializable{
 
     private final CompetitionService competitionService = new CompetitionService();
     private final SaisonService saisonService = new SaisonService();
     private final ClubService clubService = ClubService.getInstance();
-
+    private User currentUser;
+    // Main container
     @FXML private AnchorPane competitionUserPane;
+
+    // Header components
+    @FXML private ImageView userProfilePic;
+    @FXML private Label userNameLabel;
+    @FXML private StackPane userProfileContainer;
+    @FXML private VBox profileDropdown;
+
+    // Season navigation components
     @FXML private FlowPane seasonsContainer;
+    @FXML private Button prevSeasonsButton;
+    @FXML private Button nextSeasonsButton;
+    @FXML private Label seasonPageIndicator;
+    @FXML private VBox noSeasonsContainer;
+
+    // Missions components
     @FXML private VBox missionsContainer;
+    @FXML private VBox noMissionsContainer;
+    @FXML private Label missionCountLabel;
+
+    // Leaderboard components
     @FXML private TableView<Club> leaderboardTable;
     @FXML private TableColumn<Club, Integer> rankColumn;
     @FXML private TableColumn<Club, String> clubColumn;
     @FXML private TableColumn<Club, Integer> pointsColumn;
+    @FXML private HBox topPerformersContainer;
+
+    // Navigation and UI components
     @FXML private Button backButton;
     @FXML private Label seasonTitle;
 
+    // State variables
     private Saison currentSeason;
+    private List<Saison> allSeasons = new ArrayList<>();
+    private List<List<Saison>> seasonPages = new ArrayList<>();
+    private int currentSeasonPageIndex = 0;
+    private final int SEASONS_PER_PAGE = 5;
 
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         try {
+            // Get current user from session
+            currentUser = SessionManager.getInstance().getCurrentUser();
+
+            if (currentUser != null) {
+                // Set user name
+                userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+                // Load profile picture
+                String profilePicture = currentUser.getProfilePicture();
+                if (profilePicture != null && !profilePicture.isEmpty()) {
+                    try {
+                        File imageFile = new File("uploads/profiles/" + profilePicture);
+                        if (imageFile.exists()) {
+                            Image image = new Image(imageFile.toURI().toString());
+                            userProfilePic.setImage(image);
+
+                            // Keep aspect ratio
+                            userProfilePic.setPreserveRatio(true);
+                            userProfilePic.setFitHeight(40);
+                            userProfilePic.setFitWidth(40);
+                        } else {
+                            loadDefaultProfilePic();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        loadDefaultProfilePic();
+                    }
+                } else {
+                    loadDefaultProfilePic();
+                }
+
+                // Apply circular clip to profile picture
+                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
+                userProfilePic.setClip(clip);
+
+                // Ensure dropdown is properly positioned and hidden initially
+                javafx.application.Platform.runLater(() -> {
+                    profileDropdown.setVisible(false);
+                    profileDropdown.setManaged(false);
+                    profileDropdown.toFront();
+
+                    // Position the dropdown properly
+                    userProfileContainer.layout(); // Force layout to calculate proper size
+                    // Set mouse event handlers for better interaction
+                    profileDropdown.setOnMouseEntered(e -> profileDropdown.setVisible(true));
+                    profileDropdown.setOnMouseExited(e -> {
+                        if (!userProfileContainer.isHover()) {
+                            hideProfileDropdown();
+                        }
+                    });
+                });
+            }
+
             // Set up back button with icon
-            FontIcon backIcon = new FontIcon("fas-arrow-left");
-            backIcon.setIconColor(Color.WHITE);
-            backButton.setGraphic(backIcon);
-            backButton.setOnAction(event -> navigateBack());
+            setupBackButton();
+
+            // Set up season navigation
+            setupSeasonNavigation();
 
             // Load seasons
             loadSeasons();
@@ -86,37 +177,256 @@ public class CompetitionUserController {
         fadeInNode(competitionUserPane, 300);
     }
 
+    private void loadDefaultProfilePic() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            userProfilePic.setImage(defaultImage);
+            userProfilePic.setPreserveRatio(true);
+            userProfilePic.setFitHeight(40);
+            userProfilePic.setFitWidth(40);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupUserProfile() {
+        // Load user profile image (placeholder for now)
+        try {
+            URL profileImageUrl = getClass().getResource("/com/esprit/images/profile_placeholder.png");
+            if (profileImageUrl != null) {
+                userProfilePic.setImage(new Image(profileImageUrl.toExternalForm()));
+            }
+
+            // Set user name from session (placeholder for now)
+            userNameLabel.setText("John Doe"); // Replace with actual user name from session
+        } catch (Exception e) {
+            System.err.println("Error loading profile image: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void toggleProfileDropdown() {
+        if (profileDropdown.isVisible()) {
+            hideProfileDropdown();
+        } else {
+            showProfileDropdown();
+        }
+    }
+
+    @FXML
+    public void showProfileDropdown() {
+        System.out.println("Showing profile dropdown"); // Debug message
+
+        // Ensure dropdown is visible and positioned correctly
+        profileDropdown.toFront();
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
+
+        // Position the dropdown correctly
+        double xOffset = 0;
+        double yOffset = userProfileContainer.getHeight() + 5;
+        profileDropdown.setTranslateX(xOffset);
+        profileDropdown.setTranslateY(yOffset);
+    }
+
+    @FXML
+    public void hideProfileDropdown() {
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
+    }
+
+    private void setupBackButton() {
+        FontIcon backIcon = new FontIcon("fas-arrow-left");
+        backIcon.setIconColor(Color.WHITE);
+        backButton.setGraphic(backIcon);
+        backButton.setOnAction(event -> navigateBack());
+    }
+
+    private void setupSeasonNavigation() {
+        // Initially disable buttons until we know if we have multiple pages
+        prevSeasonsButton.setDisable(true);
+        nextSeasonsButton.setDisable(true);
+
+        // Set up click handlers
+        prevSeasonsButton.setOnAction(e -> showPreviousSeasons());
+        nextSeasonsButton.setOnAction(e -> showNextSeasons());
+    }
+
+    @FXML
+    public void navigateToHome() {
+        navigate("/com/esprit/views/home.fxml");
+    }
+
+    @FXML
+    public void navigateToClubs() {
+        navigate("/com/esprit/views/clubs.fxml");
+    }
+
+    @FXML
+    public void navigateToEvents() {
+        navigate("/com/esprit/views/events.fxml");
+    }
+
+    @FXML
+    public void navigateToProducts() {
+        navigate("/com/esprit/views/products.fxml");
+    }
+
+    @FXML
+    public void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void navigateToContact() {
+        navigate("/com/esprit/views/contact.fxml");
+    }
+
+    @FXML
+    public void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
     private void navigateBack() {
         try {
             URL dashboardUrl = getClass().getResource("/com/esprit/views/dashboard.fxml");
             if (dashboardUrl == null) {
                 throw new IOException("Cannot find dashboard.fxml resource");
             }
-            
-            FXMLLoader loader = new FXMLLoader(dashboardUrl);
-            AnchorPane previousScene = loader.load();
-            competitionUserPane.getChildren().setAll(previousScene);
+
+            navigate(dashboardUrl.getPath());
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate back: " + e.getMessage());
         }
     }
 
+    private void navigate(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to: " + fxmlPath + "\nError: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void showPreviousSeasons() {
+        if (currentSeasonPageIndex > 0) {
+            currentSeasonPageIndex--;
+            updateSeasonsPage();
+        }
+    }
+
+    @FXML
+    public void showNextSeasons() {
+        if (currentSeasonPageIndex < seasonPages.size() - 1) {
+            currentSeasonPageIndex++;
+            updateSeasonsPage();
+        }
+    }
+
+    private void updateSeasonsPage() {
+        // Update page indicator
+        seasonPageIndicator.setText((currentSeasonPageIndex + 1) + "/" + seasonPages.size());
+
+        // Update button states
+        prevSeasonsButton.setDisable(currentSeasonPageIndex == 0);
+        nextSeasonsButton.setDisable(currentSeasonPageIndex >= seasonPages.size() - 1);
+
+        // Display seasons for current page
+        displaySeasons(seasonPages.get(currentSeasonPageIndex));
+    }
+
     private void loadSeasons() throws SQLException {
         seasonsContainer.getChildren().clear();
+        allSeasons.clear();
+        seasonPages.clear();
 
+        // Get all seasons
         List<Saison> seasons = saisonService.getAll();
 
-        // Determine current season (most recent)
-        if (!seasons.isEmpty()) {
-            currentSeason = seasons.stream()
-                    .max(Comparator.comparing(Saison::getDateFin))
-                    .orElse(seasons.get(0));
+        if (seasons.isEmpty()) {
+            // Show empty state
+            noSeasonsContainer.setVisible(true);
+            noSeasonsContainer.setManaged(true);
+            seasonPageIndicator.setText("0/0");
+            prevSeasonsButton.setDisable(true);
+            nextSeasonsButton.setDisable(true);
+            return;
+        } else {
+            noSeasonsContainer.setVisible(false);
+            noSeasonsContainer.setManaged(false);
+        }
+
+        // Sort seasons by end date (closest to end first)
+        allSeasons = seasons.stream()
+                .sorted(Comparator.comparing(Saison::getDateFin))
+                .collect(Collectors.toList());
+
+        // Determine current season (most recent active)
+        if (!allSeasons.isEmpty()) {
+            Optional<Saison> activeSeason = allSeasons.stream()
+                    .filter(s -> s.getDateFin().isAfter(LocalDate.now()))
+                    .min(Comparator.comparing(Saison::getDateFin));
+
+            if (activeSeason.isPresent()) {
+                currentSeason = activeSeason.get();
+            } else {
+                currentSeason = allSeasons.get(0);
+            }
 
             // Update the title if seasonTitle exists
             if (seasonTitle != null) {
                 seasonTitle.setText(currentSeason.getNomSaison());
             }
         }
+
+        // Create pages of seasons
+        for (int i = 0; i < allSeasons.size(); i += SEASONS_PER_PAGE) {
+            int end = Math.min(i + SEASONS_PER_PAGE, allSeasons.size());
+            seasonPages.add(allSeasons.subList(i, end));
+        }
+
+        // Set initial page
+        currentSeasonPageIndex = 0;
+
+        // Find which page contains the current season
+        if (currentSeason != null) {
+            for (int i = 0; i < seasonPages.size(); i++) {
+                if (seasonPages.get(i).contains(currentSeason)) {
+                    currentSeasonPageIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Update page indicator
+        seasonPageIndicator.setText((currentSeasonPageIndex + 1) + "/" + seasonPages.size());
+
+        // Update button states
+        prevSeasonsButton.setDisable(currentSeasonPageIndex == 0);
+        nextSeasonsButton.setDisable(currentSeasonPageIndex >= seasonPages.size() - 1 || seasonPages.size() <= 1);
+
+        // Display seasons for current page
+        if (!seasonPages.isEmpty()) {
+            displaySeasons(seasonPages.get(currentSeasonPageIndex));
+        }
+    }
+
+    private void displaySeasons(List<Saison> seasons) {
+        seasonsContainer.getChildren().clear();
 
         // Add seasons to container with delay for animation effect
         for (int i = 0; i < seasons.size(); i++) {
@@ -237,16 +547,22 @@ public class CompetitionUserController {
         Label endDateLabel = new Label(formatEndDate(season.getDateFin()));
         endDateLabel.getStyleClass().add("season-date");
 
+        // Active/Inactive badge
+        Label statusBadge = new Label(season.getDateFin().isAfter(LocalDate.now()) ? "ACTIVE" : "PAST");
+        statusBadge.getStyleClass().add("season-badge");
+        if (!season.getDateFin().isAfter(LocalDate.now())) {
+            statusBadge.getStyleClass().add("season-badge-past");
+        }
+
+        // Position the badge in the top-right corner
+        StackPane badgeContainer = new StackPane();
+        badgeContainer.setAlignment(Pos.TOP_RIGHT);
+        badgeContainer.getChildren().add(statusBadge);
+        StackPane.setMargin(statusBadge, new Insets(-20, -20, 0, 0));
+
         // If this is the current season, highlight it
         if (currentSeason != null && currentSeason.getId() == season.getId()) {
             card.getStyleClass().add("current-season");
-
-            // Add current indicator
-            Label currentLabel = new Label("CURRENT");
-            currentLabel.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 10px; " +
-                    "-fx-padding: 3px 8px; -fx-background-radius: 3px;");
-            currentLabel.setTranslateX(50);
-            currentLabel.setTranslateY(-85);
         }
 
         // Make the card clickable to display its missions
@@ -270,7 +586,15 @@ public class CompetitionUserController {
             }
         });
 
-        card.getChildren().addAll(iconContainer, titleLabel, descLabel, endDateLabel);
+        // Add components to card (with badge overlay)
+        VBox cardContent = new VBox(iconContainer, titleLabel, descLabel, endDateLabel);
+        cardContent.setAlignment(Pos.CENTER);
+        cardContent.setSpacing(10);
+
+        StackPane cardWithBadge = new StackPane();
+        cardWithBadge.getChildren().addAll(cardContent, badgeContainer);
+
+        card.getChildren().add(cardWithBadge);
         return card;
     }
 
@@ -287,10 +611,13 @@ public class CompetitionUserController {
         missionsContainer.getChildren().clear();
 
         if (currentSeason == null) {
-            Label noMissionsLabel = new Label("No active season found.");
-            noMissionsLabel.getStyleClass().add("no-data-label");
-            missionsContainer.getChildren().add(noMissionsLabel);
+            noMissionsContainer.setVisible(true);
+            noMissionsContainer.setManaged(true);
+            missionCountLabel.setText("(0)");
             return;
+        } else {
+            noMissionsContainer.setVisible(false);
+            noMissionsContainer.setManaged(false);
         }
 
         // Get missions for the current season
@@ -298,10 +625,12 @@ public class CompetitionUserController {
                 .filter(m -> m.getSaisonId() != null && m.getSaisonId().getId() == currentSeason.getId())
                 .collect(Collectors.toList());
 
+        // Update mission count
+        missionCountLabel.setText("(" + missions.size() + ")");
+
         if (missions.isEmpty()) {
-            Label noMissionsLabel = new Label("No missions available for the current season.");
-            noMissionsLabel.getStyleClass().add("no-data-label");
-            missionsContainer.getChildren().add(noMissionsLabel);
+            noMissionsContainer.setVisible(true);
+            noMissionsContainer.setManaged(true);
             return;
         }
 
@@ -319,6 +648,7 @@ public class CompetitionUserController {
         item.getStyleClass().add("mission-item");
         item.setAlignment(Pos.CENTER_LEFT);
         item.setPadding(new Insets(15));
+        item.setSpacing(15);
         item.setOpacity(0); // Start invisible for animation
 
         // Left side with mission icon
@@ -510,6 +840,128 @@ public class CompetitionUserController {
         clubs.sort(Comparator.comparing(Club::getPoints).reversed());
 
         leaderboardTable.setItems(FXCollections.observableArrayList(clubs));
+
+        // Update top performers section
+        updateTopPerformers(clubs);
+    }
+
+    private void updateTopPerformers(List<Club> clubs) {
+        topPerformersContainer.getChildren().clear();
+
+        // Only display if we have enough clubs
+        if (clubs.size() < 3) {
+            return;
+        }
+
+        // Get top 3 clubs
+        List<Club> topClubs = clubs.subList(0, Math.min(3, clubs.size()));
+
+        // Create performer cards
+        for (int i = 0; i < topClubs.size(); i++) {
+            VBox performerCard = createTopPerformerCard(topClubs.get(i), i + 1);
+            topPerformersContainer.getChildren().add(performerCard);
+        }
+    }
+
+    private VBox createTopPerformerCard(Club club, int rank) {
+        VBox card = new VBox();
+        card.setAlignment(Pos.CENTER);
+        card.setSpacing(5);
+        card.getStyleClass().add("top-performer");
+
+        if (rank == 1) {
+            card.getStyleClass().add("top-performer-first");
+        } else if (rank == 2) {
+            card.getStyleClass().add("top-performer-second");
+        } else if (rank == 3) {
+            card.getStyleClass().add("top-performer-third");
+        }
+
+        // Avatar container with colored circle
+        StackPane avatarContainer = new StackPane();
+        avatarContainer.getStyleClass().add("top-performer-avatar-container");
+
+        Circle avatarBg = new Circle(25);
+        avatarBg.getStyleClass().add("top-performer-avatar-bg");
+
+        // Club logo or default icon
+        ImageView logoView = new ImageView();
+        try {
+            String logoPath = club.getLogo();
+            if (logoPath != null && !logoPath.isEmpty()) {
+                File logoFile = new File(logoPath);
+                if (logoFile.exists()) {
+                    logoView.setImage(new Image(logoFile.toURI().toString()));
+                } else {
+                    // Try resource path
+                    URL resourceUrl = getClass().getResource(logoPath);
+                    if (resourceUrl != null) {
+                        logoView.setImage(new Image(resourceUrl.toExternalForm()));
+                    } else {
+                        // Use placeholder
+                        URL placeholderUrl = getClass().getResource("/com/esprit/images/club_placeholder.png");
+                        if (placeholderUrl != null) {
+                            logoView.setImage(new Image(placeholderUrl.toExternalForm()));
+                        }
+                    }
+                }
+            } else {
+                // Use placeholder
+                URL placeholderUrl = getClass().getResource("/com/esprit/images/club_placeholder.png");
+                if (placeholderUrl != null) {
+                    logoView.setImage(new Image(placeholderUrl.toExternalForm()));
+                }
+            }
+        } catch (Exception e) {
+            // Use a default club icon if image loading fails
+            FontIcon clubIcon = new FontIcon("fas-shield-alt");
+            clubIcon.setIconColor(Color.web("#4a90e2"));
+            clubIcon.setIconSize(24);
+            avatarContainer.getChildren().addAll(avatarBg, clubIcon);
+        }
+
+        if (logoView.getImage() != null) {
+            logoView.setFitHeight(30);
+            logoView.setFitWidth(30);
+            logoView.setPreserveRatio(true);
+            avatarContainer.getChildren().addAll(avatarBg, logoView);
+        } else if (avatarContainer.getChildren().isEmpty()) {
+            // If no image and no icon added yet, add default icon
+            FontIcon clubIcon = new FontIcon("fas-shield-alt");
+            clubIcon.setIconColor(Color.web("#4a90e2"));
+            clubIcon.setIconSize(24);
+            avatarContainer.getChildren().addAll(avatarBg, clubIcon);
+        }
+
+        // Club name
+        Label nameLabel = new Label(club.getNomC());
+        nameLabel.getStyleClass().add("top-performer-name");
+
+        // Rank label
+        String rankText;
+        switch (rank) {
+            case 1:
+                rankText = "1st Place";
+                break;
+            case 2:
+                rankText = "2nd Place";
+                break;
+            case 3:
+                rankText = "3rd Place";
+                break;
+            default:
+                rankText = rank + "th Place";
+        }
+
+        Label rankLabel = new Label(rankText);
+        rankLabel.getStyleClass().add("top-performer-rank");
+
+        // Points label with subtle styling
+        Label pointsLabel = new Label(club.getPoints() + " pts");
+        pointsLabel.getStyleClass().add("top-performer-rank");
+
+        card.getChildren().addAll(avatarContainer, nameLabel, rankLabel, pointsLabel);
+        return card;
     }
 
     // Utility method for fade-in animation
@@ -526,7 +978,7 @@ public class CompetitionUserController {
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
-        
+
         try {
             // Apply custom CSS with proper error handling
             DialogPane dialogPane = alert.getDialogPane();
@@ -535,7 +987,7 @@ public class CompetitionUserController {
                 String css = cssResource.toExternalForm();
                 dialogPane.getStylesheets().add(css);
                 dialogPane.getStyleClass().add("custom-alert");
-                
+
                 // Try to add icon if available
                 URL iconResource = getClass().getResource("/com/esprit/images/unicorn.png");
                 if (iconResource != null) {
@@ -549,7 +1001,7 @@ public class CompetitionUserController {
             System.err.println("Failed to apply custom styling to alert: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         // The alert will show with or without custom styling
         alert.showAndWait();
     }
@@ -559,6 +1011,7 @@ public class CompetitionUserController {
     }
 
     // Utility method to refresh the competition view
+    @FXML
     public void refreshView() {
         try {
             loadSeasons();
@@ -567,6 +1020,56 @@ public class CompetitionUserController {
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Refresh Error",
                     "Could not refresh competition data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Navigate to the Mission Progress view
+     * This improved method ensures the view is properly initialized and displayed
+     */
+    @FXML
+    public void navigateToMissionProgress() {
+        try {
+            // Load the Mission Progress view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/MissionProgressView.fxml"));
+            Parent missionProgressView = loader.load();
+
+            // Get reference to the controller
+            MissionProgressViewController controller = loader.getController();
+
+            // Explicitly call refresh to ensure data is loaded
+            controller.refreshData();
+
+            // Create a new scene to avoid any container conflicts
+            Scene scene = new Scene(missionProgressView);
+
+            // Get CSS stylesheets from current scene and add them to new scene
+            Scene currentScene = competitionUserPane.getScene();
+            if (currentScene != null && currentScene.getStylesheets() != null) {
+                scene.getStylesheets().addAll(currentScene.getStylesheets());
+            }
+
+            // Add specific stylesheet for mission progress if needed
+            URL cssUrl = getClass().getResource("/com/esprit/styles/mission-progress.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
+            // Set the new scene to the stage
+            Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+            stage.setScene(scene);
+
+            // Log navigation
+            System.out.println("Navigated to Mission Progress View");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Display error to user
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Could not load Mission Progress view");
+            alert.setContentText("An error occurred while trying to navigate to the Mission Progress view: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 }

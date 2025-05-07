@@ -193,13 +193,15 @@ public class AdminCommentsController implements Initializable {
                 updateBarChart();
             }
         });
-        
-        // Add listener to insightsClubComboBox to update only the chart when selection changes
-        insightsClubComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                updateBarChart();
-            }
-        });
+
+        // Add listener to insightsClubComboBox to update only the chart when selection
+        // changes
+        insightsClubComboBox.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        updateBarChart();
+                    }
+                });
     }
 
     private void setupTableColumns() {
@@ -589,7 +591,7 @@ public class AdminCommentsController implements Initializable {
 
     /**
      * Trouve l'utilisateur ayant posté le plus de commentaires
-     * 
+     *
      * @param comments Liste des commentaires
      */
     private void findMostActiveUser(List<Commentaire> comments) {
@@ -897,7 +899,7 @@ public class AdminCommentsController implements Initializable {
 
         // Configurer les autres boutons de navigation si nécessaire
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
-        
+
         // Competition button handler to navigate to AdminSaisons.fxml
         competitionBtn.setOnAction(event -> {
             try {
@@ -921,12 +923,13 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to seasons management: " + e.getMessage(), "error");
             }
         });
-        
+
         // Add navigation to AdminProduitView for productOrdersBtn
         productOrdersBtn.setOnAction(event -> {
             try {
                 // Load the product management view
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
                 Parent root = loader.load();
 
                 // Get current stage from the button's scene
@@ -945,7 +948,7 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to product management: " + e.getMessage(), "error");
             }
         });
-        
+
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
         logoutBtn.setOnAction(e -> handleLogout());
 
@@ -956,11 +959,12 @@ public class AdminCommentsController implements Initializable {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
                     Parent root = loader.load();
-                    
+
                     Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                    
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
                     stage.setScene(scene);
                     stage.setMaximized(true);
                     stage.show();
@@ -969,17 +973,18 @@ public class AdminCommentsController implements Initializable {
                     showToast("Error navigating to event management: " + e.getMessage(), "error");
                 }
             });
-            
+
             // Category Management navigation
             ((Button) eventsSubMenu.getChildren().get(1)).setOnAction(event -> {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
                     Parent root = loader.load();
-                    
+
                     Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                    
+                    scene.getStylesheets()
+                            .add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
                     stage.setScene(scene);
                     stage.setMaximized(true);
                     stage.show();

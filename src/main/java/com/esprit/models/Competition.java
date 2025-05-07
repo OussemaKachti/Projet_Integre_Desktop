@@ -16,7 +16,7 @@ public class Competition {
     private final ObjectProperty<GoalTypeEnum> goalType = new SimpleObjectProperty<>();
     private final IntegerProperty goalValue = new SimpleIntegerProperty();
     private final ObjectProperty<Saison> saisonId = new SimpleObjectProperty<>();
-    private final StringProperty status = new SimpleStringProperty("activated"); // default status
+    private final StringProperty status = new SimpleStringProperty(); // default status
 
     public Competition() {
         // Default constructor
@@ -145,4 +145,32 @@ public class Competition {
     public StringProperty statusProperty() {
         return status;
     }
+    /**
+     * Calculate and return the status based on start and end dates compared to current time
+     * @return "activated" or "deactivated" based on date logic
+     */
+    public String calculateStatus() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // If there's no start or end date, default to deactivated
+        if (getStartDate() == null || getEndDate() == null) {
+            return "deactivated";
+        }
+
+        // If current time is between start and end dates, it's active
+        if (now.isAfter(getStartDate()) && now.isBefore(getEndDate())) {
+            return "activated";
+        }
+
+        // If current time is before start date or after end date, it's inactive
+        return "deactivated";
+    }
+
+    /**
+     * Updates the status based on current time and dates
+     */
+    public void updateStatus() {
+        setStatus(calculateStatus());
+    }
+
 }
