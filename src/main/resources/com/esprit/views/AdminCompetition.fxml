@@ -1,136 +1,380 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import org.kordamp.ikonli.javafx.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<?import java.net.URL?>
-<AnchorPane fx:id="competitionListPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionController" styleClass="content-wrapper">
-    <stylesheets>
-        <URL value="@styles/competitions.css" />
-    </stylesheets>
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionController">
+    <!-- Main Content -->
+    <BorderPane stylesheets="@../styles/uniclubs.css,@../styles/no-scrollbar.css,@../styles/competitions.css">
+        <left>
+            <!-- Sidebar Navigation - From admin template -->
+            <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+                <padding>
+                    <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+                </padding>
 
-    <VBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-        <!-- Header Section -->
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="page-header">
-            <Button fx:id="backButton" styleClass="back-button">
-                <graphic>
-                    <FontIcon iconLiteral="mdi-arrow-left" iconSize="20" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Back to Dashboard" />
-                </tooltip>
-            </Button>
-
-            <Label text="Missions Management" styleClass="page-title" />
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <Button fx:id="refreshButton" styleClass="action-button">
-                <graphic>
-                    <FontIcon iconLiteral="mdi-refresh" iconSize="16" />
-                </graphic>
-                <tooltip>
-                    <Tooltip text="Refresh" />
-                </tooltip>
-            </Button>
-
-            <Button fx:id="addButton" styleClass="primary-button">
-                <graphic>
-                    <FontIcon iconLiteral="mdi-plus" iconSize="16" />
-                </graphic>
-                <text>Add Mission</text>
-                <tooltip>
-                    <Tooltip text="Add New Mission" />
-                </tooltip>
-                <HBox.margin>
-                    <Insets right="20" />
-                </HBox.margin>
-            </Button>
-        </HBox>
-
-        <!-- Main Content Card -->
-        <StackPane VBox.vgrow="ALWAYS" styleClass="card">
-            <!-- Header Title -->
-            <VBox VBox.vgrow="ALWAYS">
-                <HBox alignment="CENTER_LEFT" styleClass="card-header">
-                    <Label text="Missions" styleClass="card-title" />
+                <!-- Application Logo -->
+                <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+                    <Label text="UNICLUBS" styleClass="logo-text">
+                        <font>
+                            <Font name="System Bold" size="20.0" />
+                        </font>
+                    </Label>
                 </HBox>
 
-                <!-- Main Content Area with StackPane for overlaying form -->
-                <StackPane VBox.vgrow="ALWAYS" styleClass="card-body">
-                    <!-- Competition List Container -->
-                    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="transparent-background">
-                        <VBox fx:id="missionListContainer" spacing="15" styleClass="mission-list" VBox.vgrow="ALWAYS">
-                            <!-- Mission cards will be added here dynamically -->
-                        </VBox>
-                    </ScrollPane>
+                <Separator>
+                    <VBox.margin>
+                        <Insets top="20.0" bottom="20.0" />
+                    </VBox.margin>
+                </Separator>
 
-                    <!-- Mission Form Container (Initially hidden) -->
-                    <VBox fx:id="missionFormContainer" spacing="15" styleClass="form-container" visible="false" managed="false" VBox.vgrow="NEVER">
-                        <HBox alignment="CENTER_LEFT" styleClass="form-header">
-                            <Label fx:id="formTitleLabel" text="Add Mission" styleClass="form-title" />
+                <!-- Admin Info -->
+                <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <Label text="Administrator" styleClass="admin-role" />
+
+                <Separator>
+                    <VBox.margin>
+                        <Insets top="20.0" bottom="20.0" />
+                    </VBox.margin>
+                </Separator>
+
+                <!-- Menu Items -->
+                <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+                    <Button fx:id="userManagementButton" onAction="#showUserManagement" styleClass="sidebar-button" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="👤" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="clubManagementButton" onAction="#showClubManagement" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="🏛️" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="eventManagementButton" onAction="#showEventManagement" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="📅" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="productOrdersButton" onAction="#showProductOrders" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="🛒" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button, active" text="Competition &amp; Mission" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="🏆" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="📊" />
+                        </graphic>
+                    </Button>
+
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <!-- Bottom Menu Options -->
+                <VBox spacing="5.0">
+                    <Button fx:id="profileButton" onAction="#navigateToProfile" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="👤" />
+                        </graphic>
+                    </Button>
+
+                    <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="🚪" />
+                        </graphic>
+                    </Button>
+                </VBox>
+            </VBox>
+        </left>
+
+        <center>
+            <!-- Main Content Area -->
+            <BorderPane fx:id="contentArea" style="-fx-background-color: #f6f9fe;">
+                <top>
+                    <!-- Header -->
+                    <HBox alignment="CENTER_LEFT" styleClass="dashboard-header" spacing="20.0" style="-fx-padding: 20; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                        <padding>
+                            <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+                        </padding>
+
+                        <Label fx:id="contentTitle" text="Mission Management" styleClass="dashboard-title">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                            <!-- Search Box -->
+                            <TextField fx:id="searchField" promptText="Search missions..." prefWidth="250.0"
+                                       style="-fx-background-color: #f8f9fa; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 20;" />
+                            <Button fx:id="searchButton" text="Search" styleClass="button-primary" onAction="#handleSearch" />
+
+                            <Circle radius="18" fill="#1e90ff" />
+                        </HBox>
+                    </HBox>
+                </top>
+
+                <center>
+                    <VBox style="-fx-padding: 20 40;">
+                        <!-- Page Info -->
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 5 0;">
+                            <VBox>
+                                <Label text="Missions" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="28"/>
+                                    </font>
+                                </Label>
+                                <Label text="Manage all your club missions from here" style="-fx-text-fill: #666666;">
+                                    <font>
+                                        <Font name="Arial" size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
                             <Region HBox.hgrow="ALWAYS" />
-                            <Button fx:id="closeFormButton" styleClass="close-button">
+
+                            <Label fx:id="dateLabel" text="Today: Wednesday, April 30, 2025" style="-fx-text-fill: #666666;">
+                                <font>
+                                    <Font name="Arial Italic" size="14"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <!-- Stats Cards -->
+                        <HBox style="-fx-padding: 15 0 15 0;" spacing="20">
+                            <!-- Stats Card 1 -->
+                            <VBox prefWidth="200" minWidth="200" maxWidth="200"
+                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;
+                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                                  HBox.hgrow="ALWAYS">
+                                <Label text="Total Missions" style="-fx-text-fill: #666666;">
+                                    <font>
+                                        <Font name="Arial" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="totalMissionsLabel" text="0"
+                                       style="-fx-text-fill: #040f71; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="28"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Stats Card 2 -->
+                            <VBox prefWidth="200" minWidth="200" maxWidth="200"
+                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;
+                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                                  HBox.hgrow="ALWAYS">
+                                <Label text="Active Missions" style="-fx-text-fill: #666666;">
+                                    <font>
+                                        <Font name="Arial" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="activeMissionsLabel" text="0"
+                                       style="-fx-text-fill: #28a745; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="28"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <!-- Stats Card 3 -->
+                            <VBox prefWidth="200" minWidth="200" maxWidth="200"
+                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;
+                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                                  HBox.hgrow="ALWAYS">
+                                <Label text="Completed Missions" style="-fx-text-fill: #666666;">
+                                    <font>
+                                        <Font name="Arial" size="14"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="completedMissionsLabel" text="0"
+                                       style="-fx-text-fill: #fd7e14; -fx-font-weight: bold;">
+                                    <font>
+                                        <Font name="Arial Bold" size="28"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Filter and Actions Bar -->
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 15 0;">
+                            <ComboBox fx:id="statusFilter" prefWidth="150.0" promptText="Status"
+                                      style="-fx-background-color: white; -fx-border-color: #dddddd; -fx-border-radius: 5; -fx-background-radius: 5;">
+                                <HBox.margin>
+                                    <Insets right="5" />
+                                </HBox.margin>
+                            </ComboBox>
+                            <ComboBox fx:id="seasonFilter" prefWidth="150.0" promptText="Season"
+                                      style="-fx-background-color: white; -fx-border-color: #dddddd; -fx-border-radius: 5; -fx-background-radius: 5;">
+                            </ComboBox>
+
+                            <Region HBox.hgrow="ALWAYS" />
+
+                            <Button fx:id="addButton"
+                                    style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;">
                                 <graphic>
-                                    <FontIcon iconLiteral="mdi-close" iconSize="16" />
+                                    <Label text="+ Add New Mission" style="-fx-text-fill: white;">
+                                        <font>
+                                            <Font name="Arial Bold" size="13"/>
+                                        </font>
+                                    </Label>
                                 </graphic>
                             </Button>
                         </HBox>
 
-                        <GridPane vgap="15" hgap="10">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="NEVER" minWidth="100" />
-                                <ColumnConstraints hgrow="ALWAYS" />
-                            </columnConstraints>
+                        <!-- Missions List View -->
+                        <VBox VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                            <Label text="Missions List" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                <font>
+                                    <Font name="Arial Bold" size="18"/>
+                                </font>
+                                <VBox.margin>
+                                    <Insets bottom="15" />
+                                </VBox.margin>
+                            </Label>
 
-                            <!-- Mission Title -->
-                            <Label text="Mission Title:" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                            <TextField fx:id="missionTitleField" promptText="Enter mission title" styleClass="form-control" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                            <!-- Mission Container -->
+                            <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="transparent-background" VBox.vgrow="ALWAYS">
+                                <VBox fx:id="missionListContainer" spacing="15" styleClass="mission-list" VBox.vgrow="ALWAYS">
+                                    <!-- Mission cards will be added here dynamically -->
+                                </VBox>
+                            </ScrollPane>
 
-                            <!-- Mission Description -->
-                            <Label text="Description:" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                            <TextArea fx:id="missionDescField" promptText="Enter mission description" wrapText="true" prefRowCount="3" styleClass="form-control" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                            <!-- Pagination Area -->
+                            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 15 0 0 0;">
+                                <Label fx:id="paginationInfoLabel" text="Showing all missions" style="-fx-text-fill: #666666;">
+                                    <font>
+                                        <Font name="Arial" size="13"/>
+                                    </font>
+                                </Label>
 
-                            <!-- Points -->
-                            <Label text="Points:" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                            <TextField fx:id="pointsField" promptText="Enter points value" styleClass="form-control" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                                <Region HBox.hgrow="ALWAYS" />
 
-                            <!-- Start Date -->
-                            <Label text="Start Date:" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                            <DatePicker fx:id="startDateField" promptText="Select start date" styleClass="form-control" GridPane.rowIndex="3" GridPane.columnIndex="1" />
-
-                            <!-- End Date -->
-                            <Label text="End Date:" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-                            <DatePicker fx:id="endDateField" promptText="Select end date" styleClass="form-control" GridPane.rowIndex="4" GridPane.columnIndex="1" />
-
-                            <!-- Goal Value -->
-                            <Label text="Goal:" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                            <TextField fx:id="goalValueField" promptText="Enter goal value" styleClass="form-control" GridPane.rowIndex="5" GridPane.columnIndex="1" />
-
-                            <!-- Goal Type -->
-                            <Label text="Goal Type:" styleClass="form-label" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                            <ComboBox fx:id="goalTypeComboBox" promptText="Select goal type" styleClass="form-control" GridPane.rowIndex="6" GridPane.columnIndex="1" />
-
-                            <!-- Season -->
-                            <Label text="Season:" styleClass="form-label" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-                            <ComboBox fx:id="saisonComboBox" promptText="Select season" styleClass="form-control" GridPane.rowIndex="7" GridPane.columnIndex="1" />
-
-                            <!-- Status -->
-                            <Label text="Status:" styleClass="form-label" GridPane.rowIndex="8" GridPane.columnIndex="0" />
-                            <ComboBox fx:id="statusComboBox" promptText="Select status" styleClass="form-control" GridPane.rowIndex="8" GridPane.columnIndex="1" />
-                        </GridPane>
-
-                        <!-- Form Buttons -->
-                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                            <Button fx:id="cancelButton" text="Cancel" styleClass="btn-outline-secondary" />
-                            <Button fx:id="saveButton" text="Save Mission" styleClass="btn-primary" />
-                        </HBox>
+                                <!-- Pagination controls -->
+                                <HBox alignment="CENTER" spacing="10.0">
+                                    <Button fx:id="prevPageButton" text="Previous" onAction="#handlePrevPage" styleClass="button-secondary" />
+                                    <HBox alignment="CENTER" spacing="5.0">
+                                        <Label text="Page" />
+                                        <Label fx:id="currentPageLabel" text="1" style="-fx-font-weight: bold;" />
+                                        <Label text="of" />
+                                        <Label fx:id="totalPagesLabel" text="1" />
+                                    </HBox>
+                                    <Button fx:id="nextPageButton" text="Next" onAction="#handleNextPage" styleClass="button-secondary" />
+                                </HBox>
+                            </HBox>
+                        </VBox>
                     </VBox>
-                </StackPane>
-            </VBox>
-        </StackPane>
-    </VBox>
-</AnchorPane>
+                </center>
+
+                <bottom>
+                    <!-- Footer -->
+                    <HBox alignment="CENTER" styleClass="dashboard-footer" style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #eeeeee; -fx-border-width: 1 0 0 0;">
+                        <padding>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+                        </padding>
+                        <Label text="© 2025 UNICLUBS - Admin Dashboard v1.0" styleClass="footer-text" />
+                    </HBox>
+                </bottom>
+            </BorderPane>
+        </center>
+    </BorderPane>
+
+    <!-- Form Overlay - At the root level for proper modal display -->
+    <StackPane fx:id="formOverlay" styleClass="modal-overlay" visible="false" managed="false">
+        <!-- Mission Form Container -->
+        <VBox fx:id="missionFormContainer" spacing="15" styleClass="form-container">
+            <HBox alignment="CENTER_LEFT" styleClass="form-header">
+                <Label fx:id="formTitleLabel" text="Add Mission" styleClass="form-title" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="closeFormButton" styleClass="close-button">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-close" iconSize="16" />
+                    </graphic>
+                </Button>
+            </HBox>
+
+            <GridPane vgap="15" hgap="10">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="100" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+
+                <!-- Mission Title -->
+                <Label text="Mission Title:" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <TextField fx:id="missionTitleField" promptText="Enter mission title" styleClass="form-control" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <!-- Mission Description -->
+                <Label text="Description:" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextArea fx:id="missionDescField" promptText="Enter mission description" wrapText="true" prefRowCount="3" styleClass="form-control" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <!-- Points -->
+                <Label text="Points:" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="pointsField" promptText="Enter points value" styleClass="form-control" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <!-- Start Date -->
+                <Label text="Start Date:" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <DatePicker fx:id="startDateField" promptText="Select start date" styleClass="form-control" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <!-- End Date -->
+                <Label text="End Date:" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <DatePicker fx:id="endDateField" promptText="Select end date" styleClass="form-control" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                <!-- Goal Value -->
+                <Label text="Goal:" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <TextField fx:id="goalValueField" promptText="Enter goal value" styleClass="form-control" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+                <!-- Goal Type -->
+                <Label text="Goal Type:" styleClass="form-label" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                <ComboBox fx:id="goalTypeComboBox" promptText="Select goal type" styleClass="form-control" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+                <!-- Season -->
+                <Label text="Season:" styleClass="form-label" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <ComboBox fx:id="saisonComboBox" promptText="Select season" styleClass="form-control" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+                <!-- Status -->
+                <Label text="Status:" styleClass="form-label" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                <ComboBox fx:id="statusComboBox" promptText="Select status" styleClass="form-control" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+            </GridPane>
+
+            <!-- Form Buttons -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button fx:id="cancelButton" text="Cancel" styleClass="btn-outline-secondary" />
+                <Button fx:id="saveButton" text="Save Mission" styleClass="btn-primary" />
+            </HBox>
+        </VBox>
+    </StackPane>
+</StackPane>
