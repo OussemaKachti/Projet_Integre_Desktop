@@ -186,7 +186,7 @@ private void handleLogin(ActionEvent event) {
     // Method to navigate to admin dashboard
    private void navigateToAdminDashboard() {
     try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
         Parent root = loader.load();
         
         Stage stage = (Stage) emailField.getScene().getWindow();

@@ -1,0 +1,397 @@
+/* Base Styles */
+.content-wrapper {
+    -fx-background-color: #f4f5fa;
+    -fx-padding: 20px;
+}
+
+/* Header Styles */
+.page-header {
+    -fx-padding: 10px 0;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #343a40;
+}
+
+/* Card Styles */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.card-header {
+    -fx-padding: 15px 20px;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #343a40;
+}
+
+.card-body {
+    -fx-padding: 20px;
+}
+
+/* Mission Card Styles */
+.mission-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-padding: 15px;
+    -fx-border-color: #f0f0f0;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+}
+
+.mission-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e6e6e6;
+}
+
+.mission-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+
+.mission-desc {
+    -fx-text-fill: #4a5568;
+    -fx-wrap-text: true;
+}
+
+/* Detail Sections Styling */
+.detail-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6c757d;
+}
+
+.detail-value {
+    -fx-font-size: 12px;
+    -fx-text-fill: #495057;
+}
+
+/* Status Badge Styling */
+.status-badge {
+    -fx-padding: 2px 8px;
+    -fx-background-radius: 10px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.status-active {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+}
+
+.status-inactive {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+}
+
+/* Points Badge Styling */
+.points-badge {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-padding: 3px 8px;
+    -fx-background-radius: 10px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Button Styling */
+.primary-button {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0b5ed7;
+}
+
+.secondary-button {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-background-radius: 4px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #5a6268;
+}
+
+.action-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #0d6efd;
+    -fx-border-radius: 4px;
+    -fx-padding: 6px 10px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #e6f0ff;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.edit-button {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-min-width: 90px;
+    -fx-font-weight: bold;
+}
+
+.edit-button:hover {
+    -fx-background-color: #2563eb;
+}
+
+.delete-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-min-width: 80px;
+    -fx-font-weight: bold;
+}
+
+.delete-button:hover {
+    -fx-background-color: #bb2d3b;
+}
+
+/* Modal Overlay and Form Styling */
+.modal-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-alignment: center;
+}
+
+.form-container {
+    -fx-background-color: white;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 8);
+    -fx-background-radius: 10px;
+    -fx-max-width: 550px;
+    -fx-min-width: 550px;
+    -fx-max-height: 700px;
+    -fx-alignment: center;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-spacing: 20;
+}
+
+.form-header {
+    -fx-padding: 0 0 15px 0;
+    -fx-border-color: transparent transparent #eaeaea transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-alignment: center-left;
+}
+
+.form-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3748;
+}
+
+.form-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-font-size: 14px;
+}
+
+.form-control {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px;
+    -fx-font-size: 14px;
+}
+
+.form-control:focused {
+    -fx-border-color: #3b82f6;
+    -fx-background-color: #ffffff;
+}
+
+.close-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-cursor: hand;
+    -fx-padding: 5px;
+}
+
+.close-button:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 50%;
+}
+
+.close-button .ikonli-font-icon {
+    -fx-icon-color: #666666;
+}
+
+.close-button:hover .ikonli-font-icon {
+    -fx-icon-color: #333333;
+}
+
+/* Button styles for form */
+.btn-primary {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2563eb;
+}
+
+.btn-outline-primary {
+    -fx-background-color: transparent;
+    -fx-border-color: #3b82f6;
+    -fx-text-fill: #3b82f6;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.btn-outline-primary:hover {
+    -fx-background-color: #f0f7ff;
+}
+
+.btn-outline-secondary {
+    -fx-background-color: transparent;
+    -fx-border-color: #6c757d;
+    -fx-text-fill: #6c757d;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.btn-outline-secondary:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+/* Mission List Styles */
+.mission-list {
+    -fx-padding: 15px;
+}
+
+.transparent-background {
+    -fx-background-color: transparent;
+}
+
+.transparent-background > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Custom alert dialog styling */
+.custom-alert {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f7f9fc);
+    -fx-border-color: #dce3f0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);
+}
+
+/* Header (top title area) */
+.custom-alert .header-panel {
+    -fx-background-color: transparent;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e3a59;
+    -fx-padding: 0 0 10 0;
+}
+
+/* Content area */
+.custom-alert .content {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4b5c7b;
+    -fx-padding: 0 0 10 0;
+}
+
+/* Button bar (OK, Cancel, etc.) */
+.custom-alert .button-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0 0 0;
+}
+
+/* Buttons inside the dialog */
+.custom-alert .button {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 6 14 6 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
+}
+
+.custom-alert .button:hover {
+    -fx-background-color: #3b7fd8;
+}
+
+.custom-alert .button:focused {
+    -fx-border-color: #2a6dc4;
+    -fx-border-width: 1px;
+}
+
+.custom-alert .graphic-container {
+    -fx-padding: 0 10 0 0;
+}
+
+/* Scrollbar styling */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #c1c1c1;
+    -fx-background-radius: 6px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a8a8a8;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-opacity: 0.5;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: #808080;
+}
