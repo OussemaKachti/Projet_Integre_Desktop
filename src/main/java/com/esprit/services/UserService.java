@@ -1,5 +1,4 @@
 // Path: src/main/java/services/UserService.java
-// Path: src/main/java/services/UserService.java
 package com.esprit.services;
 
 import java.time.LocalDateTime;

@@ -1,5 +1,4 @@
 // Path: src/main/java/com/esprit/MainApp.java
-// Path: src/main/java/com/esprit/MainApp.java
 package com.esprit;
 
 import java.net.URL;
@@ -11,10 +10,8 @@ import com.esprit.services.UserService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Screen;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -155,7 +152,6 @@ public void start(Stage stage) {
         stage.setMaximized(true);
     }
 
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -229,50 +225,6 @@ private static void configureMainApplicationScreen(Stage stage) {
     stage.setMinWidth(900);
     stage.setMinHeight(600);
 }
-
-/**
- * Loads the forgot password UI
-//  * Optional email to prefill (can be null)
- */
-// public static void loadForgotPasswordUI(String email) {
-//     try {
-//         URL fxmlUrl = MainApp.class.getResource("/com/esprit/views/forgot_password.fxml");
-//         if (fxmlUrl == null) {
-//             LOGGER.log(Level.SEVERE, "Cannot find /com/esprit/views/forgot_password.fxml");
-//             throw new IllegalStateException("Required FXML file not found: /com/esprit/views/forgot_password.fxml");
-//         }
-        
-//         FXMLLoader loader = new FXMLLoader(fxmlUrl);
-//         Parent root = loader.load();
-        
-//         // Set email if provided
-//         if (email != null && !email.isEmpty()) {
-//             com.esprit.controllers.ForgotPasswordController controller = loader.getController();
-//             controller.setEmailField(email);
-//         }
-        
-//         // Create a new Stage instead of reusing primaryStage
-//         Stage stage = new Stage();
-        
-//         // Use our utility method with explicit dimensions for login-sized screens
-//         setupStage(stage, root, "UNICLUBS - Forgot Password", true, LOGIN_WIDTH, LOGIN_HEIGHT);
-        
-//         // Hide the primary stage before showing the new one
-//         if (primaryStage != null) {
-//             primaryStage.hide();
-//         }
-        
-//         // Show the new stage
-//         stage.show();
-        
-//         // Update the primaryStage reference to the new stage
-//         primaryStage = stage;
-        
-//     } catch (Exception e) {
-//         LOGGER.log(Level.SEVERE, "Failed to load forgot password UI", e);
-//         e.printStackTrace();
-//     }
-// }
 
 private void resetDatabaseConnections() {
     try {

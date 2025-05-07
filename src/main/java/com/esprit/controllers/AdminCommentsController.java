@@ -45,16 +45,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import javafx.animation.FadeTransition;
-import javafx.util.Duration;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import java.io.IOException;
-
 public class AdminCommentsController implements Initializable {
 
     @FXML
@@ -326,7 +316,7 @@ public class AdminCommentsController implements Initializable {
 
         clubColumn.setCellValueFactory(cellData -> {
             if (cellData.getValue().getSondage() != null && cellData.getValue().getSondage().getClub() != null) {
-                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNom());
+                return new SimpleStringProperty(cellData.getValue().getSondage().getClub().getNomC());
             } else {
                 return new SimpleStringProperty("Unknown");
             }
@@ -368,7 +358,7 @@ public class AdminCommentsController implements Initializable {
                         // Configure click handler
                         deleteButton.setOnAction(event -> {
                             Commentaire commentaire = getTableView().getItems().get(getIndex());
-                                deleteComment(commentaire);
+                            deleteComment(commentaire);
                         });
                     }
 

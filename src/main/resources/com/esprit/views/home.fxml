@@ -5,10 +5,6 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
-<<<<<<< HEAD
-<?import javafx.scene.Group?>
-=======
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.HomeController" 
       styleClass="main-container" stylesheets="@../styles/home.css">
@@ -16,18 +12,6 @@
     <!-- Header Section -->
     <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
         <padding>
-<<<<<<< HEAD
-            <Insets top="10" right="20" bottom="10" left="20"/>
-        </padding>
-        
-        <ImageView fitHeight="60" fitWidth="150" preserveRatio="true">
-            <Image url="@../images/logo.png"/>
-        </ImageView>
-        
-        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
-            <Button text="Home" styleClass="nav-button-selected"/>
-            <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
-=======
             <Insets top="15" right="25" bottom="15" left="25"/>
         </padding>
         
@@ -59,33 +43,11 @@
                 </VBox>
             </StackPane>
             
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
             <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
             <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
         </HBox>
         
-<<<<<<< HEAD
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <!-- User Profile Section -->
-            <Group>
-                <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
-                    <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
-                        <StackPane styleClass="profile-pic-container">
-                            <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" preserveRatio="true" styleClass="profile-pic" />
-                        </StackPane>
-                        <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
-                    </HBox>
-                    
-                    <!-- Dropdown Menu -->
-                    <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
-                        <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
-                        <Separator/>
-                        <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
-                    </VBox>
-                </StackPane>
-            </Group>
-=======
         <HBox spacing="15" alignment="CENTER_RIGHT">
             <!-- User Profile Section -->
             <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
@@ -103,7 +65,6 @@
                     <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
                 </VBox>
             </StackPane>
->>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
             
             <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
         </HBox>

@@ -31,19 +31,6 @@ public class AlertUtils {
         SUCCESS, ERROR, WARNING, INFO
     }
 
-    private static final Queue<Toast> toastQueue = new LinkedList<>();
-    private static boolean isShowingToast = false;
-
-    // Type d'alerte
-    public enum AlertType {
-        INFORMATION, SUCCESS, ERROR, WARNING
-    }
-
-    // Type de toast
-    public enum ToastType {
-        SUCCESS, ERROR, WARNING, INFO
-    }
-
     /**
      * Affiche une alerte d'information
      * 

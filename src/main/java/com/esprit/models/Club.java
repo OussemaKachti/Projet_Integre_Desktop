@@ -251,12 +251,12 @@ public class Club {
         this.points = points;
     }
 
-    public LocalDate getDateCreation() {
-        return dateCreation;
+    public String getImage() {
+        return image;
     }
 
-    public void setDateCreation(LocalDate dateCreation) {
-        this.dateCreation = dateCreation;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public void addSondage(Sondage sondage) {
