@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 package com.esprit.controllers.crud;
+=======
+/*package com.esprit.controllers.crud;
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 
 import com.esprit.models.Sondage;
 import com.esprit.models.ChoixSondage;
@@ -14,7 +18,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+<<<<<<< HEAD
 import javafx.collections.FXCollections;
+=======
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,7 +37,11 @@ import java.util.ArrayList;
 /**
  * Contrôleur pour la gestion des sondages (CRUD)
  */
+<<<<<<< HEAD
 public class SondageController implements Initializable {
+=======
+/*public class SondageController implements Initializable {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     
     // Composants de l'interface utilisateur
     @FXML private TableView<Sondage> tableSondages;
@@ -60,7 +71,11 @@ public class SondageController implements Initializable {
     /**
      * Constructeur
      */
+<<<<<<< HEAD
     public SondageController() {
+=======
+   /* public SondageController() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         this.sondageService = SondageService.getInstance();
         this.choixService = new ChoixSondageService();
         this.userService = new UserService();
@@ -81,7 +96,11 @@ public class SondageController implements Initializable {
     /**
      * Configure les colonnes du tableau
      */
+<<<<<<< HEAD
     private void setupTable() {
+=======
+    /*private void setupTable() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         colQuestion.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getQuestion()));
             
@@ -90,7 +109,11 @@ public class SondageController implements Initializable {
             
         colClub.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getClub() != null ? 
+<<<<<<< HEAD
                 cellData.getValue().getClub().getNom() : ""));
+=======
+                cellData.getValue().getClub().getNomC() : ""));
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
                 
         setupActionsColumn();
     }
@@ -98,7 +121,11 @@ public class SondageController implements Initializable {
     /**
      * Configure la colonne des actions
      */
+<<<<<<< HEAD
     private void setupActionsColumn() {
+=======
+    /*private void setupActionsColumn() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         colActions.setCellFactory(col -> new TableCell<Sondage, String>() {
             private final Button editButton = new Button("Modifier");
             private final Button deleteButton = new Button("Supprimer");
@@ -139,7 +166,11 @@ public class SondageController implements Initializable {
     /**
      * Configure les événements des boutons
      */
+<<<<<<< HEAD
     private void setupButtons() {
+=======
+    /*private void setupButtons() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         btnAddChoice.setOnAction(e -> addChoiceField());
         btnSave.setOnAction(e -> saveSondage());
         btnUpdate.setOnAction(e -> updateSondage());
@@ -152,7 +183,11 @@ public class SondageController implements Initializable {
     /**
      * Charge tous les sondages dans le tableau
      */
+<<<<<<< HEAD
     private void loadSondages() {
+=======
+    /*private void loadSondages() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         try {
             ObservableList<Sondage> sondages = sondageService.getAll();
             tableSondages.setItems(sondages);
@@ -165,7 +200,11 @@ public class SondageController implements Initializable {
     /**
      * Ajoute un champ de saisie pour un choix
      */
+<<<<<<< HEAD
     @FXML
+=======
+    /*@FXML
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     private void addChoiceField() {
         TextField choiceField = new TextField();
         choiceField.setPromptText("Option " + (choiceFields.size() + 1));
@@ -183,7 +222,11 @@ public class SondageController implements Initializable {
     /**
      * Supprime un champ de saisie pour un choix
      */
+<<<<<<< HEAD
     private void removeChoiceField(TextField field) {
+=======
+   /* private void removeChoiceField(TextField field) {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         int index = choiceFields.indexOf(field);
         if (index != -1) {
             choiceFields.remove(index);
@@ -194,7 +237,11 @@ public class SondageController implements Initializable {
     /**
      * Crée ou met à jour un sondage
      */
+<<<<<<< HEAD
     @FXML
+=======
+    /*@FXML
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     private void saveSondage() {
         try {
             // Validation
@@ -269,7 +316,11 @@ public class SondageController implements Initializable {
     /**
      * Met à jour un sondage existant
      */
+<<<<<<< HEAD
     @FXML
+=======
+   /* @FXML
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
     private void updateSondage() {
         if (currentSondage == null) {
             return;
@@ -305,7 +356,11 @@ public class SondageController implements Initializable {
     /**
      * Prépare le formulaire pour modifier un sondage existant
      */
+<<<<<<< HEAD
     private void editSondage(Sondage sondage) {
+=======
+    /*private void editSondage(Sondage sondage) {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         currentSondage = sondage;
         txtQuestion.setText(sondage.getQuestion());
         
@@ -322,7 +377,11 @@ public class SondageController implements Initializable {
     /**
      * Supprime un sondage
      */
+<<<<<<< HEAD
     private void deleteSondage(Sondage sondage) {
+=======
+    /*private void deleteSondage(Sondage sondage) {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Confirmation de suppression");
         confirmDialog.setHeaderText("Supprimer le sondage");
@@ -347,7 +406,11 @@ public class SondageController implements Initializable {
     /**
      * Affiche les détails d'un sondage
      */
+<<<<<<< HEAD
     private void viewSondageDetails(Sondage sondage) {
+=======
+    /*private void viewSondageDetails(Sondage sondage) {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Détails du sondage");
         dialog.setHeaderText(sondage.getQuestion());
@@ -358,7 +421,11 @@ public class SondageController implements Initializable {
         // Informations sur le sondage
         content.getChildren().add(new Label("Date de création: " + sondage.getCreatedAt()));
         content.getChildren().add(new Label("Club: " + 
+<<<<<<< HEAD
             (sondage.getClub() != null ? sondage.getClub().getNom() : "N/A")));
+=======
+            (sondage.getClub() != null ? sondage.getClub().getNomC() : "N/A")));
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         content.getChildren().add(new Label("Créé par: " + 
             (sondage.getUser() != null ? sondage.getUser().getLastName() + " " + 
                                        sondage.getUser().getFirstName() : "N/A")));
@@ -382,7 +449,11 @@ public class SondageController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
+<<<<<<< HEAD
     private void resetForm() {
+=======
+   /* private void resetForm() {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         txtQuestion.clear();
         choiceFields.clear();
         choicesContainer.getChildren().clear();
@@ -407,11 +478,19 @@ public class SondageController implements Initializable {
     /**
      * Affiche une boîte de dialogue
      */
+<<<<<<< HEAD
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
+=======
+   /* private void showAlert(Alert.AlertType type, String title, String header, String content) {
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
+<<<<<<< HEAD
 } 
+=======
+} */
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87

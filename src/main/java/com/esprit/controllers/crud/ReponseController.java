@@ -1,6 +1,6 @@
 package com.esprit.controllers.crud;
 
-import com.esprit.models.Reponse;
+/*import com.esprit.models.Reponse;
 import com.esprit.models.Sondage;
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.User;
@@ -33,7 +33,7 @@ import java.util.Optional;
 /**
  * Contrôleur pour la gestion des réponses aux sondages
  */
-public class ReponseController implements Initializable {
+/*public class ReponseController implements Initializable {
     
     // Composants de l'interface utilisateur
     @FXML private ComboBox<Sondage> cbSondages;
@@ -63,7 +63,7 @@ public class ReponseController implements Initializable {
     /**
      * Constructeur
      */
-    public ReponseController() {
+   /* public ReponseController() {
         this.reponseService = new ReponseService();
         this.sondageService = SondageService.getInstance();
         this.choixService = new ChoixSondageService();
@@ -81,7 +81,7 @@ public class ReponseController implements Initializable {
     /**
      * Configure la liste déroulante des sondages
      */
-    private void setupSondageComboBox() {
+    /*private void setupSondageComboBox() {
         try {
             ObservableList<Sondage> sondages = sondageService.getAll();
             cbSondages.setItems(sondages);
@@ -130,7 +130,7 @@ public class ReponseController implements Initializable {
     /**
      * Configure les colonnes du tableau
      */
-    private void setupTable() {
+    /*private void setupTable() {
         colUser.setCellValueFactory(cellData -> {
             User user = cellData.getValue().getUser();
             return new SimpleStringProperty(user != null ? 
@@ -152,7 +152,7 @@ public class ReponseController implements Initializable {
     /**
      * Configure la colonne des actions
      */
-    private void setupActionsColumn() {
+   /* private void setupActionsColumn() {
         colActions.setCellFactory(col -> new TableCell<Reponse, String>() {
             private final Button deleteButton = new Button("Supprimer");
             
@@ -191,7 +191,7 @@ public class ReponseController implements Initializable {
     /**
      * Configure les événements des boutons
      */
-    private void setupButtons() {
+    /*private void setupButtons() {
         btnVote.setOnAction(e -> saveReponse());
         btnCancel.setOnAction(e -> resetForm());
     }
@@ -199,7 +199,7 @@ public class ReponseController implements Initializable {
     /**
      * Charge les données d'un sondage
      */
-    private void loadSondageData(Sondage sondage) {
+    /*private void loadSondageData(Sondage sondage) {
         currentSondage = sondage;
         
         // Charger les choix du sondage
@@ -215,7 +215,7 @@ public class ReponseController implements Initializable {
     /**
      * Charge les choix d'un sondage
      */
-    private void loadChoix(Sondage sondage) {
+    /*private void loadChoix(Sondage sondage) {
         choicesContainer.getChildren().clear();
         choixToggleGroup = new ToggleGroup();
         
@@ -267,7 +267,7 @@ public class ReponseController implements Initializable {
     /**
      * Charge les réponses d'un sondage
      */
-    private void loadReponses(Sondage sondage) {
+    /*private void loadReponses(Sondage sondage) {
         try {
             ObservableList<Reponse> reponses = reponseService.getBySondage(sondage.getId());
             tableReponses.setItems(reponses);
@@ -280,7 +280,7 @@ public class ReponseController implements Initializable {
     /**
      * Met à jour les graphiques avec les résultats du sondage
      */
-    private void updateCharts(Sondage sondage) {
+   /* private void updateCharts(Sondage sondage) {
         try {
             // Récupérer les résultats du sondage
             Map<String, Object> results = reponseService.getPollResults(sondage.getId());
@@ -331,7 +331,7 @@ public class ReponseController implements Initializable {
     /**
      * Crée ou met à jour une réponse
      */
-    @FXML
+    /*@FXML
     private void saveReponse() {
         if (currentSondage == null) {
             showAlert(Alert.AlertType.ERROR, "Erreur", 
@@ -396,7 +396,7 @@ public class ReponseController implements Initializable {
     /**
      * Supprime une réponse
      */
-    private void deleteReponse(Reponse reponse) {
+    /*private void deleteReponse(Reponse reponse) {
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Confirmation de suppression");
         confirmDialog.setHeaderText("Supprimer votre vote");
@@ -422,7 +422,7 @@ public class ReponseController implements Initializable {
     /**
      * Efface les données du sondage
      */
-    private void clearSondageData() {
+    /*private void clearSondageData() {
         choicesContainer.getChildren().clear();
         tableReponses.getItems().clear();
         chartResults.getData().clear();
@@ -433,7 +433,7 @@ public class ReponseController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
-    private void resetForm() {
+   /* private void resetForm() {
         if (choixToggleGroup != null) {
             choixToggleGroup.selectToggle(null);
         }
@@ -442,11 +442,11 @@ public class ReponseController implements Initializable {
     /**
      * Affiche une boîte de dialogue
      */
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+   /* private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
-} 
+} */

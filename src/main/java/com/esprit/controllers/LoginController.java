@@ -4,7 +4,7 @@ package com.esprit.controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
- 
+
 import com.esprit.MainApp;
 import com.esprit.models.User;
 import com.esprit.models.enums.RoleEnum;
@@ -29,30 +29,30 @@ public class LoginController {
 
     @FXML
     private TextField emailField;
-    
+
     @FXML
     private PasswordField passwordField;
-    
+
     @FXML
     private Label errorLabel;
-    
+
     @FXML
     private Label emailErrorLabel;
-    
+
     @FXML
     private Label passwordErrorLabel;
-    
+
     private final AuthService authService = new AuthService();
     private ValidationHelper validator;
-    
+
     @FXML
     private void initialize() {
         errorLabel.setVisible(false);
-        
+
         // Initialize the validation helper
         validator = new ValidationHelper()
-            .addField(emailField, emailErrorLabel)
-            .addField(passwordField, passwordErrorLabel);
+                .addField(emailField, emailErrorLabel)
+                .addField(passwordField, passwordErrorLabel);
     }
     
    @FXML
@@ -124,14 +124,15 @@ private void handleLogin(ActionEvent event) {
         Alert alert = new Alert(AlertType.WARNING);
         alert.setTitle("Account Not Verified");
         alert.setHeaderText("Email Verification Required");
-        alert.setContentText("Your account has not been verified. Please check your email for verification instructions.");
-        
+        alert.setContentText(
+                "Your account has not been verified. Please check your email for verification instructions.");
+
         // Add a button to resend verification email
         ButtonType resendButton = new ButtonType("Resend Verification Email");
         ButtonType cancelButton = ButtonType.CANCEL;
-        
+
         alert.getButtonTypes().setAll(resendButton, cancelButton);
-        
+
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == resendButton) {
             // User chose to resend verification email
@@ -140,10 +141,10 @@ private void handleLogin(ActionEvent event) {
                 Alert successAlert = new Alert(AlertType.INFORMATION);
                 successAlert.setTitle("Verification Email Sent");
                 successAlert.setHeaderText("Check Your Email");
-                successAlert.setContentText("A new verification email has been sent to " + email + 
-                                            "\n\nYou will now be redirected to the verification page.");
+                successAlert.setContentText("A new verification email has been sent to " + email +
+                        "\n\nYou will now be redirected to the verification page.");
                 successAlert.showAndWait();
-                
+
                 // Navigate to verification page
                 navigateToVerify();
             } else {
@@ -152,24 +153,24 @@ private void handleLogin(ActionEvent event) {
             }
         }
     }
-    
+
     private void navigateToVerify() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/verify.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) emailField.getScene().getWindow();
-        
+
             // Use the overloaded method with larger dimensions for better visibility
             MainApp.setupStage(stage, root, "Verify Account - UNICLUBS", true, 700, 700);
-            
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showError("Error navigating to verification: " + e.getMessage());
         }
     }
-    
+
     private void loadDashboard(User user) {
         try {
             // Navigate based on user role
@@ -179,6 +180,8 @@ private void handleLogin(ActionEvent event) {
             } else {
                 // For all other users, navigate to home page
                 navigateToHome();
+                // For all other users, navigate to home page
+                navigateToHome();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,7 +189,7 @@ private void handleLogin(ActionEvent event) {
             errorLabel.setVisible(true);
         }
     }
-    
+
     // Method to navigate to admin dashboard
    private void navigateToAdminDashboard() {
     try {

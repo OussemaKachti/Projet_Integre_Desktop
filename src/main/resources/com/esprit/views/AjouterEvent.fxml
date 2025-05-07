@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -19,35 +22,51 @@
 
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
-<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AjouterEvent">
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../styles/home.css" fx:controller="com.esprit.controllers.AjouterEvent">
 
     <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <!-- Main background with gradient -->
         <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
 
-            <!-- Header -->
+            <!-- Navigation Header -->
             <top>
-                <BorderPane style="-fx-background-color: #040f71; -fx-padding: 15;">
-                    <left>
-                        <Label text="Organize Your Event" textFill="WHITE">
-                            <font>
-                                <Font name="Arial Bold" size="28" />
-                            </font>
-                        </Label>
-                    </left>
-                    <right>
-                        <HBox alignment="CENTER_RIGHT" spacing="10">
-                            <Button style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20; -fx-padding: 8 15;" text="Back">
-                                <font>
-                                    <Font name="Arial" size="14" />
-                                </font>
-                            </Button>
-                        </HBox>
-                    </right>
-                    <effect>
-                        <DropShadow color="#00000033" radius="5" spread="0.05" />
-                    </effect>
-                </BorderPane>
+                <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+                    <padding>
+                        <Insets bottom="10" left="20" right="20" top="10" />
+                    </padding>
+
+                    <ImageView fitHeight="80" fitWidth="170" preserveRatio="true">
+                        <Image url="@../images/logo.png" />
+                    </ImageView>
+
+                    <HBox alignment="CENTER" spacing="15" styleClass="nav-container" HBox.hgrow="ALWAYS">
+                        <Button styleClass="nav-button" text="Home" />
+                        <Button styleClass="nav-button" text="Clubs" />
+                        <Button styleClass="nav-button-selected" text="Events" />
+                        <Button styleClass="nav-button" text="Products" />
+                        <Button styleClass="nav-button" text="Competition" />
+                    </HBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <!-- User Profile Section -->
+                        <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
+                            <HBox alignment="CENTER" spacing="10" styleClass="user-profile-content">
+                                <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                                </ImageView>
+                                <Label fx:id="userNameLabel" styleClass="user-name" text="John Doe" />
+                            </HBox>
+
+                            <!-- Dropdown Menu -->
+                            <VBox fx:id="profileDropdown" managed="false" styleClass="profile-dropdown" visible="false">
+                                <Button styleClass="dropdown-item" text="My Profile" />
+                                <Separator />
+                                <Button styleClass="dropdown-item" text="Logout" />
+                            </VBox>
+                        </StackPane>
+
+                        <Button styleClass="contact-button" text="Contact Us" />
+                    </HBox>
+                </HBox>
             </top>
 
             <!-- Main content -->
@@ -57,6 +76,23 @@
                         <center>
                             <!-- Main content container with maxWidth to center the form -->
                             <VBox alignment="CENTER" maxWidth="1000" spacing="30">
+
+                                <!-- Title that replaces secondary header -->
+                                <HBox alignment="CENTER_LEFT" style="-fx-padding: 20 0 10 0;">
+                                    <Label style="-fx-text-fill: #040f71; -fx-font-weight: bold;" text="Organize Your Event">
+                                        <font>
+                                            <Font name="Arial Bold" size="28" />
+                                        </font>
+                                    </Label>
+
+                                    <HBox alignment="CENTER_RIGHT" spacing="10" HBox.hgrow="ALWAYS">
+                                        <Button style="-fx-background-color: #f8f9fa; -fx-text-fill: #333333; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 15;" text="Back">
+                                            <font>
+                                                <Font name="Arial" size="14" />
+                                            </font>
+                                        </Button>
+                                    </HBox>
+                                </HBox>
 
                                 <!-- Introduction -->
                                 <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
@@ -148,7 +184,8 @@
                                                         <DropShadow color="#0000000d" radius="3" spread="0.01" />
                                                     </effect>
                                                 </DatePicker>
-                                            </VBox> </HBox>
+                                            </VBox>
+                                        </HBox>
 
                                         <HBox spacing="15">
                                             <VBox spacing="5">
@@ -237,8 +274,6 @@
                                                 </Button>
                                             </HBox>
                                         </VBox>
-
-
                                     </VBox>
                                 </HBox>
 

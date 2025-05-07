@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #e8f0fe;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ShowParticipantController">
+
+    <!-- Header Section -->
+    <HBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT" spacing="20"
+          AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+
+        <Label text="UNICLUBS" style="-fx-font-family: 'Arial'; -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;"
+               prefHeight="50.0" prefWidth="120"/>
+
+        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-padding: 0 10;">
+            <Button text="Home" style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Clubs" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Events" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+            <Button text="Products" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                   />
+            <Button text="Competition" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
+                    />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Contact Us" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-radius: 5; -fx-padding: 5 15;"
+                    />
+        </HBox>
+    </HBox>
+
+    <!-- Main Content -->
+    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="80" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20"/>
+        </padding>
+
+        <!-- Title -->
+        <Label text="Accepted Participants" style="-fx-font-size: 26; -fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-font-family: 'Arial'; -fx-alignment: center;" />
+
+        <!-- Search Bar -->
+        <HBox spacing="10" alignment="CENTER">
+            <Label text="Search by Club Name:" style="-fx-font-size: 14; -fx-text-fill: #2c3e50; -fx-font-family: 'Arial';" />
+            <TextField fx:id="searchField" promptText="Enter club name" prefWidth="200" style="-fx-background-color: #f5f5f5; -fx-background-radius: 15; -fx-border-color: #d1d1d1; -fx-border-radius: 15; -fx-padding: 8 15 8 15; -fx-font-size: 14; -fx-font-family: 'Arial';" onAction="#searchParticipants" />
+        </HBox>
+
+        <!-- Table for displaying participants -->
+        <TableView fx:id="participantTable" prefWidth="500" prefHeight="120" style="-fx-background-color: white; -fx-border-color: #d1d1d1; -fx-border-radius: 5; -fx-background-radius: 5;">
+            <columns>
+                <!-- ID Column -->
+                <TableColumn fx:id="idColumn" text="Participant ID" prefWidth="100" style="-fx-alignment: CENTER; -fx-text-fill: black;" />
+                <!-- Name Column -->
+                <TableColumn fx:id="nameColumn" text="Participant Name" prefWidth="120" style="-fx-alignment: CENTER; -fx-text-fill: black;" />
+                <!-- Club Name Column -->
+                <TableColumn fx:id="clubNameColumn" text="Club Name" prefWidth="120" style="-fx-alignment: CENTER; -fx-text-fill: black;" />
+                <!-- Date Request Column -->
+                <TableColumn fx:id="dateRequestColumn" text="Date Request" prefWidth="140" style="-fx-alignment: CENTER; -fx-text-fill: black;" />
+                <!-- Statut Column -->
+                <TableColumn fx:id="statutColumn" text="Status" prefWidth="100" style="-fx-alignment: CENTER; -fx-text-fill: black;" />
+            </columns>
+            <!-- Inline styles for table rows -->
+            <style>
+                -fx-table-cell-border-color: transparent;
+                .table-row-cell:odd { -fx-background-color: rgb(10, 10, 10); }
+                .table-row-cell:even { -fx-background-color: white; }
+                .table-column { -fx-font-family: 'Arial'; -fx-font-size: 13; }
+            </style>
+        </TableView>
+
+        <!-- Pagination -->
+        <Pagination fx:id="pagination" prefWidth="200" style="-fx-font-family: 'Arial'; -fx-font-size: 12;" />
+
+        <!-- Button to refresh the table -->
+        <Button text="Refresh" prefWidth="200" style="-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-radius: 15; -fx-padding: 10; .button:hover { -fx-background-color: #3b5375; }" onAction="#loadAcceptedParticipants" />
+    </VBox>
+</AnchorPane>

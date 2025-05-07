@@ -16,15 +16,20 @@ import jakarta.mail.internet.MimeMessage;
 
 public class EmailService {
 
+
     // Thread pool for handling email sending in background
     private static final Executor emailExecutor = Executors.newFixedThreadPool(2);
+
 
     /**
      * Asynchronously sends an email on a background thread
      * 
      * @param to      Recipient email
+     * @param to      Recipient email
      * @param subject Email subject
      * @param content Email content (HTML)
+     * @return CompletableFuture that completes with true if sent successfully,
+     *         false otherwise
      * @return CompletableFuture that completes with true if sent successfully,
      *         false otherwise
      */
@@ -34,9 +39,11 @@ public class EmailService {
         }, emailExecutor);
     }
 
+
     /**
      * Synchronously sends an email (for backwards compatibility)
      * 
+     * @param to      Recipient email
      * @param to      Recipient email
      * @param subject Email subject
      * @param content Email content (HTML)
@@ -53,6 +60,7 @@ public class EmailService {
         }
     }
 
+
     /**
      * Internal method that actually sends the email
      */
@@ -66,6 +74,9 @@ public class EmailService {
             props.put("mail.smtp.starttls.enable",
                     EmailConfig.getProperties().getProperty("mail.smtp.starttls.enable"));
 
+            props.put("mail.smtp.starttls.enable",
+                    EmailConfig.getProperties().getProperty("mail.smtp.starttls.enable"));
+
             // Create session with authentication
             Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
                 @Override
@@ -73,15 +84,22 @@ public class EmailService {
                     return new PasswordAuthentication(
                             EmailConfig.getUsername(),
                             EmailConfig.getPassword());
+                            EmailConfig.getUsername(),
+                            EmailConfig.getPassword());
                 }
             });
+
 
             // Create message
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(EmailConfig.getFromEmail()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(EmailConfig.getFromEmail()));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setContent(content, "text/html; charset=utf-8");
+
 
             // Send message
             Transport.send(message);
@@ -94,10 +112,12 @@ public class EmailService {
         }
     }
 
+
     /**
      * Sends a verification email to a user asynchronously
      * 
      * @param email User's email
+     * @param name  User's name
      * @param name  User's name
      * @param token Verification token
      * @return CompletableFuture that completes with true if sent successfully
@@ -121,6 +141,7 @@ public class EmailService {
         return sendEmailAsync(email, subject, content);
     }
 
+
     /**
      * Synchronous version for backward compatibility
      */
@@ -134,10 +155,12 @@ public class EmailService {
         }
     }
 
+
     /**
      * Sends a password reset email to a user asynchronously
      * 
      * @param email User's email
+     * @param name  User's name
      * @param name  User's name
      * @param token Password reset token
      * @return CompletableFuture that completes with true if sent successfully
@@ -160,6 +183,7 @@ public class EmailService {
 
         return sendEmailAsync(email, subject, content);
     }
+
 
     /**
      * Synchronous version for backward compatibility

@@ -1,5 +1,6 @@
 package com.esprit;
 
+<<<<<<< HEAD
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -7,12 +8,19 @@ import com.esprit.models.User;
 import com.esprit.models.enums.RoleEnum;
 import com.esprit.utils.SessionManager;
 
+=======
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+<<<<<<< HEAD
+=======
+import java.io.IOException;
+
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87
 public class MainApp2 extends Application {
 
     public static void main(String[] args) {
@@ -22,6 +30,7 @@ public class MainApp2 extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+<<<<<<< HEAD
             // Create a test admin user and set it in the session for testing
             createAndSetTestAdminUser();
             
@@ -62,3 +71,17 @@ public class MainApp2 extends Application {
         SessionManager.getInstance().setCurrentUser(testAdmin);
     }
 }
+=======
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/style.css").toExternalForm());
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+>>>>>>> 63ffc7c6ff36402bf8d8bc0e437c1fe3d58b5b87

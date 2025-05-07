@@ -41,6 +41,11 @@ public class ServiceEvent {
             pst.setDate(9, new java.sql.Date(e.getEnd_date().getTime()));
 
             pst.executeUpdate();
+            // Update mission progress for EVENT_COUNT missions
+            MissionProgressService.getInstance().incrementEventCountProgress(e.getClub_id());
+
+            System.out.println("Event created and mission progress updated for club ID: " + e.getClub_id());
+
         }
     }
 

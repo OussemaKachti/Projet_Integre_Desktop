@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.FormClubController">
+    <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20"/>
+        </padding>
+
+        <!-- Title -->
+        <Label style="-fx-font-size: 26; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" text="Create club" />
+
+        <!-- Club Name Section -->
+        <VBox alignment="TOP_LEFT" spacing="5">
+            <Label style="-fx-font-weight: bold;" text="Club Name" />
+            <TextField fx:id="nomCField" promptText="Enter club name" prefWidth="400" prefHeight="35" />
+        </VBox>
+
+        <!-- Description Section -->
+        <VBox alignment="TOP_LEFT" spacing="5">
+            <Label style="-fx-font-weight: bold;" text="Description" />
+            <TextArea fx:id="descriptionField" promptText="Enter description" prefWidth="400" prefHeight="100" wrapText="true" />
+        </VBox>
+
+        <!-- Club Image URL -->
+        <VBox alignment="TOP_LEFT" spacing="5">
+            <Label style="-fx-font-weight: bold;" text="Club Image URL" />
+            <TextField fx:id="imageField" promptText="Enter image URL (e.g., http://...)" prefWidth="400" prefHeight="35" />
+        </VBox>
+
+        <!-- Info Label -->
+        <Label text="⚠️ Please do not use offensive or inappropriate language."
+               style="-fx-text-fill: #e74c3c; -fx-font-size: 12px; -fx-font-style: italic;" />
+
+        <!-- Submit Button -->
+        <Button text="Submit"
+                onAction="#ajouterClub"
+                prefWidth="400"
+                style="-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold;" />
+    </VBox>
+</AnchorPane>

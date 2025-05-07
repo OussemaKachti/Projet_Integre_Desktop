@@ -11,20 +11,80 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="750.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/poll-management-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="750.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../styles/poll-management-style.css, @../styles/home.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.PollStatisticsController">
    <top>
-      <Pane prefHeight="150.0" prefWidth="1200.0" styleClass="header-section" BorderPane.alignment="CENTER">
+      <VBox styleClass="header-section" BorderPane.alignment="CENTER">
          <children>
-            <Label layoutX="469.0" layoutY="51.0" styleClass="header-title" text="Poll Statistics">
+            <!-- Header with Navbar from home.fxml -->
+            <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+                
+                <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+                    <Image url="@../images/logo.png"/>
+                </ImageView>
+                
+                <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+                    <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+                    
+                    <!-- Clubs dropdown container -->
+                    <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                        <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                        
+                        <!-- Clubs Dropdown Menu - Initially hidden -->
+                        <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                            <HBox fx:id="clubPollsItem" styleClass="dropdown-item" onMouseClicked="#navigateToPolls">
+                                <Label fx:id="clubPollsLabel" text="Polls" styleClass="dropdown-item-text"/>
+                            </HBox>
+                        </VBox>
+                    </StackPane>
+                    
+                    <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+                    <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+                    <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+                </HBox>
+                
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <!-- User Profile Section -->
+                    <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                        <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                            <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                                <Image url="@../images/default-profile.png"/>
+                            </ImageView>
+                            <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                        </HBox>
+                        
+                        <!-- Dropdown Menu -->
+                        <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                            <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                            <Separator/>
+                            <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                        </VBox>
+                    </StackPane>
+                    
+                    <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+                </HBox>
+            </HBox>
+            
+            <!-- Original Poll Statistics header content -->
+            <Label alignment="CENTER" layoutX="469.0" layoutY="51.0" styleClass="header-title" text="Poll Statistics">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
+               <VBox.margin>
+                  <Insets top="30.0" />
+               </VBox.margin>
             </Label>
             <HBox alignment="CENTER" layoutX="419.0" layoutY="105.0" spacing="10.0" styleClass="breadcrumb">
                <children>
@@ -34,9 +94,12 @@
                   <Label styleClass="breadcrumb-separator" text="&gt;" />
                   <Label styleClass="breadcrumb-item-active" text="Statistics" />
                </children>
+               <VBox.margin>
+                  <Insets top="15.0" bottom="20.0" />
+               </VBox.margin>
             </HBox>
          </children>
-      </Pane>
+      </VBox>
    </top>
    <center>
       <ScrollPane fitToWidth="true" styleClass="content-section" BorderPane.alignment="CENTER">
@@ -53,7 +116,7 @@
                   </Label>
                   <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="15.0">
                      <children>
-                        <Button mnemonicParsing="false" styleClass="back-button" text="Back">
+                        <Button fx:id="backButton" mnemonicParsing="false" styleClass="back-button" text="Back">
                            <HBox.margin>
                               <Insets bottom="10.0" />
                            </HBox.margin>

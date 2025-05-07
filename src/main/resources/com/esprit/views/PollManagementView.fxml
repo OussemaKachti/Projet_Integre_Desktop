@@ -10,12 +10,79 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
 
-<BorderPane prefHeight="800.0" prefWidth="1300.0" styleClass="main-container" stylesheets="@../styles/poll-management-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.PollManagementController">
+<BorderPane prefHeight="800.0" prefWidth="1300.0" styleClass="main-container" stylesheets="@../styles/poll-management-style.css, @../styles/home.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.PollManagementController">
    <top>
       <VBox styleClass="header-section">
          <children>
+            <!-- Header with Navbar from home.fxml -->
+            <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+                
+                <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+                    <Image url="@../images/logo.png"/>
+                </ImageView>
+                
+                <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+            
+            <!-- Add a direct Polls button to the main navbar -->
+            <Button text="Polls" styleClass="nav-button" onAction="#navigateToPolls"/>
+            
+            <!-- Clubs dropdown container -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
+                
+                <!-- Clubs Dropdown Menu - Initially hidden -->
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                        <Label text="👥" styleClass="dropdown-item-icon"/>
+                        <Label text="Club Management" styleClass="dropdown-item-text"/>
+                    </HBox>
+                    <Separator styleClass="dropdown-divider"/>
+                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                        <Label text="🏆" styleClass="dropdown-item-icon"/>
+                        <Label text="My Club" styleClass="dropdown-item-text"/>
+                    </HBox>
+                </VBox>
+            </StackPane>
+            <Button text="Events" styleClass="nav-button-selected"/>
+            <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+            <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+        </HBox>
+                
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <!-- User Profile Section -->
+                    <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                        <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                            <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                                <Image url="@../images/default-profile.png"/>
+                            </ImageView>
+                            <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                        </HBox>
+                        
+                        <!-- Dropdown Menu -->
+                        <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                            <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                            <Separator/>
+                            <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                        </VBox>
+                    </StackPane>
+                    
+                    <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+                </HBox>
+            </HBox>
+            
+            <!-- Original PollManagementView header content -->
             <Label alignment="CENTER" text="All Polls" styleClass="header-title" BorderPane.alignment="CENTER">
                <font>
                   <Font name="System Bold" size="36.0" />
@@ -38,77 +105,172 @@
       </VBox>
    </top>
    <center>
-      <VBox spacing="20.0" styleClass="content-section" BorderPane.alignment="CENTER">
-         <children>
-            <HBox alignment="CENTER" spacing="20.0">
+      <ScrollPane fitToWidth="true" styleClass="content-section" BorderPane.alignment="CENTER">
+         <content>
+            <VBox spacing="20.0" styleClass="page-content">
                <children>
-                  <Label styleClass="section-title" text="Poll Management">
-                     <font>
-                        <Font name="System Bold" size="24.0" />
-                     </font>
-                  </Label>
-                  <Pane HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="searchField" prefWidth="300.0" promptText="Search polls..." styleClass="search-input" />
-                  <Button fx:id="searchButton" mnemonicParsing="false" styleClass="search-button" text="Search" />
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-               <children>
-                  <Button fx:id="backButton" mnemonicParsing="false" styleClass="back-button" text="Back" />
-               </children>
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-            </HBox>
-            
-            <VBox styleClass="table-container" spacing="0">
-               <!-- Table Header -->
-               <HBox styleClass="table-header">
-                  <children>
-                     <Label styleClass="table-column-header" prefWidth="500.0" text="Question" />
-                     <Label styleClass="table-column-header" prefWidth="400.0" text="Options" />
-                     <Label styleClass="table-column-header" prefWidth="180.0" text="Date Created" />
-                     <Label styleClass="table-column-header" prefWidth="180.0" text="Actions" HBox.hgrow="ALWAYS" />
-                  </children>
-               </HBox>
-               
-               <ListView fx:id="pollsListView" VBox.vgrow="ALWAYS" styleClass="polls-list">
-                  <placeholder>
-                     <Label text="No polls available" styleClass="no-data-message" />
-                  </placeholder>
-               </ListView>
-               
-               <!-- Pagination -->
-               <HBox fx:id="paginationContainer" alignment="CENTER" spacing="8.0" styleClass="pagination-container">
-                  <HBox fx:id="pageButtonsContainer" alignment="CENTER" spacing="8.0" />
-                  <padding>
-                     <Insets top="20.0" bottom="20.0" />
-                  </padding>
-               </HBox>
-            </VBox>
-            
-            <Pane fx:id="toastContainer" prefHeight="40.0" styleClass="toast-container" visible="false">
-               <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" styleClass="toast-message">
+                  <!-- Page Title and Search Controls -->
+                  <HBox alignment="CENTER" spacing="20.0">
                      <children>
-                        <Label styleClass="toast-text" text="Action completed successfully!" />
+                        <Label styleClass="section-title" text="Poll Management">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
                         <Pane HBox.hgrow="ALWAYS" />
-                        <Button mnemonicParsing="false" styleClass="toast-close-button" text="×" />
+                        <TextField fx:id="searchField" prefWidth="300.0" promptText="Search polls..." styleClass="search-input" />
+                        <Button fx:id="searchButton" mnemonicParsing="false" styleClass="search-button" text="Search" />
                      </children>
-                     <padding>
-                        <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                     </padding>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
                   </HBox>
+                  
+                  <!-- Back Button -->
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Button fx:id="backButton" mnemonicParsing="false" styleClass="back-button" text="Back" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </HBox>
+                  
+                  <!-- Modern Table Container -->
+                  <VBox styleClass="modern-table-container">
+                     <!-- Table Header -->
+                     <HBox styleClass="modern-table-header">
+                        <children>
+                           <Label styleClass="modern-table-header-cell" prefWidth="450.0" text="Question" />
+                           <Label styleClass="modern-table-header-cell" prefWidth="350.0" text="Options" />
+                           <Label styleClass="modern-table-header-cell" prefWidth="180.0" text="Date Created" />
+                                   <Region prefWidth="50.0" /> <!-- Décalage contrôlé -->
+
+                           <Label styleClass="modern-table-header-cell" prefWidth="180.0" text="Actions" HBox.hgrow="ALWAYS" />
+                        </children>
+                     </HBox>
+                     
+                     <!-- Table Content - This will be filled programmatically -->
+                     <VBox fx:id="pollsTableContent" styleClass="modern-table-content" />
+                     
+                     <!-- Empty State Message (shown when no polls) -->
+                     <StackPane fx:id="emptyStateContainer" styleClass="empty-state-container" visible="false" managed="false">
+                        <children>
+                           <VBox alignment="CENTER" spacing="15">
+                              <ImageView fitHeight="120" fitWidth="120" preserveRatio="true">
+                                 <Image url="@../images/empty-state.png" />
+                              </ImageView>
+                              <Label styleClass="empty-state-text" text="No polls found for your club" />
+                              <Button styleClass="create-poll-button" text="Create Your First Poll" />
+                           </VBox>
+                        </children>
+                        <padding>
+                           <Insets top="40" bottom="40" />
+                        </padding>
+                     </StackPane>
+                     
+                     <!-- Pagination -->
+                     <HBox fx:id="paginationContainer" alignment="CENTER" spacing="8.0" styleClass="pagination-container">
+                        <HBox fx:id="pageButtonsContainer" alignment="CENTER" spacing="8.0" />
+                        <padding>
+                           <Insets top="20.0" bottom="20.0" />
+                        </padding>
+                     </HBox>
+                  </VBox>
+                  
+                  <!-- LEADERBOARD SECTION - NOUVEAU -->
+                  <VBox fx:id="leaderboardContainer" styleClass="leaderboard-container" spacing="15">
+                     <children>
+                        <!-- Leaderboard Header -->
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                           <children>
+                              <Label styleClass="leaderboard-header" text="Member Participation Leaderboard" />
+                              <Pane HBox.hgrow="ALWAYS" />
+                              <Button fx:id="refreshLeaderboardButton" styleClass="refresh-button" text="Refresh" onAction="#refreshLeaderboard">
+                                 <graphic>
+                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                       <Image url="@../images/refresh-icon.png" />
+                                    </ImageView>
+                                 </graphic>
+                              </Button>
+                           </children>
+                        </HBox>
+                        
+                        <Label styleClass="leaderboard-subheader" text="See which members are most active in participating in your club's polls" />
+                        
+                        <!-- Participation Stats Cards -->
+                        <HBox fx:id="participationStatsContainer" styleClass="participation-stats" spacing="15">
+                           <!-- Stats will be loaded dynamically -->
+                           <children>
+                              <!-- Total Votes -->
+                              <VBox styleClass="stats-card">
+                                 <children>
+                                    <Label styleClass="stats-label" text="TOTAL VOTES" />
+                                    <Label fx:id="totalVotesLabel" styleClass="stats-value" text="0" />
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Unique Participants -->
+                              <VBox styleClass="stats-card">
+                                 <children>
+                                    <Label styleClass="stats-label" text="UNIQUE PARTICIPANTS" />
+                                    <Label fx:id="uniqueParticipantsLabel" styleClass="stats-value" text="0" />
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Most Popular Poll -->
+                              <VBox styleClass="most-popular-poll" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label styleClass="most-popular-poll-title" text="MOST POPULAR POLL" />
+                                    <Label fx:id="mostPopularPollLabel" styleClass="most-popular-poll-question" 
+                                           text="No poll data available yet" wrapText="true" />
+                                    <Label fx:id="mostPopularPollVotesLabel" styleClass="most-popular-poll-votes" 
+                                           text="0 votes" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        
+                        <!-- Leaderboard Table -->
+                        <VBox styleClass="leaderboard-table">
+                           <!-- Table Header -->
+                           <HBox styleClass="leaderboard-table-header">
+                              <children>
+                                 <Label prefWidth="60" text="RANK" />
+                                 <Label prefWidth="250" text="MEMBER" />
+                                 <Label text="PARTICIPATION" HBox.hgrow="ALWAYS" />
+                              </children>
+                           </HBox>
+                           
+                           <!-- Table Content will be filled programmatically -->
+                           <VBox fx:id="leaderboardContent">
+                              <!-- Rows will be added dynamically -->
+                           </VBox>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  
+                  <!-- Toast Container -->
+                  <Pane fx:id="toastContainer" prefHeight="40.0" styleClass="toast-container" visible="false">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="40.0" styleClass="toast-message">
+                           <children>
+                              <Label styleClass="toast-text" text="Action completed successfully!" />
+                              <Pane HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" styleClass="toast-close-button" text="×" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </Pane>
                </children>
-            </Pane>
-         </children>
-         <padding>
-            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-         </padding>
-      </VBox>
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+            </VBox>
+         </content>
+      </ScrollPane>
    </center>
 </BorderPane> 

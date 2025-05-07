@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<?import java.net.URL?>
+<AnchorPane fx:id="competitionUserPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionUserController" styleClass="main-container">
+    <stylesheets>
+        <URL value="@../styles/home.css" />
+        <URL value="@../styles/competitionUser.css" />
+    </stylesheets>
+
+    <VBox AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <!-- Header Section imported from home.fxml -->
+        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+                <Image url="@../images/logo.png"/>
+            </ImageView>
+
+            <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+                <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+                <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
+                <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
+                <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+                <Button text="Competition" styleClass="nav-button-selected"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <!-- User Profile Section -->
+                <StackPane fx:id="userProfileContainer" styleClass="user-profile-container"
+                           onMouseClicked="#toggleProfileDropdown">
+                    <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                        <StackPane styleClass="profile-pic-container">
+                            <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" preserveRatio="true" styleClass="profile-pic" />
+                        </StackPane>
+                        <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                    </HBox>
+
+                    <!-- Dropdown Menu -->
+                    <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                        <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                        <Separator/>
+                        <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                    </VBox>
+                </StackPane>
+
+                <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
+
+            </HBox>
+        </HBox>
+
+        <!-- Main Content -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="transparent-background">
+            <VBox spacing="30" styleClass="content-wrapper">
+                <!-- Competition Header with Season Title -->
+                <HBox spacing="15" alignment="CENTER_LEFT" styleClass="competition-header">
+                    <Button fx:id="backButton" styleClass="back-button">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-arrow-left" iconSize="16" />
+                        </graphic>
+                        <tooltip>
+                            <Tooltip text="Back to Dashboard" />
+                        </tooltip>
+                    </Button>
+
+                    <VBox>
+                        <Label text="Competition Menu" styleClass="competition-subtitle" />
+                        <Label fx:id="seasonTitle" text="Current Season" styleClass="competition-title" />
+                    </VBox>
+                </HBox>
+
+                <!-- Seasons Section -->
+                <VBox styleClass="section-container">
+                    <HBox styleClass="section-header" alignment="CENTER_LEFT">
+                        <VBox>
+                            <Label text="Competition Timeline" styleClass="section-pre-title" />
+                            <Label text="Active Seasons" styleClass="section-title" />
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <!-- Season Navigation Controls -->
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button fx:id="prevSeasonsButton" styleClass="season-nav-button" onAction="#showPreviousSeasons">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-chevron-left" iconSize="16" />
+                                </graphic>
+                            </Button>
+                            <Label fx:id="seasonPageIndicator" text="1/1" styleClass="season-page-indicator" />
+                            <Button fx:id="nextSeasonsButton" styleClass="season-nav-button" onAction="#showNextSeasons">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-chevron-right" iconSize="16" />
+                                </graphic>
+                            </Button>
+                        </HBox>
+                    </HBox>
+
+                    <StackPane>
+                        <FlowPane fx:id="seasonsContainer" hgap="15" vgap="15" alignment="CENTER">
+                            <!-- Season cards will be added here dynamically -->
+                        </FlowPane>
+
+                        <!-- Empty state for when no seasons are available -->
+                        <VBox fx:id="noSeasonsContainer" alignment="CENTER" spacing="15" visible="false" managed="false" styleClass="no-data-container">
+                            <FontIcon iconLiteral="fas-calendar-times" iconSize="48" styleClass="no-data-icon" />
+                            <Label text="No active seasons available" styleClass="no-data-title" />
+                            <Label text="Check back later for upcoming competitions" styleClass="no-data-message" wrapText="true" />
+                        </VBox>
+                    </StackPane>
+                </VBox>
+
+                <!-- Missions and Leaderboard Section -->
+                <HBox spacing="20" VBox.vgrow="ALWAYS">
+                    <!-- Missions Section -->
+                    <VBox styleClass="section-container" HBox.hgrow="ALWAYS" prefWidth="700">
+                        <HBox styleClass="section-header-left" alignment="CENTER_LEFT">
+                            <VBox>
+                                <Label text="Current Season" styleClass="section-pre-title" />
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Label text="Missions" styleClass="section-title" />
+                                    <Label fx:id="missionCountLabel" text="(0)" styleClass="mission-count" />
+                                </HBox>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <!-- Mission Progress Button -->
+                            <Button fx:id="missionProgressButton" styleClass="action-button" onAction="#navigateToMissionProgress">
+                                <graphic>
+                                    <HBox spacing="5" alignment="CENTER">
+                                        <FontIcon iconLiteral="fas-chart-line" iconSize="14" />
+                                        <Label text="Mission Progress" style="-fx-text-fill: white;" />
+                                    </HBox>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="View clubs' mission progress" />
+                                </tooltip>
+                            </Button>
+                            <Button fx:id="refreshMissionsButton" styleClass="refresh-button" onAction="#refreshView">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-sync-alt" iconSize="14" />
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="Refresh Missions" />
+                                </tooltip>
+                            </Button>
+                        </HBox>
+
+                        <StackPane VBox.vgrow="ALWAYS">
+                            <VBox fx:id="missionsContainer" spacing="10">
+                                <!-- Mission items will be added here dynamically -->
+                            </VBox>
+
+                            <!-- Empty state for when no missions are available -->
+                            <VBox fx:id="noMissionsContainer" alignment="CENTER" spacing="15" visible="false" managed="false" styleClass="no-data-container">
+                                <FontIcon iconLiteral="fas-tasks" iconSize="48" styleClass="no-data-icon" />
+                                <Label text="No missions available" styleClass="no-data-title" />
+                                <Label text="Select a season to view available missions" styleClass="no-data-message" wrapText="true" />
+                            </VBox>
+                        </StackPane>
+                    </VBox>
+
+                    <!-- Leaderboard Section -->
+                    <VBox styleClass="section-container" minWidth="300" maxWidth="350">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Club Leaderboard" styleClass="leaderboard-title" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="refreshLeaderboardButton" styleClass="refresh-button" onAction="#refreshView">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-sync-alt" iconSize="14" />
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="Refresh Leaderboard" />
+                                </tooltip>
+                            </Button>
+                        </HBox>
+
+                        <TableView fx:id="leaderboardTable" styleClass="leaderboard-table" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="rankColumn" text="#" prefWidth="40" />
+                                <TableColumn fx:id="clubColumn" text="Club" prefWidth="160" />
+                                <TableColumn fx:id="pointsColumn" text="Points" prefWidth="80" />
+                            </columns>
+                            <placeholder>
+                                <Label text="No clubs participating yet" styleClass="table-placeholder" />
+                            </placeholder>
+                        </TableView>
+
+                        <!-- Top Performers Section -->
+                        <VBox spacing="8" styleClass="top-performers-section">
+                            <Label text="Top Performers" styleClass="top-performers-title" />
+                            <HBox fx:id="topPerformersContainer" spacing="10" alignment="CENTER">
+                                <!-- Top performers will be added here dynamically -->
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+            <padding>
+                <Insets top="20" right="30" bottom="30" left="30" />
+            </padding>
+        </ScrollPane>
+    </VBox>
+</AnchorPane>
