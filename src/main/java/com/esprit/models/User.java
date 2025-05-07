@@ -112,7 +112,7 @@ public class User {
         this.warningCount = 0;
     }
 
-    // Getters and Setters (no changes needed)
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -276,13 +276,13 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{"
-                + "id=" + id
-                + ", firstName='" + firstName + '\''
-                + ", lastName='" + lastName + '\''
-                + ", email='" + email + '\''
-                + ", role=" + role
-                + ", status='" + status + '\''
-                + '}';
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

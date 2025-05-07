@@ -1,8 +1,9 @@
 package com.esprit.services;
 
 import com.esprit.models.Club;
+import com.esprit.models.User;
+import com.esprit.models.enums.RoleEnum;
 import com.esprit.utils.DataSource;
-import com.esprit.utils.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,7 +18,11 @@ public class ClubService {
     }
 
     public static ClubService getInstance() {
-        return null;
+        return new ClubService(); // Fixed to return a new instance
+    }
+
+    public Connection getConnection() {
+        return cnx;
     }
 
     public void ajouter(Club club) {
@@ -33,6 +38,7 @@ public class ClubService {
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'ajout du club: " + e.getMessage());
         }
     }
 
@@ -50,6 +56,7 @@ public class ClubService {
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la modification du club: " + e.getMessage());
         }
     }
 
@@ -61,30 +68,151 @@ public class ClubService {
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression du club: " + e.getMessage());
         }
     }
 
     public List<Club> afficher() {
         List<Club> clubs = new ArrayList<>();
-        String query = "SELECT * FROM club";
+        String clubQuery = "SELECT * FROM club";
+        String userQuery = "SELECT * FROM user WHERE id = ?";
 
-        try (Statement stmt = cnx.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+        try (Statement stmt = cnx.createStatement(); ResultSet rs = stmt.executeQuery(clubQuery)) {
             while (rs.next()) {
-                Club club = new Club();
-                club.setId(rs.getInt("id"));
-                club.setPresidentId(rs.getInt("president_id"));
-                club.setNomC(rs.getString("nom_c"));
-                club.setDescription(rs.getString("description"));
-                club.setStatus(rs.getString("status"));
-                club.setImage(rs.getString("image"));
-                club.setPoints(rs.getInt("points"));
+                Club club = mapResultSetToClub(rs);
+
+                // Fetch the president (User) for this club
+                try (PreparedStatement userStmt = cnx.prepareStatement(userQuery)) {
+                    userStmt.setInt(1, club.getPresidentId());
+                    try (ResultSet userRs = userStmt.executeQuery()) {
+                        if (userRs.next()) {
+                            User president = mapResultSetToUser(userRs);
+                            club.setPresident(president);
+                            System.out.println("President found for club " + club.getId() + ": " + president.getEmail());
+                        } else {
+                            System.out.println("No president found for club " + club.getId() + " with president_id = " + club.getPresidentId());
+                        }
+                    }
+                } catch (SQLException userEx) {
+                    System.err.println("Error fetching president for club " + club.getId() + ": " + userEx.getMessage());
+                    userEx.printStackTrace();
+                }
+
                 clubs.add(club);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la récupération des clubs: " + e.getMessage());
         }
-
         return clubs;
+    }
+
+    public Club getClubById(int id) {
+        Club club = null;
+        String clubQuery = "SELECT * FROM club WHERE id = ?";
+        String userQuery = "SELECT * FROM user WHERE id = ?";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(clubQuery)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    club = mapResultSetToClub(rs);
+
+                    // Fetch the president (User) for this club
+                    try (PreparedStatement userStmt = cnx.prepareStatement(userQuery)) {
+                        userStmt.setInt(1, club.getPresidentId());
+                        try (ResultSet userRs = userStmt.executeQuery()) {
+                            if (userRs.next()) {
+                                User president = mapResultSetToUser(userRs);
+                                club.setPresident(president);
+                                System.out.println("President found for club " + club.getId() + ": " + president.getEmail());
+                            } else {
+                                System.out.println("No president found for club " + club.getId() + " with president_id = " + club.getPresidentId());
+                            }
+                        }
+                    } catch (SQLException userEx) {
+                        System.err.println("Error fetching president for club " + club.getId() + ": " + userEx.getMessage());
+                        userEx.printStackTrace();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la récupération du club: " + e.getMessage());
+        }
+        return club;
+    }
+
+    public List<Club> findByPresident2(int presidentId) {
+        List<Club> clubs = new ArrayList<>();
+        String clubQuery = "SELECT * FROM club WHERE president_id = ?";
+        String userQuery = "SELECT * FROM user WHERE id = ?";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(clubQuery)) {
+            stmt.setInt(1, presidentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Club club = mapResultSetToClub(rs);
+
+                    // Fetch the president (User) for this club
+                    try (PreparedStatement userStmt = cnx.prepareStatement(userQuery)) {
+                        userStmt.setInt(1, club.getPresidentId());
+                        try (ResultSet userRs = userStmt.executeQuery()) {
+                            if (userRs.next()) {
+                                User president = mapResultSetToUser(userRs);
+                                club.setPresident(president);
+                                System.out.println("President found for club " + club.getId() + ": " + president.getEmail());
+                            } else {
+                                System.out.println("No president found for club " + club.getId() + " with president_id = " + club.getPresidentId());
+                            }
+                        }
+                    } catch (SQLException userEx) {
+                        System.err.println("Error fetching president for club " + club.getId() + ": " + userEx.getMessage());
+                        userEx.printStackTrace();
+                    }
+
+                    clubs.add(club);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la recherche des clubs: " + e.getMessage());
+        }
+        return clubs;
+    }
+
+    public Club findByPresident(int presidentId) throws SQLException {
+        String clubQuery = "SELECT * FROM club WHERE president_id = ?";
+        String userQuery = "SELECT * FROM user WHERE id = ?";
+
+        try (PreparedStatement pst = cnx.prepareStatement(clubQuery)) {
+            pst.setInt(1, presidentId);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    Club club = mapResultSetToClub(rs);
+
+                    // Fetch the president (User) for this club
+                    try (PreparedStatement userStmt = cnx.prepareStatement(userQuery)) {
+                        userStmt.setInt(1, club.getPresidentId());
+                        try (ResultSet userRs = userStmt.executeQuery()) {
+                            if (userRs.next()) {
+                                User president = mapResultSetToUser(userRs);
+                                club.setPresident(president);
+                                System.out.println("President found for club " + club.getId() + ": " + president.getEmail());
+                            } else {
+                                System.out.println("No president found for club " + club.getId() + " with president_id = " + club.getPresidentId());
+                            }
+                        }
+                    } catch (SQLException userEx) {
+                        System.err.println("Error fetching president for club " + club.getId() + ": " + userEx.getMessage());
+                        userEx.printStackTrace();
+                    }
+
+                    return club;
+                }
+            }
+        }
+        return null;
     }
 
     public List<Object[]> getClubsByPopularity() {
@@ -97,100 +225,27 @@ public class ClubService {
                 "ORDER BY participation_count DESC";
 
         try (PreparedStatement stmt = cnx.prepareStatement(query);
-                ResultSet rs = stmt.executeQuery()) {
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 String clubName = rs.getString("nom_c");
                 int participationCount = rs.getInt("participation_count");
-                stats.add(new Object[] { clubName, participationCount });
+                stats.add(new Object[]{clubName, participationCount});
                 System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
             }
         } catch (SQLException e) {
             System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
+            throw new RuntimeException("Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
         }
 
         System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
         return stats;
     }
 
-    public Club getClubById(int id) {
-        Club club = null;
-        String query = "SELECT * FROM club WHERE id = ?";
-
-        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    club = new Club();
-                    club.setId(rs.getInt("id"));
-                    club.setPresidentId(rs.getInt("president_id"));
-                    club.setNomC(rs.getString("nom_c"));
-                    club.setDescription(rs.getString("description"));
-                    club.setStatus(rs.getString("status"));
-                    club.setImage(rs.getString("image"));
-                    club.setPoints(rs.getInt("points"));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return club;
-    }
-
-    // Get a club by ID (renamed method to match other callers)
     public Club getById(int id) {
         return getClubById(id);
     }
 
-    // Find clubs by president ID
-    public List<Club> findByPresident2(int presidentId) {
-        List<Club> clubs = new ArrayList<>();
-        String query = "SELECT * FROM club WHERE president_id = ?";
-
-        try (PreparedStatement stmt = cnx.prepareStatement(query)) {
-            stmt.setInt(1, presidentId);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Club club = new Club();
-                club.setId(rs.getInt("id"));
-                club.setPresidentId(rs.getInt("president_id"));
-                club.setNomC(rs.getString("nom_c"));
-                club.setDescription(rs.getString("description"));
-                club.setStatus(rs.getString("status"));
-                club.setImage(rs.getString("image"));
-                club.setPoints(rs.getInt("points"));
-                clubs.add(club);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return clubs;
-    }
-
-
-    public Club findByPresident(int presidentId) throws SQLException {
-        String query = "SELECT * FROM club WHERE president_id = ?";
-        try (PreparedStatement pst = cnx.prepareStatement(query)) {
-            pst.setInt(1, presidentId);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToClub(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    // Get all clubs (renamed to match standard service pattern)
-    public List<Club> getAll() {
-        return afficher();
-    }
-
-    // Find the first club by president ID
     public Club findFirstByPresident(int presidentId) {
         List<Club> clubs = findByPresident2(presidentId);
         if (clubs != null && !clubs.isEmpty()) {
@@ -199,7 +254,10 @@ public class ClubService {
         return null;
     }
 
-    // Helper method to map result set to Club object
+    public List<Club> getAll() {
+        return afficher();
+    }
+
     private Club mapResultSetToClub(ResultSet rs) throws SQLException {
         Club club = new Club();
         club.setId(rs.getInt("id"));
@@ -209,7 +267,33 @@ public class ClubService {
         club.setStatus(rs.getString("status"));
         club.setImage(rs.getString("image"));
         club.setPoints(rs.getInt("points"));
+        System.out.println("Fetching club: ID = " + club.getId() + ", President ID = " + club.getPresidentId());
         return club;
     }
 
+    private User mapResultSetToUser(ResultSet userRs) throws SQLException {
+        User president = new User();
+        president.setId(userRs.getInt("id"));
+        president.setFirstName(userRs.getString("prenom"));
+        president.setLastName(userRs.getString("nom"));
+        president.setEmail(userRs.getString("email"));
+        president.setPassword(userRs.getString("password"));
+        president.setRole(RoleEnum.valueOf(userRs.getString("role")));
+        president.setPhone(userRs.getString("tel"));
+        president.setProfilePicture(userRs.getString("profile_picture"));
+        president.setStatus(userRs.getString("status"));
+        president.setVerified(userRs.getBoolean("is_verified"));
+        president.setConfirmationToken(userRs.getString("confirmation_token"));
+        president.setConfirmationTokenExpiresAt(userRs.getTimestamp("confirmation_token_expires_at") != null ?
+                userRs.getTimestamp("confirmation_token_expires_at").toLocalDateTime() : null);
+        president.setCreatedAt(userRs.getTimestamp("created_at") != null ?
+                userRs.getTimestamp("created_at").toLocalDateTime() : null);
+        president.setLastLoginAt(userRs.getTimestamp("last_login_at") != null ?
+                userRs.getTimestamp("last_login_at").toLocalDateTime() : null);
+        president.setWarningCount(userRs.getInt("warning_count"));
+        president.setVerificationAttempts(userRs.getInt("verification_attempts"));
+        president.setLastCodeSentTime(userRs.getTimestamp("last_code_sent_time") != null ?
+                userRs.getTimestamp("last_code_sent_time").toLocalDateTime() : null);
+        return president;
+    }
 }

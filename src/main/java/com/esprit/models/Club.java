@@ -112,15 +112,6 @@ public class Club {
         this.idProperty.set(id);
     }
 
-    // public String getNom() {
-    //     return nom;
-    // }
-
-    // public void setNom(String nom) {
-    //     this.nom = nom;
-    //     this.nomCProperty.set(nom);
-    // }
-
     public String getNomC() {
         return nomC;
     }
@@ -135,8 +126,7 @@ public class Club {
 
     public void setNomC(String nomC) {
         this.nomC = nomC;
-        this.nomCProperty.set(nom);
-
+        this.nomCProperty.set(nomC);
     }
 
     public String getDescription() {
@@ -182,6 +172,22 @@ public class Club {
     public void setStatus(String status) {
         this.status = status;
         this.statusProperty.set(status);
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     // Property accessors for JavaFX
@@ -241,22 +247,6 @@ public class Club {
         if (!this.membres.contains(membre)) {
             this.membres.add(membre);
         }
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public void addSondage(Sondage sondage) {

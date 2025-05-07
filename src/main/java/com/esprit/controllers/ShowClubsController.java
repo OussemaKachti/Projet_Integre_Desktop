@@ -2,11 +2,13 @@ package com.esprit.controllers;
 
 import com.esprit.models.Club;
 import com.esprit.services.ClubService;
+import com.esprit.utils.SessionManager; // Use SessionManager instead of UserSession
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -44,7 +46,7 @@ public class ShowClubsController implements Initializable {
     private Label pageLabel;
 
     private final ClubService clubService = new ClubService();
-    private final int connectedUserId = 1; // Replace with actual user management
+    private final int connectedUserId = getCurrentUserId(); // Updated to get from SessionManager
     private List<Club> allClubs; // All accepted clubs
     private List<Club> filteredClubs; // Clubs after search filter
     private int currentPage = 1;
@@ -257,5 +259,26 @@ public class ShowClubsController implements Initializable {
             System.err.println("Erreur lors de l'ouverture du formulaire de création de club: " + e.getMessage());
             showMessage("Erreur lors de l'ouverture du formulaire", "error");
         }
+    }
+
+    // Helper method to get the current user's ID from SessionManager
+    private int getCurrentUserId() {
+        SessionManager session = SessionManager.getInstance();
+        if (session.getCurrentUser() == null) {
+            System.err.println("Aucun utilisateur connecté détecté dans SessionManager. Utilisation de l'ID par défaut: 1");
+            showAlert("Erreur", "Aucun utilisateur connecté détecté. Veuillez vous connecter.");
+            return 1; // Default fallback (should be replaced with proper navigation to login)
+        }
+        int userId = session.getCurrentUser().getId();
+        System.out.println("Utilisateur connecté détecté avec ID: " + userId);
+        return userId;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
