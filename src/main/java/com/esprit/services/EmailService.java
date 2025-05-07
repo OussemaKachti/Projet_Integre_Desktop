@@ -4,9 +4,9 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import com.esprit.utils.EmailConfig;
 
-// Replace imports with proper Jakarta Mail imports
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.PasswordAuthentication;
