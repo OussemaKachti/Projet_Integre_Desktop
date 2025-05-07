@@ -1,4 +1,4 @@
-/*package com.esprit.controllers;
+package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
@@ -92,7 +92,7 @@ public class CommentsModalController implements Initializable {
      * This method is called after the modal is initialized and the sondage is set
      * It adds the comment section and loads the comments
      */
-   /* public void setupModalContent() {
+    public void setupModalContent() {
         if (commentsListContainer == null || sondage == null) {
             return;
         }
@@ -173,6 +173,7 @@ public class CommentsModalController implements Initializable {
 
     /**
      * Creates a comment box for a comment
+     * 
      * @param comment The comment to create a box for
      * @return A VBox containing the comment UI
      */
@@ -180,62 +181,63 @@ public class CommentsModalController implements Initializable {
         VBox commentBox = new VBox(5);
         commentBox.getStyleClass().add("comment-box");
         commentBox.setPadding(new Insets(10));
-        
+
         // Comment header with user info
         HBox headerBox = new HBox(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        
+
         // User avatar
         ImageView avatar = createUserAvatar(comment.getUser());
-        
+
         // User info
         VBox userInfoBox = new VBox();
         Label userName = new Label(comment.getUser().getFullName());
         userName.getStyleClass().add("comment-user");
-        
+
         // Format date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         Label commentDate = new Label(comment.getDateComment().format(formatter));
         commentDate.getStyleClass().add("comment-date");
-        
+
         userInfoBox.getChildren().addAll(userName, commentDate);
         headerBox.getChildren().addAll(avatar, userInfoBox);
-        
+
         // Comment text
         Label commentText = new Label(comment.getContenuComment());
         commentText.getStyleClass().add("comment-text");
         commentText.setWrapText(true);
         commentText.setPadding(new Insets(5, 0, 5, 50));
-        
+
         // Translation container (initially hidden)
         VBox translationContainer = new VBox(5);
         translationContainer.getStyleClass().add("translation-container");
         translationContainer.setVisible(false);
         translationContainer.setManaged(false);
-        
+
         Label translatedContent = new Label();
         translatedContent.getStyleClass().add("translated-text");
         translatedContent.setWrapText(true);
-        
+
         Label originalLanguageLabel = new Label();
         originalLanguageLabel.getStyleClass().add("language-label");
-        
+
         Label translatedLanguageLabel = new Label();
         translatedLanguageLabel.getStyleClass().add("language-label");
-        
+
         HBox languageLabels = new HBox(10);
         languageLabels.getChildren().addAll(originalLanguageLabel, translatedLanguageLabel);
-        
+
         translationContainer.getChildren().addAll(languageLabels, translatedContent);
-        
+
         // Check if comment is flagged as toxic
         boolean isToxic = comment.getContenuComment().startsWith("⚠️ Comment hidden");
-        
-        // Comment actions (only show for non-toxic comments and if the user is the author)
+
+        // Comment actions (only show for non-toxic comments and if the user is the
+        // author)
         HBox actionBox = new HBox(10);
         actionBox.setAlignment(Pos.CENTER_RIGHT);
         actionBox.setPadding(new Insets(5, 0, 0, 50));
-        
+
         // Add translate button
         Button translateButton = new Button("Translate");
         translateButton.getStyleClass().add("translate-button");
@@ -248,22 +250,21 @@ public class CommentsModalController implements Initializable {
                 translateButton.setText("Hide Translation");
                 translationContainer.setVisible(true);
                 translationContainer.setManaged(true);
-                
+
                 // Get translation service instance
                 TranslationService translationService = TranslationService.getInstance();
-                
+
                 // Call translation service
                 translationService.detectAndTranslate(
-                    comment.getContenuComment(),
-                    translatedContent,
-                    originalLanguageLabel,
-                    translatedLanguageLabel
-                );
+                        comment.getContenuComment(),
+                        translatedContent,
+                        originalLanguageLabel,
+                        translatedLanguageLabel);
             }
         });
-        
+
         actionBox.getChildren().add(translateButton);
-        
+
         if (!isToxic && currentUser != null && comment.getUser().getId() == currentUser.getId()) {
             // Edit components
             TextArea editTextArea = new TextArea(comment.getContenuComment());
@@ -271,20 +272,20 @@ public class CommentsModalController implements Initializable {
             editTextArea.setVisible(false);
             editTextArea.setWrapText(true);
             editTextArea.setPrefRowCount(3);
-            
+
             // Edit button
             Button editButton = new Button("Edit");
             editButton.getStyleClass().add("edit-button");
-            
+
             // Update button (initially hidden)
             Button updateButton = new Button("Update");
             updateButton.getStyleClass().add("update-button");
             updateButton.setVisible(false);
-            
+
             // Delete button
             Button deleteButton = new Button("Delete");
             deleteButton.getStyleClass().add("delete-button");
-            
+
             // Add event handlers
             editButton.setOnAction(e -> {
                 commentText.setVisible(false);
@@ -292,7 +293,7 @@ public class CommentsModalController implements Initializable {
                 editButton.setVisible(false);
                 updateButton.setVisible(true);
             });
-            
+
             updateButton.setOnAction(e -> {
                 try {
                     // Update comment in database
@@ -300,19 +301,19 @@ public class CommentsModalController implements Initializable {
                     if (newContent != null && !newContent.trim().isEmpty()) {
                         comment.setContenuComment(newContent);
                         commentaireService.update(comment);
-                        
+
                         // Update UI
                         commentText.setText(newContent);
                         commentText.setVisible(true);
                         editTextArea.setVisible(false);
                         editButton.setVisible(true);
                         updateButton.setVisible(false);
-                        
+
                         // Reset translation if visible
                         translationContainer.setVisible(false);
                         translationContainer.setManaged(false);
                         translateButton.setText("Translate");
-                        
+
                         // Refresh parent view
                         if (parentController != null) {
                             parentController.refreshData();
@@ -322,12 +323,12 @@ public class CommentsModalController implements Initializable {
                     showCustomAlert("Error", "Failed to update comment: " + ex.getMessage(), "error");
                 }
             });
-            
+
             deleteButton.setOnAction(e -> {
-                boolean confirmed = showConfirmDialog("Delete Comment", 
-                    "Are you sure you want to delete this comment?", 
-                    "This action cannot be undone.");
-                
+                boolean confirmed = showConfirmDialog("Delete Comment",
+                        "Are you sure you want to delete this comment?",
+                        "This action cannot be undone.");
+
                 if (confirmed) {
                     try {
                         commentaireService.delete(comment.getId());
@@ -342,11 +343,12 @@ public class CommentsModalController implements Initializable {
                     }
                 }
             });
-            
+
             actionBox.getChildren().addAll(editButton, deleteButton);
             commentBox.getChildren().addAll(headerBox, commentText, editTextArea, translationContainer, actionBox);
         } else {
-            // For toxic comments or comments by other users, just show the content without edit/delete actions
+            // For toxic comments or comments by other users, just show the content without
+            // edit/delete actions
             if (isToxic) {
                 // Add a moderation badge
                 Label moderationLabel = new Label("Moderated Content");
@@ -355,14 +357,14 @@ public class CommentsModalController implements Initializable {
             }
             commentBox.getChildren().addAll(headerBox, commentText, translationContainer, actionBox);
         }
-        
+
         return commentBox;
     }
 
     /**
      * Shows a custom styled alert
      */
-    /*private void showCustomAlert(String title, String message, String type) {
+    private void showCustomAlert(String title, String message, String type) {
         Stage alertStage = new Stage();
         alertStage.initModality(Modality.APPLICATION_MODAL);
         alertStage.setResizable(false);
@@ -400,7 +402,7 @@ public class CommentsModalController implements Initializable {
     /**
      * Shows a custom confirmation dialog
      */
-    /*private boolean showCustomConfirmDialog(String title, String message, String details) {
+    private boolean showCustomConfirmDialog(String title, String message, String details) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setResizable(false);
@@ -476,7 +478,7 @@ public class CommentsModalController implements Initializable {
     /**
      * Create add comment section with validation
      */
-   /* public VBox createAddCommentSection() {
+    public VBox createAddCommentSection() {
         VBox addCommentContainer = new VBox(10);
         addCommentContainer.getStyleClass().add("add-comment-container");
         addCommentContainer.setPadding(new Insets(15));
@@ -551,6 +553,7 @@ public class CommentsModalController implements Initializable {
 
     /**
      * Creates a user avatar for display in comments
+     * 
      * @param user The user to create an avatar for
      * @return An ImageView containing the user's avatar
      */
@@ -589,17 +592,18 @@ public class CommentsModalController implements Initializable {
         dropShadow.setOffsetY(1.0);
         dropShadow.setColor(Color.rgb(0, 0, 0, 0.3));
         avatar.setEffect(dropShadow);
-        
+
         // Make avatar circular
         double radius = avatar.getFitWidth() / 2;
         avatar.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
-        
+
         return avatar;
     }
 
     /**
      * Shows a confirmation dialog
-     * @param title The title of the dialog
+     * 
+     * @param title   The title of the dialog
      * @param message The main message
      * @param details Additional details
      * @return true if confirmed, false otherwise

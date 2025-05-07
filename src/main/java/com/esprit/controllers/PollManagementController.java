@@ -61,7 +61,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Contrôleur pour la gestion des sondages
  */
-/*public class PollManagementController implements Initializable {
+public class PollManagementController implements Initializable {
 
     @FXML
     private Button backButton;
@@ -257,6 +257,7 @@ import java.util.concurrent.CompletableFuture;
         stage.setScene(scene);
         stage.setMaximized(true);
     }
+
     @FXML
     public void navigateToClubs() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
@@ -265,6 +266,7 @@ import java.util.concurrent.CompletableFuture;
         stage.setScene(scene);
         stage.setMaximized(true);
     }
+
     @FXML
     public void navigateToMyClub() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
@@ -418,7 +420,7 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Configure la recherche
      */
-   /* private void setupSearch() {
+    private void setupSearch() {
         searchButton.setOnAction(e -> performSearch());
 
         // Enable search on Enter key
@@ -428,7 +430,7 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Exécute la recherche dans les sondages
      */
-   /* private void performSearch() {
+    private void performSearch() {
         String searchTerm = searchField.getText().toLowerCase().trim();
 
         if (searchTerm.isEmpty()) {
@@ -488,7 +490,7 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Affiche un toast avec un message
      */
-    /*private void showToast(String message, String type) {
+    private void showToast(String message, String type) {
         Label toastText = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
         toastText.setText(message);
 
@@ -593,7 +595,7 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Ouvre la fenêtre modale pour créer ou modifier un sondage
      */
-   /* private void openPollModal(Sondage sondage) {
+    private void openPollModal(Sondage sondage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/EditPollModal.fxml"));
             VBox modalContent = loader.load();
@@ -660,7 +662,7 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Demande confirmation avant de supprimer un sondage
      */
-    /*private void confirmDeletePoll(Sondage sondage) {
+    private void confirmDeletePoll(Sondage sondage) {
         boolean confirm = showCustomConfirmDialog(
                 "Delete Poll",
                 "Are you sure you want to delete this poll?",
@@ -689,7 +691,7 @@ import java.util.concurrent.CompletableFuture;
      * Delete a poll and all its dependencies to avoid foreign key constraint
      * violations
      */
-   /* private void deletePollWithDependencies(int pollId) throws SQLException {
+    private void deletePollWithDependencies(int pollId) throws SQLException {
         // Get all responses/votes for this poll and delete them first
         try {
             // Delete comments related to the poll
@@ -712,14 +714,14 @@ import java.util.concurrent.CompletableFuture;
     /**
      * Définit la scène précédente pour la navigation
      */
-   /* public void setPreviousScene(Scene scene) {
+    public void setPreviousScene(Scene scene) {
         this.previousScene = scene;
     }
 
     /**
      * Retourne à la vue précédente
      */
-    /*private void navigateBack() {
+    private void navigateBack() {
         if (previousScene != null) {
             Stage stage = (Stage) backButton.getScene().getWindow();
 

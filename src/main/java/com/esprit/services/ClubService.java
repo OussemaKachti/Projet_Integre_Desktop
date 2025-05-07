@@ -16,7 +16,6 @@ public class ClubService {
         this.cnx = DataSource.getInstance().getCnx();
     }
 
-
     public static ClubService getInstance() {
         return null;
     }
@@ -88,6 +87,34 @@ public class ClubService {
         return clubs;
     }
 
+    public List<Object[]> getClubsByPopularity() {
+        List<Object[]> stats = new ArrayList<>();
+        String query = "SELECT c.nom_c, " +
+                "COUNT(CASE WHEN pm.statut = 'accepte' THEN pm.id ELSE NULL END) as participation_count " +
+                "FROM club c " +
+                "LEFT JOIN participation_membre pm ON c.id = pm.club_id " +
+                "GROUP BY c.nom_c " +
+                "ORDER BY participation_count DESC";
+
+        try (PreparedStatement stmt = cnx.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String clubName = rs.getString("nom_c");
+                int participationCount = rs.getInt("participation_count");
+                stats.add(new Object[] { clubName, participationCount });
+                System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
+            }
+        } catch (SQLException e) {
+            System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
+        }
+
+        System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
+        return stats;
+    }
+
     public Club getClubById(int id) {
         Club club = null;
         String query = "SELECT * FROM club WHERE id = ?";
@@ -127,19 +154,23 @@ public class ClubService {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                String clubName = rs.getString("nom_c");
-                int participationCount = rs.getInt("participation_count");
-                stats.add(new Object[]{clubName, participationCount});
-                System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
+                Club club = new Club();
+                club.setId(rs.getInt("id"));
+                club.setPresidentId(rs.getInt("president_id"));
+                club.setNomC(rs.getString("nom_c"));
+                club.setDescription(rs.getString("description"));
+                club.setStatus(rs.getString("status"));
+                club.setImage(rs.getString("image"));
+                club.setPoints(rs.getInt("points"));
+                clubs.add(club);
             }
         } catch (SQLException e) {
-            System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
         }
 
         return clubs;
     }
+
 
     public Club findByPresident(int presidentId) throws SQLException {
         String query = "SELECT * FROM club WHERE president_id = ?";
@@ -180,30 +211,5 @@ public class ClubService {
         club.setPoints(rs.getInt("points"));
         return club;
     }
-    public List<Object[]> getClubsByPopularity() {
-        List<Object[]> stats = new ArrayList<>();
-        String query = "SELECT c.nom_c, " +
-                "COUNT(CASE WHEN pm.statut = 'accepte' THEN pm.id ELSE NULL END) as participation_count " +
-                "FROM club c " +
-                "LEFT JOIN participation_membre pm ON c.id = pm.club_id " +
-                "GROUP BY c.nom_c " +
-                "ORDER BY participation_count DESC";
 
-        try (PreparedStatement stmt = cnx.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                String clubName = rs.getString("nom_c");
-                int participationCount = rs.getInt("participation_count");
-                stats.add(new Object[]{clubName, participationCount});
-                System.out.println("Donnée brute: Club = " + clubName + ", Count = " + participationCount);
-            }
-        } catch (SQLException e) {
-            System.err.println("SQLException in getClubsByPopularity: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la récupération des statistiques de popularité: " + e.getMessage());
-        }
-
-        System.out.println("Total données récupérées dans getClubsByPopularity : " + stats.size());
-        return stats;
-    }
 }

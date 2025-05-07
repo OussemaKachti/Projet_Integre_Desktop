@@ -1,6 +1,8 @@
 package com.esprit.controllers;
 
 import com.esprit.models.ParticipationMembre;
+import com.esprit.models.User;
+import com.esprit.models.Club;
 import com.esprit.services.AiMService;
 import com.esprit.services.ParticipationMembreService;
 import javafx.fxml.FXML;
@@ -48,18 +50,28 @@ public class FormParticipationController {
 
         try {
             // 🔥 NEW PART: Check with AI before adding participant
-            if (AiMService.containsBadWords(description)) {
-                showError("Votre description contient des mots inappropriés. Veuillez corriger et réessayer.");
-                return;
-            }
+            // if (AiMService.containsBadWords(description)) {
+            //     showError("Votre description contient des mots inappropriés. Veuillez corriger et réessayer.");
+            //     return;
+            // }
 
             // If everything is fine ➔ Add participant
-            ParticipationMembre participant = new ParticipationMembre(
-                    userId,
-                    clubId,
-                    description,
-                    "en_attente" // Default status
-            );
+            ParticipationMembre participant = new ParticipationMembre();
+            
+            // Create and set User
+            User user = new User();
+            user.setId(userId);
+            participant.setUser(user);
+            
+            // Create and set Club
+            Club club = new Club();
+            club.setId(clubId);
+            participant.setClub(club);
+            
+            // Set description and status
+            participant.setDescription(description);
+            participant.setStatut("enAttente");
+            
             participantService.ajouter(participant);
 
             showSuccess("Demande de participation envoyée avec succès !");

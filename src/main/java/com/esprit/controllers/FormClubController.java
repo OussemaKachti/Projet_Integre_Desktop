@@ -22,7 +22,7 @@ public class FormClubController {
     private TextField imageField;
 
     private final ClubService clubService = new ClubService();
-    private int presidentId = 1; // Default, will be overridden by setPresidentId
+    private int presidentId = 10; // Default, will be overridden by setPresidentId
 
     // Set the president ID (called by ShowClubsController)
     public void setPresidentId(int presidentId) {
@@ -46,26 +46,30 @@ public class FormClubController {
         }
 
         if (!description.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
-            showAlert(Alert.AlertType.WARNING, "Description invalide", "La description contient des caractères non autorisés.");
+            showAlert(Alert.AlertType.WARNING, "Description invalide",
+                    "La description contient des caractères non autorisés.");
             return;
         }
 
         if (description.split("\\s+").length > 30) {
-            showAlert(Alert.AlertType.WARNING, "Description trop longue", "La description ne doit pas dépasser 30 mots.");
+            showAlert(Alert.AlertType.WARNING, "Description trop longue",
+                    "La description ne doit pas dépasser 30 mots.");
             return;
         }
 
         if (!image.matches("^https?://.*")) {
-            showAlert(Alert.AlertType.WARNING, "URL invalide", "L'URL de l'image doit commencer par http:// ou https://");
+            showAlert(Alert.AlertType.WARNING, "URL invalide",
+                    "L'URL de l'image doit commencer par http:// ou https://");
             return;
         }
 
         try {
             // ✅ AI moderation call
-             if (AiMService.containsBadWords(description)) {
-                showAlert(Alert.AlertType.ERROR, "Contenu inapproprié", "La description contient des mots inappropriés !");
-                return;
-            }
+            // if (AiMService.containsBadWords(description)) {
+            // showAlert(Alert.AlertType.ERROR, "Contenu inapproprié", "La description
+            // contient des mots inappropriés !");
+            // return;
+            // }
 
             String status = "en_attente";
             int points = 0;
@@ -79,13 +83,11 @@ public class FormClubController {
             Stage stage = (Stage) nomCField.getScene().getWindow();
             stage.close();
 
-
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ajout du club: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
 
     private void clearForm() {
         nomCField.clear();
