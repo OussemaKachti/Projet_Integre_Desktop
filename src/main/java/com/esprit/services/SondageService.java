@@ -1,4 +1,4 @@
-package com.esprit.services;
+/*package com.esprit.services;
 
 import com.esprit.models.Sondage;
 import com.esprit.models.ChoixSondage;
@@ -158,7 +158,7 @@ public class SondageService {
      * @param clubId2 Nom ou ID du club pour lequel récupérer les sondages
      * @return Liste des sondages du club
      */
-    public List<Sondage> getByClub(String clubId2) throws SQLException {
+    /*public List<Sondage> getByClub(String clubId2) throws SQLException {
         List<Sondage> sondages = new ArrayList<>();
 
         // Ensure the connection is valid before executing the query
@@ -211,7 +211,7 @@ public class SondageService {
      * @param sondageId ID du sondage pour lequel récupérer les choix
      * @return Liste des choix du sondage
      */
-    public List<ChoixSondage> getChoixBySondage(int sondageId) throws SQLException {
+    /*public List<ChoixSondage> getChoixBySondage(int sondageId) throws SQLException {
         List<ChoixSondage> choix = new ArrayList<>();
         String query = "SELECT * FROM choix_sondage WHERE sondage_id = ?";
 
@@ -240,14 +240,14 @@ public class SondageService {
     /**
      * Récupère tous les sondages (méthode de compatibilité)
      */
-    public List<Sondage> readAll() throws SQLException {
+   /* public List<Sondage> readAll() throws SQLException {
         return new ArrayList<>(getAll());
     }
 
     /**
      * Delete all comments related to a poll
      */
-    public void deleteCommentsByPollId(int pollId) throws SQLException {
+   /* public void deleteCommentsByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM commentaire WHERE sondage_id = ?";
         
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -259,7 +259,7 @@ public class SondageService {
     /**
      * Delete all responses/votes related to a poll
      */
-    public void deleteResponsesByPollId(int pollId) throws SQLException {
+    /*public void deleteResponsesByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM reponse WHERE sondage_id = ?";
         
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -271,7 +271,7 @@ public class SondageService {
     /**
      * Delete all options related to a poll
      */
-    public void deleteOptionsByPollId(int pollId) throws SQLException {
+    /*public void deleteOptionsByPollId(int pollId) throws SQLException {
         String query = "DELETE FROM choix_sondage WHERE sondage_id = ?";
         
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -280,3 +280,4 @@ public class SondageService {
         }
     }
 }
+*/

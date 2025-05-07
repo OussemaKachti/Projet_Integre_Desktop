@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Club;
@@ -45,7 +45,7 @@ import java.util.Set;
 /**
  * Contrôleur pour la fenêtre modale d'édition de sondage
  */
-public class EditPollModalController implements Initializable {
+/*public class EditPollModalController implements Initializable {
 
     @FXML
     private TextField pollQuestionInput;
@@ -100,7 +100,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Close the modal
      */
-    private void closeModal() {
+    /*private void closeModal() {
         if (modalStage != null) {
             modalStage.close();
         }
@@ -109,7 +109,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Set the modal stage reference
      */
-    public void setModalStage(Stage stage) {
+    /*public void setModalStage(Stage stage) {
         this.modalStage = stage;
 
         // Make sure the stage is not null and has a scene
@@ -134,7 +134,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Set edit mode with existing poll
      */
-    public void setEditMode(Sondage sondage, User user) {
+    /*public void setEditMode(Sondage sondage, User user) {
         this.isCreateMode = false;
         this.currentPoll = sondage;
         this.currentUser = user;
@@ -193,7 +193,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Set create mode with current user
      */
-    public void setCreateMode(User user) {
+    /*public void setCreateMode(User user) {
         this.isCreateMode = true;
         this.currentUser = user;
         this.currentPoll = new Sondage();
@@ -208,14 +208,14 @@ public class EditPollModalController implements Initializable {
     /**
      * Add a new option field
      */
-    private void handleAddOption(ActionEvent event) {
+   /* private void handleAddOption(ActionEvent event) {
         addOptionField("", true);
     }
 
     /**
      * Add an option field with the given text
      */
-    private TextField addOptionField(String text, boolean animate) {
+    /*private TextField addOptionField(String text, boolean animate) {
         HBox optionRow = new HBox(10);
         optionRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -253,7 +253,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Remove an option field
      */
-    private void removeOptionField(HBox container, TextField field) {
+   /* private void removeOptionField(HBox container, TextField field) {
         // Don't allow removing if only 2 options left
         if (optionFields.size() <= 2) {
             AlertUtils.showWarning("Warning", "At least 2 options are required for a poll.");
@@ -275,7 +275,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Validate form and enable/disable save button
      */
-    private void validateForm() {
+   /* private void validateForm() {
         boolean isValid = true;
         StringBuilder errorMessage = new StringBuilder();
 
@@ -347,7 +347,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Handle save action
      */
-    @FXML
+   /* @FXML
     private void handleSave(ActionEvent event) {
         try {
             // Validate input
@@ -502,7 +502,7 @@ public class EditPollModalController implements Initializable {
     /**
      * Set handler to be called after saving
      */
-    public void setOnSaveHandler(Runnable handler) {
+   /* public void setOnSaveHandler(Runnable handler) {
         this.onSaveHandler = handler;
     }
 

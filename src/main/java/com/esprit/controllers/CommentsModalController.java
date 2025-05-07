@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
@@ -92,7 +92,7 @@ public class CommentsModalController implements Initializable {
      * This method is called after the modal is initialized and the sondage is set
      * It adds the comment section and loads the comments
      */
-    public void setupModalContent() {
+   /* public void setupModalContent() {
         if (commentsListContainer == null || sondage == null) {
             return;
         }
@@ -362,7 +362,7 @@ public class CommentsModalController implements Initializable {
     /**
      * Shows a custom styled alert
      */
-    private void showCustomAlert(String title, String message, String type) {
+    /*private void showCustomAlert(String title, String message, String type) {
         Stage alertStage = new Stage();
         alertStage.initModality(Modality.APPLICATION_MODAL);
         alertStage.setResizable(false);
@@ -400,7 +400,7 @@ public class CommentsModalController implements Initializable {
     /**
      * Shows a custom confirmation dialog
      */
-    private boolean showCustomConfirmDialog(String title, String message, String details) {
+    /*private boolean showCustomConfirmDialog(String title, String message, String details) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setResizable(false);
@@ -476,7 +476,7 @@ public class CommentsModalController implements Initializable {
     /**
      * Create add comment section with validation
      */
-    public VBox createAddCommentSection() {
+   /* public VBox createAddCommentSection() {
         VBox addCommentContainer = new VBox(10);
         addCommentContainer.getStyleClass().add("add-comment-container");
         addCommentContainer.setPadding(new Insets(15));
