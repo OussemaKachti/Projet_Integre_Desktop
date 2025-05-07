@@ -1,0 +1,276 @@
+/* Variables pour faciliter la cohérence et les changements de thème */
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-background-color: #f9fafc;
+
+    /* Variables de couleur */
+    -primary-color: #3498db;
+    -primary-dark: #2980b9;
+    -secondary-color: #6c757d;
+    -accent-color: #5dade2;
+    -text-primary: #2c3e50;
+    -text-secondary: #5d6d7e;
+    -border-color: #e0e6ed;
+    -hover-color: #ebf5fb;
+    -today-color: #d4edda;
+    -selected-color: #e2f0fb;
+    -event-color-1: #3498db;
+    -event-color-2: #1abc9c;
+    -event-color-3: #e74c3c;
+    -event-color-4: #f39c12;
+}
+
+/* Header styling - Plus élégant */
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 15 0 10 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 1, 0, 0, 1);
+}
+
+.month-year-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-color;
+    -fx-padding: 5 10;
+}
+
+/* Boutons de navigation améliorés */
+.nav-button {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 50%;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: -primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}
+
+.today-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 8 18;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.today-button:hover {
+    -fx-background-color: -primary-dark;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.secondary-button {
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 8 18;
+    -fx-font-weight: normal;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: derive(-secondary-color, -10%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.filter-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 0 0 0 12;
+}
+
+/* En-tête du calendrier amélioré */
+.weekdays-header {
+    -fx-background-color: -primary-color;
+    -fx-padding: 10 5;
+}
+
+.weekday-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-padding: 5;
+}
+
+/* Grille du calendrier améliorée */
+.calendar-grid {
+    -fx-background-color: white;
+    -fx-grid-lines-visible: true;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1;
+}
+
+.calendar-cell {
+    -fx-border-color: -border-color;
+    -fx-border-width: 0.5;
+    -fx-padding: 5;
+    -fx-background-color: white;
+}
+
+.calendar-cell:hover {
+    -fx-background-color: -hover-color;
+}
+
+.calendar-cell-today {
+    -fx-background-color: -today-color;
+}
+
+.calendar-cell-selected {
+    -fx-background-color: -selected-color;
+    -fx-border-color: -primary-color;
+    -fx-border-width: 1;
+}
+
+.calendar-date {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+}
+
+.calendar-date-secondary {
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-text-fill: -text-secondary;
+    -fx-opacity: 0.7;
+}
+
+/* Styling pour les événements */
+.event-item {
+    -fx-background-radius: 3;
+    -fx-padding: 3 7;
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 1, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.event-item-1 {
+    -fx-background-color: -event-color-1;
+}
+
+.event-item-2 {
+    -fx-background-color: -event-color-2;
+}
+
+.event-item-3 {
+    -fx-background-color: -event-color-3;
+}
+
+.event-item-4 {
+    -fx-background-color: -event-color-4;
+}
+
+.event-item:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+/* Panneau de détails d'événement amélioré */
+.event-details-pane {
+    -fx-background-color: white;
+    -fx-border-color: -border-color;
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 15;
+}
+
+.event-details-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 0 0 10 0;
+}
+
+.event-details-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 5 0;
+}
+
+.event-details-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 10 0;
+    -fx-wrap-text: true;
+}
+
+/* Boutons d'action pour les événements */
+.event-action-button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 7 15;
+    -fx-cursor: hand;
+}
+
+.event-action-button:hover {
+    -fx-background-color: -primary-dark;
+}
+
+.event-delete-button {
+    -fx-background-color: -event-color-3;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-padding: 7 15;
+    -fx-cursor: hand;
+}
+
+.event-delete-button:hover {
+    -fx-background-color: derive(-event-color-3, -10%);
+}
+
+/* Contrôles de pagination améliorés */
+.pagination-controls {
+    -fx-padding: 12;
+    -fx-background-color: white;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1 0 0 0;
+}
+
+.pagination-button {
+    -fx-background-color: white;
+    -fx-text-fill: -primary-color;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+}
+
+.pagination-button:hover {
+    -fx-background-color: -hover-color;
+    -fx-border-color: -primary-color;
+}
+
+.pagination-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.pagination-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+    -fx-padding: 0 10;
+}
+
+/* Tooltip amélioré pour les événements */
+.event-tooltip {
+    -fx-background-color: white;
+    -fx-text-fill: -text-primary;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: -border-color;
+    -fx-padding: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}

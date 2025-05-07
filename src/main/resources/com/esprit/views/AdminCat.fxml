@@ -1,320 +1,392 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.paint.LinearGradient?>
-<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.layout.StackPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.esprit.controllers.AdminCategorie"
-            prefHeight="650.0" prefWidth="900.0">
+<BorderPane stylesheets="@../styles/uniclubs.css,@../styles/no-scrollbar.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AdminCategorie">
+    <left>
+        <!-- Sidebar Navigation - Reste inchangé -->
+        <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+            <!-- Contenu sidebar inchangé -->
+            <padding>
+                <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+            </padding>
 
-    <!-- Main Layout -->
-    <BorderPane AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+            <!-- Application Logo -->
+            <HBox alignment="CENTER" spacing="10.0" styleClass="logo-container">
+                <Label styleClass="logo-text" text="UNICLUBS">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+            </HBox>
 
-        <!-- Side Panel -->
-        <left>
-            <VBox prefWidth="270" style="-fx-background-color: #040f71;">
-                <!-- App Logo/Title Area -->
-                <HBox alignment="CENTER_LEFT" style="-fx-padding: 25 20;">
-                    <Circle radius="25" fill="#1e90ff" />
+            <Separator>
+                <VBox.margin>
+                    <Insets bottom="20.0" top="20.0" />
+                </VBox.margin>
+            </Separator>
 
-                    <VBox spacing="2" HBox.hgrow="ALWAYS" style="-fx-padding: 0 0 0 15;">
-                        <Label text="Club Management" textFill="WHITE">
-                            <font>
-                                <Font name="Arial Bold" size="20"/>
-                            </font>
-                        </Label>
-                        <Label text="Administrator Panel" textFill="#b8c7e0">
-                            <font>
-                                <Font name="Arial" size="14"/>
-                            </font>
-                        </Label>
-                    </VBox>
-                </HBox>
+            <!-- Admin Info -->
+            <Label fx:id="adminNameLabel" styleClass="admin-name" text="Admin Name">
+                <font>
+                    <Font name="System Bold" size="16.0" />
+                </font>
+            </Label>
+            <Label styleClass="admin-role" text="Administrator" />
 
-                <!-- Navigation Menu -->
-                <VBox spacing="8" style="-fx-padding: 30 10 20 10;">
-                    <!-- Dashboard Option -->
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 8;" onMouseClicked="#navigateToDashboard">
-                        <Circle radius="4" fill="WHITE" />
-                        <Label text="Dashboard" textFill="WHITE" style="-fx-padding: 0 0 0 15;">
-                            <font>
-                                <Font name="Arial Bold" size="14"/>
-                            </font>
-                        </Label>
-                    </HBox>
+            <Separator>
+                <VBox.margin>
+                    <Insets bottom="20.0" top="20.0" />
+                </VBox.margin>
+            </Separator>
 
-                    <!-- Categories Option (Selected) -->
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: #1e90ff; -fx-background-radius: 8;">
-                        <Circle radius="4" fill="WHITE" />
-                        <Label text="Categories" textFill="WHITE" style="-fx-padding: 0 0 0 15;">
-                            <font>
-                                <Font name="Arial Bold" size="14"/>
-                            </font>
-                        </Label>
-                    </HBox>
+            <!-- Menu Items -->
+            <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+                <Button fx:id="userManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="User Management">
+                    <graphic>
+                        <Label text="👤" />
+                    </graphic>
+                </Button>
 
-                    <!-- Members Option -->
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: transparent; -fx-background-radius: 8;" onMouseClicked="#navigateToMembers">
-                        <Circle radius="4" fill="#aabbdd" />
-                        <Label text="Members" textFill="#aabbdd" style="-fx-padding: 0 0 0 15;">
-                            <font>
-                                <Font name="Arial" size="14"/>
-                            </font>
-                        </Label>
-                    </HBox>
+                <Button fx:id="clubManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Club Management">
+                    <graphic>
+                        <Label text="🏛" />
+                    </graphic>
+                </Button>
 
-                    <!-- Events Option -->
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: transparent; -fx-background-radius: 8;" onMouseClicked="#navigateToEvents">
-                        <Circle radius="4" fill="#aabbdd" />
-                        <Label text="Events" textFill="#aabbdd" style="-fx-padding: 0 0 0 15;">
-                            <font>
-                                <Font name="Arial" size="14"/>
-                            </font>
-                        </Label>
-                    </HBox>
+                <Button fx:id="eventManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button, active" text="Event Management">
+                    <graphic>
+                        <Label text="📅" />
+                    </graphic>
+                </Button>
 
-                    <!-- Reports Option -->
-                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: transparent; -fx-background-radius: 8;" onMouseClicked="#navigateToReports">
-                        <Circle radius="4" fill="#aabbdd" />
-                        <Label text="Reports" textFill="#aabbdd" style="-fx-padding: 0 0 0 15;">
-                            <font>
-                                <Font name="Arial" size="14"/>
-                            </font>
-                        </Label>
-                    </HBox>
-                </VBox>
+                <Button fx:id="productOrdersButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Products &amp; Orders">
+                    <graphic>
+                        <Label text="🛒" />
+                    </graphic>
+                </Button>
 
-                <Region VBox.vgrow="ALWAYS" />
+                <Button fx:id="competitionButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Competition &amp; Season">
+                    <graphic>
+                        <Label text="🏆" />
+                    </graphic>
+                </Button>
 
-                <!-- Logout Button at Bottom -->
-                <HBox alignment="CENTER_LEFT" style="-fx-padding: 20;">
-                    <Button text="Log Out" onAction="#handleLogout" style="-fx-background-color: transparent; -fx-border-color: #aabbdd; -fx-text-fill: #aabbdd; -fx-border-radius: 20; -fx-padding: 8 20;">
-                        <font>
-                            <Font name="Arial" size="14"/>
-                        </font>
-                    </Button>
-                </HBox>
+                <Button fx:id="surveyButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Survey Management">
+                    <graphic>
+                        <Label text="📊" />
+                    </graphic>
+                </Button>
+
+                <VBox.margin>
+                    <Insets bottom="20.0" />
+                </VBox.margin>
             </VBox>
-        </left>
 
-        <!-- Main Content Area -->
-        <center>
-            <BorderPane style="-fx-background-color: #f6f9fe;">
-                <!-- Top Header Bar -->
-                <top>
-                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-                        <Label text="Category Management" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+            <!-- Bottom Menu Options -->
+            <VBox spacing="5.0">
+                <Button fx:id="profileButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="My Profile">
+                    <graphic>
+                        <Label text="👤" />
+                    </graphic>
+                </Button>
+
+                <Button fx:id="logoutButton" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleLogout" styleClass="sidebar-button, sidebar-button-logout" text="Logout">
+                    <graphic>
+                        <Label text="🚪" />
+                    </graphic>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <BorderPane prefHeight="646.0" prefWidth="930.0" style="-fx-background-color: #f6f9fe;">
+            <!-- Top Header Bar - Inchangé -->
+            <top>
+                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="dashboard-header" style="-fx-background-color: white; -fx-padding: 15 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                    <Label style="-fx-text-fill: #040f71; -fx-font-weight: bold;" styleClass="dashboard-title" text="Category Management">
+                        <font>
+                            <Font name="System Bold" size="32.0" />
+                        </font>
+                    </Label>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <!-- Search Box -->
+                        <HBox alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 30; -fx-border-color: #e9ecef; -fx-border-radius: 30; -fx-padding: 5;">
+                            <Label text="🔍" style="-fx-font-size: 14; -fx-text-fill: #6c757d; -fx-padding: 0 0 0 10;" />
+                            <TextField fx:id="searchField" prefWidth="250.0" promptText="Search categories..." style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8 15;">
+                                <font>
+                                    <Font name="System" size="14" />
+                                </font>
+                            </TextField>
+                        </HBox>
+
+                        <!-- Date Display -->
+                        <Label fx:id="dateLabel" style="-fx-text-fill: #6c757d; -fx-padding: 0 20 0 0;" text="Today: Wednesday, April 30, 2025">
                             <font>
-                                <Font name="Arial Bold" size="24"/>
+                                <Font name="System Italic" size="14" />
                             </font>
                         </Label>
-
-                        <Region HBox.hgrow="ALWAYS" />
-
-                        <TextField fx:id="searchField" promptText="Search..." prefWidth="250"
-                                   style="-fx-background-color: #f8f9fa; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 20;">
-                            <font>
-                                <Font name="Arial" size="14"/>
-                            </font>
-                        </TextField>
-
-                        <Circle radius="18" fill="#1e90ff" />
                     </HBox>
-                </top>
+                </HBox>
+            </top>
 
-                <!-- Main Content -->
-                <center>
-                    <VBox style="-fx-padding: 30 40;">
-                        <!-- Page Info -->
+            <!-- Main Content - Restructuré avec PieChart en bas -->
+            <center>
+                <ScrollPane fitToWidth="true" pannable="true" style="-fx-background-color: #f6f9fe; -fx-background: #f6f9fe; -fx-border-color: #f6f9fe;">
+                    <VBox prefHeight="900.0" prefWidth="852.0" spacing="20" style="-fx-padding: 20 30; -fx-background-color: #f6f9fe;">
+                        <!-- Header Section -->
                         <HBox alignment="CENTER_LEFT" spacing="15">
                             <VBox>
-                                <Label text="Categories" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                <Label style="-fx-text-fill: #040f71; -fx-font-weight: bold;" text="Categories">
                                     <font>
-                                        <Font name="Arial Bold" size="32"/>
+                                        <Font name="System Bold" size="24.0" />
                                     </font>
                                 </Label>
-                                <Label text="Manage all your club categories from here" style="-fx-text-fill: #666666;">
+                                <Label style="-fx-text-fill: #6c757d;" text="Manage all your club categories from here">
                                     <font>
-                                        <Font name="Arial" size="14"/>
+                                        <Font name="System" size="16.0" />
                                     </font>
                                 </Label>
                             </VBox>
-
-                            <Region HBox.hgrow="ALWAYS" />
-
-                            <Label fx:id="dateLabel" text="Today: Tuesday, April 15, 2025" style="-fx-text-fill: #666666;">
-                                <font>
-                                    <Font name="Arial Italic" size="14"/>
-                                </font>
-                            </Label>
                         </HBox>
 
-                        <HBox style="-fx-padding: 30 0 20 0;">
+                        <!-- Stats Cards Row -->
+                        <HBox spacing="20">
                             <!-- Stats Card 1 -->
-                            <VBox prefWidth="200" minWidth="200" maxWidth="200"
-                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                                  HBox.hgrow="ALWAYS">
-                                <Label text="Total Categories" style="-fx-text-fill: #666666;">
-                                    <font>
-                                        <Font name="Arial" size="14"/>
-                                    </font>
-                                </Label>
-                                <Label fx:id="totalCategoriesLabel" text="24"
-                                       style="-fx-text-fill: #040f71; -fx-font-weight: bold;">
-                                    <font>
-                                        <Font name="Arial Bold" size="28"/>
-                                    </font>
-                                </Label>
+                            <VBox maxWidth="300.0" minWidth="220" prefHeight="100.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="15">
+                                    <StackPane>
+                                        <Circle radius="25" style="-fx-fill: rgba(4,15,113,0.1);"/>
+                                        <Label text="📊" style="-fx-font-size: 20;"/>
+                                    </StackPane>
+                                    <VBox>
+                                        <Label style="-fx-text-fill: #6c757d;" text="Total Categories">
+                                            <font>
+                                                <Font name="System" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="totalCategoriesLabel" style="-fx-text-fill: #040f71; -fx-font-weight: bold;" text="24">
+                                            <font>
+                                                <Font name="System Bold" size="28.0" />
+                                            </font>
+                                        </Label>
+                                    </VBox>
+                                </HBox>
                             </VBox>
-
-                            <Region prefWidth="50" />
 
                             <!-- Stats Card 2 -->
-                            <VBox prefWidth="200" minWidth="200" maxWidth="200"
-                                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;
-                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                                  HBox.hgrow="ALWAYS">
-                                <Label text="Most Popular" style="-fx-text-fill: #666666;">
-                                    <font>
-                                        <Font name="Arial" size="16"/>
-                                    </font>
-                                </Label>
-                                <Label fx:id="popularCategoryLabel"
-                                       style="-fx-text-fill: #28a745; -fx-font-weight: bold;">
-                                    <font>
-                                        <Font name="Arial Bold" size="28"/>
-                                    </font>
-                                </Label>
+                            <VBox maxWidth="300.0" minWidth="220" prefHeight="100.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="15">
+                                    <StackPane>
+                                        <Circle radius="25" style="-fx-fill: rgba(40,167,69,0.1);"/>
+                                        <Label text="🔝" style="-fx-font-size: 20;"/>
+                                    </StackPane>
+                                    <VBox>
+                                        <Label style="-fx-text-fill: #6c757d;" text="Most Popular">
+                                            <font>
+                                                <Font name="System" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="popularCategoryLabel" style="-fx-text-fill: #28a745; -fx-font-weight: bold;" text="Sports">
+                                            <font>
+                                                <Font name="System Bold" size="28.0" />
+                                            </font>
+                                        </Label>
+                                    </VBox>
+                                </HBox>
                             </VBox>
+
+                            <Region prefWidth="100" HBox.hgrow="ALWAYS" />
                         </HBox>
 
+                        <!-- Rangée supérieure: Add Category + Liste -->
+                        <HBox spacing="20" prefHeight="400.0">
+                            <!-- Colonne gauche: Formulaire "Add Category" -->
+                            <VBox spacing="15" minWidth="300.0" prefWidth="300.0" HBox.hgrow="NEVER">
+                                <!-- Add Category Panel -->
+                                <VBox prefHeight="220.0" spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <StackPane>
+                                            <Circle radius="20" style="-fx-fill: rgba(30,144,255,0.1);"/>
+                                            <Label text="➕" style="-fx-font-size: 16;"/>
+                                        </StackPane>
+                                        <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Add New Category">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                    </HBox>
 
-                        <!-- Main Working Area -->
-                        <HBox spacing="20" VBox.vgrow="ALWAYS" style="-fx-padding: 10 0 0 0;">
-                            <!-- Add Category Panel -->
-                            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" prefWidth="320">
-                                <Label text="Add New Category" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
-                                    <font>
-                                        <Font name="Arial Bold" size="18"/>
-                                    </font>
-                                </Label>
-
-                                <Label text="Category Name" style="-fx-text-fill: #555555;">
-                                    <font>
-                                        <Font name="Arial" size="14"/>
-                                    </font>
-                                    <VBox.margin>
-                                        <Insets top="20" />
-                                    </VBox.margin>
-                                </Label>
-
-                                <TextField fx:id="nomcattf" promptText="Enter category name"
-                                           style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 12;">
-                                    <font>
-                                        <Font name="Arial" size="14"/>
-                                    </font>
-                                </TextField>
-
-
-                                <Region VBox.vgrow="ALWAYS" />
-
-                                <Button fx:id="ajoutercat" text="Add Category" onAction="#insererCategorie"
-                                        style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 15 20;">
-                                    <font>
-                                        <Font name="Arial Bold" size="16"/>
-                                    </font>
-                                    <effect>
-                                        <DropShadow color="#00000033" radius="5" spread="0.02"/>
-                                    </effect>
-                                </Button>
-                            </VBox>
-
-                            <!-- Categories List Panel -->
-                            <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-                                <HBox alignment="CENTER_LEFT">
-                                    <Label text="Available Categories" style="-fx-text-fill: #333333; -fx-font-weight: bold;">
+                                    <Label style="-fx-text-fill: #6c757d; -fx-font-weight: bold;" text="Category Name">
                                         <font>
-                                            <Font name="Arial Bold" size="18"/>
+                                            <Font name="System" size="14" />
                                         </font>
                                     </Label>
 
-                                    <Region HBox.hgrow="ALWAYS" />
-
-
-
-
-
-                                    <Button fx:id="refreshButton" text="Refresh" onAction="#handleRefresh"
-                                            style="-fx-background-color: #eef2f7; -fx-text-fill: #666666; -fx-background-radius: 5; -fx-padding: 8 15;">
+                                    <TextField fx:id="nomcattf"
+                                               prefHeight="45.0"
+                                               prefWidth="300.0"
+                                               maxWidth="300.0"
+                                               promptText="Enter category name"
+                                               style="-fx-background-color: #f8f9fa;
+                                                      -fx-background-radius: 10;
+                                                      -fx-border-color: #e9ecef;
+                                                      -fx-border-radius: 10;
+                                                      -fx-padding: 10 15;">
                                         <font>
-                                            <Font name="Arial" size="13"/>
+                                            <Font name="System" size="14" />
                                         </font>
-                                        <HBox.margin>
-                                            <Insets left="10" />
-                                        </HBox.margin>
+                                    </TextField>
+
+                                    <Button fx:id="ajoutercat"
+                                            prefWidth="300.0"
+                                            prefHeight="45.0"
+                                            onAction="#insererCategorie"
+                                            style="-fx-background-color: #1e90ff;
+                                                   -fx-text-fill: white;
+                                                   -fx-background-radius: 10;
+                                                   -fx-padding: 12;
+                                                   -fx-font-weight: bold;"
+                                            text="Add Category">
+                                        <font>
+                                            <Font name="System Bold" size="14" />
+                                        </font>
+                                        <graphic>
+                                            <Label text="➕" style="-fx-text-fill: white; -fx-font-size: 14;" />
+                                        </graphic>
+                                        <effect>
+                                            <DropShadow color="#1e90ff33" radius="10" spread="0.1" />
+                                        </effect>
                                     </Button>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Colonne droite: Categories List Panel -->
+                            <VBox prefHeight="380.0" prefWidth="450.0" spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <StackPane>
+                                        <Circle radius="20" style="-fx-fill: rgba(39,174,96,0.1);"/>
+                                        <Label text="📋" style="-fx-font-size: 16;"/>
+                                    </StackPane>
+                                    <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Available Categories">
+                                        <font>
+                                            <Font name="System Bold" size="20.0" />
+                                        </font>
+                                    </Label>
                                 </HBox>
 
-                                <!-- Category Filter Options -->
-                                <HBox spacing="10" style="-fx-padding: 10 0;">
-                                    <Button fx:id="allFilterButton" text="All"
-                                            style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 7 18;">
+                                <!-- Filter and Refresh Bar -->
+                                <HBox alignment="CENTER_LEFT" spacing="15">
+                                    <Button fx:id="allFilterButton" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 20; -fx-font-weight: bold;" text="All">
                                         <font>
-                                            <Font name="Arial Bold" size="12"/>
+                                            <Font name="System Bold" size="13" />
                                         </font>
                                     </Button>
 
-
-
-                                    <Button fx:id="inactiveFilterButton" text="Inactive"
-                                            style="-fx-background-color: #f0f0f0; -fx-text-fill: #666666; -fx-background-radius: 20; -fx-padding: 7 18;">
+                                    <Button fx:id="inactiveFilterButton" style="-fx-background-color: #f8f9fa; -fx-text-fill: #6c757d; -fx-background-radius: 20; -fx-padding: 8 20; -fx-font-weight: bold;" text="Inactive">
                                         <font>
-                                            <Font name="Arial" size="12"/>
+                                            <Font name="System Bold" size="13" />
                                         </font>
+                                    </Button>
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <Button fx:id="refreshButton" onAction="#handleRefresh" style="-fx-background-color: #f8f9fa; -fx-text-fill: #6c757d; -fx-background-radius: 20; -fx-padding: 8 20; -fx-font-weight: bold;" text="Refresh">
+                                        <font>
+                                            <Font name="System Bold" size="13" />
+                                        </font>
+                                        <graphic>
+                                            <Label text="🔄" style="-fx-font-size: 13;" />
+                                        </graphic>
                                     </Button>
                                 </HBox>
 
                                 <!-- Category List -->
-                                <ListView fx:id="categoriesListView" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 5; -fx-border-color: #eeeeee; -fx-border-radius: 5; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;">
+                                <ListView fx:id="categoriesListView" maxHeight="Infinity" prefHeight="280.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #f0f0f0; -fx-border-radius: 10; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-font-size: 14px;" VBox.vgrow="ALWAYS">
                                 </ListView>
 
                                 <!-- Footer with Pagination -->
-                                <HBox alignment="CENTER_LEFT" spacing="10">
-                                    <Label fx:id="paginationInfoLabel" text="Showing 1-10 of 24 categories" style="-fx-text-fill: #666666;">
+                                <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 0;">
+                                    <Label fx:id="paginationInfoLabel" style="-fx-text-fill: #6c757d;" text="Showing 1-10 of 24 categories">
                                         <font>
-                                            <Font name="Arial" size="13"/>
+                                            <Font name="System" size="13" />
                                         </font>
                                     </Label>
-
-                                    <Region HBox.hgrow="ALWAYS" />
-
-
                                 </HBox>
                             </VBox>
                         </HBox>
-                    </VBox>
-                </center>
 
-                <!-- Footer -->
-                <bottom>
-                    <HBox alignment="CENTER" style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #eeeeee; -fx-border-width: 1 0 0 0;">
-                        <Label text="© 2025 Club Management System | All Rights Reserved" style="-fx-text-fill: #666666;">
-                            <font>
-                                <Font name="Arial" size="12"/>
-                            </font>
-                        </Label>
-                    </HBox>
-                </bottom>
-            </BorderPane>
-        </center>
-    </BorderPane>
-</AnchorPane>
+                        <!-- NOUVELLE RANGÉE: PieChart en bas sur toute la largeur -->
+                        <VBox prefHeight="400.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 3);" VBox.vgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <StackPane>
+                                    <Circle radius="20" style="-fx-fill: rgba(41,128,185,0.1);"/>
+                                    <Label text="📊" style="-fx-font-size: 18;"/>
+                                </StackPane>
+                                <Label style="-fx-text-fill: #333333; -fx-font-weight: bold;" text="Category Distribution">
+                                    <font>
+                                        <Font name="System Bold" size="22.0" />
+                                    </font>
+                                </Label>
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <Label style="-fx-text-fill: #6c757d;" text="Last updated: Today at 11:45 AM">
+                                    <font>
+                                        <Font name="System Italic" size="13" />
+                                    </font>
+                                </Label>
+                            </HBox>
+
+                            <Label style="-fx-text-fill: #6c757d;" text="Visual representation of club categories distribution across the platform">
+                                <font>
+                                    <Font name="System" size="14" />
+                                </font>
+                                <VBox.margin>
+                                    <Insets top="5" bottom="15" />
+                                </VBox.margin>
+                            </Label>
+
+                            <!-- PieChart agrandi sur toute la largeur -->
+                            <PieChart fx:id="categoryUsagePieChart"
+                                      labelsVisible="true"
+                                      legendVisible="true"
+                                      legendSide="RIGHT"
+                                      prefHeight="300.0"
+                                      style="-fx-pie-label-visible: true; -fx-legend-visible: true; -fx-legend-side: right; -fx-pie-label-radius: 0.8;"
+                                      VBox.vgrow="ALWAYS">
+                                <VBox.margin>
+                                    <Insets top="5" />
+                                </VBox.margin>
+                            </PieChart>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+            </center>
+
+            <!-- Footer -->
+            <bottom>
+                <HBox alignment="CENTER" styleClass="dashboard-footer" style="-fx-background-color: white; -fx-padding: 15;">
+                    <Label styleClass="footer-text" style="-fx-text-fill: #6c757d;" text="© 2025 UNICLUBS - Admin Dashboard v1.0" />
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </center>
+</BorderPane>

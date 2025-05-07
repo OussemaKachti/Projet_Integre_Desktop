@@ -54,7 +54,7 @@ public class AjouterEvent implements Initializable {
     private static final int MIN_NAME_LENGTH = 3;
     private static final int MAX_NAME_LENGTH = 50;
     private static final int MIN_DESC_LENGTH = 10;
-    private static final int MAX_DESC_LENGTH = 500;
+    private static final int MAX_DESC_LENGTH = 2000;
     private static final int MIN_DAYS_IN_FUTURE = 1; // Minimum days in the future for start date
     private static final int MAX_EVENT_DURATION_DAYS = 30; // Maximum duration of an event in days
 
