@@ -15,11 +15,11 @@ public class ServiceCategorie implements IService<Categorie> {
     private Connection connection;
 
     public ServiceCategorie() {
-        connection = DataSource.getInstance().getCnx(); // Correct method from DataSource
+        connection = DataSource.getInstance().getCnx(); // Initialisation de la connexion
     }
 
     @Override
-    public void add(Categorie categorie) throws SQLException {
+    public void ajouter(Categorie categorie) throws SQLException {
         String req = "INSERT INTO categorie (nom_cat) VALUES (?)";
         PreparedStatement preparedStatement = connection.prepareStatement(req);
         preparedStatement.setString(1, categorie.getNom_cat()); // Ajout du nom de la catégorie
@@ -28,7 +28,7 @@ public class ServiceCategorie implements IService<Categorie> {
     }
 
     @Override
-    public void update(Categorie categorie) throws SQLException {
+    public void modifier(Categorie categorie) throws SQLException {
         // Exemple de modification (à adapter si nécessaire)
         String req = "UPDATE categorie SET nom_cat = ? WHERE id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(req);
@@ -39,7 +39,7 @@ public class ServiceCategorie implements IService<Categorie> {
     }
 
     @Override
-    public void delete(int id) throws SQLException {
+    public void supprimer(int id) throws SQLException {
         String req = "DELETE FROM categorie WHERE id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(req);
         preparedStatement.setInt(1, id);
@@ -48,7 +48,7 @@ public class ServiceCategorie implements IService<Categorie> {
     }
 
     @Override
-    public List<Categorie> getAll() throws SQLException {
+    public List<Categorie> afficher() throws SQLException {
         List<Categorie> categories = new ArrayList<>();
         String req = "SELECT * FROM categorie";
         PreparedStatement preparedStatement = connection.prepareStatement(req);

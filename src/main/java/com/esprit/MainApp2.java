@@ -6,20 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.util.Objects;
+import java.io.IOException;
 
 public class MainApp2 extends Application {
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(
-                Objects.requireNonNull(getClass().getResource("/com/esprit/views/ClubView.fxml")));
-
-        Scene scene = new Scene(root);
-        primaryStage.setTitle("Gestion des Saison");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
 
     public static void main(String[] args) {
         launch(args);
@@ -28,7 +17,7 @@ public class MainApp2 extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             primaryStage.setScene(scene);
