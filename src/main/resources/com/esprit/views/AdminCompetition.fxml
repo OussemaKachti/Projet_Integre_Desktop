@@ -21,11 +21,11 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionController">
+<StackPane fx:id="contentStackPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.CompetitionController">
     <!-- Main Content -->
     <BorderPane stylesheets="@../styles/uniclubs.css,@../styles/no-scrollbar.css,@../styles/competitions.css">
         <left>
-            <!-- Sidebar Navigation - From admin template -->
+            <!-- Sidebar Navigation -->
             <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
                 <padding>
                     <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
@@ -86,7 +86,7 @@
                         </graphic>
                     </Button>
 
-                    <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button, active" text="Competition &amp; Mission" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button, active" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
                         <graphic>
                             <Label text="🏆" />
                         </graphic>
@@ -142,6 +142,26 @@
                                        style="-fx-background-color: #f8f9fa; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 20;" />
                             <Button fx:id="searchButton" text="Search" styleClass="button-primary" onAction="#handleSearch" />
 
+                            <!-- Add this new statistics button -->
+                            <Button fx:id="statisticsButton"
+                                    text="View Statistics"
+                                    styleClass="button-primary"
+                                    onAction="#showStatistics">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi-chart-bar" iconSize="16" iconColor="white"/>
+                                </graphic>
+                            </Button>
+
+                            <!-- Add this new season management button -->
+                            <Button fx:id="seasonManagementButton"
+                                    text="Manage Seasons"
+                                    styleClass="button-primary"
+                                    onAction="#showSeasonManagement">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi-calendar-multiple" iconSize="16" iconColor="white"/>
+                                </graphic>
+                            </Button>
+
                             <Circle radius="18" fill="#1e90ff" />
                         </HBox>
                     </HBox>
@@ -157,7 +177,7 @@
                                         <Font name="Arial Bold" size="28"/>
                                     </font>
                                 </Label>
-                                <Label text="Manage all your club missions from here" style="-fx-text-fill: #666666;">
+                                <Label text="Manage all your competition missions from here" style="-fx-text-fill: #666666;">
                                     <font>
                                         <Font name="Arial" size="14"/>
                                     </font>
@@ -313,7 +333,7 @@
         </center>
     </BorderPane>
 
-    <!-- Form Overlay - At the root level for proper modal display -->
+    <!-- Form Overlay -->
     <StackPane fx:id="formOverlay" styleClass="modal-overlay" visible="false" managed="false">
         <!-- Mission Form Container -->
         <VBox fx:id="missionFormContainer" spacing="15" styleClass="form-container">
@@ -331,12 +351,20 @@
                 <columnConstraints>
                     <ColumnConstraints hgrow="NEVER" minWidth="100" />
                     <ColumnConstraints hgrow="ALWAYS" />
+                    <ColumnConstraints hgrow="NEVER" minWidth="120" />
                 </columnConstraints>
 
                 <!-- Mission Title -->
                 <Label text="Mission Title:" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
                 <TextField fx:id="missionTitleField" promptText="Enter mission title" styleClass="form-control" GridPane.rowIndex="0" GridPane.columnIndex="1" />
-
+                <!-- Add this after the Mission Title field -->
+                <Button fx:id="generateButton" text="Generate with AI"
+                        styleClass="btn-primary"
+                        GridPane.rowIndex="0" GridPane.columnIndex="2">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi-robot" iconSize="16" />
+                    </graphic>
+                </Button>
                 <!-- Mission Description -->
                 <Label text="Description:" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
                 <TextArea fx:id="missionDescField" promptText="Enter mission description" wrapText="true" prefRowCount="3" styleClass="form-control" GridPane.rowIndex="1" GridPane.columnIndex="1" />
@@ -354,7 +382,7 @@
                 <DatePicker fx:id="endDateField" promptText="Select end date" styleClass="form-control" GridPane.rowIndex="4" GridPane.columnIndex="1" />
 
                 <!-- Goal Value -->
-                <Label text="Goal:" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <Label text="Goal Value:" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0" />
                 <TextField fx:id="goalValueField" promptText="Enter goal value" styleClass="form-control" GridPane.rowIndex="5" GridPane.columnIndex="1" />
 
                 <!-- Goal Type -->
@@ -365,7 +393,7 @@
                 <Label text="Season:" styleClass="form-label" GridPane.rowIndex="7" GridPane.columnIndex="0" />
                 <ComboBox fx:id="saisonComboBox" promptText="Select season" styleClass="form-control" GridPane.rowIndex="7" GridPane.columnIndex="1" />
 
-                <!-- Status -->
+                <!-- Status (Hidden but needed for controller compatibility) -->
                 <Label text="Status:" styleClass="form-label" GridPane.rowIndex="8" GridPane.columnIndex="0" />
                 <ComboBox fx:id="statusComboBox" promptText="Select status" styleClass="form-control" GridPane.rowIndex="8" GridPane.columnIndex="1" />
             </GridPane>

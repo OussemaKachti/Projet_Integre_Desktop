@@ -94,6 +94,7 @@ public class SaisonController {
     @FXML private Button surveyButton;
     @FXML private Button profileButton;
     @FXML private Button logoutButton;
+    @FXML private Button CompetitionManagementButton;
 
     // Pagination labels
     @FXML private Label currentPageLabel;
@@ -1401,5 +1402,33 @@ public class SaisonController {
         });
 
         alert.showAndWait();
+    }
+
+    @FXML
+    private void showStatistics() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/CompetitionStatistics.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setTitle("Gamification Statistics Dashboard");
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not open statistics dashboard", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showCompetitionManagement() {
+        try {
+            navigateTo("/com/esprit/views/AdminCompetition.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
     }
 }

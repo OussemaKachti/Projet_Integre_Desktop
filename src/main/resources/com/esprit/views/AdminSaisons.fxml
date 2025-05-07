@@ -143,6 +143,25 @@
                                        style="-fx-background-color: #f8f9fa; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 20;" />
                             <Button fx:id="searchButton" text="Search" styleClass="button-primary" onAction="#handleSearch" />
 
+                            <!-- Add this new statistics button -->
+                            <Button fx:id="statisticsButton"
+                                    text="View Statistics"
+                                    styleClass="button-primary"
+                                    onAction="#showStatistics">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi-chart-bar" iconSize="16" iconColor="white"/>
+                                </graphic>
+                            </Button>
+                            <!-- Add this new season management button -->
+                            <Button fx:id="CompetitionManagementButton"
+                                    text="Manage Missions"
+                                    styleClass="button-primary"
+                                    onAction="#showCompetitionManagement">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi-calendar-multiple" iconSize="16" iconColor="white"/>
+                                </graphic>
+                            </Button>
+
                             <Circle radius="18" fill="#1e90ff" />
                         </HBox>
                     </HBox>
