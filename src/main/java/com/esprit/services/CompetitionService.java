@@ -172,7 +172,7 @@ public class CompetitionService implements IServiceYassine<Competition> {
         String sql = "SELECT * FROM competition";
 
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Competition c = extractCompetition(rs);
@@ -211,18 +211,20 @@ public class CompetitionService implements IServiceYassine<Competition> {
         c.setDescComp(rs.getString("desc_comp"));
         c.setPoints(rs.getInt("points"));
 
+
         // Handle timestamps that might be null
         java.sql.Timestamp startTimestamp = rs.getTimestamp("start_date");
         if (startTimestamp != null) {
             c.setStartDate(startTimestamp.toLocalDateTime());
         }
 
+
         java.sql.Timestamp endTimestamp = rs.getTimestamp("end_date");
         if (endTimestamp != null) {
             c.setEndDate(endTimestamp.toLocalDateTime());
         }
 
-        // Handle goal_type column
+        // Handle goal_type and goal_value columns that might not exist
         try {
             String goalType = rs.getString("goal_type");
             if (goalType != null) {
@@ -240,7 +242,6 @@ public class CompetitionService implements IServiceYassine<Competition> {
             c.setGoalType(GoalTypeEnum.EVENT_COUNT);
         }
 
-        // Handle goal column - use the actual column name in your database
         try {
             c.setGoalValue(rs.getInt("goal"));
         } catch (SQLException e) {

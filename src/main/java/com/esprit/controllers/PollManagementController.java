@@ -266,6 +266,22 @@ public class PollManagementController implements Initializable {
         stage.setScene(scene);
         stage.setMaximized(true);
     }
+    @FXML
+    public void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setMaximized(true);
+    }
+    @FXML
+    public void navigateToMyClub() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) backButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setMaximized(true);
+    }
 
     @FXML
     public void navigateToClubs() throws IOException {
