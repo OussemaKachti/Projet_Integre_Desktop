@@ -6,6 +6,9 @@ import com.esprit.models.Produit;
 import com.esprit.services.ClubService;
 import com.esprit.services.ProduitService;
 import com.esprit.utils.AlertUtilsSirine;
+import com.esprit.MainApp;
+import com.esprit.models.User;
+import com.esprit.utils.SessionManager;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -14,12 +17,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -48,6 +53,14 @@ public class ProduitViewController implements Initializable {
     @FXML private Button btnAdmin;
     @FXML private Button btnAddProduct;
     @FXML private HBox paginationContainer; // Added for pagination
+    
+    // Navbar components
+    @FXML private StackPane userProfileContainer;
+    @FXML private ImageView userProfilePic;
+    @FXML private Label userNameLabel;
+    @FXML private VBox profileDropdown;
+    @FXML private StackPane clubsContainer;
+    @FXML private VBox clubsDropdown;
 
     private final ProduitService produitService;
     private final ClubService clubService;
@@ -57,6 +70,8 @@ public class ProduitViewController implements Initializable {
     private int currentPage = 1;
     private static final int ITEMS_PER_PAGE = 2; // Number of products per page (adjust as needed)
     private int totalPages = 1;
+    
+    private User currentUser;
 
     public ProduitViewController() {
         this.produitService = ProduitService.getInstance();
@@ -67,6 +82,170 @@ public class ProduitViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         setupClubFilter();
         loadAllProduits();
+        
+        // Get current user from session
+        currentUser = SessionManager.getInstance().getCurrentUser();
+        
+        if (currentUser != null && userNameLabel != null) {
+            // Set user name
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+            // Load profile picture if available
+            String profilePicture = currentUser.getProfilePicture();
+            if (profilePicture != null && !profilePicture.isEmpty() && userProfilePic != null) {
+                try {
+                    File imageFile = new File("uploads/profiles/" + profilePicture);
+                    if (imageFile.exists()) {
+                        Image image = new Image(imageFile.toURI().toString());
+                        userProfilePic.setImage(image);
+                    } else {
+                        loadDefaultProfilePic();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadDefaultProfilePic();
+                }
+            } else {
+                loadDefaultProfilePic();
+            }
+
+            // Apply circular clip to profile picture if exists
+            if (userProfilePic != null) {
+                double radius = 22.5;
+                userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+            }
+        }
+        
+        // Initially hide the dropdowns
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+        
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(false);
+            clubsDropdown.setManaged(false);
+        }
+    }
+    
+    private void loadDefaultProfilePic() {
+        if (userProfilePic != null) {
+            try {
+                Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+                userProfilePic.setImage(defaultImage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    // Navigation Methods for the Navbar
+    
+    @FXML
+    private void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void navigateToClubPolls() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void showClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(true);
+            clubsDropdown.setManaged(true);
+        }
+    }
+    
+    @FXML
+    private void hideClubsDropdown() {
+        if (clubsDropdown != null) {
+            clubsDropdown.setVisible(false);
+            clubsDropdown.setManaged(false);
+        }
+    }
+    
+    @FXML
+    private void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubsContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void navigateToMyClub() throws IOException {
+        // This would navigate to the user's club page
+        // For now, just navigate to clubs
+        navigateToClubs();
+    }
+    
+    @FXML
+    private void navigateToEvents() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void showProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(true);
+            profileDropdown.setManaged(true);
+        }
+    }
+    
+    @FXML
+    private void hideProfileDropdown() {
+        if (profileDropdown != null) {
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+    
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    
+    @FXML
+    private void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
     }
 
     /**
@@ -544,8 +723,6 @@ public class ProduitViewController implements Initializable {
         comboFilterClub.getSelectionModel().selectFirst();
         filterProducts();
     }
-
-
 
     /**
      * Navigue vers l'interface d'administration
