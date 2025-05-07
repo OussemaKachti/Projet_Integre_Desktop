@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Club;
 import com.esprit.models.ParticipationMembre;
+import com.esprit.models.User;
 import com.esprit.services.ClubService;
 import com.esprit.services.ParticipationMembreService;
 import javafx.collections.FXCollections;
@@ -66,8 +67,8 @@ public class ParticipantController {
                     if (empty || participant == null) {
                         setText(null);
                     } else {
-                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub_id(), "Inconnu");
-                        setText("Utilisateur: " + participant.getUser_id() + " | Club: " + clubName + " | Statut: " + participant.getStatut());
+                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub(), "Inconnu");
+                        setText("Utilisateur: " + participant.getUser() + " | Club: " + clubName + " | Statut: " + participant.getStatut());
                     }
                 }
             });
@@ -76,9 +77,9 @@ public class ParticipantController {
             participantList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal != null) {
                     selectedParticipant = newVal;
-                    userIdField.setText(String.valueOf(newVal.getUser_id()));
-                    clubIdField.setText(String.valueOf(newVal.getClub_id()));
-                    clubNameField.setText(clubIdToNameMap.getOrDefault(newVal.getClub_id(), "Inconnu"));
+                    userIdField.setText(String.valueOf(newVal.getUser()));
+                    clubIdField.setText(String.valueOf(newVal.getClub()));
+                    clubNameField.setText(clubIdToNameMap.getOrDefault(newVal.getClub(), "Inconnu"));
                     descriptionField.setText(newVal.getDescription());
                     statutField.setText(newVal.getStatut());
                 } else {
@@ -108,12 +109,22 @@ public class ParticipantController {
 
         // Automatically save participation request with default values
         try {
-            ParticipationMembre participant = new ParticipationMembre(
-                    currentUserId,
-                    clubId,
-                    "Demande de participation de " + currentUserName, // Default description
-                    "en_attente" // Default status
-            );
+            ParticipationMembre participant = new ParticipationMembre();
+            
+            // Create and set User
+            User user = new User();
+            user.setId(currentUserId);
+            participant.setUser(user);
+            
+            // Create and set Club
+            Club club = new Club();
+            club.setId(clubId);
+            participant.setClub(club);
+            
+            // Set description and ensure status is set
+            participant.setDescription("Demande de participation de " + currentUserName);
+            participant.setStatut("enAttente");
+            
             participantService.ajouter(participant);
             showSuccess("Demande de participation enregistrée automatiquement !");
             refreshParticipantList();
@@ -176,7 +187,7 @@ public class ParticipantController {
         } else {
             List<ParticipationMembre> filteredParticipants = allParticipants.stream()
                     .filter(participant -> {
-                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub_id(), "Inconnu").toLowerCase();
+                        String clubName = clubIdToNameMap.getOrDefault(participant.getClub(), "Inconnu").toLowerCase();
                         return clubName.contains(searchText);
                     })
                     .collect(Collectors.toList());

@@ -56,7 +56,7 @@ public class HomeController implements Initializable {
     private User currentUser;
     private Club userClub;
     private final ClubService clubService = new ClubService();
-    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    private final ParticipationMembreService participationService = new ParticipationMembreService();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -226,7 +226,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToClubs() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) clubsContainer.getScene().getWindow();
         stage.getScene().setRoot(root);

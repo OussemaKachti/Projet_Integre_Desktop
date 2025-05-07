@@ -1,4 +1,3 @@
-/*
 package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
@@ -77,6 +76,9 @@ public class AdminCommentsController implements Initializable {
 
     @FXML
     private TableColumn<Commentaire, String> clubColumn;
+
+    @FXML
+    private TableColumn<Commentaire, String> createdAtColumn;
 
     @FXML
     private TableColumn<Commentaire, Void> actionsColumn;
@@ -590,45 +592,44 @@ public class AdminCommentsController implements Initializable {
      * 
      * @param comments Liste des commentaires
      */
-/*
-private void findMostActiveUser(List<Commentaire> comments) {
-    // Vérifier s'il y a des commentaires
-    if (comments == null || comments.isEmpty()) {
-        mostActiveUserLabel.setText("Aucun utilisateur");
-        mostActiveUserCommentsLabel.setText("0 commentaire");
-        return;
-    }
-
-    // Compter les commentaires par utilisateur
-    Map<String, Integer> userCommentCount = new HashMap<>();
-
-    for (Commentaire comment : comments) {
-        if (comment.getUser() != null) {
-            String userName = comment.getUser().getFirstName() + " " + comment.getUser().getLastName();
-            userCommentCount.put(userName, userCommentCount.getOrDefault(userName, 0) + 1);
+    private void findMostActiveUser(List<Commentaire> comments) {
+        // Vérifier s'il y a des commentaires
+        if (comments == null || comments.isEmpty()) {
+            mostActiveUserLabel.setText("Aucun utilisateur");
+            mostActiveUserCommentsLabel.setText("0 commentaire");
+            return;
         }
-    }
 
-    // Trouver l'utilisateur avec le plus de commentaires
-    if (!userCommentCount.isEmpty()) {
-        String mostActiveUser = "";
-        int maxComments = 0;
+        // Compter les commentaires par utilisateur
+        Map<String, Integer> userCommentCount = new HashMap<>();
 
-        for (Map.Entry<String, Integer> entry : userCommentCount.entrySet()) {
-            if (entry.getValue() > maxComments) {
-                maxComments = entry.getValue();
-                mostActiveUser = entry.getKey();
+        for (Commentaire comment : comments) {
+            if (comment.getUser() != null) {
+                String userName = comment.getUser().getFirstName() + " " + comment.getUser().getLastName();
+                userCommentCount.put(userName, userCommentCount.getOrDefault(userName, 0) + 1);
             }
         }
 
-        // Mettre à jour les labels
-        mostActiveUserLabel.setText(mostActiveUser);
-        mostActiveUserCommentsLabel.setText(maxComments + " commentaire" + (maxComments > 1 ? "s" : ""));
-    } else {
-        mostActiveUserLabel.setText("Aucun utilisateur");
-        mostActiveUserCommentsLabel.setText("0 commentaire");
+        // Trouver l'utilisateur avec le plus de commentaires
+        if (!userCommentCount.isEmpty()) {
+            String mostActiveUser = "";
+            int maxComments = 0;
+
+            for (Map.Entry<String, Integer> entry : userCommentCount.entrySet()) {
+                if (entry.getValue() > maxComments) {
+                    maxComments = entry.getValue();
+                    mostActiveUser = entry.getKey();
+                }
+            }
+
+            // Mettre à jour les labels
+            mostActiveUserLabel.setText(mostActiveUser);
+            mostActiveUserCommentsLabel.setText(maxComments + " commentaire" + (maxComments > 1 ? "s" : ""));
+        } else {
+            mostActiveUserLabel.setText("Aucun utilisateur");
+            mostActiveUserCommentsLabel.setText("0 commentaire");
+        }
     }
-}
 
     private void setupEventHandlers() {
         // Show comment details when row is clicked
@@ -660,19 +661,19 @@ private void findMostActiveUser(List<Commentaire> comments) {
         updateBarChart();
     }
 
-private void setupPagination() {
-    paginationContainer.getChildren().clear();
+    private void setupPagination() {
+        paginationContainer.getChildren().clear();
 
-    if (totalPages <= 1) {
-        // Hide pagination container if there's only one page
-        paginationContainer.setVisible(false);
-        paginationContainer.setManaged(false);
-        return;
-    }
+        if (totalPages <= 1) {
+            // Hide pagination container if there's only one page
+            paginationContainer.setVisible(false);
+            paginationContainer.setManaged(false);
+            return;
+        }
 
-    // Show pagination if more than one page
-    paginationContainer.setVisible(true);
-    paginationContainer.setManaged(true);
+        // Show pagination if more than one page
+        paginationContainer.setVisible(true);
+        paginationContainer.setManaged(true);
 
         // Previous button
         Button prevButton = new Button("←");
@@ -685,21 +686,21 @@ private void setupPagination() {
             }
         });
 
-    paginationContainer.getChildren().add(prevButton);
+        paginationContainer.getChildren().add(prevButton);
 
-    // Pages numbered buttons
-    int startPage = Math.max(1, currentPage - 2);
-    int endPage = Math.min(startPage + 4, totalPages);
+        // Pages numbered buttons
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(startPage + 4, totalPages);
 
-    for (int i = startPage; i <= endPage; i++) {
-        Button pageButton = new Button(String.valueOf(i));
-        pageButton.getStyleClass().addAll("pagination-button");
+        for (int i = startPage; i <= endPage; i++) {
+            Button pageButton = new Button(String.valueOf(i));
+            pageButton.getStyleClass().addAll("pagination-button");
 
-        // Add active class for current page and style
-        if (i == currentPage) {
-            pageButton.getStyleClass().add("pagination-button-active");
-            pageButton.setStyle("-fx-font-weight: bold;");
-        }
+            // Add active class for current page and style
+            if (i == currentPage) {
+                pageButton.getStyleClass().add("pagination-button-active");
+                pageButton.setStyle("-fx-font-weight: bold;");
+            }
 
             final int pageNum = i;
             pageButton.setOnAction(e -> {
@@ -720,42 +721,42 @@ private void setupPagination() {
             }
         });
 
-    paginationContainer.getChildren().add(nextButton);
+        paginationContainer.getChildren().add(nextButton);
 
-    // Add page count information
-    Label pageInfoLabel = new Label(String.format("Page %d of %d", currentPage, totalPages));
-    pageInfoLabel.setStyle("-fx-text-fill: #6c757d; -fx-padding: 5 0 0 10;");
-    paginationContainer.getChildren().add(pageInfoLabel);
-}
+        // Add page count information
+        Label pageInfoLabel = new Label(String.format("Page %d of %d", currentPage, totalPages));
+        pageInfoLabel.setStyle("-fx-text-fill: #6c757d; -fx-padding: 5 0 0 10;");
+        paginationContainer.getChildren().add(pageInfoLabel);
+    }
 
-private void deleteComment(Commentaire commentaire) {
-    try {
-        // Create a custom confirmation dialog
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Delete Comment");
-        confirmDialog.setHeaderText("Are you sure you want to delete this comment?");
-        confirmDialog.setContentText("This action cannot be undone.");
+    private void deleteComment(Commentaire commentaire) {
+        try {
+            // Create a custom confirmation dialog
+            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmDialog.setTitle("Delete Comment");
+            confirmDialog.setHeaderText("Are you sure you want to delete this comment?");
+            confirmDialog.setContentText("This action cannot be undone.");
 
-        // Customize the dialog
-        DialogPane dialogPane = confirmDialog.getDialogPane();
-        dialogPane.getStylesheets()
-                .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
-        dialogPane.getStyleClass().add("custom-alert");
+            // Customize the dialog
+            DialogPane dialogPane = confirmDialog.getDialogPane();
+            dialogPane.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            dialogPane.getStyleClass().add("custom-alert");
 
-        // Get the confirm and cancel buttons
-        Button confirmButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-        Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+            // Get the confirm and cancel buttons
+            Button confirmButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+            Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
 
-        if (confirmButton != null) {
-            confirmButton.setText("Delete");
-            confirmButton.getStyleClass().add("delete-confirm-button");
-            confirmButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
-        }
+            if (confirmButton != null) {
+                confirmButton.setText("Delete");
+                confirmButton.getStyleClass().add("delete-confirm-button");
+                confirmButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
+            }
 
-        if (cancelButton != null) {
-            cancelButton.setText("Cancel");
-            cancelButton.getStyleClass().add("cancel-button");
-        }
+            if (cancelButton != null) {
+                cancelButton.setText("Cancel");
+                cancelButton.getStyleClass().add("cancel-button");
+            }
 
             // Show dialog and process result
             if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
@@ -773,55 +774,55 @@ private void deleteComment(Commentaire commentaire) {
         }
     }
 
-private void showToast(String message, String type) {
-    Label toastLabel = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
-    HBox toastHBox = (HBox) toastContainer.getChildren().get(0);
+    private void showToast(String message, String type) {
+        Label toastLabel = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
+        HBox toastHBox = (HBox) toastContainer.getChildren().get(0);
 
-    switch (type) {
-        case "error":
-            toastHBox.setStyle("-fx-background-color: #dc3545; -fx-background-radius: 4px;");
-            break;
-        case "info":
-            toastHBox.setStyle("-fx-background-color: #007bff; -fx-background-radius: 4px;");
-            break;
-        default: // success
-            toastHBox.setStyle("-fx-background-color: #28a745; -fx-background-radius: 4px;");
-            break;
+        switch (type) {
+            case "error":
+                toastHBox.setStyle("-fx-background-color: #dc3545; -fx-background-radius: 4px;");
+                break;
+            case "info":
+                toastHBox.setStyle("-fx-background-color: #007bff; -fx-background-radius: 4px;");
+                break;
+            default: // success
+                toastHBox.setStyle("-fx-background-color: #28a745; -fx-background-radius: 4px;");
+                break;
+        }
+
+        toastLabel.setText(message);
+        toastContainer.setVisible(true);
+
+        // Add a fade-in animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toastContainer);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
+
+        // Hide toast after 3 seconds with fade out animation
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+                Platform.runLater(() -> {
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(500), toastContainer);
+                    fadeOut.setFromValue(1);
+                    fadeOut.setToValue(0);
+                    fadeOut.setOnFinished(e -> toastContainer.setVisible(false));
+                    fadeOut.play();
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> toastContainer.setVisible(false));
+            }
+        }).start();
     }
 
-    toastLabel.setText(message);
-    toastContainer.setVisible(true);
-
-    // Add a fade-in animation
-    FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toastContainer);
-    fadeIn.setFromValue(0);
-    fadeIn.setToValue(1);
-    fadeIn.play();
-
-    // Hide toast after 3 seconds with fade out animation
-    new Thread(() -> {
-        try {
-            Thread.sleep(3000);
-            Platform.runLater(() -> {
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(500), toastContainer);
-                fadeOut.setFromValue(1);
-                fadeOut.setToValue(0);
-                fadeOut.setOnFinished(e -> toastContainer.setVisible(false));
-                fadeOut.play();
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Platform.runLater(() -> toastContainer.setVisible(false));
-        }
-    }).start();
-}
-
-// Méthode pour rafraîchir les données
-public void refreshData() {
-    loadComments();
-    calculateStats();
-    setupPagination();
-}
+    // Méthode pour rafraîchir les données
+    public void refreshData() {
+        loadComments();
+        calculateStats();
+        setupPagination();
+    }
 
     /**
      * Configure les événements de navigation pour la sidebar
@@ -990,22 +991,21 @@ public void refreshData() {
         }
     }
 
-/**
- * Gère la déconnexion de l'utilisateur
- */
-/*
-private void handleLogout() {
-    try {
-        // Afficher une confirmation avant de se déconnecter
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Déconnexion");
-        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir vous déconnecter ?");
-        confirmDialog.setContentText("Toutes les données non enregistrées seront perdues.");
+    /**
+     * Gère la déconnexion de l'utilisateur
+     */
+    private void handleLogout() {
+        try {
+            // Afficher une confirmation avant de se déconnecter
+            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmDialog.setTitle("Déconnexion");
+            confirmDialog.setHeaderText("Êtes-vous sûr de vouloir vous déconnecter ?");
+            confirmDialog.setContentText("Toutes les données non enregistrées seront perdues.");
 
-        // Personnaliser la boîte de dialogue
-        DialogPane dialogPane = confirmDialog.getDialogPane();
-        dialogPane.getStylesheets()
-                .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
+            // Personnaliser la boîte de dialogue
+            DialogPane dialogPane = confirmDialog.getDialogPane();
+            dialogPane.getStylesheets()
+                    .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
 
             // Afficher la boîte de dialogue et traiter le résultat
             if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {

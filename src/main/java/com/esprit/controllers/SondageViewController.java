@@ -1,4 +1,4 @@
-/*package com.esprit.controllers;
+package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.ParticipationMembre;
@@ -140,7 +140,7 @@ public class SondageViewController implements Initializable {
     private final UserService userService = new UserService();
     private final ClubService clubService = new ClubService();
     private final EmailService emailService = EmailService.getInstance();
-    private final ParticipationMembreService participationService = ParticipationMembreService.getInstance();
+    private final ParticipationMembreService participationService = new ParticipationMembreService();
 
     // Variables d'état
     private Sondage currentSondage;
@@ -337,7 +337,7 @@ public class SondageViewController implements Initializable {
     /**
      * Creates a VBox containing a single sondage (poll) display
      */
-   /* private VBox createSondageBox(Sondage sondage) throws SQLException {
+    private VBox createSondageBox(Sondage sondage) throws SQLException {
         VBox sondageBox = new VBox(10);
         sondageBox.getStyleClass().add("sondage-box");
         sondageBox.setPadding(new Insets(20));
@@ -520,7 +520,6 @@ public class SondageViewController implements Initializable {
         // Get speech recognition service and check availability
 
         // If speech recognition is not available, disable the button
-       
 
         // Add components to the container
         commentInputContainer.getChildren().addAll(commentTextArea, micButton);
@@ -633,7 +632,7 @@ public class SondageViewController implements Initializable {
     /**
      * Creates the poll option rows with radio buttons for voting
      */
-    /*private VBox createPollOptionsView(Sondage sondage) throws SQLException {
+    private VBox createPollOptionsView(Sondage sondage) throws SQLException {
         VBox optionsContainer = new VBox(10);
         optionsContainer.getStyleClass().add("poll-options");
         optionsContainer.setPadding(new Insets(10));
@@ -785,7 +784,7 @@ public class SondageViewController implements Initializable {
     /**
      * Handle user vote for a poll
      */
-   /* @FXML
+    @FXML
     private void handleVote(Sondage sondage, ToggleGroup optionsGroup) {
         try {
             // Get the selected radio button
@@ -843,7 +842,7 @@ public class SondageViewController implements Initializable {
                 showCommentBannedDialog();
                 return;
             }
-            
+
             // Create a temporary label and validate comment
             Label tempLabel = new Label();
             if (!validateComment(content, tempLabel, null)) {
@@ -875,79 +874,85 @@ public class SondageViewController implements Initializable {
         // Create the dialog
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Account Restricted");
-        
+
         // Create the content
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
         content.setStyle("-fx-background-color: white;");
         content.setAlignment(Pos.CENTER);
-        
+
         // Add warning icon
         HBox iconContainer = new HBox();
         iconContainer.setAlignment(Pos.CENTER);
         Text warningIcon = new Text("⚠️");
         warningIcon.setStyle("-fx-font-size: 48px; -fx-fill: #F44336;");
         iconContainer.getChildren().add(warningIcon);
-        
+
         // Add title
         Label titleLabel = new Label("Commenting Restricted");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #F44336;");
-        
+
         // Add explanation
         VBox explanationBox = new VBox(10);
         explanationBox.setStyle("-fx-background-color: #FFF8E1; -fx-padding: 15px; -fx-background-radius: 5px;");
-        
-        Label explanationLabel = new Label("Your account has been restricted from commenting due to multiple violations of our community guidelines.");
+
+        Label explanationLabel = new Label(
+                "Your account has been restricted from commenting due to multiple violations of our community guidelines.");
         explanationLabel.setWrapText(true);
         explanationLabel.setStyle("-fx-font-size: 14px;");
-        
-        Label detailsLabel = new Label("This restriction occurs after receiving 3 warnings for posting inappropriate content.");
+
+        Label detailsLabel = new Label(
+                "This restriction occurs after receiving 3 warnings for posting inappropriate content.");
         detailsLabel.setWrapText(true);
         detailsLabel.setStyle("-fx-font-size: 14px;");
-        
+
         explanationBox.getChildren().addAll(explanationLabel, detailsLabel);
-        
+
         // Add contact info
         VBox contactBox = new VBox(10);
-        contactBox.setStyle("-fx-padding: 15px; -fx-background-radius: 5px; -fx-border-color: #E0E0E0; -fx-border-radius: 5px;");
-        
-        Label contactLabel = new Label("If you believe this is an error or wish to appeal this decision, please contact our support team:");
+        contactBox.setStyle(
+                "-fx-padding: 15px; -fx-background-radius: 5px; -fx-border-color: #E0E0E0; -fx-border-radius: 5px;");
+
+        Label contactLabel = new Label(
+                "If you believe this is an error or wish to appeal this decision, please contact our support team:");
         contactLabel.setWrapText(true);
-        
+
         Hyperlink emailLink = new Hyperlink("support@uniclubs.com");
         emailLink.setStyle("-fx-font-size: 14px;");
         // emailLink.setOnAction(e -> {
-        //     // Open default mail client
-        //     try {
-        //         Desktop.getDesktop().mail(new URI("mailto:support@uniclubs.com?subject=Comment%20Ban%20Appeal"));
-        //     } catch (Exception ex) {
-        //         showToast("Unable to open email client", "error");
-        //     }
+        // // Open default mail client
+        // try {
+        // Desktop.getDesktop().mail(new
+        // URI("mailto:support@uniclubs.com?subject=Comment%20Ban%20Appeal"));
+        // } catch (Exception ex) {
+        // showToast("Unable to open email client", "error");
+        // }
         // });
-        
+
         contactBox.getChildren().addAll(contactLabel, emailLink);
-        
+
         // Add close button
         Button closeButton = new Button("Close");
-        closeButton.setStyle("-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 20;");
+        closeButton.setStyle(
+                "-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 20;");
         closeButton.setOnAction(e -> dialog.close());
-        
+
         // Add all to content
         content.getChildren().addAll(iconContainer, titleLabel, explanationBox, contactBox, closeButton);
-        
+
         // Set the content and show
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.getDialogPane().lookupButton(ButtonType.CLOSE).setVisible(false);
         dialog.getDialogPane().setPrefWidth(400);
-        
+
         dialog.showAndWait();
     }
 
     /**
      * Custom alert dialog with modern styling
      */
-   /* private void showCustomAlert(String title, String message, String type) {
+    private void showCustomAlert(String title, String message, String type) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
@@ -1079,7 +1084,7 @@ public class SondageViewController implements Initializable {
      * 
      * @return true if confirmed, false if canceled
      */
-  /*  private boolean showCustomConfirmDialog(String title, String message, String details) {
+    private boolean showCustomConfirmDialog(String title, String message, String details) {
         final boolean[] result = { false };
 
         Stage dialogStage = new Stage();
@@ -1354,7 +1359,7 @@ public class SondageViewController implements Initializable {
      * sondages
      * et afficher les sondages du club dont l'utilisateur courant est président
      */
-   /* private void handleViewAllPolls() {
+    private void handleViewAllPolls() {
         try {
             if (currentUser != null) {
                 Club userClub = clubService.findByPresident(currentUser.getId());
@@ -1394,21 +1399,21 @@ public class SondageViewController implements Initializable {
     /**
      * Get the option chosen by the current user for this poll, if any
      */
-   /* private ChoixSondage getUserChoice(Sondage sondage) throws SQLException {
+    private ChoixSondage getUserChoice(Sondage sondage) throws SQLException {
         return reponseService.getUserResponse(currentUser.getId(), sondage.getId());
     }
 
     /**
      * Get total number of votes for a poll
      */
-   /* private int getTotalVotes(int pollId) throws SQLException {
+    private int getTotalVotes(int pollId) throws SQLException {
         return reponseService.getTotalVotesForPoll(pollId);
     }
 
     /**
      * Get comment count for a poll
      */
-   /* private int getCommentCount(int pollId) throws SQLException {
+    private int getCommentCount(int pollId) throws SQLException {
         return commentaireService.getBySondage(pollId).size();
     }
 
@@ -1474,7 +1479,7 @@ public class SondageViewController implements Initializable {
      * 
      * @param sondage The poll to show comments summary for
      */
-   /* private void showCommentsSummary(Sondage sondage) {
+    private void showCommentsSummary(Sondage sondage) {
         try {
             // Get all comments for this poll
             CommentaireService commentaireService = new CommentaireService();
@@ -1546,7 +1551,7 @@ public class SondageViewController implements Initializable {
      * @param sondage The poll
      * @param summary The generated summary text
      */
-    /*private void showSummaryDialog(Sondage sondage, String summary) {
+    private void showSummaryDialog(Sondage sondage, String summary) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setTitle("Poll Insights: " + sondage.getQuestion());
@@ -1560,139 +1565,138 @@ public class SondageViewController implements Initializable {
         // Header
         HBox headerBox = new HBox(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        
+
         Label titleLabel = new Label(StringUtils.truncate(sondage.getQuestion(), 50)); // Truncate title if needed
         titleLabel.getStyleClass().add("summary-title");
         titleLabel.setWrapText(true);
         titleLabel.setMaxWidth(800); // Ensure title has enough space
-        
+
         headerBox.getChildren().addAll(titleLabel);
-        
+
         // Split content into two columns
         HBox contentBox = new HBox(20);
         contentBox.setAlignment(Pos.TOP_CENTER);
-        
+
         // Left column - Charts
         VBox chartsColumn = new VBox(25);
         chartsColumn.setPrefWidth(400);
         chartsColumn.setAlignment(Pos.TOP_CENTER);
-        
+
         // Participation chart
         VBox participationBox = new VBox(10);
         participationBox.setAlignment(Pos.TOP_LEFT);
-        
+
         Label participationTitle = new Label("USER PARTICIPATION");
         participationTitle.getStyleClass().add("chart-title");
-        
+
         PieChart pieChart = createParticipationChart(sondage);
         pieChart.setPrefSize(350, 200);
-        
+
         participationBox.getChildren().addAll(participationTitle, pieChart);
-        
+
         // Sentiment analysis chart
         VBox sentimentBox = new VBox(10);
         sentimentBox.setAlignment(Pos.TOP_LEFT);
-        
+
         Label sentimentTitle = new Label("SENTIMENT ANALYSIS");
         sentimentTitle.getStyleClass().add("chart-title");
-        
+
         BarChart<String, Number> barChart = createSentimentChart(summary);
         barChart.setPrefSize(350, 200);
-        
+
         sentimentBox.getChildren().addAll(sentimentTitle, barChart);
-        
+
         chartsColumn.getChildren().addAll(participationBox, sentimentBox);
-        
+
         // Right column - Metrics & Insights
         VBox metricsColumn = new VBox(25);
         metricsColumn.setPrefWidth(400);
         metricsColumn.setAlignment(Pos.TOP_CENTER);
-        
+
         // Metrics section
         VBox metricsBox = new VBox(10);
         metricsBox.setAlignment(Pos.TOP_LEFT);
-        
+
         Label metricsTitle = new Label("KEY METRICS");
         metricsTitle.getStyleClass().add("chart-title");
-        
+
         // Metrics grid
         GridPane metricsGrid = new GridPane();
         metricsGrid.setHgap(10);
         metricsGrid.setVgap(10);
-        
+
         try {
             int commentCount = getCommentCount(sondage.getId());
             int userCount = countUniqueCommenters(sondage.getId());
             double avgLength = calculateAverageCommentLength(sondage.getId());
             LocalDate latestDate = getLatestCommentDate(sondage.getId());
-            
+
             metricsGrid.add(createMetricCard("TOTAL COMMENTS", String.valueOf(commentCount), "💬", "#4B83CD"), 0, 0);
             metricsGrid.add(createMetricCard("UNIQUE USERS", String.valueOf(userCount), "👥", "#28a745"), 1, 0);
             metricsGrid.add(createMetricCard("AVG LENGTH", String.format("%.1f", avgLength), "📏", "#ffc107"), 0, 1);
-            
-            String dateString = latestDate != null ? 
-                    latestDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) : 
-                    "No comments";
-            
+
+            String dateString = latestDate != null ? latestDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                    : "No comments";
+
             metricsGrid.add(createMetricCard("LATEST UPDATE", dateString, "📅", "#dc3545"), 1, 1);
         } catch (SQLException e) {
             System.err.println("Error loading metrics: " + e.getMessage());
         }
-        
+
         metricsBox.getChildren().addAll(metricsTitle, metricsGrid);
-        
+
         // AI Insights section
         VBox insightsBox = new VBox(10);
         insightsBox.setAlignment(Pos.TOP_LEFT);
-        
+
         Label insightsTitle = new Label("AI-GENERATED INSIGHTS");
         insightsTitle.getStyleClass().add("chart-title");
-        
+
         // Process and truncate summary for shorter insights
         String processedSummary = processRawSummary(summary);
         String shortenedSummary = StringUtils.truncate(processedSummary, 200); // Limit to about 2-3 lines
-        
+
         TextFlow insightsText = new TextFlow();
         insightsText.setMaxWidth(380);
         insightsText.setPrefHeight(150);
-        
+
         Text summaryBullet = new Text("• Summary of comments:\n");
         summaryBullet.setStyle("-fx-font-weight: bold;");
-        
+
         Text summaryText = new Text(shortenedSummary);
-        
+
         insightsText.getChildren().addAll(summaryBullet, summaryText);
-        
+
         VBox.setVgrow(insightsText, Priority.ALWAYS);
         insightsBox.getChildren().addAll(insightsTitle, insightsText);
-        
+
         metricsColumn.getChildren().addAll(metricsBox, insightsBox);
-        
+
         // Combine columns
         contentBox.getChildren().addAll(chartsColumn, metricsColumn);
-        
+
         // Button row at bottom with more space
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.setPadding(new Insets(15, 0, 0, 0));
-        
+
         Button exportButton = new Button("Export Insights");
         exportButton.getStyleClass().add("action-button");
         exportButton.setOnAction(e -> exportInsights(sondage, summary));
-        
+
         Button closeButton = new Button("Close");
         closeButton.getStyleClass().add("cancel-button");
         closeButton.setOnAction(e -> dialogStage.close());
-        
+
         buttonBox.getChildren().addAll(exportButton, closeButton);
-        
+
         // Add all elements to dialog
         dialogContainer.getChildren().addAll(headerBox, contentBox, buttonBox);
-        
+
         Scene scene = new Scene(dialogContainer);
         String cssPath = getClass().getResource("/com/esprit/styles/sondage-style.css").toExternalForm();
         scene.getStylesheets().add(cssPath);
-        
+
         dialogStage.setScene(scene);
         dialogStage.showAndWait();
     }
@@ -2045,7 +2049,7 @@ public class SondageViewController implements Initializable {
 
     @FXML
     public void navigateToClubs() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) sondagesContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -2753,6 +2757,7 @@ public class SondageViewController implements Initializable {
 
     /**
      * Creates a PieChart showing participation distribution for a poll
+     * 
      * @param sondage The poll to create the chart for
      * @return A configured PieChart
      */
@@ -2760,30 +2765,30 @@ public class SondageViewController implements Initializable {
         try {
             ObservableList<Commentaire> comments = commentaireService.getBySondage(sondage.getId());
             Map<String, Integer> userCommentCounts = new HashMap<>();
-            
+
             for (Commentaire comment : comments) {
                 String userName = comment.getUser().getFirstName();
                 userCommentCounts.put(userName, userCommentCounts.getOrDefault(userName, 0) + 1);
             }
-            
+
             ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
             for (Map.Entry<String, Integer> entry : userCommentCounts.entrySet()) {
                 pieChartData.add(new PieChart.Data(entry.getKey(), entry.getValue()));
             }
-            
+
             PieChart chart = new PieChart(pieChartData);
             chart.setTitle("");
             chart.setLabelsVisible(false);
             chart.setLegendVisible(true);
             chart.setLegendSide(Side.RIGHT);
-            
+
             // Add tooltips to pie slices
             for (final PieChart.Data data : chart.getData()) {
-                Tooltip tooltip = new Tooltip(String.format("%s: %d comments", 
+                Tooltip tooltip = new Tooltip(String.format("%s: %d comments",
                         data.getName(), (int) data.getPieValue()));
                 Tooltip.install(data.getNode(), tooltip);
             }
-            
+
             return chart;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -2793,12 +2798,13 @@ public class SondageViewController implements Initializable {
 
     /**
      * Creates a BarChart showing sentiment analysis
+     * 
      * @param summary The summary text to analyze
      * @return A configured BarChart
      */
     private BarChart<String, Number> createSentimentChart(String summary) {
         Map<String, Double> sentiments = extractSentiment(summary);
-        
+
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis(0, 100, 20);
         yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis) {
@@ -2807,23 +2813,23 @@ public class SondageViewController implements Initializable {
                 return object.intValue() + "%";
             }
         });
-        
+
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("");
         chart.setLegendVisible(false);
         chart.setAnimated(true);
-        
+
         // Hide grid lines for cleaner look
         chart.setHorizontalGridLinesVisible(false);
         chart.setVerticalGridLinesVisible(false);
-        
+
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         sentiments.forEach((sentiment, value) -> {
             series.getData().add(new XYChart.Data<>(sentiment, value));
         });
-        
+
         chart.getData().add(series);
-        
+
         // Style the bars with different colors
         int i = 0;
         String[] colors = { "#4B83CD", "#47B39C", "#FFC107" };
@@ -2832,66 +2838,70 @@ public class SondageViewController implements Initializable {
             data.getNode().setStyle("-fx-bar-fill: " + color + ";");
             i++;
         }
-        
+
         return chart;
     }
 
     /**
      * Counts the number of unique users who commented on a poll
+     * 
      * @param pollId The ID of the poll
      * @return Count of unique commenters
      */
     private int countUniqueCommenters(int pollId) throws SQLException {
         ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
         Set<Integer> uniqueUserIds = new HashSet<>();
-        
+
         for (Commentaire comment : comments) {
             uniqueUserIds.add(comment.getUser().getId());
         }
-        
+
         return uniqueUserIds.size();
     }
 
     /**
      * Calculates the average comment length for a poll
+     * 
      * @param pollId The ID of the poll
      * @return Average comment length
      */
     private double calculateAverageCommentLength(int pollId) throws SQLException {
         ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
-        
+
         if (comments.isEmpty()) {
             return 0;
         }
-        
+
         int totalLength = 0;
         for (Commentaire comment : comments) {
             totalLength += comment.getContenuComment().length();
         }
-        
+
         return (double) totalLength / comments.size();
     }
 
     /**
      * Gets the date of the most recent comment on a poll
+     * 
      * @param pollId The ID of the poll
      * @return Date of the most recent comment
      */
     private LocalDate getLatestCommentDate(int pollId) throws SQLException {
         ObservableList<Commentaire> comments = commentaireService.getBySondage(pollId);
-        
+
         if (comments.isEmpty()) {
             return null;
         }
-        
+
         return comments.stream()
-            .map(Commentaire::getDateComment)
-            .max(LocalDate::compareTo)
-            .orElse(null);
+                .map(Commentaire::getDateComment)
+                .max(LocalDate::compareTo)
+                .orElse(null);
     }
 
     /**
      * Exports insights about a poll to a file or clipboard
+     * 
      * @param sondage The poll
      * @param summary The summary text
      */
@@ -2901,19 +2911,20 @@ public class SondageViewController implements Initializable {
             StringBuilder content = new StringBuilder();
             content.append("# Poll Insights: ").append(sondage.getQuestion()).append("\n\n");
             content.append("## Summary\n").append(processRawSummary(summary)).append("\n\n");
-            
+
             // Add statistics
             content.append("## Statistics\n");
             content.append("- Total Comments: ").append(getCommentCount(sondage.getId())).append("\n");
             content.append("- Unique Commenters: ").append(countUniqueCommenters(sondage.getId())).append("\n");
-            content.append("- Avg Comment Length: ").append(String.format("%.1f", calculateAverageCommentLength(sondage.getId()))).append("\n");
-            
+            content.append("- Avg Comment Length: ")
+                    .append(String.format("%.1f", calculateAverageCommentLength(sondage.getId()))).append("\n");
+
             // Copy to clipboard
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent clipboardContent = new ClipboardContent();
             clipboardContent.putString(content.toString());
             clipboard.setContent(clipboardContent);
-            
+
             showToast("Insights copied to clipboard", "success");
         } catch (Exception e) {
             e.printStackTrace();

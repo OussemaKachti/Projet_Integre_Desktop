@@ -34,12 +34,18 @@ public class ShowParticipantController {
     public void initialize() {
         // Set up table columns
         idColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getId()).asObject());
-        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        nameColumn.setCellValueFactory(cellData -> {
+            ParticipationMembre p = cellData.getValue();
+            return new SimpleStringProperty(p.getUser() != null ? p.getUser().getFullName() : "N/A");
+        });
         clubNameColumn.setCellValueFactory(cellData -> {
             ParticipationMembre p = cellData.getValue();
-            return p.getClub() != null ? p.clubNameProperty() : new SimpleStringProperty("N/A");
+            return new SimpleStringProperty(p.getClub() != null ? p.getClub().getNomC() : "N/A");
         });
-        dateRequestColumn.setCellValueFactory(cellData -> cellData.getValue().dateRequestProperty());
+        dateRequestColumn.setCellValueFactory(cellData -> {
+            ParticipationMembre p = cellData.getValue();
+            return new SimpleStringProperty(p.getDateRequest() != null ? p.getDateRequest().toString() : "N/A");
+        });
         statutColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatut()));
 
         // Add listener for pagination changes
@@ -66,10 +72,11 @@ public class ShowParticipantController {
             List<ParticipationMembre> allParticipants = participantService.getAllParticipants();
             System.out.println("Total participants fetched: " + allParticipants.size());
             allParticipants.forEach(participant -> {
-                System.out.println("Participant: " + participant.getId() + ", Name: " + participant.getName() +
+                System.out.println("Participant: " + participant.getId() + 
+                        ", Name: " + (participant.getUser() != null ? participant.getUser().getFullName() : "null") +
                         ", Statut: " + participant.getStatut() +
                         ", Club: " + (participant.getClub() != null ? participant.getClub().getNomC() : "null") +
-                        ", Date Request: " + participant.getDate_request());
+                        ", Date Request: " + (participant.getDateRequest() != null ? participant.getDateRequest().toString() : "null"));
             });
 
             // Filter for accepted participants

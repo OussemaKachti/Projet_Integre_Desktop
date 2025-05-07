@@ -315,7 +315,7 @@
                 <configuration>
                   <!--  <mainClass>com.esprit.SondageApplication</mainClass>-->
                      <!-- <mainClass>com.esprit.MainApp</mainClass>  -->
-                     <mainClass>com.esprit.MainApp</mainClass>
+                     <mainClass>com.esprit.HelloApplication</mainClass>
 
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
     <!-- <mainClass>com.esprit.AdminApplication</mainClass> -->
