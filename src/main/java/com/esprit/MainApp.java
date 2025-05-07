@@ -29,38 +29,60 @@ public class MainApp extends Application {
         return primaryStage;
     }
 
-   @Override
-public void start(Stage stage) {
-    try {
-        // Store reference to primary stage
-        primaryStage = stage;
-        
-        URL loginFxmlUrl = getClass().getResource("/com/esprit/views/login.fxml");
-        if (loginFxmlUrl == null) {
-            LOGGER.log(Level.SEVERE, "Cannot find /com/esprit/views/login.fxml");
-            throw new IllegalStateException("Required FXML file not found: /com/esprit/views/login.fxml");
+    @Override
+    public void start(Stage stage) {
+        try {
+            // Store reference to primary stage
+            primaryStage = stage;
+
+            // Add explicit logging to see what's happening
+            System.out.println("Application starting...");
+            System.out.println("Attempting to load login.fxml...");
+
+            URL loginFxmlUrl = getClass().getResource("/com/esprit/views/login.fxml");
+            if (loginFxmlUrl == null) {
+                System.out.println("ERROR: Cannot find /com/esprit/views/login.fxml");
+                LOGGER.log(Level.SEVERE, "Cannot find /com/esprit/views/login.fxml");
+                throw new IllegalStateException("Required FXML file not found: /com/esprit/views/login.fxml");
+            }
+
+            System.out.println("Found login.fxml at: " + loginFxmlUrl);
+
+            // Use a more direct approach for loading the login view
+            FXMLLoader loader = new FXMLLoader(loginFxmlUrl);
+            Parent root = loader.load();
+
+            System.out.println("Successfully loaded login.fxml");
+
+            // Create and set scene directly instead of using utility method
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("UNICLUBS - Login");
+
+            // Set window properties directly
+            primaryStage.setWidth(700);
+            primaryStage.setHeight(700);
+            primaryStage.setMinWidth(700);
+            primaryStage.setMinHeight(700);
+            primaryStage.setResizable(true);
+
+            // Center on screen
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            primaryStage.setX((screenBounds.getWidth() - 700) / 2);
+            primaryStage.setY((screenBounds.getHeight() - 700) / 2);
+
+            // Show the stage
+            primaryStage.show();
+
+            System.out.println("Login screen displayed successfully");
+            LOGGER.info("Application started successfully");
+
+        } catch (Exception e) {
+            System.out.println("Error starting application: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Failed to start application", e);
+            e.printStackTrace();
         }
-        
-        Parent root = FXMLLoader.load(loginFxmlUrl);
-        
-        // Use our utility method with explicit larger dimensions for login
-        setupStage(primaryStage, root, "UNICLUBS - Club Management System", true, 700, 700);
-        
-        // Explicitly center on screen before showing
-        centerStageOnScreen(primaryStage);
-        
-        // Show the stage
-        primaryStage.show();
-        
-        // Ensure stage is centered after showing
-        ensureCentered(primaryStage);
-        
-        LOGGER.info("Application started successfully");
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Failed to start application", e);
-        e.printStackTrace();
     }
-}
     
     /**
      * Centers a stage on the primary screen

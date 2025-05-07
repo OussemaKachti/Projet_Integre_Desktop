@@ -234,7 +234,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToEvents() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);

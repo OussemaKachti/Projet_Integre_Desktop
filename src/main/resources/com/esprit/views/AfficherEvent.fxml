@@ -1,84 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.esprit.controllers.AfficherEvent"
-      styleClass="main-container" stylesheets="@../styles/home.css">
+<?import javafx.scene.layout.Pane?>
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" styleClass="main-container" stylesheets="@../styles/home.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.AfficherEvent">
 
-    <!-- Header Section -->
-    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
-        <padding>
-            <Insets top="15" right="25" bottom="15" left="25"/>
-        </padding>
-        
-        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
-            <Image url="@../images/logo.png"/>
-        </ImageView>
-        
-        <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
-            <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
-            
-            <!-- Add a direct Polls button to the main navbar -->
-            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
-            
-            <!-- Clubs dropdown container -->
-            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
-                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
-                
-                <!-- Clubs Dropdown Menu - Initially hidden -->
-                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
-                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
-                        <Label text="👥" styleClass="dropdown-item-icon"/>
-                        <Label text="Club Management" styleClass="dropdown-item-text"/>
-                    </HBox>
-                    <Separator styleClass="dropdown-divider"/>
-                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
-                        <Label text="🏆" styleClass="dropdown-item-icon"/>
-                        <Label text="My Club" styleClass="dropdown-item-text"/>
-                    </HBox>
-                </VBox>
-            </StackPane>
-            
-            <Button text="Events" styleClass="nav-button-selected"/>
-            <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
-            <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
-        </HBox>
-        
-        <HBox spacing="15" alignment="CENTER_RIGHT">
-            <!-- User Profile Section -->
-            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
-                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
-                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
-                        <Image url="@../images/default-profile.png"/>
+    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <!-- Main background with gradient -->
+        <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #e6f2ff);">
+
+            <!-- Header -->
+            <top>
+                <!-- Navigation Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+                    <padding>
+                        <Insets bottom="10" left="20" right="20" top="10" />
+                    </padding>
+
+                    <ImageView fitHeight="80" fitWidth="170" preserveRatio="true">
+                        <Image url="@../images/logo.png" />
                     </ImageView>
-                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
-                </HBox>
-                
-                <!-- Dropdown Menu -->
-                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
-                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
-                    <Separator styleClass="dropdown-divider"/>
-                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
-                </VBox>
-            </StackPane>
-            
-            <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
-        </HBox>
-    </HBox>
 
-    <!-- Event Filter and Controls -->
-    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 5);">
-        <!-- Search Box -->
-        <TextField fx:id="searchField" prefWidth="300" promptText="Search events..." style="-fx-background-color: white; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 15;">
-            <font>
-                <Font name="Arial" size="14" />
-            </font>
-        </TextField>
+                    <HBox alignment="CENTER" spacing="15" styleClass="nav-container" HBox.hgrow="ALWAYS">
+                        <Button styleClass="nav-button" text="Home" />
+                        <Button styleClass="nav-button" text="Clubs" />
+                        <Button styleClass="nav-button-selected" text="Events" />
+                        <Button styleClass="nav-button" text="Products" />
+                        <Button styleClass="nav-button" text="Competition" />
+                    </HBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <!-- Add New Event Button (moved from second header) -->
+
+
+                        <!-- User Profile Section -->
+                        <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
+                            <HBox alignment="CENTER" spacing="10" styleClass="user-profile-content">
+                                <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                                </ImageView>
+                                <Label fx:id="userNameLabel" styleClass="user-name" text="John Doe" />
+                            </HBox>
+
+                            <!-- Dropdown Menu -->
+                            <VBox fx:id="profileDropdown" managed="false" styleClass="profile-dropdown" visible="false">
+                                <Button styleClass="dropdown-item" text="My Profile" />
+                                <Separator />
+                                <Button styleClass="dropdown-item" text="Logout" />
+                            </VBox>
+                        </StackPane>
+
+                        <Button styleClass="contact-button" text="Contact Us" />
+                    </HBox>
+                </HBox>
+            </top>
+
+            <!-- Main content -->
+            <center>
+                <BorderPane style="-fx-padding: 20;">
+                    <!-- Filter and Search Section -->
+                    <top>
+                        <VBox spacing="20">
+                            <!-- First row: Title and subtitle -->
+                            <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                <Label style="-fx-text-fill: #2e1696; -fx-padding: 0 0 0 15;" text="Events Gallery " textFill="#2e1696">
+                                    <font>
+                                        <Font name="Arial Bold" size="28.0" />
+                                    </font>
+                                </Label>
+                                <Label style="-fx-text-fill: #555555; -fx-padding: 0 0 0 15;" text="Browse and discover exciting events" textFill="#351991">
+                                    <font>
+                                        <Font name="Arial" size="21.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Espace flexible entre le texte et le bouton -->
+                                <Pane HBox.hgrow="ALWAYS" />
+
+                                <Button fx:id="addNewEventButton" onAction="#handleAddNewEvent" prefHeight="34.0" prefWidth="133.0" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;" text="Add New Event">
+                                    <font>
+                                        <Font name="Arial Bold" size="14" />
+                                    </font>
+                                    <effect>
+                                        <DropShadow color="#00000033" radius="3" spread="0.05" />
+                                    </effect>
+                                </Button>
+                            </HBox>
+
+                            <!-- Second row: Calendar view button ONLY -->
+                            <HBox alignment="CENTER" style="-fx-padding: 0 15 10 0;">
+                                <!-- Enhanced Calendar View Button -->
+                                <Button fx:id="calendarViewButton"
+                                        onAction="#switchToCalendarView"
+                                        style="-fx-background-color: #5d4ebb;
+                               -fx-text-fill: white;
+                               -fx-background-radius: 10;
+                               -fx-font-weight: bold;
+                               -fx-padding: 8 15;
+                               -fx-graphic-text-gap: 8;">
+                                    <graphic>
+                                        <ImageView fitHeight="20" fitWidth="20">
+                                            <Image url="@../images/calendar-iconr.png" />
+                                        </ImageView>
+                                    </graphic>
+                                    <text>Switch to Calendar View</text>
+                                    <effect>
+                                        <DropShadow color="#00000040" radius="5" spread="0.1" />
+                                    </effect>
+                                </Button>
+                            </HBox>
+
+                            <!-- Third row: Search and filters -->
+                            <HBox alignment="CENTER_LEFT" spacing="15">
+                                <!-- Search Box -->
+                                <TextField fx:id="searchField" onAction="#handleSearch" prefWidth="300" promptText="Search events..." style="-fx-background-color: white; -fx-background-radius: 20; -fx-border-color: #dddddd; -fx-border-radius: 20; -fx-padding: 8 15;">
+                                    <font>
+                                        <Font name="Arial" size="14" />
+                                    </font>
+                                </TextField>
 
         <!-- Category Filter -->
         <ComboBox fx:id="categoryFilter" prefWidth="180" promptText="Category" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 8;">
@@ -88,81 +144,138 @@
         <ComboBox fx:id="clubFilter" prefWidth="180" promptText="Club" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 8;">
         </ComboBox>
 
-        <!-- Date Filter -->
-        <ComboBox fx:id="dateFilter" prefWidth="180" promptText="Date" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 8;">
-            <tooltip>
-                <Tooltip text="Filter by date" />
-            </tooltip>
-        </ComboBox>
+                                <!-- Date Filter -->
+                                <ComboBox fx:id="dateFilter" prefWidth="180" promptText="Date" style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dddddd; -fx-border-radius: 8; -fx-padding: 8;">
+                                    <tooltip>
+                                        <Tooltip text="Filter by date" />
+                                    </tooltip>
+                                </ComboBox>
 
-        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="15">
-            <Button fx:id="addNewEventButton" onAction="#handleAddNewEvent" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;" text="Add New Event">
-                <font>
-                    <Font name="Arial Bold" size="14" />
-                </font>
-                <effect>
-                    <DropShadow color="#00000033" radius="5" spread="0.05" />
-                </effect>
-            </Button>
-        </HBox>
-    </HBox>
+                                <Button fx:id="refreshButton" onAction="#handleRefresh" style="-fx-background-color: #3b3e3e; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold;" styleClass="action-button" text="Refresh" />
+                            </HBox>
+                        </VBox>
+                    </top>
 
-    <!-- Main Content -->
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
-        <FlowPane fx:id="eventsContainer" hgap="25" style="-fx-padding: 25; -fx-background-color: #f8f9fa;" vgap="25">
-            <!-- Event cards will be added here dynamically -->
-        </FlowPane>
-    </ScrollPane>
+                    <!-- Events Display Area -->
+                    <center>
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                            <FlowPane fx:id="eventsContainer" hgap="25" style="-fx-padding: 25;" vgap="25">
+                                <!-- Event cards will be added here dynamically -->
 
-    <!-- Footer -->
-    <BorderPane style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
-        <left>
-            <Label style="-fx-text-fill: #666666;" text="© 2025 - Club Event Management">
-                <font>
-                    <Font name="Arial" size="12" />
-                </font>
-            </Label>
-        </left>
-        <right>
-            <HBox alignment="CENTER_RIGHT" spacing="15">
-                <Label fx:id="totalEventsLabel" style="-fx-text-fill: #666666;" text="Total Events: 24">
-                    <font>
-                        <Font name="Arial" size="12" />
-                    </font>
-                </Label>
-                <Label style="-fx-text-fill: #666666;" text="Page 1 of 3">
-                    <font>
-                        <Font name="Arial" size="12" />
-                    </font>
-                </Label>
-                <HBox alignment="CENTER" spacing="5">
-                    <Button style="-fx-background-color: #dddddd; -fx-text-fill: #333333; -fx-background-radius: 3; -fx-padding: 3 8;" text="&lt;">
-                        <font>
-                            <Font name="Arial Bold" size="12" />
-                        </font>
-                    </Button>
-                    <Button style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 3; -fx-padding: 3 8;" text="1">
-                        <font>
-                            <Font name="Arial Bold" size="12" />
-                        </font>
-                    </Button>
-                    <Button style="-fx-background-color: #dddddd; -fx-text-fill: #333333; -fx-background-radius: 3; -fx-padding: 3 8;" text="2">
-                        <font>
-                            <Font name="Arial Bold" size="12" />
-                        </font>
-                    </Button>
-                    <Button style="-fx-background-color: #dddddd; -fx-text-fill: #333333; -fx-background-radius: 3; -fx-padding: 3 8;" text="3">
-                        <font>
-                            <Font name="Arial Bold" size="12" />
-                        </font>
-                    </Button>
-                    <Button style="-fx-background-color: #dddddd; -fx-text-fill: #333333; -fx-background-radius: 3; -fx-padding: 3 8;" text="&gt;">
-                        <font>
-                            <Font name="Arial Bold" size="12" />
-                        </font>
-                    </Button>
-                </HBox>
-            </HBox>
-        </right>
-    </BorderPane>
-</VBox>
+                                <!-- Example Event Card (for design reference) -->
+                                <VBox prefHeight="380" prefWidth="300" style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 3);" styleClass="event-card">
+                                    <!-- Event Image -->
+                                    <StackPane>
+                                        <ImageView fitHeight="180" fitWidth="300" preserveRatio="true" style="-fx-background-color: #f0f0f0; -fx-background-radius: 15 15 0 0;" />
+                                        <Label style="-fx-background-color: #040f71; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;" text="Open" StackPane.alignment="TOP_RIGHT">
+                                            <StackPane.margin>
+                                                <javafx.geometry.Insets right="10" top="10" />
+                                            </StackPane.margin>
+                                        </Label>
+                                    </StackPane>
+
+                                    <!-- Event Details -->
+                                    <VBox spacing="8" style="-fx-padding: 15;">
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label style="-fx-text-fill: #1e90ff;" text="Sports">
+                                                <font>
+                                                    <Font name="Arial Bold" size="12" />
+                                                </font>
+                                            </Label>
+                                            <Label style="-fx-text-fill: #666666;" text="• Tennis Club">
+                                                <font>
+                                                    <Font name="Arial" size="12" />
+                                                </font>
+                                            </Label>
+                                        </HBox>
+
+                                        <Label style="-fx-text-fill: #333333;" text="Annual Tennis Tournament">
+                                            <font>
+                                                <Font name="Arial Bold" size="16" />
+                                            </font>
+                                        </Label>
+
+                                        <Label style="-fx-text-fill: #555555; -fx-wrap-text: true;" text="Join us for our exciting annual tennis competition with players from all over the region...">
+                                            <font>
+                                                <Font name="Arial" size="13" />
+                                            </font>
+                                        </Label>
+
+                                        <HBox alignment="CENTER_LEFT" spacing="5" style="-fx-padding: 5 0 0 0;">
+                                            <Label style="-fx-text-fill: #666666;" text="📅">
+                                                <font>
+                                                    <Font name="Arial" size="13" />
+                                                </font>
+                                            </Label>
+                                            <Label style="-fx-text-fill: #666666;" text="Apr 15-17, 2025">
+                                                <font>
+                                                    <Font name="Arial" size="13" />
+                                                </font>
+                                            </Label>
+                                        </HBox>
+
+                                        <HBox alignment="CENTER_LEFT" spacing="5">
+                                            <Label style="-fx-text-fill: #666666;" text="📍">
+                                                <font>
+                                                    <Font name="Arial" size="13" />
+                                                </font>
+                                            </Label>
+                                            <Label style="-fx-text-fill: #666666;" text="Campus Tennis Courts">
+                                                <font>
+                                                    <Font name="Arial" size="13" />
+                                                </font>
+                                            </Label>
+                                        </HBox>
+
+                                        <!-- Buttons -->
+                                        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10 0 0 0;">
+                                            <Button style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;" text="View Details">
+                                                <font>
+                                                    <Font name="Arial Bold" size="13" />
+                                                </font>
+                                            </Button>
+
+                                        </HBox>
+                                    </VBox>
+                                </VBox>
+
+                                <!-- More event cards would be added dynamically -->
+                            </FlowPane>
+                        </ScrollPane>
+                    </center>
+                </BorderPane>
+            </center>
+
+            <!-- Footer with integrated pagination -->
+            <bottom>
+                <BorderPane style="-fx-background-color: #f8f9fa; -fx-padding: 15;">
+                    <left>
+                        <Label style="-fx-text-fill: #666666;" text="© 2025 - Club Event Management">
+                            <font>
+                                <Font name="Arial" size="12" />
+                            </font>
+                        </Label>
+                    </left>
+                    <right>
+                        <HBox alignment="CENTER_RIGHT" spacing="15">
+                            <Label fx:id="totalEventsLabel" style="-fx-text-fill: #666666;" text="Total Events: 24">
+                                <font>
+                                    <Font name="Arial" size="12" />
+                                </font>
+                            </Label>
+                            <HBox alignment="CENTER" spacing="5">
+                                <Button fx:id="prevPageButton" style="-fx-background-color: transparent; -fx-text-fill: #1e90ff; -fx-padding: 2 5;" text="&lt;" />
+                                <Label fx:id="pageInfoLabel" style="-fx-text-fill: #666666;" text="1/5" />
+                                <Button fx:id="nextPageButton" style="-fx-background-color: transparent; -fx-text-fill: #1e90ff; -fx-padding: 2 5;" text="&gt;" />
+                            </HBox>
+                        </HBox>
+                    </right>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
+    </StackPane>
+
+    <stylesheets>
+        <URL value="@../styles/uniclubs.css" />
+    </stylesheets>
+</AnchorPane>

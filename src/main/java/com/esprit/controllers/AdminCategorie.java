@@ -7,16 +7,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import com.esprit.models.Categorie;
 import com.esprit.services.ServiceCategorie;
+import com.esprit.services.ServiceCategorie.CategoryUsage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -52,7 +56,6 @@ public class AdminCategorie implements Initializable {
     @FXML
     private Label paginationInfoLabel;
 
-
     // Add category form
     @FXML
     private TextField nomcattf;
@@ -61,9 +64,12 @@ public class AdminCategorie implements Initializable {
     private Button ajoutercat;
 
     // Other buttons
-
     @FXML
     private Button refreshButton;
+
+    // PieChart component
+    @FXML
+    private PieChart categoryUsagePieChart;
 
     private ServiceCategorie serviceCategorie;
     private ObservableList<Categorie> categoriesList = FXCollections.observableArrayList();
@@ -82,7 +88,7 @@ public class AdminCategorie implements Initializable {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy");
         String formattedDate = currentDate.format(formatter);
-        //dateLabel.setText("Today: " + formattedDate);
+        dateLabel.setText("Today: " + formattedDate);
 
         // Configure ListView
         configureListView();
@@ -101,6 +107,9 @@ public class AdminCategorie implements Initializable {
 
         // Initialize pagination
         updatePagination();
+
+        // Initialize PieChart
+        loadCategoryUsageStats();
     }
 
     private void configureListView() {
@@ -125,14 +134,10 @@ public class AdminCategorie implements Initializable {
                     nameLabel.setStyle("-fx-min-width: 200;");
 
                     // Action buttons
-
-
-
                     Button deleteButton = new Button("Delete");
                     deleteButton.setStyle("-fx-background-color: #fff5f5; -fx-text-fill: #dc3545; -fx-border-color: #dc3545; -fx-border-radius: 3;");
 
                     // Add actions to buttons
-
                     deleteButton.setOnAction(event -> handleDeleteCategory(categorie));
 
                     // Create a spacer to push buttons to the right
@@ -140,7 +145,7 @@ public class AdminCategorie implements Initializable {
                     HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
                     // Add all elements to the layout
-                    itemLayout.getChildren().addAll(idLabel, nameLabel, spacer,  deleteButton);
+                    itemLayout.getChildren().addAll(idLabel, nameLabel, spacer, deleteButton);
 
                     setGraphic(itemLayout);
                     setText(null);
@@ -165,13 +170,11 @@ public class AdminCategorie implements Initializable {
         }
     }
 
+
     private void updateStatistics() {
         int total = categoriesList.size();
 
         String popularCategory = "N/A";
-
-
-
 
         // Set a popular category if we have at least one category
         if (!categoriesList.isEmpty()) {
@@ -180,7 +183,6 @@ public class AdminCategorie implements Initializable {
 
         // Update the labels
         totalCategoriesLabel.setText(String.valueOf(total));
-
         popularCategoryLabel.setText(popularCategory);
     }
 
@@ -209,19 +211,13 @@ public class AdminCategorie implements Initializable {
     private void configureFilterButtons() {
         // All filter (default)
         allFilterButton.setOnAction(event -> {
-
             filteredCategories.setPredicate(categorie -> true);
             currentPage = 1;
             applyPaginationAndFilters();
         });
 
-        // Active filter
-
-
-
         // Inactive filter
         inactiveFilterButton.setOnAction(event -> {
-
             filteredCategories.setPredicate(categorie -> {
                 // In a real app, this would check if the category is inactive
                 // For this example, let's assume categories with odd IDs are inactive
@@ -230,21 +226,11 @@ public class AdminCategorie implements Initializable {
             currentPage = 1;
             applyPaginationAndFilters();
         });
-
-        // Set "All" as default
-
     }
 
-
-
     private void updatePagination() {
-        // Enable/disable pagination buttons
-
-
         int totalItems = filteredCategories.size();
         totalPages = (int) Math.ceil((double) totalItems / ITEMS_PER_PAGE);
-
-
 
         // Update pagination info label
         int startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -279,15 +265,104 @@ public class AdminCategorie implements Initializable {
         categoriesListView.setItems(currentPageItems);
     }
 
+    /**
+     * Charge et affiche les statistiques d'utilisation des catégories dans le PieChart
+     */
+    private void loadCategoryUsageStats() {
+        try {
+            // Récupérer les statistiques d'utilisation
+            List<CategoryUsage> usageStats = serviceCategorie.getCategoriesUsageStats();
 
+            // Créer des données pour le PieChart
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
+            // Limiter à 5 catégories pour une meilleure lisibilité, avec une catégorie "Autres" si nécessaire
+            int othersCount = 0;
+            int totalCount = 0;
+
+            // Calculer le nombre total de clubs
+            for (CategoryUsage usage : usageStats) {
+                totalCount += usage.getCount();
+            }
+
+            // Ajouter les 5 premières catégories au graphique
+            for (int i = 0; i < usageStats.size(); i++) {
+                CategoryUsage usage = usageStats.get(i);
+                if (i < 5) {
+                    // Calculer le pourcentage pour l'affichage
+                    double percentage = totalCount > 0 ? (usage.getCount() * 100.0 / totalCount) : 0;
+                    String label = usage.getName() + " (" + String.format("%.1f", percentage) + "%)";
+                    pieChartData.add(new PieChart.Data(label, usage.getCount()));
+                } else {
+                    // Regrouper le reste dans "Autres"
+                    othersCount += usage.getCount();
+                }
+            }
+
+            // Ajouter la catégorie "Autres" si nécessaire
+            if (othersCount > 0) {
+                double percentage = totalCount > 0 ? (othersCount * 100.0 / totalCount) : 0;
+                String label = "Autres (" + String.format("%.1f", percentage) + "%)";
+                pieChartData.add(new PieChart.Data(label, othersCount));
+            }
+
+            // Mettre à jour le PieChart
+            categoryUsagePieChart.setData(pieChartData);
+
+            categoryUsagePieChart.setLabelsVisible(true);
+
+            // Ajouter une esthétique aux sections du graphique
+            applyPieChartCustomization();
+
+            // Si nous avons des statistiques, mettre à jour la catégorie la plus populaire
+            if (!usageStats.isEmpty()) {
+                CategoryUsage mostPopular = usageStats.get(0);
+                popularCategoryLabel.setText(mostPopular.getName());
+            }
+
+        } catch (SQLException ex) {
+            System.err.println("Error loading category usage statistics: " + ex.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load category statistics", ex.getMessage());
+        }
+    }
+
+    /**
+     * Applique des personnalisations esthétiques au PieChart
+     */
+    private void applyPieChartCustomization() {
+        // Définir des couleurs attrayantes pour les sections du graphique
+        String[] pieColors = {
+                "rgba(41, 128, 185, 0.8)", // Bleu
+                "rgba(39, 174, 96, 0.8)",  // Vert
+                "rgba(192, 57, 43, 0.8)",  // Rouge
+                "rgba(241, 196, 15, 0.8)", // Jaune
+                "rgba(142, 68, 173, 0.8)", // Violet
+                "rgba(127, 140, 141, 0.8)" // Gris (pour "Autres")
+        };
+
+        int i = 0;
+        for (PieChart.Data data : categoryUsagePieChart.getData()) {
+            String color = pieColors[i % pieColors.length];
+            data.getNode().setStyle("-fx-pie-color: " + color + ";");
+
+            // Ajouter une animation d'agrandissement au survol
+            final int index = i;
+            data.getNode().setOnMouseEntered(event -> {
+                data.getNode().setStyle("-fx-pie-color: " + pieColors[index % pieColors.length].replace("0.8", "1.0") + "; -fx-scale-x: 1.1; -fx-scale-y: 1.1;");
+            });
+
+            data.getNode().setOnMouseExited(event -> {
+                data.getNode().setStyle("-fx-pie-color: " + pieColors[index % pieColors.length] + "; -fx-scale-x: 1.0; -fx-scale-y: 1.0;");
+            });
+
+            i++;
+        }
+    }
 
 
     @FXML
     public void insererCategorie() {
         String nomCat = nomcattf.getText().trim();
-        // Safely handle null descriptionTextArea
-
 
         if (nomCat.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Validation Error", "Category Name Required",
@@ -299,17 +374,17 @@ public class AdminCategorie implements Initializable {
             // Create and add new category
             Categorie newCategorie = new Categorie();
             newCategorie.setNom_cat(nomCat);
-            // In a real app, you might store the description as well
 
             serviceCategorie.add(newCategorie);
 
             // Clear form fields
             nomcattf.clear();
 
-
-
             // Refresh categories list
             loadCategories();
+
+            // Reload category usage statistics for the PieChart
+            loadCategoryUsageStats();
 
             showAlert(Alert.AlertType.INFORMATION, "Success", "Category Added",
                     "The category has been successfully added.");
@@ -324,15 +399,13 @@ public class AdminCategorie implements Initializable {
         loadCategories();
         searchField.clear();
         currentPage = 1;
-        // Reset to "All" filter
 
         filteredCategories.setPredicate(categorie -> true);
         applyPaginationAndFilters();
+
+        // Reload PieChart data
+        loadCategoryUsageStats();
     }
-
-
-
-
 
     private void handleDeleteCategory(Categorie categorie) {
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
@@ -348,6 +421,9 @@ public class AdminCategorie implements Initializable {
 
                 // Refresh categories list
                 loadCategories();
+
+                // Reload PieChart data
+                loadCategoryUsageStats();
 
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Category Deleted",
                         "The category has been successfully deleted.");
