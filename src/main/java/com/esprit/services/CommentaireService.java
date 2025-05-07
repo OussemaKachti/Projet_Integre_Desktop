@@ -1,4 +1,4 @@
-package com.esprit.services;
+/*package com.esprit.services;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.Sondage;
@@ -119,7 +119,7 @@ public class CommentaireService {
      * @throws SQLException En cas d'erreur SQL
      * @throws SecurityException Si l'utilisateur n'est pas autorisé
      */
-    public void delete(int commentId, int userId) throws SQLException {
+   /* public void delete(int commentId, int userId) throws SQLException {
         // Vérifier si l'utilisateur est autorisé à supprimer
         if (!isUserAuthorized(userId, commentId)) {
             throw new SecurityException("User not authorized to delete this comment");
@@ -141,7 +141,7 @@ public class CommentaireService {
      * @return
      * @throws SQLException En cas d'erreur SQL
      */
-    public boolean delete(int commentId) throws SQLException {
+   /* public boolean delete(int commentId) throws SQLException {
         String query = "DELETE FROM commentaire WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {

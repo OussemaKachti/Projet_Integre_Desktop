@@ -1,4 +1,4 @@
-package com.esprit.services;
+/*package com.esprit.services;
 
 import com.esprit.models.Reponse;
 import com.esprit.models.ChoixSondage;
@@ -27,7 +27,7 @@ public class ReponseService {
     /**
      * Ajoute un vote (méthode déjà existante)
      */
-    public void addVote(Reponse reponse) throws SQLException {
+    /*public void addVote(Reponse reponse) throws SQLException {
         // Vérifier si l'utilisateur a déjà voté
         if (hasUserVoted(reponse.getUser().getId(), reponse.getSondage().getId())) {
             // Supprimer l'ancien vote
@@ -52,7 +52,7 @@ public class ReponseService {
     /**
      * Ajoute une réponse à un sondage
      */
-    public void add(Reponse reponse) throws SQLException {
+    /*public void add(Reponse reponse) throws SQLException {
         String query = "INSERT INTO reponse (date_reponse, user_id, choix_sondage_id, sondage_id) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -76,7 +76,7 @@ public class ReponseService {
     /**
      * Met à jour une réponse existante
      */
-    public void update(Reponse reponse) throws SQLException {
+    /*public void update(Reponse reponse) throws SQLException {
         String query = "UPDATE reponse SET date_reponse = ?, choix_sondage_id = ? WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -94,7 +94,7 @@ public class ReponseService {
     /**
      * Supprime une réponse par son ID
      */
-    public void delete(Integer id) throws SQLException {
+   /* public void delete(Integer id) throws SQLException {
         String query = "DELETE FROM reponse WHERE id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -106,7 +106,7 @@ public class ReponseService {
     /**
      * Supprime la réponse d'un utilisateur pour un sondage (méthode déjà existante)
      */
-    public void deleteUserVote(int userId, int sondageId) throws SQLException {
+  /*  public void deleteUserVote(int userId, int sondageId) throws SQLException {
         String query = "DELETE FROM reponse WHERE user_id = ? AND sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -120,7 +120,7 @@ public class ReponseService {
      * Vérifie si un utilisateur a déjà voté pour un sondage (méthode déjà
      * existante)
      */
-    public boolean hasUserVoted(int userId, int sondageId) throws SQLException {
+   /* public boolean hasUserVoted(int userId, int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE user_id = ? AND sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -138,7 +138,7 @@ public class ReponseService {
     /**
      * Récupère la réponse d'un utilisateur pour un sondage
      */
-    public Reponse getUserResponseForPoll(int userId, int sondageId) throws SQLException {
+   /* public Reponse getUserResponseForPoll(int userId, int sondageId) throws SQLException {
         String query = "SELECT * FROM reponse WHERE user_id = ? AND sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -157,7 +157,7 @@ public class ReponseService {
     /**
      * Récupère les résultats d'un sondage (méthode déjà existante)
      */
-    public Map<String, Object> getPollResults(int sondageId) throws SQLException {
+    /*public Map<String, Object> getPollResults(int sondageId) throws SQLException {
         Map<String, Object> results = new HashMap<>();
         String query = """
                 SELECT cs.contenu, COUNT(r.id) as votes,
@@ -190,7 +190,7 @@ public class ReponseService {
     /**
      * Obtient une couleur en fonction du pourcentage (méthode déjà existante)
      */
-    private String getColorByPercentage(double percentage) {
+   /* private String getColorByPercentage(double percentage) {
         if (percentage <= 20)
             return "#e74c3c";
         else if (percentage <= 40)
@@ -206,7 +206,7 @@ public class ReponseService {
     /**
      * Récupère toutes les réponses d'un sondage (méthode déjà existante renommée)
      */
-    public ObservableList<Reponse> getBySondage(int sondageId) throws SQLException {
+   /* public ObservableList<Reponse> getBySondage(int sondageId) throws SQLException {
         ObservableList<Reponse> reponses = FXCollections.observableArrayList();
         String query = "SELECT * FROM reponse WHERE sondage_id = ? ORDER BY date_reponse DESC";
 
@@ -227,7 +227,7 @@ public class ReponseService {
      * @param choixId ID du choix dont on veut compter les votes
      * @return Le nombre de votes pour ce choix
      */
-    public int getVotesByChoix(int choixId) throws SQLException {
+    /*public int getVotesByChoix(int choixId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE choix_sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -245,7 +245,7 @@ public class ReponseService {
     /**
      * Convertit un ResultSet en objet Reponse
      */
-    private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
+  /*  private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
         Reponse reponse = new Reponse();
         reponse.setId(rs.getInt("id"));
 
@@ -268,7 +268,7 @@ public class ReponseService {
     /**
      * Get user's response for a specific poll
      */
-    public ChoixSondage getUserResponse(int userId, int sondageId) throws SQLException {
+   /* public ChoixSondage getUserResponse(int userId, int sondageId) throws SQLException {
         String query = "SELECT cs.* FROM reponse r " +
                 "JOIN choix_sondage cs ON r.choix_sondage_id = cs.id " +
                 "WHERE r.user_id = ? AND r.sondage_id = ?";
@@ -298,7 +298,7 @@ public class ReponseService {
     /**
      * Add a new vote
      */
-    public void addVote(int userId, int sondageId, int choixId) throws SQLException {
+   /* public void addVote(int userId, int sondageId, int choixId) throws SQLException {
         String query = "INSERT INTO reponse (user_id, sondage_id, choix_sondage_id, date_reponse) VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -314,7 +314,7 @@ public class ReponseService {
     /**
      * Update a user's existing vote
      */
-    public void updateUserVote(int userId, int sondageId, int newChoixId) throws SQLException {
+    /*public void updateUserVote(int userId, int sondageId, int newChoixId) throws SQLException {
         String query = "UPDATE reponse SET choix_sondage_id = ?, date_reponse = ? WHERE user_id = ? AND sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -330,7 +330,7 @@ public class ReponseService {
     /**
      * Get total votes for a poll
      */
-    public int getTotalVotesForPoll(int sondageId) throws SQLException {
+   /* public int getTotalVotesForPoll(int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE sondage_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
@@ -349,7 +349,7 @@ public class ReponseService {
     /**
      * Get total votes for all polls
      */
-    public int getTotalVotesForAllPolls() throws SQLException {
+    /*public int getTotalVotesForAllPolls() throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {

@@ -1,4 +1,4 @@
-package com.esprit.controllers;
+/*package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
 import com.esprit.models.ParticipationMembre;
@@ -337,7 +337,7 @@ public class SondageViewController implements Initializable {
     /**
      * Creates a VBox containing a single sondage (poll) display
      */
-    private VBox createSondageBox(Sondage sondage) throws SQLException {
+   /* private VBox createSondageBox(Sondage sondage) throws SQLException {
         VBox sondageBox = new VBox(10);
         sondageBox.getStyleClass().add("sondage-box");
         sondageBox.setPadding(new Insets(20));
@@ -633,7 +633,7 @@ public class SondageViewController implements Initializable {
     /**
      * Creates the poll option rows with radio buttons for voting
      */
-    private VBox createPollOptionsView(Sondage sondage) throws SQLException {
+    /*private VBox createPollOptionsView(Sondage sondage) throws SQLException {
         VBox optionsContainer = new VBox(10);
         optionsContainer.getStyleClass().add("poll-options");
         optionsContainer.setPadding(new Insets(10));
@@ -785,7 +785,7 @@ public class SondageViewController implements Initializable {
     /**
      * Handle user vote for a poll
      */
-    @FXML
+   /* @FXML
     private void handleVote(Sondage sondage, ToggleGroup optionsGroup) {
         try {
             // Get the selected radio button
@@ -947,7 +947,7 @@ public class SondageViewController implements Initializable {
     /**
      * Custom alert dialog with modern styling
      */
-    private void showCustomAlert(String title, String message, String type) {
+   /* private void showCustomAlert(String title, String message, String type) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.initStyle(StageStyle.TRANSPARENT);
@@ -1079,7 +1079,7 @@ public class SondageViewController implements Initializable {
      * 
      * @return true if confirmed, false if canceled
      */
-    private boolean showCustomConfirmDialog(String title, String message, String details) {
+  /*  private boolean showCustomConfirmDialog(String title, String message, String details) {
         final boolean[] result = { false };
 
         Stage dialogStage = new Stage();
@@ -1354,7 +1354,7 @@ public class SondageViewController implements Initializable {
      * sondages
      * et afficher les sondages du club dont l'utilisateur courant est président
      */
-    private void handleViewAllPolls() {
+   /* private void handleViewAllPolls() {
         try {
             if (currentUser != null) {
                 Club userClub = clubService.findByPresident(currentUser.getId());
@@ -1394,21 +1394,21 @@ public class SondageViewController implements Initializable {
     /**
      * Get the option chosen by the current user for this poll, if any
      */
-    private ChoixSondage getUserChoice(Sondage sondage) throws SQLException {
+   /* private ChoixSondage getUserChoice(Sondage sondage) throws SQLException {
         return reponseService.getUserResponse(currentUser.getId(), sondage.getId());
     }
 
     /**
      * Get total number of votes for a poll
      */
-    private int getTotalVotes(int pollId) throws SQLException {
+   /* private int getTotalVotes(int pollId) throws SQLException {
         return reponseService.getTotalVotesForPoll(pollId);
     }
 
     /**
      * Get comment count for a poll
      */
-    private int getCommentCount(int pollId) throws SQLException {
+   /* private int getCommentCount(int pollId) throws SQLException {
         return commentaireService.getBySondage(pollId).size();
     }
 
@@ -1474,7 +1474,7 @@ public class SondageViewController implements Initializable {
      * 
      * @param sondage The poll to show comments summary for
      */
-    private void showCommentsSummary(Sondage sondage) {
+   /* private void showCommentsSummary(Sondage sondage) {
         try {
             // Get all comments for this poll
             CommentaireService commentaireService = new CommentaireService();
@@ -1546,7 +1546,7 @@ public class SondageViewController implements Initializable {
      * @param sondage The poll
      * @param summary The generated summary text
      */
-    private void showSummaryDialog(Sondage sondage, String summary) {
+    /*private void showSummaryDialog(Sondage sondage, String summary) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setTitle("Poll Insights: " + sondage.getQuestion());

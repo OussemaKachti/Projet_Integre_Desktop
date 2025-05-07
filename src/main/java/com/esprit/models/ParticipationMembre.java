@@ -1,63 +1,76 @@
 package com.esprit.models;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-/**
- * Modèle pour la participation d'un membre à un club
- * Équivalent de l'entité ParticipationMembre dans Symfony
- */
-@Entity
-@Table(name = "participation_membre")
 public class ParticipationMembre {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    
-    @Column(name = "date_request")
-    private LocalDateTime dateRequest;
-    
-    @Column(name = "statut")
-    private String statut; // Valeurs possibles : enAttente, accepte, refuse
-    
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    
-    @ManyToOne
-    @JoinColumn(name = "club_id")
-    private Club club;
-    
-    @Column(name = "description")
+    private int id;
+    private int user_id;
+    private int club_id;
+    private LocalDateTime date_request;
+    private String statut;
     private String description;
-    
+    private String name;  // New field for participant's name
+    private Club club;   // Association to Club
+
+    // Default constructor
     public ParticipationMembre() {
-        this.dateRequest = LocalDateTime.now();
-        this.statut = "enAttente";
+        this.date_request = LocalDateTime.now();
+        this.statut = "en_attente";  // default statut
     }
 
-    public Integer getId() {
+    // Constructor with user_id, club_id, and description, and automatic default values for statut and date_request
+    public ParticipationMembre(int user_id, int club_id, String description) {
+        this.user_id = user_id;
+        this.club_id = club_id;
+        this.description = description;
+        this.date_request = LocalDateTime.now();  // Automatically set to current time
+        this.statut = "en_attente";  // Default statut
+    }
+
+    // Constructor with user_id, club_id, description, and statut
+    public ParticipationMembre(int user_id, int club_id, String description, String statut) {
+        this.user_id = user_id;
+        this.club_id = club_id;
+        this.description = description;
+        this.date_request = LocalDateTime.now();  // Automatically set to current time
+        this.statut = statut != null ? statut : "en_attente";  // If statut is not provided, default to "en_attente"
+    }
+
+    // Getters & Setters
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public LocalDateTime getDateRequest() {
-        return dateRequest;
+    public int getUser_id() {
+        return user_id;
     }
 
-    public void setDateRequest(LocalDateTime dateRequest) {
-        this.dateRequest = dateRequest;
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
+
+    public int getClub_id() {
+        return club_id;
+    }
+
+    public void setClub_id(int club_id) {
+        this.club_id = club_id;
+    }
+
+    public LocalDateTime getDate_request() {
+        return date_request;
+    }
+
+    public void setDate_request(LocalDateTime date_request) {
+        this.date_request = date_request;
     }
 
     public String getStatut() {
@@ -68,12 +81,20 @@ public class ParticipationMembre {
         this.statut = statut;
     }
 
-    public User getUser() {
-        return user;
+    public String getDescription() {
+        return description;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Club getClub() {
@@ -84,14 +105,22 @@ public class ParticipationMembre {
         this.club = club;
     }
 
-    public String getDescription() {
-        return description;
+    // Method to get the participant's name as a StringProperty for JavaFX
+    public StringProperty nameProperty() {
+        return new SimpleStringProperty(name != null ? name : "Unknown");
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    // Method to get the club name as a StringProperty for JavaFX
+    public StringProperty clubNameProperty() {
+        return new SimpleStringProperty(club != null ? club.getNomC() : "Unknown");
     }
 
+    // Method to get the date_request as a StringProperty for JavaFX
+    public StringProperty dateRequestProperty() {
+        return new SimpleStringProperty(date_request != null ? date_request.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "Unknown");
+    }
+
+    // Override toString method to display Participant details
     @Override
     public String toString() {
         return "ParticipationMembre{" +
@@ -101,4 +130,4 @@ public class ParticipationMembre {
                 ", club=" + (club != null ? club.getNomC() : "null") +
                 '}';
     }
-} 
+}

@@ -1,4 +1,4 @@
-package com.esprit.controllers.crud;
+/*package com.esprit.controllers.crud;
 
 import com.esprit.models.ChoixSondage;
 import com.esprit.models.Sondage;
@@ -26,7 +26,7 @@ import java.util.Optional;
 /**
  * Contrôleur pour la gestion des choix de sondage (CRUD)
  */
-public class ChoixSondageController implements Initializable {
+/*public class ChoixSondageController implements Initializable {
     
     // Composants de l'interface utilisateur
     @FXML private ComboBox<Sondage> cbSondages;
@@ -52,7 +52,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Constructeur
      */
-    public ChoixSondageController() {
+   /* public ChoixSondageController() {
         this.choixService = new ChoixSondageService();
         this.sondageService = SondageService.getInstance();
         this.reponseService = new ReponseService();
@@ -68,7 +68,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Configure la liste déroulante des sondages
      */
-    private void setupSondageComboBox() {
+   /* private void setupSondageComboBox() {
         try {
             ObservableList<Sondage> sondages = sondageService.getAll();
             cbSondages.setItems(sondages);
@@ -117,7 +117,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Configure les colonnes du tableau
      */
-    private void setupTable() {
+   /* private void setupTable() {
         colContenu.setCellValueFactory(cellData ->
             new SimpleStringProperty(cellData.getValue().getContenu()));
 
@@ -138,7 +138,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Configure la colonne des actions
      */
-    private void setupActionsColumn() {
+    /*private void setupActionsColumn() {
         colActions.setCellFactory(col -> new TableCell<ChoixSondage, String>() {
             private final Button editButton = new Button("Modifier");
             private final Button deleteButton = new Button("Supprimer");
@@ -189,7 +189,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Configure les événements des boutons
      */
-    private void setupButtons() {
+    /*private void setupButtons() {
         btnSave.setOnAction(e -> saveChoix());
         btnUpdate.setOnAction(e -> updateChoix());
         btnCancel.setOnAction(e -> resetForm());
@@ -201,7 +201,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Charge les choix d'un sondage
      */
-    private void loadChoixBySondage(Sondage sondage) {
+    /*private void loadChoixBySondage(Sondage sondage) {
         try {
             ObservableList<ChoixSondage> choix = choixService.getBySondage(sondage.getId());
             tableChoix.setItems(choix);
@@ -214,7 +214,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Crée un nouveau choix
      */
-    @FXML
+    /*@FXML
     private void saveChoix() {
         Sondage selectedSondage = cbSondages.getSelectionModel().getSelectedItem();
         
@@ -252,7 +252,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Met à jour un choix existant
      */
-    @FXML
+   /* @FXML
     private void updateChoix() {
         if (currentChoix == null) {
             return;
@@ -284,7 +284,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Prépare le formulaire pour modifier un choix existant
      */
-    private void editChoix(ChoixSondage choix) {
+    /*private void editChoix(ChoixSondage choix) {
         currentChoix = choix;
         txtContenu.setText(choix.getContenu());
         
@@ -300,7 +300,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Supprime un choix
      */
-    private void deleteChoix(ChoixSondage choix) {
+    /*private void deleteChoix(ChoixSondage choix) {
         try {
             // Vérifier si le choix a des réponses
             int responseCount = choixService.getResponseCount(choix.getId());
@@ -335,7 +335,7 @@ public class ChoixSondageController implements Initializable {
     /**
      * Réinitialise le formulaire
      */
-    private void resetForm() {
+    /*private void resetForm() {
         txtContenu.clear();
         
         // Réinitialiser l'état
@@ -353,11 +353,11 @@ public class ChoixSondageController implements Initializable {
     /**
      * Affiche une boîte de dialogue
      */
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+    /*private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
-} 
+} */
