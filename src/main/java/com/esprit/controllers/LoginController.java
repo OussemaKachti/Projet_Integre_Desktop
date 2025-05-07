@@ -188,6 +188,8 @@ public class LoginController {
     private void navigateToAdminDashboard() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+            // FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
+
             Parent root = loader.load();
 
             Stage stage = (Stage) emailField.getScene().getWindow();
@@ -325,7 +327,9 @@ public class LoginController {
     }
 
     private void navigateToHome() throws IOException {
+        // FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
+
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         MainApp.setupStage(stage, root, "Home - UNICLUBS", false);

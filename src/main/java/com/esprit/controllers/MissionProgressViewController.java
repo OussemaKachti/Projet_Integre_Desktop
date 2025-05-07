@@ -31,18 +31,30 @@ import java.util.stream.Collectors;
 
 public class MissionProgressViewController implements Initializable, MissionProgressService.MissionCompletionListener {
 
-    @FXML private ScrollPane scrollPane;
-    @FXML private VBox clubsContainer;
-    @FXML private ScrollPane missionDetailScrollPane;
-    @FXML private VBox missionDetailView;
-    @FXML private VBox missionDetailsContainer;
-    @FXML private VBox clubsView;
-    @FXML private Label detailClubName;
-    @FXML private Button backButton;
-    @FXML private ChoiceBox<String> filterBox;
-    @FXML private ChoiceBox<String> viewModeBox;
-    @FXML private Button refreshButton;
-    @FXML private Label statusLabel;
+    @FXML
+    private ScrollPane scrollPane;
+    @FXML
+    private VBox clubsContainer;
+    @FXML
+    private ScrollPane missionDetailScrollPane;
+    @FXML
+    private VBox missionDetailView;
+    @FXML
+    private VBox missionDetailsContainer;
+    @FXML
+    private VBox clubsView;
+    @FXML
+    private Label detailClubName;
+    @FXML
+    private Button backButton;
+    @FXML
+    private ChoiceBox<String> filterBox;
+    @FXML
+    private ChoiceBox<String> viewModeBox;
+    @FXML
+    private Button refreshButton;
+    @FXML
+    private Label statusLabel;
 
     private final MissionProgressService missionProgressService;
     private ObservableList<ClubWithMissionProgress> allClubsWithProgress;
@@ -111,8 +123,7 @@ public class MissionProgressViewController implements Initializable, MissionProg
                 new KeyFrame(Duration.seconds(30), e -> {
                     System.out.println("Auto refresh triggered");
                     Platform.runLater(this::refreshData);
-                })
-        );
+                }));
         autoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
         autoRefreshTimeline.play();
 
@@ -124,8 +135,7 @@ public class MissionProgressViewController implements Initializable, MissionProg
                 "All Clubs",
                 "Most Progress",
                 "Least Progress",
-                "Most Completed Missions"
-        ));
+                "Most Completed Missions"));
 
         filterBox.getSelectionModel().selectFirst();
 
@@ -140,8 +150,7 @@ public class MissionProgressViewController implements Initializable, MissionProg
     private void initializeViewModeBox() {
         viewModeBox.setItems(FXCollections.observableArrayList(
                 "Cards View",
-                "Compact Cards"
-        ));
+                "Compact Cards"));
 
         viewModeBox.getSelectionModel().selectFirst();
 
@@ -171,8 +180,10 @@ public class MissionProgressViewController implements Initializable, MissionProg
             System.out.println("Retrieved " + (freshData != null ? freshData.size() : 0) + " clubs with progress data");
 
             if (allClubsWithProgress == null) {
-                allClubsWithProgress = FXCollections.observableArrayList(freshData != null ? freshData : FXCollections.emptyObservableList());
-                filteredClubs = FXCollections.observableArrayList(freshData != null ? freshData : FXCollections.emptyObservableList());
+                allClubsWithProgress = FXCollections
+                        .observableArrayList(freshData != null ? freshData : FXCollections.emptyObservableList());
+                filteredClubs = FXCollections
+                        .observableArrayList(freshData != null ? freshData : FXCollections.emptyObservableList());
             } else {
                 allClubsWithProgress.setAll(freshData != null ? freshData : FXCollections.emptyObservableList());
 
@@ -207,13 +218,16 @@ public class MissionProgressViewController implements Initializable, MissionProg
 
         switch (filterOption) {
             case "Most Progress":
-                tempList.sort((c1, c2) -> Double.compare(c2.getTotalProgressPercentage(), c1.getTotalProgressPercentage()));
+                tempList.sort(
+                        (c1, c2) -> Double.compare(c2.getTotalProgressPercentage(), c1.getTotalProgressPercentage()));
                 break;
             case "Least Progress":
-                tempList.sort((c1, c2) -> Double.compare(c1.getTotalProgressPercentage(), c2.getTotalProgressPercentage()));
+                tempList.sort(
+                        (c1, c2) -> Double.compare(c1.getTotalProgressPercentage(), c2.getTotalProgressPercentage()));
                 break;
             case "Most Completed Missions":
-                tempList.sort((c1, c2) -> Integer.compare(c2.getCompletedMissionsCount(), c1.getCompletedMissionsCount()));
+                tempList.sort(
+                        (c1, c2) -> Integer.compare(c2.getCompletedMissionsCount(), c1.getCompletedMissionsCount()));
                 break;
             default:
                 tempList.sort((c1, c2) -> c1.getNomC().compareToIgnoreCase(c2.getNomC()));
@@ -448,11 +462,13 @@ public class MissionProgressViewController implements Initializable, MissionProg
         progressSection.setAlignment(Pos.CENTER_LEFT);
         progressSection.setPadding(new Insets(5, 0, 0, 0));
 
-        double progressPercentage = missionProgress.getCompetition().getGoalValue() > 0 ?
-                (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue() * 100.0 : 0;
+        double progressPercentage = missionProgress.getCompetition().getGoalValue() > 0
+                ? (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue() * 100.0
+                : 0;
 
-        ProgressBar progressBar = new ProgressBar(missionProgress.getCompetition().getGoalValue() > 0 ?
-                (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue() : 0);
+        ProgressBar progressBar = new ProgressBar(missionProgress.getCompetition().getGoalValue() > 0
+                ? (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue()
+                : 0);
         progressBar.setPrefWidth(300);
 
         if (missionProgress.getIsCompleted()) {
@@ -576,8 +592,9 @@ public class MissionProgressViewController implements Initializable, MissionProg
 
         ProgressBar progressBar = new ProgressBar();
         progressBar.setPrefWidth(400);
-        double progress = missionProgress.getCompetition().getGoalValue() > 0 ?
-                (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue() : 0;
+        double progress = missionProgress.getCompetition().getGoalValue() > 0
+                ? (double) missionProgress.getProgress() / missionProgress.getCompetition().getGoalValue()
+                : 0;
         progressBar.setProgress(progress);
 
         if (missionProgress.getIsCompleted()) {

@@ -6,7 +6,6 @@ import com.esprit.models.enums.GoalTypeEnum;
 import com.esprit.services.AIContentGeneratorService;
 import com.esprit.services.CompetitionService;
 import com.esprit.services.SaisonService;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import javafx.application.Platform;
 import javafx.animation.FadeTransition;
@@ -27,6 +26,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.sql.SQLException;

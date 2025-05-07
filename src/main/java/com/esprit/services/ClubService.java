@@ -11,13 +11,17 @@ import java.util.List;
 public class ClubService {
 
     private final Connection cnx;
+    private static ClubService instance;
 
     public ClubService() {
-        this.cnx = DataSource.getInstance().getCnx();
+        this.cnx = DatabaseConnection.getInstance();
     }
 
     public static ClubService getInstance() {
-        return null;
+        if (instance == null) {
+            instance = new ClubService();
+        }
+        return instance;
     }
 
     public void ajouter(Club club) {

@@ -46,60 +46,100 @@ public class SaisonController {
     private int totalPages = 1;
 
     // Main components
-    @FXML private BorderPane contentArea;
-    @FXML private VBox seasonListContainer;
-    @FXML private VBox seasonFormContainer;
-    @FXML private StackPane contentStackPane;
+    @FXML
+    private BorderPane contentArea;
+    @FXML
+    private VBox seasonListContainer;
+    @FXML
+    private VBox seasonFormContainer;
+    @FXML
+    private StackPane contentStackPane;
 
     // Header and Stats components
-    @FXML private Label contentTitle;
-    @FXML private Label dateLabel;
-    @FXML private Label totalSeasonsLabel;
-    @FXML private Label activeSeasonsLabel;
-    @FXML private Label upcomingSeasonsLabel;
-    @FXML private Label adminNameLabel;
+    @FXML
+    private Label contentTitle;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label totalSeasonsLabel;
+    @FXML
+    private Label activeSeasonsLabel;
+    @FXML
+    private Label upcomingSeasonsLabel;
+    @FXML
+    private Label adminNameLabel;
 
     // Search components
-    @FXML private TextField searchField;
-    @FXML private Button searchButton;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button searchButton;
 
     // Filter components
-    @FXML private ComboBox<String> statusFilter;
-    @FXML private ComboBox<String> yearFilter;
+    @FXML
+    private ComboBox<String> statusFilter;
+    @FXML
+    private ComboBox<String> yearFilter;
 
     // Form fields
-    @FXML private TextField saisonNameField;
-    @FXML private TextArea saisonDescField;
-    @FXML private DatePicker saisonDateField;
-    @FXML private ImageView imagePreview;
-    @FXML private Label selectedImageLabel;
-    @FXML private Label formTitleLabel;
-    @FXML private Label paginationInfoLabel;
+    @FXML
+    private TextField saisonNameField;
+    @FXML
+    private TextArea saisonDescField;
+    @FXML
+    private DatePicker saisonDateField;
+    @FXML
+    private ImageView imagePreview;
+    @FXML
+    private Label selectedImageLabel;
+    @FXML
+    private Label formTitleLabel;
+    @FXML
+    private Label paginationInfoLabel;
 
     // Buttons
-    @FXML private Button saveButton;
-    @FXML private Button addButton;
-    @FXML private Button cancelButton;
-    @FXML private Button closeFormButton;
-    @FXML private Button chooseImageButton;
-    @FXML private Button prevPageButton;
-    @FXML private Button nextPageButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button cancelButton;
+    @FXML
+    private Button closeFormButton;
+    @FXML
+    private Button chooseImageButton;
+    @FXML
+    private Button prevPageButton;
+    @FXML
+    private Button nextPageButton;
 
     // Navigation buttons
-    @FXML private Button userManagementButton;
-    @FXML private Button clubManagementButton;
-    @FXML private Button eventManagementButton;
-    @FXML private Button productOrdersButton;
-    @FXML private Button competitionButton;
-    @FXML private Button surveyButton;
-    @FXML private Button profileButton;
-    @FXML private Button logoutButton;
-    @FXML private Button CompetitionManagementButton;
+    @FXML
+    private Button userManagementButton;
+    @FXML
+    private Button clubManagementButton;
+    @FXML
+    private Button eventManagementButton;
+    @FXML
+    private Button productOrdersButton;
+    @FXML
+    private Button competitionButton;
+    @FXML
+    private Button surveyButton;
+    @FXML
+    private Button profileButton;
+    @FXML
+    private Button logoutButton;
+    @FXML
+    private Button CompetitionManagementButton;
 
     // Pagination labels
-    @FXML private Label currentPageLabel;
-    @FXML private Label totalPagesLabel;
-    @FXML private StackPane formOverlay;
+    @FXML
+    private Label currentPageLabel;
+    @FXML
+    private Label totalPagesLabel;
+    @FXML
+    private StackPane formOverlay;
 
     @FXML
     public void initialize() {
@@ -140,6 +180,7 @@ public class SaisonController {
             applyStylesToForm();
         });
     }
+
     private void applyStylesToForm() {
         // Direct styling for form overlay
         formOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-alignment: center;");
@@ -154,8 +195,9 @@ public class SaisonController {
         // Style the form header
         for (javafx.scene.Node node : seasonFormContainer.getChildren()) {
             if (node instanceof HBox && node.getStyleClass().contains("form-header")) {
-                node.setStyle("-fx-padding: 0 0 15px 0; -fx-border-color: transparent transparent #eaeaea transparent; " +
-                        "-fx-border-width: 0 0 1px 0; -fx-alignment: center-left;");
+                node.setStyle(
+                        "-fx-padding: 0 0 15px 0; -fx-border-color: transparent transparent #eaeaea transparent; " +
+                                "-fx-border-width: 0 0 1px 0; -fx-alignment: center-left;");
                 break;
             }
         }
@@ -221,46 +263,47 @@ public class SaisonController {
         // Add hover effects
         setupButtonHoverEffects();
     }
+
     private void setupButtonHoverEffects() {
         // Save button hover effect
-        saveButton.setOnMouseEntered(e ->
-                saveButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
+        saveButton.setOnMouseEntered(e -> saveButton
+                .setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
                         "-fx-background-radius: 5px; -fx-padding: 10px 20px; -fx-cursor: hand; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
 
-        saveButton.setOnMouseExited(e ->
-                saveButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
+        saveButton.setOnMouseExited(e -> saveButton
+                .setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
                         "-fx-background-radius: 5px; -fx-padding: 10px 20px; -fx-cursor: hand; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
 
         // Cancel button hover effect
-        cancelButton.setOnMouseEntered(e ->
-                cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #6c757d; " +
+        cancelButton.setOnMouseEntered(
+                e -> cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #6c757d; " +
                         "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
-        cancelButton.setOnMouseExited(e ->
-                cancelButton.setStyle("-fx-background-color: transparent; -fx-border-color: #6c757d; " +
+        cancelButton.setOnMouseExited(
+                e -> cancelButton.setStyle("-fx-background-color: transparent; -fx-border-color: #6c757d; " +
                         "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
         // Choose image button hover effect
-        chooseImageButton.setOnMouseEntered(e ->
-                chooseImageButton.setStyle("-fx-background-color: #f0f7ff; -fx-border-color: #3b82f6; " +
+        chooseImageButton.setOnMouseEntered(
+                e -> chooseImageButton.setStyle("-fx-background-color: #f0f7ff; -fx-border-color: #3b82f6; " +
                         "-fx-text-fill: #3b82f6; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
-        chooseImageButton.setOnMouseExited(e ->
-                chooseImageButton.setStyle("-fx-background-color: transparent; -fx-border-color: #3b82f6; " +
+        chooseImageButton.setOnMouseExited(
+                e -> chooseImageButton.setStyle("-fx-background-color: transparent; -fx-border-color: #3b82f6; " +
                         "-fx-text-fill: #3b82f6; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
         // Close button hover effect
-        closeFormButton.setOnMouseEntered(e ->
-                closeFormButton.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 50%; -fx-padding: 5px;"));
+        closeFormButton.setOnMouseEntered(e -> closeFormButton
+                .setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 50%; -fx-padding: 5px;"));
 
-        closeFormButton.setOnMouseExited(e ->
-                closeFormButton.setStyle("-fx-background-color: transparent; -fx-background-radius: 50%; -fx-padding: 5px;"));
+        closeFormButton.setOnMouseExited(e -> closeFormButton
+                .setStyle("-fx-background-color: transparent; -fx-background-radius: 50%; -fx-padding: 5px;"));
     }
 
     private void setupFilters() {
@@ -386,9 +429,8 @@ public class SaisonController {
         int endIndex = Math.min(startIndex + itemsPerPage, filteredSeasons.size());
 
         // Get paged subset of filtered data
-        List<Saison> pagedFilteredSeasons =
-                filteredSeasons.isEmpty() ? new ArrayList<>() :
-                        filteredSeasons.subList(startIndex, endIndex);
+        List<Saison> pagedFilteredSeasons = filteredSeasons.isEmpty() ? new ArrayList<>()
+                : filteredSeasons.subList(startIndex, endIndex);
 
         // Update the UI with filtered and paged data
         updateSeasonList(pagedFilteredSeasons);
@@ -399,6 +441,7 @@ public class SaisonController {
                 endIndex,
                 filteredSeasons.size()));
     }
+
     private void updatePaginationInfo() {
         try {
             // Get filtered count based on current filters
@@ -473,7 +516,8 @@ public class SaisonController {
                 .count();
         activeSeasonsLabel.setText(String.valueOf(activeCount));
 
-        // Count upcoming seasons (placeholder logic - define what makes a season "upcoming")
+        // Count upcoming seasons (placeholder logic - define what makes a season
+        // "upcoming")
         // This is just an example - modify according to your business logic
         long upcomingCount = allSeasons.stream()
                 .filter(s -> s.getDateFin() != null && s.getDateFin().isAfter(now.plusMonths(1)))
@@ -575,7 +619,8 @@ public class SaisonController {
         imagePreview.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e4e9f0; -fx-border-radius: 4px;");
 
         // Add drop shadow to season form container
-        seasonFormContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);");
+        seasonFormContainer.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);");
     }
 
     private void setupButtonActions() {
@@ -623,9 +668,8 @@ public class SaisonController {
             // Get all seasons and filter by search term
             List<Saison> allSeasons = saisonService.getAll();
             List<Saison> filteredSeasons = allSeasons.stream()
-                    .filter(saison ->
-                            saison.getNomSaison().toLowerCase().contains(searchTerm) ||
-                                    saison.getDescSaison().toLowerCase().contains(searchTerm))
+                    .filter(saison -> saison.getNomSaison().toLowerCase().contains(searchTerm) ||
+                            saison.getDescSaison().toLowerCase().contains(searchTerm))
                     .toList();
 
             updateSeasonList(filteredSeasons);
@@ -675,7 +719,8 @@ public class SaisonController {
         card.setPadding(new Insets(15));
 
         // Add hover effect to card
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;");
+        card.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;");
 
         // Season icon
         FontIcon icon = new FontIcon("mdi-calendar-clock");
@@ -743,7 +788,8 @@ public class SaisonController {
             dateLabel.setText("No end date specified");
         }
         dateLabel.getStyleClass().add("date-badge");
-        dateLabel.setStyle("-fx-background-color: #f0f4f8; -fx-padding: 5 10; -fx-background-radius: 4; -fx-text-fill: #4a6790;");
+        dateLabel.setStyle(
+                "-fx-background-color: #f0f4f8; -fx-padding: 5 10; -fx-background-radius: 4; -fx-text-fill: #4a6790;");
 
         dateBox.getChildren().add(dateLabel);
 
@@ -785,18 +831,22 @@ public class SaisonController {
         Button editButton = new Button("Edit");
         editButton.setGraphic(new FontIcon("mdi-pencil"));
         editButton.getStyleClass().add("edit-button");
-        editButton.setStyle("-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;-fx-min-width: 90px;");
+        editButton.setStyle(
+                "-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;-fx-min-width: 90px;");
         editButton.setPadding(new Insets(8, 12, 8, 12));
         editButton.setOnAction(e -> showEditForm(saison));
 
         // Add hover effect
-        editButton.setOnMouseEntered(e -> editButton.setStyle("-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
-        editButton.setOnMouseExited(e -> editButton.setStyle("-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
+        editButton.setOnMouseEntered(e -> editButton.setStyle(
+                "-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
+        editButton.setOnMouseExited(e -> editButton.setStyle(
+                "-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
 
         Button deleteButton = new Button("Delete");
         deleteButton.setGraphic(new FontIcon("mdi-delete"));
         deleteButton.getStyleClass().add("delete-button");
-        deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;");
+        deleteButton.setStyle(
+                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;");
         deleteButton.setPadding(new Insets(8, 12, 8, 12));
         deleteButton.setOnAction(e -> {
             try {
@@ -808,8 +858,10 @@ public class SaisonController {
         });
 
         // Add hover effect
-        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle("-fx-background-color: #bb2d3b; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
-        deleteButton.setOnMouseExited(e -> deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
+        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle(
+                "-fx-background-color: #bb2d3b; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
+        deleteButton.setOnMouseExited(e -> deleteButton.setStyle(
+                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;"));
 
         actions.getChildren().addAll(editButton, deleteButton);
 
@@ -817,10 +869,10 @@ public class SaisonController {
         card.getChildren().addAll(iconContainer, imageView, content, actions);
 
         // Add hover effect to the entire card
-        card.setOnMouseEntered(e ->
-                card.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2); -fx-border-color: #e6e6e6; -fx-border-radius: 10;"));
-        card.setOnMouseExited(e ->
-                card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;"));
+        card.setOnMouseEntered(e -> card.setStyle(
+                "-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2); -fx-border-color: #e6e6e6; -fx-border-radius: 10;"));
+        card.setOnMouseExited(e -> card.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;"));
 
         return card;
     }
@@ -841,8 +893,10 @@ public class SaisonController {
         StackPane placeholderPane = new StackPane(placeholder, placeholderIcon);
 
         // Convert to Image for the ImageView
-        // This approach is a workaround since we can't directly set a Node as the content of ImageView
-        // In a real app, you'd use a different approach like using a StackPane instead of ImageView
+        // This approach is a workaround since we can't directly set a Node as the
+        // content of ImageView
+        // In a real app, you'd use a different approach like using a StackPane instead
+        // of ImageView
         imageView.setImage(null); // Clear existing image
     }
 
@@ -902,14 +956,12 @@ public class SaisonController {
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
 
-
         // Optional scale animation for the form
         ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), seasonFormContainer);
         scaleIn.setFromX(0.95);
         scaleIn.setFromY(0.95);
         scaleIn.setToX(1);
         scaleIn.setToY(1);
-
 
         scaleIn.play();
         fadeIn.play();
@@ -1072,8 +1124,7 @@ public class SaisonController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         if (confirmAlert.showAndWait().get() == ButtonType.OK) {
             // Delete the image file if it exists
@@ -1160,8 +1211,7 @@ public class SaisonController {
                             "-fx-border-width: 1px;" +
                             "-fx-border-radius: 8px;" +
                             "-fx-background-radius: 8px;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-            );
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
             // Set custom button style
             Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
@@ -1169,8 +1219,7 @@ public class SaisonController {
                     "-fx-background-color: #ffc107;" +
                             "-fx-text-fill: white;" +
                             "-fx-background-radius: 4px;" +
-                            "-fx-font-weight: bold;"
-            );
+                            "-fx-font-weight: bold;");
 
             alert.showAndWait();
 
@@ -1263,8 +1312,7 @@ public class SaisonController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         if (confirmLogout.showAndWait().get() == ButtonType.OK) {
             try {
@@ -1323,8 +1371,7 @@ public class SaisonController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         // Style the content text
         Label content = (Label) dialogPane.lookup(".content");
@@ -1332,8 +1379,7 @@ public class SaisonController {
             content.setStyle(
                     "-fx-font-size: 14px;" +
                             "-fx-text-fill: #4b5c7b;" +
-                            "-fx-padding: 10 0 10 0;"
-            );
+                            "-fx-padding: 10 0 10 0;");
         }
 
         // Style the buttons
@@ -1370,8 +1416,7 @@ public class SaisonController {
                             "-fx-background-radius: 4px;" +
                             "-fx-padding: 8 15;" +
                             "-fx-font-weight: bold;" +
-                            "-fx-cursor: hand;"
-            );
+                            "-fx-cursor: hand;");
 
             // Add hover effect
 
@@ -1383,8 +1428,7 @@ public class SaisonController {
                                 "-fx-background-radius: 4px;" +
                                 "-fx-padding: 8 15;" +
                                 "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
+                                "-fx-cursor: hand;");
             });
 
             button.setOnMouseExited(e -> {
@@ -1395,8 +1439,7 @@ public class SaisonController {
                                 "-fx-background-radius: 4px;" +
                                 "-fx-padding: 8 15;" +
                                 "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
+                                "-fx-cursor: hand;");
             });
         });
 

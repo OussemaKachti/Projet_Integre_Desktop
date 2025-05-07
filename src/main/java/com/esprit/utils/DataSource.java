@@ -9,7 +9,7 @@ public class DataSource {
     private static DataSource instance;
     private Connection cnx;
 
-    private final String url = "jdbc:mysql://localhost:3306/dbpic";
+    private final String url = "jdbc:mysql://localhost:3306/dbpi";
     private final String user = "root";
     private final String password = "";
 

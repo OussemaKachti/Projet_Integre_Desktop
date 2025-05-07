@@ -172,7 +172,7 @@ public class CompetitionService implements IServiceYassine<Competition> {
         String sql = "SELECT * FROM competition";
 
         try (Statement stmt = connection.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Competition c = extractCompetition(rs);
@@ -185,6 +185,7 @@ public class CompetitionService implements IServiceYassine<Competition> {
         return competitions;
     }
 
+    
     public Competition findById(int id) throws SQLException {
         String sql = "SELECT * FROM competition WHERE id = ?";
 

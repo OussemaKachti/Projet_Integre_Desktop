@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class MyDatabase {
 
-    private final String url = "jdbc:mysql://localhost:3306/dbpic?useUnicode=true&characterEncoding=UTF-8";
+    private final String url = "jdbc:mysql://localhost:3306/dbpi?useUnicode=true&characterEncoding=UTF-8";
     private final String user = "root";
     private final String password = "";
     private Connection cnx;
