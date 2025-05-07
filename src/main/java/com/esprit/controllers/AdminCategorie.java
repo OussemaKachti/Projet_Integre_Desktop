@@ -157,7 +157,7 @@ public class AdminCategorie implements Initializable {
     private void loadCategories() {
         try {
             categoriesList.clear();
-            categoriesList.addAll(serviceCategorie.getAll());
+            categoriesList.addAll(serviceCategorie.afficher());
 
             // Set statistics
             updateStatistics();
@@ -375,7 +375,7 @@ public class AdminCategorie implements Initializable {
             Categorie newCategorie = new Categorie();
             newCategorie.setNom_cat(nomCat);
 
-            serviceCategorie.add(newCategorie);
+            serviceCategorie.ajouter(newCategorie);
 
             // Clear form fields
             nomcattf.clear();
@@ -417,7 +417,7 @@ public class AdminCategorie implements Initializable {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                serviceCategorie.delete(categorie.getId());
+                serviceCategorie.supprimer(categorie.getId());
 
                 // Refresh categories list
                 loadCategories();
