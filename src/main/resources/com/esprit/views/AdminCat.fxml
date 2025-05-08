@@ -57,41 +57,77 @@
 
             <!-- Menu Items -->
             <VBox spacing="5.0" VBox.vgrow="ALWAYS">
-                <Button fx:id="userManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="User Management">
+                <Button fx:id="userManagementButton" onAction="#showUserManagement" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="User Management">
                     <graphic>
                         <Label text="👤" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="clubManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Club Management">
+                <Button fx:id="clubManagementButton" onAction="#showClubManagement" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Club Management">
                     <graphic>
                         <Label text="🏛" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="eventManagementButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button, active" text="Event Management">
-                    <graphic>
-                        <Label text="📅" />
-                    </graphic>
-                </Button>
+                <!-- Event Management dropdown menu -->
+                <VBox spacing="2.0">
+                    <Button fx:id="eventManagementButton" onAction="#showEventManagement" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button, active" text="Event Management">
+                        <graphic>
+                            <Label text="📅" />
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Sous-menu Event Management -->
+                    <VBox fx:id="eventsSubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="true" managed="true">
+                        <Button onAction="#navigateToEventList" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                            <graphic>
+                                <Label text="📅" />
+                            </graphic>
+                        </Button>
+                        
+                        <Button onAction="#navigateToCategoryManagement" styleClass="sidebar-button, active" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                            <graphic>
+                                <Label text="🗂️" />
+                            </graphic>
+                        </Button>
+                    </VBox>
+                </VBox>
 
-                <Button fx:id="productOrdersButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Products &amp; Orders">
+                <Button fx:id="productOrdersButton" onAction="#showProductOrders" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Products &amp; Orders">
                     <graphic>
                         <Label text="🛒" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="competitionButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Competition &amp; Season">
+                <Button fx:id="competitionButton" onAction="#showCompetition" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Competition &amp; Season">
                     <graphic>
                         <Label text="🏆" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="surveyButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Survey Management">
-                    <graphic>
-                        <Label text="📊" />
-                    </graphic>
-                </Button>
+                <!-- Survey Management dropdown menu -->
+                <VBox spacing="2.0">
+                    <Button fx:id="surveyButton" onAction="#showSurvey" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Survey Management">
+                        <graphic>
+                            <Label text="📊" />
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Sous-menu Survey Management -->
+                    <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                        <Button fx:id="pollsManagementBtn" onAction="#navigateToPollsManagement" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Poll Management">
+                            <graphic>
+                                <Label text="📋" />
+                            </graphic>
+                        </Button>
+                        
+                        <Button fx:id="commentsManagementBtn" onAction="#navigateToCommentsManagement" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="Comment Management">
+                            <graphic>
+                                <Label text="💬" />
+                            </graphic>
+                        </Button>
+                    </VBox>
+                </VBox>
 
                 <VBox.margin>
                     <Insets bottom="20.0" />
@@ -100,13 +136,13 @@
 
             <!-- Bottom Menu Options -->
             <VBox spacing="5.0">
-                <Button fx:id="profileButton" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="My Profile">
+                <Button fx:id="profileButton" onAction="#navigateToProfile" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button" text="My Profile">
                     <graphic>
                         <Label text="👤" />
                     </graphic>
                 </Button>
 
-                <Button fx:id="logoutButton" alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleLogout" styleClass="sidebar-button, sidebar-button-logout" text="Logout">
+                <Button fx:id="logoutButton" onAction="#handleLogout" alignment="BASELINE_LEFT" maxWidth="Infinity" styleClass="sidebar-button, sidebar-button-logout" text="Logout">
                     <graphic>
                         <Label text="🚪" />
                     </graphic>

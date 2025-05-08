@@ -16,6 +16,8 @@ import com.esprit.models.Evenement;
 import com.esprit.services.ServiceEvent;
 import com.esprit.utils.DataSource;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
 
 import java.io.IOException;
 import java.net.URL;
@@ -67,9 +69,18 @@ public class AdminEvent implements Initializable {
     @FXML
     private Label paginationInfoLabel;
 
+    @FXML
+    private Label adminNameLabel;
+
     private ServiceEvent serviceEvent;
     private ObservableList<Evenement> eventsList = FXCollections.observableArrayList();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
+
+    @FXML
+    private VBox surveySubMenu;
+
+    @FXML
+    private VBox eventsSubMenu;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -78,6 +89,16 @@ public class AdminEvent implements Initializable {
         // Set current date
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
         dateLabel.setText("Today: " + fullDateFormat.format(new Date()));
+
+        // Set admin name if available
+        try {
+            var currentUser = com.esprit.utils.SessionManager.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading user data: " + e.getMessage());
+        }
 
         // Initialize filters
         initializeFilters();
@@ -127,7 +148,8 @@ public class AdminEvent implements Initializable {
 
             {
                 // Setting up cell styling
-                content.setStyle("-fx-padding: 10px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 5px;");
+                content.setStyle(
+                        "-fx-padding: 10px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 5px;");
                 content.setPrefWidth(1150);
 
                 // Configure labels
@@ -138,13 +160,16 @@ public class AdminEvent implements Initializable {
 
                 // Set up buttons with consistent styling
                 viewButton.getStyleClass().add("view-button");
-                viewButton.setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-background-radius: 3px;");
+                viewButton
+                        .setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-background-radius: 3px;");
 
                 editButton.getStyleClass().add("edit-button");
-                editButton.setStyle("-fx-background-color: #e6e6f7; -fx-text-fill: #4169e1; -fx-background-radius: 3px;");
+                editButton
+                        .setStyle("-fx-background-color: #e6e6f7; -fx-text-fill: #4169e1; -fx-background-radius: 3px;");
 
                 deleteButton.getStyleClass().add("delete-button");
-                deleteButton.setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-background-radius: 3px;");
+                deleteButton
+                        .setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-background-radius: 3px;");
 
                 buttonsBox.getChildren().addAll(viewButton, editButton, deleteButton);
 
@@ -202,9 +227,11 @@ public class AdminEvent implements Initializable {
                     // Set status style
                     statusLabel.setText(event.getType());
                     if ("Open".equals(event.getType())) {
-                        statusLabel.setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
+                        statusLabel.setStyle(
+                                "-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
                     } else {
-                        statusLabel.setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
+                        statusLabel.setStyle(
+                                "-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
                     }
 
                     setGraphic(content);
@@ -437,60 +464,151 @@ public class AdminEvent implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to open Event Details page", e.getMessage());
         }
     }
-    // Added methods referenced in the FXML file
+
+    // Sidebar Navigation Methods
     @FXML
-    private void navigateToDashboard() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
-            eventListView.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Dashboard", e.getMessage());
-        }
+    private void showUserManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     @FXML
-    private void navigateToCategories() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Categories.fxml"));
-            eventListView.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Categories", e.getMessage());
-        }
+    private void showClubManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     @FXML
-    private void navigateToMembers() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Members.fxml"));
-            eventListView.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Members", e.getMessage());
-        }
+    private void showEventManagement(ActionEvent actionEvent) throws IOException {
+        // Instead of navigating directly, toggle the submenu
+        boolean isVisible = eventsSubMenu.isVisible();
+        eventsSubMenu.setVisible(!isVisible);
+        eventsSubMenu.setManaged(!isVisible);
     }
 
     @FXML
-    private void navigateToReports() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Reports.fxml"));
-            eventListView.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Reports", e.getMessage());
-        }
+    private void navigateToEventList(ActionEvent actionEvent) throws IOException {
+        // Navigate to main events page
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     @FXML
-    private void handleLogout() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
-            eventListView.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to log out", e.getMessage());
-        }
+    private void navigateToCategoryManagement(ActionEvent actionEvent) throws IOException {
+        // Navigate to category management page
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void showProductOrders(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void showCompetition(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void showSurvey(ActionEvent actionEvent) {
+        boolean isVisible = surveySubMenu.isVisible();
+        surveySubMenu.setVisible(!isVisible);
+        surveySubMenu.setManaged(!isVisible);
+    }
+
+    @FXML
+    private void navigateToPollsManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void navigateToCommentsManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void navigateToProfile(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setTitle("Admin Profile - UNICLUBS");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/login.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setTitle("Login - UNICLUBS");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String header, String content) {

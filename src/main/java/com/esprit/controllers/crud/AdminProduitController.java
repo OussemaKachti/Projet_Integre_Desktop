@@ -123,6 +123,8 @@ public class AdminProduitController implements Initializable {
     @FXML
     private VBox eventsSubMenu;
     @FXML
+    private VBox eventsSubMenu2;
+    @FXML
     private Label adminNameLabel;
     @FXML
     private Button btnAddProduct;
@@ -290,9 +292,10 @@ public class AdminProduitController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Erreur de connexion");
         alert.setHeaderText("Impossible de se connecter à la base de données");
-        alert.setContentText("Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.\n\n" +
-                "URL: " + DataSource.getInstance().getUrl() + "\n" +
-                "Utilisateur: " + DataSource.getInstance().getUser());
+        alert.setContentText(
+                "Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.\n\n" +
+                        "URL: " + DataSource.getInstance().getUrl() + "\n" +
+                        "Utilisateur: " + DataSource.getInstance().getUser());
 
         // Create ButtonType for retry
         ButtonType retryButton = new ButtonType("Réessayer");
@@ -314,8 +317,10 @@ public class AdminProduitController implements Initializable {
         });
 
         // Disable controls that require database
-        if (btnAddProduct != null) btnAddProduct.setDisable(true);
-        if (filterClubComboBox != null) filterClubComboBox.setDisable(true);
+        if (btnAddProduct != null)
+            btnAddProduct.setDisable(true);
+        if (filterClubComboBox != null)
+            filterClubComboBox.setDisable(true);
     }
 
     /**
@@ -1390,11 +1395,11 @@ public class AdminProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) adminNameLabel.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
@@ -1409,11 +1414,11 @@ public class AdminProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) clubManagementBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
@@ -1425,21 +1430,52 @@ public class AdminProduitController implements Initializable {
 
     @FXML
     private void goToEventManagement() {
-        boolean isVisible = eventsSubMenu.isVisible();
-        eventsSubMenu.setVisible(!isVisible);
-        eventsSubMenu.setManaged(!isVisible);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) eventsSubMenu.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des compétitions", "error");
+        }
     }
+
+    // @FXML
+    // private void goToCatManagement() {
+    //     try {
+    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCat.fxml"));
+    //         Parent root = loader.load();
+
+    //         Stage stage = (Stage) eventsSubMenu2.getScene().getWindow();
+    //         Scene scene = new Scene(root);
+    //         scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+    //         stage.setScene(scene);
+    //         stage.setMaximized(true);
+    //         stage.show();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         showToast("Erreur lors de la navigation vers la gestion des compétitions", "error");
+    //     }
+    // }
 
     @FXML
     private void goToCompetition() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) competitionBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
@@ -1461,11 +1497,11 @@ public class AdminProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
@@ -1480,11 +1516,11 @@ public class AdminProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) commentsManagementBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
@@ -1501,31 +1537,34 @@ public class AdminProduitController implements Initializable {
 
     // @FXML
     // private void goToCommandManagement() {
-    //     try {
-    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
-    //         Parent root = loader.load();
-    //         Stage stage = (Stage) ordersManagementBtn.getScene().getWindow();
-    //         Scene scene = new Scene(root);
-    //         scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-    //         stage.setScene(scene);
-    //         stage.setMaximized(true);
-    //         stage.show();
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         showToast("Erreur lors de la navigation vers la gestion des commandes", "error");
-    //     }
+    // try {
+    // FXMLLoader loader = new
+    // FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
+    // Parent root = loader.load();
+    // Stage stage = (Stage) ordersManagementBtn.getScene().getWindow();
+    // Scene scene = new Scene(root);
+    // scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+    // stage.setScene(scene);
+    // stage.setMaximized(true);
+    // stage.show();
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // showToast("Erreur lors de la navigation vers la gestion des commandes",
+    // "error");
+    // }
     // }
 
     public void goToCommandManagement() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
             Parent root = loader.load();
-            
+
             Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-style.css").toExternalForm());
-            
+
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();

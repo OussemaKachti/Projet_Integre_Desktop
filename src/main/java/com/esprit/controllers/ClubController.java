@@ -3,6 +3,7 @@ package com.esprit.controllers;
 import com.esprit.models.Club;
 import com.esprit.services.ClubService;
 import com.esprit.utils.SessionManager;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,31 +28,56 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.esprit.utils.NavigationManager.navigateTo;
+
 public class ClubController {
 
-    @FXML private Label adminNameLabel;
-    @FXML private Label contentTitle;
-    @FXML private TextField idField;
-    @FXML private TextField presidentIdField;
-    @FXML private TextField nomCField;
-    @FXML private TextArea descriptionField;
-    @FXML private TextField statusField;
-    @FXML private TextField imageField;
-    @FXML private TextField pointsField;
-    @FXML private TextField searchField;
-    @FXML private ListView<Club> clubList;
-    @FXML private BarChart<Number, String> statsChart;
-    @FXML private TabPane tabPane;
-    @FXML private Button userManagementButton;
-    @FXML private Button clubManagementButton;
-    @FXML private Button participantButton;
-    @FXML private Button eventManagementButton;
-    @FXML private Button productOrdersButton;
-    @FXML private Button competitionButton;
-    @FXML private Button surveyButton;
-    @FXML private VBox surveySubMenu;
-    @FXML private Button profileButton;
-    @FXML private Button logoutButton;
+    @FXML
+    private Label adminNameLabel;
+    @FXML
+    private Label contentTitle;
+    @FXML
+    private TextField idField;
+    @FXML
+    private TextField presidentIdField;
+    @FXML
+    private TextField nomCField;
+    @FXML
+    private TextArea descriptionField;
+    @FXML
+    private TextField statusField;
+    @FXML
+    private TextField imageField;
+    @FXML
+    private TextField pointsField;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ListView<Club> clubList;
+    @FXML
+    private BarChart<Number, String> statsChart;
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private Button userManagementButton;
+    @FXML
+    private Button clubManagementButton;
+    @FXML
+    private Button participantButton;
+    @FXML
+    private Button eventManagementButton;
+    @FXML
+    private Button productOrdersButton;
+    @FXML
+    private Button competitionButton;
+    @FXML
+    private Button surveyButton;
+    @FXML
+    private VBox surveySubMenu;
+    @FXML
+    private Button profileButton;
+    @FXML
+    private Button logoutButton;
 
     private final ClubService clubService = new ClubService();
     private final ObservableList<Club> clubs = FXCollections.observableArrayList();
@@ -64,7 +90,12 @@ public class ClubController {
             // Load current admin user
             var currentUser = SessionManager.getInstance().getCurrentUser();
             if (currentUser == null || !"ADMINISTRATEUR".equals(currentUser.getRole().toString())) {
-                navigateToLogin();
+                // Display alert instead of navigating
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Authentication Error");
+                alert.setHeaderText(null);
+                alert.setContentText("You must be logged in as an administrator to access this page.");
+                alert.showAndWait();
                 return;
             }
 
@@ -117,8 +148,6 @@ public class ClubController {
             searchField.textProperty().addListener((observable, oldValue, newValue) -> searchClubs());
         } catch (SQLException e) {
             showError("Erreur lors du chargement des clubs: " + e.getMessage());
-        } catch (IOException e) {
-            showError("Erreur lors de la navigation: " + e.getMessage());
         }
     }
 
@@ -198,9 +227,9 @@ public class ClubController {
                 popularityStats = clubService.getClubsByPopularity();
             } catch (Exception e) {
                 popularityStats = new ArrayList<>();
-                popularityStats.add(new Object[]{"Club A", 3});
-                popularityStats.add(new Object[]{"Club B", 2});
-                popularityStats.add(new Object[]{"Club C", 1});
+                popularityStats.add(new Object[] { "Club A", 3 });
+                popularityStats.add(new Object[] { "Club B", 2 });
+                popularityStats.add(new Object[] { "Club C", 1 });
                 showError("Erreur lors de la récupération des statistiques. Affichage de données fictives.");
             }
 
@@ -291,22 +320,20 @@ public class ClubController {
     }
 
     @FXML
-    private void showUserManagement() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminDashboard.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) clubList.getScene().getWindow();
+    private void showUserManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll(
                 getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
-                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm()
-        );
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
     @FXML
-    private void showClubManagement() {
+    private void showClubManagement(ActionEvent actionEvent) {
         contentTitle.setText("Club Management");
         setActiveButton(clubManagementButton);
         // Already in Club Management view, no need to navigate
@@ -320,36 +347,27 @@ public class ClubController {
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll(
                 getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
-                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm()
-        );
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
     @FXML
-    public void showEventManagement() {
-        contentTitle.setText("Event Management");
-        setActiveButton(eventManagementButton);
-        showModulePlaceholder("Event Management");
+    public void showCompetition(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     @FXML
-    public void showProductOrders() {
-        contentTitle.setText("Products & Orders");
-        setActiveButton(productOrdersButton);
-        showModulePlaceholder("Products & Orders");
-    }
-
-    @FXML
-    public void showCompetition() {
-        contentTitle.setText("Competition & Season");
-        setActiveButton(competitionButton);
-        showModulePlaceholder("Competition & Season");
-    }
-
-    @FXML
-    public void showSurvey() {
+    public void showSurvey(ActionEvent actionEvent) {
         contentTitle.setText("Survey Management");
         setActiveButton(surveyButton);
         boolean isVisible = surveySubMenu.isVisible();
@@ -358,60 +376,48 @@ public class ClubController {
     }
 
     @FXML
-    public void navigateToPollsManagement() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) clubList.getScene().getWindow();
+    public void navigateToPollsManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll(
                 getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
-                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm()
-        );
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
     @FXML
-    public void navigateToCommentsManagement() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) clubList.getScene().getWindow();
+    public void navigateToCommentsManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll(
                 getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
-                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm()
-        );
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
     @FXML
-    public void navigateToProfile() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
-        Parent root = loader.load();
-        Stage newStage = new Stage();
-        Scene scene = new Scene(root, 1200, 800);
+    public void navigateToProfile(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-        newStage.setTitle("Admin Profile - UNICLUBS");
-        newStage.setScene(scene);
-        newStage.setMaximized(true);
-        Stage currentStage = (Stage) clubList.getScene().getWindow();
-        currentStage.close();
-        newStage.show();
+        stage.setTitle("Admin Profile - UNICLUBS");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     @FXML
-    public void handleLogout() throws IOException {
+    public void handleLogout(ActionEvent actionEvent) throws IOException {
         SessionManager.getInstance().clearSession();
-        navigateToLogin();
-    }
-
-    private void navigateToLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) clubList.getScene().getWindow();
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/login.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
         stage.setTitle("Login - UNICLUBS");
@@ -420,38 +426,16 @@ public class ClubController {
         stage.show();
     }
 
-    private void showModulePlaceholder(String moduleName) {
-        try {
-            VBox placeholder = new VBox();
-            placeholder.setSpacing(20);
-            placeholder.setStyle("-fx-padding: 50; -fx-alignment: center;");
-
-            Label title = new Label(moduleName + " Module");
-            title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
-
-            Label message = new Label("This module is being developed by another team member.\nPlease check back later.");
-            message.setStyle("-fx-font-size: 16px; -fx-text-alignment: center;");
-
-            Button backButton = new Button("Go to Club Management");
-            backButton.setOnAction(e -> showClubManagement());
-            backButton.getStyleClass().add("button-primary");
-
-            placeholder.getChildren().addAll(title, message, backButton);
-
-            tabPane.setVisible(false);
-            tabPane.setManaged(false);
-            tabPane.getParent().getChildrenUnmodifiable().add(placeholder);
-        } catch (Exception e) {
-            showError("Failed to show " + moduleName + ": " + e.getMessage());
-        }
-    }
-
     private void setActiveButton(Button activeButton) {
-        for (Button btn : new Button[]{userManagementButton, clubManagementButton, participantButton,
-                eventManagementButton, productOrdersButton, competitionButton, surveyButton}) {
-            btn.getStyleClass().remove("active");
+        for (Button btn : new Button[] { userManagementButton, clubManagementButton,
+                eventManagementButton, productOrdersButton, competitionButton, surveyButton }) {
+            if (btn != null) {
+                btn.getStyleClass().remove("active");
+            }
         }
-        activeButton.getStyleClass().add("active");
+        if (activeButton != null) {
+            activeButton.getStyleClass().add("active");
+        }
     }
 
     @FXML
@@ -461,4 +445,21 @@ public class ClubController {
         stage.setScene(new Scene(root));
         stage.show();
     }
+
+    @FXML
+    public void showEventManagement(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    @FXML
+    public void showProductOrders(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
 }

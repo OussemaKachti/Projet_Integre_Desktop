@@ -96,7 +96,7 @@
                      </graphic>
                   </Button>
                   
-                  <Button styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <Button  styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
                      <graphic>
                         <Label text="🗂️" />
                      </graphic>
