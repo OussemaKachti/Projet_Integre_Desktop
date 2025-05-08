@@ -1,15 +1,19 @@
 package com.esprit.controllers;
 
+import com.esprit.MainApp;
 import com.esprit.models.Competition;
 import com.esprit.models.Saison;
+import com.esprit.models.User;
 import com.esprit.models.enums.GoalTypeEnum;
-import com.esprit.services.AIContentGeneratorService;
-import com.esprit.services.CompetitionService;
-import com.esprit.services.SaisonService;
+import com.esprit.services.*;
 
+import com.esprit.utils.SessionManager;
 import javafx.application.Platform;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -113,10 +117,42 @@ public class CompetitionController {
     // Pagination labels
     @FXML private Label currentPageLabel;
     @FXML private Label totalPagesLabel;
+    private final AuthService authService = new AuthService();
+    private UserService userService;
+    private User currentUser;
+    private ObservableList<User> usersList = FXCollections.observableArrayList();
+    private FilteredList<User> filteredUsers;
 
     @FXML
     public void initialize() {
         try {
+            // Initialize services
+            userService = new UserService();
+            // Load current admin user
+            currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                // Redirect to login if not logged in
+                try {
+                    navigateToLogin();
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert(AlertType.ERROR, "Session Error", "Could not redirect to login page",e.getMessage());
+                }
+            }
+            // Check if the user is an admin
+            if (!"ADMINISTRATEUR".equals(currentUser.getRole().toString())) {
+                try {
+                    navigateToLogin();
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert(AlertType.ERROR, "Access Denied", "You do not have permission to access the admin dashboard", e.getMessage());
+                }
+            }
+            // Set admin name
+            adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
 
             // On initialization, update all competition statuses based on current date
             competitionService.updateAllStatuses();
@@ -161,6 +197,34 @@ public class CompetitionController {
         } catch (SQLException e) {
             showAlert(AlertType.ERROR, "Initialization Error",
                     "Failed to initialize mission management", e.getMessage());
+        }
+    }
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) (contentArea != null ? contentArea.getScene().getWindow() :
+                (adminNameLabel != null ? adminNameLabel.getScene().getWindow() : null));
+
+        if (stage != null) {
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+        } else {
+            // If we can't get the stage from the UI elements, create a new one
+            stage = new Stage();
+
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+
+            // Close any existing windows
+            if (contentArea != null && contentArea.getScene() != null &&
+                    contentArea.getScene().getWindow() != null) {
+                ((Stage) contentArea.getScene().getWindow()).close();
+            }
         }
     }
     /**
@@ -1343,10 +1407,33 @@ public class CompetitionController {
     @FXML
     public void navigateToProfile() {
         try {
-            navigateTo("/com/esprit/views/admin_profile.fxml");
+            // Load the profile view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+            Parent root = loader.load();
+
+            // Create a completely new stage
+            Stage newStage = new Stage();
+
+            // Create scene with appropriate initial size
+            Scene scene = new Scene(root, 1200, 800); // Set initial size large enough
+
+            // Apply the stylesheet
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+            // Configure the new stage
+            newStage.setTitle("Admin Profile - UNICLUBS");
+            newStage.setScene(scene);
+            newStage.setMaximized(true); // Set maximized before showing
+
+            // Close the current stage
+            Stage currentStage = (Stage) contentArea.getScene().getWindow();
+            currentStage.close();
+
+            // Show the new stage
+            newStage.show();
         } catch (IOException e) {
-            showAlert(AlertType.ERROR, "Navigation Error",
-                    "Could not navigate to Profile", e.getMessage());
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Navigation Error", "Failed to navigate to admin profile" , e.getMessage());
         }
     }
 
