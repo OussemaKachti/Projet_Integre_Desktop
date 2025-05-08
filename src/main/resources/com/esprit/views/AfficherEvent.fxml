@@ -40,34 +40,32 @@
                     </ImageView>
 
                     <HBox alignment="CENTER" spacing="15" styleClass="nav-container" HBox.hgrow="ALWAYS">
-                        <Button styleClass="nav-button" text="Home" />
+                        <Button fx:id="navButton" styleClass="nav-button" text="Home" onAction="#navigateToHome1" />
                         <Button styleClass="nav-button" text="Clubs" />
                         <Button styleClass="nav-button-selected" text="Events" />
-                        <Button styleClass="nav-button" text="Products" />
-                        <Button styleClass="nav-button" text="Competition" />
+                        <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+                        <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
                     </HBox>
 
-                    <HBox alignment="CENTER_RIGHT" spacing="10">
-                        <!-- Add New Event Button (moved from second header) -->
-
-
+                    <HBox spacing="15" alignment="CENTER_RIGHT">
                         <!-- User Profile Section -->
-                        <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
-                            <HBox alignment="CENTER" spacing="10" styleClass="user-profile-content">
-                                <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                        <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                            <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                                <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                                    <Image url="@../images/default-profile.png"/>
                                 </ImageView>
-                                <Label fx:id="userNameLabel" styleClass="user-name" text="John Doe" />
+                                <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
                             </HBox>
 
                             <!-- Dropdown Menu -->
-                            <VBox fx:id="profileDropdown" managed="false" styleClass="profile-dropdown" visible="false">
-                                <Button styleClass="dropdown-item" text="My Profile" />
-                                <Separator />
-                                <Button styleClass="dropdown-item" text="Logout" />
+                            <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                                <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                                <Separator styleClass="dropdown-divider"/>
+                                <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
                             </VBox>
                         </StackPane>
 
-                        <Button styleClass="contact-button" text="Contact Us" />
+                        <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
                     </HBox>
                 </HBox>
             </top>

@@ -22,7 +22,7 @@ public class UserService implements Service<User>, AutoCloseable {
 
     private static EntityManagerFactory emf;
     private final EntityManager em;
-    
+
     // Remove the static initializer block and replace with lazy initialization
     private static synchronized EntityManagerFactory getEntityManagerFactory() {
         if (emf == null || !emf.isOpen()) {
@@ -193,7 +193,7 @@ public class UserService implements Service<User>, AutoCloseable {
             throw new RuntimeException("Transaction failed", e);
         }
     }
-    
+
     @Override
     public void close() {
         if (em != null && em.isOpen()) {
@@ -201,7 +201,7 @@ public class UserService implements Service<User>, AutoCloseable {
             System.out.println("EntityManager closed");
         }
     }
-    
+
     // Static method to close the factory when application shuts down
     public static void closeEntityManagerFactory() {
         if (emf != null && emf.isOpen()) {

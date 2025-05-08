@@ -59,9 +59,11 @@ public class HomeController implements Initializable {
         // Get current user from session
         currentUser = SessionManager.getInstance().getCurrentUser();
 
+
         if (currentUser != null) {
             // Set user name
             userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
 
             // Load profile picture
             String profilePicture = currentUser.getProfilePicture();
@@ -81,6 +83,7 @@ public class HomeController implements Initializable {
             } else {
                 loadDefaultProfilePic();
             }
+
 
             // Apply circular clip to profile picture
             double radius = 22.5; // Updated to match the new style
@@ -197,12 +200,14 @@ public class HomeController implements Initializable {
         // Clear the session
         SessionManager.getInstance().clearSession();
 
+
         // Navigate to login page
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
+
 
     @FXML
     private void navigateToProfile() throws IOException {
@@ -211,6 +216,7 @@ public class HomeController implements Initializable {
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
+
 
     @FXML
     private void navigateToSettings() throws IOException {
@@ -231,6 +237,7 @@ public class HomeController implements Initializable {
     @FXML
     private void navigateToEvents() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -238,6 +245,7 @@ public class HomeController implements Initializable {
 
     @FXML
     private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
@@ -267,6 +275,13 @@ public class HomeController implements Initializable {
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
+
+    @FXML
+    private void navigateToHome() throws IOException {
+        // Since we are already on the home page, we don't need to navigate
+        // But we need this method to satisfy the FXML reference
+    }
+}
 
     @FXML
     private void navigateToHome() throws IOException {

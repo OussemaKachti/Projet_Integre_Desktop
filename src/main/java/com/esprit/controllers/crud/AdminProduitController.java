@@ -121,6 +121,8 @@ public class AdminProduitController implements Initializable {
     @FXML
     private VBox eventsSubMenu;
     @FXML
+    private VBox eventsSubMenu;
+    @FXML
     private Label adminNameLabel;
     @FXML
     private Button btnAddProduct;
@@ -286,9 +288,10 @@ public class AdminProduitController implements Initializable {
 
         // Show error alert
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur de connexion");
-        alert.setHeaderText("Impossible de se connecter à la base de données");
-        alert.setContentText("Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.\n\n" +
+        alert.setTitle("Erreu
+                r de connexion");
+                        tHeaderText("Impossible de se connecter à la base de
+                        tContentText("Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.\n\n" +
                 "URL: " + DataSource.getInstance().getUrl() + "\n" +
                 "Utilisateur: " + DataSource.getInstance().getUser());
 
@@ -311,7 +314,9 @@ public class AdminProduitController implements Initializable {
             }
         });
 
-        // Disable controls that require database
+            
+        // Disable controls that requir
+             database
         if (btnAddProduct != null) btnAddProduct.setDisable(true);
         if (filterClubComboBox != null) filterClubComboBox.setDisable(true);
     }

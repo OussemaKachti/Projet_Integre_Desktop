@@ -70,8 +70,22 @@ public class AfficherEvent implements Initializable {
     @FXML
     private Label pageInfoLabel;
 
+    // User Profile Section - Added components
+    @FXML
+    private StackPane userProfileContainer;
+
+    @FXML
+    private ImageView userProfilePic;
+
+    @FXML
+    private Label userNameLabel;
+
+    @FXML
+    private VBox profileDropdown;
+
     private ServiceEvent serviceEvent;
     private List<Evenement> allEvents;
+    private User currentUser; // Added for user profile
 
     // Pagination properties
     private int currentPage = 1;
@@ -82,6 +96,9 @@ public class AfficherEvent implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Initialize service
         serviceEvent = new ServiceEvent();
+
+        // Load user profile data - Added for user profile integration
+        initializeUserProfile();
 
         // Setup filters before loading events
         setupFilters();
@@ -97,6 +114,11 @@ public class AfficherEvent implements Initializable {
 
         // Add listeners for filters
         addFilterListeners();
+        boolean isPresident = SessionManager.getInstance().hasRole("PRESIDENT_CLUB");
+
+        // Rendre le bouton visible seulement si l'utilisateur est un président
+        addNewEventButton.setVisible(isPresident);
+        addNewEventButton.setManaged(isPresident);
 
         // Set up search field action
         searchField.setOnAction(e -> handleSearch());
@@ -106,6 +128,158 @@ public class AfficherEvent implements Initializable {
             refreshButton.setOnAction(e -> handleRefresh());
         }
         setupCalendarButton();
+    }
+
+    /**
+     * Initialize user profile data from session
+     * Added method from HomeController integration
+     */
+    private void initializeUserProfile() {
+        // Get current user from session
+        currentUser = SessionManager.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            // Set user name
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+            // Load profile picture
+            String profilePicture = currentUser.getProfilePicture();
+            if (profilePicture != null && !profilePicture.isEmpty()) {
+                try {
+                    File imageFile = new File("uploads/profiles/" + profilePicture);
+                    if (imageFile.exists()) {
+                        Image image = new Image(imageFile.toURI().toString());
+                        userProfilePic.setImage(image);
+                    } else {
+                        loadDefaultProfilePic();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadDefaultProfilePic();
+                }
+            } else {
+                loadDefaultProfilePic();
+            }
+
+            // Apply circular clip to profile picture
+            double radius = 22.5; // Match the style
+            userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+
+            // Initially hide the dropdown
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+
+    /**
+     * Load default profile picture
+     * Added method from HomeController integration
+     */
+    private void loadDefaultProfilePic() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            userProfilePic.setImage(defaultImage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Show profile dropdown menu
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void showProfileDropdown() {
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
+    }
+
+    /**
+     * Hide profile dropdown menu
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void hideProfileDropdown() {
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
+    }
+
+    /**
+     * Navigate to user profile view
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private Button navButton; // Injection du bouton
+
+    @FXML
+    private void navigateToHome1() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) navButton.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    /**
+     * Handle user logout
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    /**
+     * Navigate to contact page
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    /**
+     * Navigate to home page
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void navigateToHome() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
     }
 
     /**
@@ -191,14 +365,25 @@ public class AfficherEvent implements Initializable {
 
     @FXML
     private void handleAddNewEvent() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AjouterEvent.fxml"));
-            Parent root = loader.load();
-            addNewEventButton.getScene().setRoot(root);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // Vérification supplémentaire du rôle avant d'ouvrir la vue d'ajout
+        if (SessionManager.getInstance().hasRole("PRESIDENT_CLUB")) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AjouterEvent.fxml"));
+                Parent root = loader.load();
+                addNewEventButton.getScene().setRoot(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Afficher une alerte pour informer l'utilisateur
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Accès restreint");
+            alert.setHeaderText("Permission refusée");
+            alert.setContentText("Seuls les présidents de club peuvent ajouter des événements.");
+            alert.showAndWait();
         }
     }
+
 
     private void loadEvents() {
         try {
