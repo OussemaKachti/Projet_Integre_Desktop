@@ -41,43 +41,37 @@
                         </ImageView>
 
                         <HBox alignment="CENTER" spacing="15" styleClass="nav-container" HBox.hgrow="ALWAYS">
-                            <Button styleClass="nav-button" text="Home" />
+                            <Button fx:id="navButton" styleClass="nav-button" text="Home" onAction="#navigateToHome1" />
+                            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
                             <Button styleClass="nav-button" text="Clubs" />
+
                             <Button styleClass="nav-button-selected" text="Events" />
-                            <Button styleClass="nav-button" text="Products" />
-                            <Button styleClass="nav-button" text="Competition" />
+                            <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
+                            <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
                         </HBox>
 
                         <HBox alignment="CENTER_RIGHT" spacing="10">
                             <!-- User Profile Section -->
-                            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
-                                <HBox alignment="CENTER" spacing="10" styleClass="user-profile-content">
-                                    <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" styleClass="profile-pic">
+                            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                                        <Image url="@../images/default-profile-png.png"/>
                                     </ImageView>
-                                    <Label fx:id="userNameLabel" styleClass="user-name" text="John Doe" />
+                                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
                                 </HBox>
 
                                 <!-- Dropdown Menu -->
-                                <VBox fx:id="profileDropdown" managed="false" styleClass="profile-dropdown" visible="false">
-                                    <Button styleClass="dropdown-item" text="My Profile" />
-                                    <Separator />
-                                    <Button styleClass="dropdown-item" text="Logout" />
+                                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                                    <Separator styleClass="dropdown-divider"/>
+                                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
                                 </VBox>
                             </StackPane>
 
-                            <Button styleClass="contact-button" text="Contact Us" />
+                            <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
                         </HBox>
 
-                        <HBox alignment="CENTER_RIGHT" spacing="15">
-                            <Button fx:id="backButton" onAction="#handleBack" style="-fx-background-color: rgb(4,15,113); -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" text="← Back">
-                                <font>
-                                    <Font name="Arial Bold" size="14" />
-                                </font>
-                                <effect>
-                                    <DropShadow color="#00000066" radius="5" spread="0.02" />
-                                </effect>
-                            </Button>
-                        </HBox>
+
                     </HBox>
 
                     <!-- Event Details Title Bar -->
@@ -319,14 +313,7 @@
                                         </VBox>
 
                                         <!-- Share Button for All Users (moved from bottom) -->
-                                        <Button fx:id="shareButton" style="-fx-background-color: linear-gradient(to right, #2e7d32, #43a047); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 14 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 5, 0, 0, 2); -fx-cursor: hand;" text="🔗 Partager l'événement">
-                                            <font>
-                                                <Font name="Arial Bold" size="15" />
-                                            </font>
-                                            <VBox.margin>
-                                                <Insets top="15" />
-                                            </VBox.margin>
-                                        </Button>
+
                                     </VBox>
 
                                     <!-- Right Column - Event Details & Actions -->
@@ -450,7 +437,7 @@
                                         </VBox>
 
                                         <!-- Admin Actions Panel (renamed from President) -->
-                                        <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
+                                        <VBox fx:id="adminActionsContainer" spacing="20" style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 3);">
                                             <HBox alignment="CENTER_LEFT" spacing="12">
                                                 <Label text="👑" style="-fx-text-fill: #ff6f00;">
                                                     <font>
@@ -529,8 +516,8 @@
                                                     </font>
                                                 </Label>
 
-                                                <!-- View Participants Button
-                                                   <Button fx:id="presidentButton3" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
+                                                <!-- View Participants Button -->
+                                                <Button fx:id="presidentButton3" onAction="#handleViewParticipants" style="-fx-background-color: linear-gradient(to right, #6a1b9a, #8e24aa); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 1); -fx-cursor: hand;">
                                                     <graphic>
                                                         <HBox spacing="10" alignment="CENTER">
                                                             <Label text="👥" style="-fx-text-fill: white;">
@@ -547,6 +534,29 @@
                                                     </graphic>
                                                 </Button> -->
 
+                                                <!-- QR Code Scanner -->
+                                                <Button fx:id="scanQrCodeButton" mnemonicParsing="false"
+                                                        style="-fx-background-color: linear-gradient(to right, #0069c0, #004a9f);
+               -fx-text-fill: white;
+               -fx-background-radius: 25;
+               -fx-padding: 16 22;
+               -fx-font-weight: bold;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+               -fx-cursor: hand;">
+                                                    <graphic>
+                                                        <HBox spacing="10" alignment="CENTER">
+                                                            <Label text="🔍" style="-fx-text-fill: white;">
+                                                                <font><Font size="16" /></font>
+                                                            </Label>
+                                                            <Label text="Scan QR Codes" style="-fx-text-fill: white;">
+                                                                <font><Font name="Arial Bold" size="15" /></font>
+                                                            </Label>
+                                                        </HBox>
+                                                    </graphic>
+                                                    <tooltip>
+                                                        <Tooltip text="Scan participants' QR codes (organizers only)" />
+                                                    </tooltip>
+                                                </Button>
                                                 <!-- QR Code Scanner -->
                                                 <Button fx:id="scanQrCodeButton" mnemonicParsing="false"
                                                         style="-fx-background-color: linear-gradient(to right, #0069c0, #004a9f);

@@ -41,6 +41,7 @@ public class ReponseService {
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
 
+
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
             pst.setInt(4, reponse.getSondage().getId());
@@ -59,6 +60,7 @@ public class ReponseService {
             // Conversion de LocalDateTime en Timestamp pour la BDD
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
+
 
             pst.setInt(2, reponse.getUser().getId());
             pst.setInt(3, reponse.getChoixSondage().getId());
@@ -83,6 +85,7 @@ public class ReponseService {
             // Conversion de LocalDateTime en Timestamp pour la BDD
             LocalDateTime date = reponse.getDateReponse();
             pst.setTimestamp(1, date != null ? Timestamp.valueOf(date) : Timestamp.valueOf(LocalDateTime.now()));
+
 
             pst.setInt(2, reponse.getChoixSondage().getId());
             pst.setInt(3, reponse.getId());
@@ -220,7 +223,7 @@ public class ReponseService {
         }
         return reponses;
     }
-    
+
     /**
      * Compte le nombre de votes pour un choix spécifique
      * 
@@ -248,6 +251,7 @@ public class ReponseService {
     private Reponse mapResultSetToReponse(ResultSet rs) throws SQLException {
         Reponse reponse = new Reponse();
         reponse.setId(rs.getInt("id"));
+
 
         // Conversion de Timestamp en LocalDate
         Timestamp timestamp = rs.getTimestamp("date_reponse");
@@ -283,17 +287,21 @@ public class ReponseService {
                     choix.setId(rs.getInt("id"));
                     choix.setContenu(rs.getString("contenu"));
 
+
                     Sondage sondage = new Sondage();
                     sondage.setId(sondageId);
                     choix.setSondage(sondage);
+
 
                     return choix;
                 }
             }
         }
 
+
         return null;
     }
+
 
     /**
      * Add a new vote
@@ -301,15 +309,18 @@ public class ReponseService {
     public void addVote(int userId, int sondageId, int choixId) throws SQLException {
         String query = "INSERT INTO reponse (user_id, sondage_id, choix_sondage_id, date_reponse) VALUES (?, ?, ?, ?)";
 
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, userId);
             pst.setInt(2, sondageId);
             pst.setInt(3, choixId);
             pst.setDate(4, Date.valueOf(LocalDate.now()));
 
+
             pst.executeUpdate();
         }
     }
+
 
     /**
      * Update a user's existing vote
@@ -317,15 +328,18 @@ public class ReponseService {
     public void updateUserVote(int userId, int sondageId, int newChoixId) throws SQLException {
         String query = "UPDATE reponse SET choix_sondage_id = ?, date_reponse = ? WHERE user_id = ? AND sondage_id = ?";
 
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, newChoixId);
             pst.setDate(2, Date.valueOf(LocalDate.now()));
             pst.setInt(3, userId);
             pst.setInt(4, sondageId);
 
+
             pst.executeUpdate();
         }
     }
+
 
     /**
      * Get total votes for a poll
@@ -333,8 +347,10 @@ public class ReponseService {
     public int getTotalVotesForPoll(int sondageId) throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse WHERE sondage_id = ?";
 
+
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, sondageId);
+
 
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
@@ -342,6 +358,7 @@ public class ReponseService {
                 }
             }
         }
+
 
         return 0;
     }
@@ -351,6 +368,7 @@ public class ReponseService {
      */
     public int getTotalVotesForAllPolls() throws SQLException {
         String query = "SELECT COUNT(*) FROM reponse";
+
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             try (ResultSet rs = pst.executeQuery()) {

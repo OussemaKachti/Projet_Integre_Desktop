@@ -562,7 +562,7 @@ public class SondageViewController implements Initializable {
                 addComment(sondage, content);
                 commentTextArea.clear();
                 commentErrorLabel.setVisible(false);
-                    } catch (SQLException ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
                 AlertUtils.showError("Error", "Failed to post comment: " + ex.getMessage());
             }
@@ -2081,6 +2081,7 @@ public class SondageViewController implements Initializable {
     @FXML
     public void navigateToEvents() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) sondagesContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -2088,6 +2089,7 @@ public class SondageViewController implements Initializable {
 
     @FXML
     public void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) sondagesContainer.getScene().getWindow();

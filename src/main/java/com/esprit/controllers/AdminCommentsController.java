@@ -63,6 +63,9 @@ public class AdminCommentsController implements Initializable {
     private ComboBox<String> insightsClubComboBox;
 
     @FXML
+    private ComboBox<String> insightsClubComboBox;
+
+    @FXML
     private TableView<Commentaire> commentsTable;
 
     @FXML
@@ -179,6 +182,7 @@ public class AdminCommentsController implements Initializable {
         // Load data
         loadClubs();
         setupComboBoxCellFactory(clubFilterComboBox);
+        setupComboBoxCellFactory(insightsClubComboBox);
         setupComboBoxCellFactory(insightsClubComboBox);
         loadComments();
         setupPagination();
@@ -409,15 +413,19 @@ public class AdminCommentsController implements Initializable {
         // Set items to both ComboBoxes
         clubFilterComboBox.setItems(this.clubsList);
         insightsClubComboBox.setItems(this.clubsList);
+        insightsClubComboBox.setItems(this.clubsList);
 
         // Set default selection
+        // Set default selection
         clubFilterComboBox.getSelectionModel().selectFirst();
+        insightsClubComboBox.getSelectionModel().selectFirst();
         insightsClubComboBox.getSelectionModel().selectFirst();
 
         selectedClub = "all"; // Default value
 
         // Add style class for custom styling
         clubFilterComboBox.getStyleClass().add("club-filter-combo");
+        insightsClubComboBox.getStyleClass().add("club-filter-combo");
         insightsClubComboBox.getStyleClass().add("club-filter-combo");
     }
 
@@ -867,6 +875,7 @@ public class AdminCommentsController implements Initializable {
             surveySubMenu.setManaged(!isVisible);
         });
 
+
         // For Events Management, add submenu toggle similar to survey management
         eventManagementBtn.setOnAction(event -> {
             // Toggle the visibility of the submenu
@@ -881,11 +890,14 @@ public class AdminCommentsController implements Initializable {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
                 Parent root = loader.load();
 
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) userManagementBtn.getScene().getWindow();
 
+
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
 
                 // Appliquer la scène au stage
                 stage.setScene(scene);
@@ -896,6 +908,7 @@ public class AdminCommentsController implements Initializable {
                 showToast("Error navigating to user management: " + e.getMessage(), "error");
             }
         });
+
 
         // Configurer les autres boutons de navigation si nécessaire
         clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
@@ -1039,6 +1052,7 @@ public class AdminCommentsController implements Initializable {
 
     private void updateBarChart() {
         // Get the selected club
+        String selectedClub = insightsClubComboBox.getValue();
         String selectedClub = insightsClubComboBox.getValue();
         System.out.println("Updating bar chart for club: " + selectedClub);
 

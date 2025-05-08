@@ -264,7 +264,7 @@ public class AdminPollsController implements Initializable {
             private final Button viewButton = new Button();
             private final Button deleteButton = new Button();
             private final HBox buttonsBox = new HBox(8);
-            
+
             {
                 // Créer les ImageView pour les icônes - Update paths to use common resources
                 // folder
@@ -278,11 +278,13 @@ public class AdminPollsController implements Initializable {
                 trashIcon.setFitHeight(20);
                 trashIcon.setFitWidth(20);
 
+
                 // Configurer le bouton de détails avec l'icône d'œil
                 viewButton.setGraphic(eyeIcon);
                 viewButton.getStyleClass().add("icon-button");
                 viewButton.getStyleClass().add("view-button");
                 viewButton.setTooltip(new Tooltip("Voir les détails"));
+
 
                 // Configurer le bouton de suppression avec l'icône de poubelle
                 deleteButton.setGraphic(trashIcon);
@@ -303,16 +305,18 @@ public class AdminPollsController implements Initializable {
                     viewPollDetails(sondage);
                 });
 
+
                 // Action pour le bouton Supprimer
                 deleteButton.setOnAction(event -> {
                     Sondage sondage = getTableView().getItems().get(getIndex());
                     deletePoll(sondage);
                 });
             }
-            
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
+
 
                 if (empty) {
                     setGraphic(null);
@@ -603,6 +607,7 @@ public class AdminPollsController implements Initializable {
                 double width = currentStage.getWidth();
                 double height = currentStage.getHeight();
 
+
                 // Créer la scène avec les dimensions de la fenêtre actuelle
                 Scene scene = new Scene(root, width, height);
 
@@ -617,9 +622,11 @@ public class AdminPollsController implements Initializable {
                     }
                 }
 
+
                 // Appliquer la scène directement au stage
                 currentStage.setScene(scene);
                 currentStage.show();
+
 
             } catch (Exception e) {
                 System.err.println("Error during loading or showing the view: " + e.getMessage());
@@ -679,21 +686,28 @@ public class AdminPollsController implements Initializable {
             confirmDialog.setContentText("This action will permanently delete the poll \"" + sondage.getQuestion() +
                     "\" along with all its associated votes and comments. This action is irreversible.");
 
+                    "\" along with all its associated votes and comments. This action is irreversible.");
+
             // Customize the dialog
             DialogPane dialogPane = confirmDialog.getDialogPane();
+
 
             // Add icon to header
             Label headerIcon = new Label("⚠️");
             headerIcon.setStyle("-fx-font-size: 24px; -fx-text-fill: #e74c3b;");
 
+
             HBox headerLayout = new HBox(10);
             headerLayout.setAlignment(Pos.CENTER_LEFT);
+
 
             Label headerLabel = new Label("Delete poll?");
             headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3b;");
 
+
             headerLayout.getChildren().addAll(headerIcon, headerLabel);
             dialogPane.setHeader(headerLayout);
+
 
             // Style for content text
             Label contentLabel = new Label(confirmDialog.getContentText());
@@ -701,6 +715,7 @@ public class AdminPollsController implements Initializable {
             contentLabel.setWrapText(true);
             contentLabel.setPrefWidth(400);
             dialogPane.setContent(contentLabel);
+
 
             // Add buttons
             ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -752,14 +767,18 @@ public class AdminPollsController implements Initializable {
                     // First delete comments linked to this poll
                     sondageService.deleteCommentsByPollId(sondage.getId());
 
+
                     // Then delete responses linked to this poll
                     sondageService.deleteResponsesByPollId(sondage.getId());
+
 
                     // Then delete options linked to this poll
                     sondageService.deleteOptionsByPollId(sondage.getId());
 
+
                     // Finally, delete the poll itself
                     sondageService.delete(sondage.getId());
+
 
                     // Show success confirmation
                     showToast("✅ The poll was successfully deleted", "success");
@@ -774,7 +793,6 @@ public class AdminPollsController implements Initializable {
             showToast("Error while displaying confirmation dialog: " + e.getMessage(), "error");
         }
     }
-    
 
     /**
      * Show a toast notification with a larger area for error messages
@@ -926,17 +944,21 @@ public class AdminPollsController implements Initializable {
             surveySubMenu.setManaged(!isVisible);
         });
 
+
         // Configurer les autres boutons de navigation si nécessaire
         userManagementBtn.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
                 Parent root = loader.load();
 
+
                 // Obtenir le stage actuel directement depuis la scène du bouton
                 Stage stage = (Stage) userManagementBtn.getScene().getWindow();
 
+
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
 
                 // Appliquer la scène au stage
                 stage.setScene(scene);
@@ -1046,6 +1068,7 @@ public class AdminPollsController implements Initializable {
         }
     }
 
+
     /**
      * Gère la déconnexion de l'utilisateur
      */
@@ -1072,6 +1095,7 @@ public class AdminPollsController implements Initializable {
             showToast("Erreur lors de la déconnexion: " + e.getMessage(), "error");
         }
     }
+
 
     /**
      * Configure les informations de l'administrateur

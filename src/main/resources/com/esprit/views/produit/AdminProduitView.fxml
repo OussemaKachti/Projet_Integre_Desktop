@@ -6,6 +6,7 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css,@../../styles/admin-polls-style.css,@../../styles/admin-style.css,@../../styles/no-scrollbar.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminProduitController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css,@../../styles/admin-polls-style.css,@../../styles/admin-style.css,@../../styles/no-scrollbar.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminProduitController">
    <top>
       <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
          <children>
@@ -31,6 +32,47 @@
    </top>
    
    <left>
+      <!-- Sidebar Navigation -->
+      <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+         <padding>
+            <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+         </padding>
+         
+         <!-- Application Logo -->
+         <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+            <Label text="UNICLUBS" styleClass="logo-text">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+         </HBox>
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Admin Info -->
+         <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+            <font>
+               <Font name="System Bold" size="16.0" />
+            </font>
+         </Label>
+         <Label text="Administrator" styleClass="admin-role" />
+         
+         <Separator>
+            <VBox.margin>
+               <Insets top="20.0" bottom="20.0" />
+            </VBox.margin>
+         </Separator>
+         
+         <!-- Menu Items -->
+         <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+            <Button fx:id="userManagementBtn" styleClass="sidebar-button" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToAdminDashboard">
+               <graphic>
+                  <Label text="👤" />
+               </graphic>
       <!-- Sidebar Navigation -->
       <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
          <padding>
@@ -156,6 +198,7 @@
                      </graphic>
                   </Button>
                </VBox>
+               </VBox>
             </VBox>
             
             <VBox.margin>
@@ -176,6 +219,7 @@
                   <Label text="" />
                </graphic>
             </Button>
+         </VBox>
          </VBox>
       </VBox>
    </left>
