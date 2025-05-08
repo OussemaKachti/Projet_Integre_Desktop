@@ -90,9 +90,9 @@ public class DetailsEvent implements Initializable {
     @FXML
     private Button presidentButton3; // View Participants button
     @FXML
-    private Button qrCodeButton;      // Generate QR code for participants
+    private Button qrCodeButton; // Generate QR code for participants
     @FXML
-    private Button scanQrCodeButton;  // Scan QR code for organizers
+    private Button scanQrCodeButton; // Scan QR code for organizers
 
     private Evenement currentEvent;
     private ServiceEvent serviceEvent = new ServiceEvent();
@@ -131,7 +131,7 @@ public class DetailsEvent implements Initializable {
         // Configure event handlers
         presidentButton1.setOnAction(event -> handleDelete());
         registerButton.setOnAction(event -> handleRegister());
-        //presidentButton3.setOnAction(event -> handleViewParticipants());
+        // presidentButton3.setOnAction(event -> handleViewParticipants());
 
         if (qrCodeButton != null) {
             qrCodeButton.setOnAction(event -> handleQRCode());
@@ -142,10 +142,12 @@ public class DetailsEvent implements Initializable {
         }
 
     }
+
     /**
-     * Configure les permissions d'interface utilisateur basées sur le rôle de l'utilisateur
+     * Configure les permissions d'interface utilisateur basées sur le rôle de
+     * l'utilisateur
      */
- // Add this field to reference your admin VBox
+    // Add this field to reference your admin VBox
 
     private void setupUserPermissions() {
         SessionManager sessionManager = SessionManager.getInstance();
@@ -226,6 +228,7 @@ public class DetailsEvent implements Initializable {
 
     /**
      * Loads event data into the view
+     * 
      * @param event The event to display
      */
     public void setEventData(Evenement event) {
@@ -263,7 +266,8 @@ public class DetailsEvent implements Initializable {
 
     /**
      * Loads weather data for the event location and date
-     * @param location Event location
+     * 
+     * @param location  Event location
      * @param eventDate Event date
      */
     private void loadWeatherData(String location, Date eventDate) {
@@ -313,19 +317,25 @@ public class DetailsEvent implements Initializable {
             System.err.println("Error loading weather data: " + e.getMessage());
             e.printStackTrace();
             // Hide weather components in case of error
-            if (weatherTitleLabel != null) weatherTitleLabel.setText("Weather data unavailable");
-            if (weatherTempLabel != null) weatherTempLabel.setVisible(false);
-            if (weatherDescLabel != null) weatherDescLabel.setVisible(false);
-            if (weatherIconView != null) weatherIconView.setVisible(false);
+            if (weatherTitleLabel != null)
+                weatherTitleLabel.setText("Weather data unavailable");
+            if (weatherTempLabel != null)
+                weatherTempLabel.setVisible(false);
+            if (weatherDescLabel != null)
+                weatherDescLabel.setVisible(false);
+            if (weatherIconView != null)
+                weatherIconView.setVisible(false);
         }
     }
 
     /**
      * Loads the weather icon corresponding to the code provided by the API
+     * 
      * @param iconCode Weather icon code
      */
     /**
      * Loads the weather icon corresponding to the code provided by the API
+     * 
      * @param iconCode Weather icon code
      */
     private void loadWeatherIcon(String iconCode) {
@@ -370,7 +380,8 @@ public class DetailsEvent implements Initializable {
 
                         // Si l'icône par défaut n'est pas trouvée, essai avec un autre chemin
                         if (iconImage == null || iconImage.isError()) {
-                            iconImage = new Image(getClass().getResourceAsStream("/resources/com/esprit/weather/icon/01d.png"));
+                            iconImage = new Image(
+                                    getClass().getResourceAsStream("/resources/com/esprit/weather/icon/01d.png"));
                         }
                     }
                 }
@@ -466,28 +477,30 @@ public class DetailsEvent implements Initializable {
                     "Unable to load QR code scanning screen: " + e.getMessage());
         }
     }
+
     /**
      * Updates the registration button status based on user participation
      */
     private void updateRegisterButtonStatus() {
-        if (currentEvent == null) return;
+        if (currentEvent == null)
+            return;
 
         boolean isAlreadyRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
 
         if (isAlreadyRegistered) {
             registerButton.setText("✓ Cancel Registration");
-            registerButton.setStyle("-fx-background-color: linear-gradient(to right, #e53935, #f44336); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
+            registerButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #e53935, #f44336); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
         } else {
             registerButton.setText("✓ Register for Event");
-            registerButton.setStyle("-fx-background-color: linear-gradient(to right, #1976d2, #2979ff); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
+            registerButton.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #1976d2, #2979ff); -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 15 20; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);");
         }
     }
 
     /**
      * Handles event registration/deregistration
      */
-
-
 
     @FXML
     private void handleRegister() {
@@ -507,7 +520,8 @@ public class DetailsEvent implements Initializable {
             return;
         }
 
-        // Utiliser l'ID de l'utilisateur récupéré du SessionManager et le stocker dans la variable de classe
+        // Utiliser l'ID de l'utilisateur récupéré du SessionManager et le stocker dans
+        // la variable de classe
         int userId = currentUser.getId();
         this.currentUserId = Long.valueOf(userId);
 
@@ -604,8 +618,10 @@ public class DetailsEvent implements Initializable {
                     "Unable to load participant list: " + e.getMessage());
         }
     }
+
     /**
      * Loads the event image
+     * 
      * @param imagePath the image path
      */
     private void loadEventImage(String imagePath) {
@@ -651,7 +667,6 @@ public class DetailsEvent implements Initializable {
     /**
      * Handles the Back button action
      */
-
 
     /**
      * Handles the Edit button action
@@ -714,7 +729,8 @@ public class DetailsEvent implements Initializable {
 
                     try {
                         // Load the AfficherEvent page
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
                         Parent root = loader.load();
 
                         // Create a new scene with the AfficherEvent page
@@ -797,6 +813,7 @@ public class DetailsEvent implements Initializable {
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
+
     @FXML
     private void handleLogout() throws IOException {
         // Clear the session
@@ -808,6 +825,7 @@ public class DetailsEvent implements Initializable {
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
+
     /**
      * Displays an alert dialog box
      */

@@ -461,7 +461,6 @@ public class PollManagementController implements Initializable {
             emptyStateContainer.setVisible(true);
             emptyStateContainer.setManaged(true);
         }
-        }
     }
 
     /**
@@ -727,7 +726,6 @@ public class PollManagementController implements Initializable {
     public void setPreviousScene(Scene scene) {
         this.previousScene = scene;
     }
-
 
     /**
      * Retourne à la vue précédente
