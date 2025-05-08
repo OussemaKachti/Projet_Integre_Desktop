@@ -26,6 +26,8 @@
 
             <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
                 <Button text="Home" styleClass="nav-button" onAction="#navigateToHome"/>
+                            <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
+
                 <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
                 <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
                 <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>

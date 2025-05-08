@@ -257,20 +257,7 @@ public class CompetitionUserController implements Initializable{
         navigate("/com/esprit/views/home.fxml");
     }
 
-    @FXML
-    public void navigateToClubs() {
-        navigate("/com/esprit/views/clubs.fxml");
-    }
-
-    @FXML
-    public void navigateToEvents() {
-        navigate("/com/esprit/views/events.fxml");
-    }
-
-    @FXML
-    public void navigateToProducts() {
-        navigate("/com/esprit/views/products.fxml");
-    }
+  
 
     @FXML
     public void navigateToProfile() throws IOException {
@@ -1072,4 +1059,50 @@ public class CompetitionUserController implements Initializable{
             alert.showAndWait();
         }
     }
+
+    @FXML
+    private void navigateToClubPolls() throws IOException {
+        // Test database connection before attempting to load polls view
+        try {
+
+            // Navigate to SondageView
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Failed to open Polls view");
+            alert.setContentText("An error occurred while trying to open the Polls view: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToEvents() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) competitionUserPane.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+   
 }

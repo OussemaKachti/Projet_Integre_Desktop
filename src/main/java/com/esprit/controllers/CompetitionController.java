@@ -1,15 +1,19 @@
 package com.esprit.controllers;
 
+import com.esprit.MainApp;
 import com.esprit.models.Competition;
 import com.esprit.models.Saison;
+import com.esprit.models.User;
 import com.esprit.models.enums.GoalTypeEnum;
-import com.esprit.services.AIContentGeneratorService;
-import com.esprit.services.CompetitionService;
-import com.esprit.services.SaisonService;
+import com.esprit.services.*;
 
+import com.esprit.utils.SessionManager;
 import javafx.application.Platform;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,70 +57,148 @@ public class CompetitionController {
     private final AIContentGeneratorService aiService = new AIContentGeneratorService();
 
     // Main components
-    @FXML private BorderPane contentArea;
-    @FXML private VBox missionListContainer;
-    @FXML private VBox missionFormContainer;
-    @FXML private StackPane formOverlay;
-    @FXML private StackPane contentStackPane;
+    @FXML
+    private BorderPane contentArea;
+    @FXML
+    private VBox missionListContainer;
+    @FXML
+    private VBox missionFormContainer;
+    @FXML
+    private StackPane formOverlay;
+    @FXML
+    private StackPane contentStackPane;
 
     // Header and Stats components
-    @FXML private Label contentTitle;
-    @FXML private Label dateLabel;
-    @FXML private Label totalMissionsLabel;
-    @FXML private Label activeMissionsLabel;
-    @FXML private Label completedMissionsLabel;
-    @FXML private Label adminNameLabel;
+    @FXML
+    private Label contentTitle;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label totalMissionsLabel;
+    @FXML
+    private Label activeMissionsLabel;
+    @FXML
+    private Label completedMissionsLabel;
+    @FXML
+    private Label adminNameLabel;
 
     // Search components
-    @FXML private TextField searchField;
-    @FXML private Button searchButton;
-    @FXML private Button statisticsButton;
-    @FXML private Button seasonManagementButton;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button searchButton;
+    @FXML
+    private Button statisticsButton;
+    @FXML
+    private Button seasonManagementButton;
 
     // Filter components
-    @FXML private ComboBox<String> statusFilter;
-    @FXML private ComboBox<Saison> seasonFilter;
+    @FXML
+    private ComboBox<String> statusFilter;
+    @FXML
+    private ComboBox<Saison> seasonFilter;
 
     // Form fields
-    @FXML private TextField missionTitleField;
-    @FXML private TextArea missionDescField;
-    @FXML private TextField pointsField;
-    @FXML private DatePicker startDateField;
-    @FXML private DatePicker endDateField;
-    @FXML private TextField goalValueField;
-    @FXML private ComboBox<GoalTypeEnum> goalTypeComboBox;
-    @FXML private ComboBox<Saison> saisonComboBox;
-    @FXML private ComboBox<String> statusComboBox;
-    @FXML private Label formTitleLabel;
-    @FXML private Label paginationInfoLabel;
-    @FXML private Button generateButton;
-
+    @FXML
+    private TextField missionTitleField;
+    @FXML
+    private TextArea missionDescField;
+    @FXML
+    private TextField pointsField;
+    @FXML
+    private DatePicker startDateField;
+    @FXML
+    private DatePicker endDateField;
+    @FXML
+    private TextField goalValueField;
+    @FXML
+    private ComboBox<GoalTypeEnum> goalTypeComboBox;
+    @FXML
+    private ComboBox<Saison> saisonComboBox;
+    @FXML
+    private ComboBox<String> statusComboBox;
+    @FXML
+    private Label formTitleLabel;
+    @FXML
+    private Label paginationInfoLabel;
+    @FXML
+    private Button generateButton;
+    @FXML
+    private VBox surveySubmenu;
 
     // Buttons
-    @FXML private Button saveButton;
-    @FXML private Button addButton;
-    @FXML private Button cancelButton;
-    @FXML private Button closeFormButton;
-    @FXML private Button prevPageButton;
-    @FXML private Button nextPageButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button cancelButton;
+    @FXML
+    private Button closeFormButton;
+    @FXML
+    private Button prevPageButton;
+    @FXML
+    private Button nextPageButton;
 
     // Navigation buttons
-    @FXML private Button userManagementButton;
-    @FXML private Button clubManagementButton;
-    @FXML private Button eventManagementButton;
-    @FXML private Button productOrdersButton;
-    @FXML private Button competitionButton;
-    @FXML private Button surveyButton;
-    @FXML private Button profileButton;
-    @FXML private Button logoutButton;
+    @FXML
+    private Button userManagementButton;
+    @FXML
+    private Button clubManagementButton;
+    @FXML
+    private Button eventManagementButton;
+    @FXML
+    private Button productOrdersButton;
+    @FXML
+    private Button competitionButton;
+    @FXML
+    private Button surveyButton;
+    @FXML
+    private Button profileButton;
+    @FXML
+    private Button logoutButton;
 
     // Pagination labels
-    @FXML private Label currentPageLabel;
-    @FXML private Label totalPagesLabel;
+    @FXML
+    private Label currentPageLabel;
+    @FXML
+    private Label totalPagesLabel;
+    private final AuthService authService = new AuthService();
+    private UserService userService;
+    private User currentUser;
+    private ObservableList<User> usersList = FXCollections.observableArrayList();
+    private FilteredList<User> filteredUsers;
 
     @FXML
     public void initialize() {
         try {
+            // Initialize services
+            userService = new UserService();
+            // Load current admin user
+            currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                // Redirect to login if not logged in
+                try {
+                    navigateToLogin();
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert(AlertType.ERROR, "Session Error", "Could not redirect to login page", e.getMessage());
+                }
+            }
+            // Check if the user is an admin
+            if (!"ADMINISTRATEUR".equals(currentUser.getRole().toString())) {
+                try {
+                    navigateToLogin();
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert(AlertType.ERROR, "Access Denied",
+                            "You do not have permission to access the admin dashboard", e.getMessage());
+                }
+            }
+            // Set admin name
+            adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
 
             // On initialization, update all competition statuses based on current date
             competitionService.updateAllStatuses();
@@ -163,12 +245,43 @@ public class CompetitionController {
                     "Failed to initialize mission management", e.getMessage());
         }
     }
+
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) (contentArea != null ? contentArea.getScene().getWindow()
+                : (adminNameLabel != null ? adminNameLabel.getScene().getWindow() : null));
+
+        if (stage != null) {
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+        } else {
+            // If we can't get the stage from the UI elements, create a new one
+            stage = new Stage();
+
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+
+            // Close any existing windows
+            if (contentArea != null && contentArea.getScene() != null &&
+                    contentArea.getScene().getWindow() != null) {
+                ((Stage) contentArea.getScene().getWindow()).close();
+            }
+        }
+    }
+
     /**
      * Hide or disable the status field in the form since status
      * will now be automatically calculated based on dates
      */
     private void hideStatusField() {
-        // Find the status field's parent container (likely a GridPane or similar layout)
+        // Find the status field's parent container (likely a GridPane or similar
+        // layout)
         GridPane gridPane = null;
         for (Node node : missionFormContainer.getChildren()) {
             if (node instanceof GridPane) {
@@ -193,12 +306,12 @@ public class CompetitionController {
             statusComboBox.setVisible(false);
             statusComboBox.setManaged(false);
 
-
         }
     }
 
     /**
-     * Modified createMissionCard method to display and style status based on calculated value
+     * Modified createMissionCard method to display and style status based on
+     * calculated value
      */
 
     private void setupFilters() {
@@ -300,9 +413,8 @@ public class CompetitionController {
         int endIndex = Math.min(startIndex + itemsPerPage, filteredCompetitions.size());
 
         // Get paged subset of filtered data
-        List<Competition> pagedFilteredCompetitions =
-                filteredCompetitions.isEmpty() ? new ArrayList<>() :
-                        filteredCompetitions.subList(startIndex, endIndex);
+        List<Competition> pagedFilteredCompetitions = filteredCompetitions.isEmpty() ? new ArrayList<>()
+                : filteredCompetitions.subList(startIndex, endIndex);
 
         // Update the UI with filtered and paged data
         updateCompetitionList(pagedFilteredCompetitions);
@@ -410,13 +522,18 @@ public class CompetitionController {
 
     private void applyCustomStyling() {
         // Style date pickers
-        startDateField.getEditor().setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-padding: 8px; -fx-font-size: 14px;");
-        endDateField.getEditor().setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-padding: 8px; -fx-font-size: 14px;");
+        startDateField.getEditor().setStyle(
+                "-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-padding: 8px; -fx-font-size: 14px;");
+        endDateField.getEditor().setStyle(
+                "-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-padding: 8px; -fx-font-size: 14px;");
 
         // Add style for combo boxes
-        goalTypeComboBox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
-        saisonComboBox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
-        statusComboBox.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        goalTypeComboBox.setStyle(
+                "-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        saisonComboBox.setStyle(
+                "-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        statusComboBox.setStyle(
+                "-fx-background-color: #f8f9fa; -fx-border-color: #e2e8f0; -fx-border-radius: 5px; -fx-background-radius: 5px;");
     }
 
     private void applyStylesToForm() {
@@ -433,8 +550,9 @@ public class CompetitionController {
         // Style the form header
         for (javafx.scene.Node node : missionFormContainer.getChildren()) {
             if (node instanceof HBox && node.getStyleClass().contains("form-header")) {
-                node.setStyle("-fx-padding: 0 0 15px 0; -fx-border-color: transparent transparent #eaeaea transparent; " +
-                        "-fx-border-width: 0 0 1px 0; -fx-alignment: center-left;");
+                node.setStyle(
+                        "-fx-padding: 0 0 15px 0; -fx-border-color: transparent transparent #eaeaea transparent; " +
+                                "-fx-border-width: 0 0 1px 0; -fx-alignment: center-left;");
                 break;
             }
         }
@@ -514,46 +632,46 @@ public class CompetitionController {
 
     private void setupButtonHoverEffects() {
         // Save button hover effect
-        saveButton.setOnMouseEntered(e ->
-                saveButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
+        saveButton.setOnMouseEntered(e -> saveButton
+                .setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
                         "-fx-background-radius: 5px; -fx-padding: 10px 20px; -fx-cursor: hand; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
 
-        saveButton.setOnMouseExited(e ->
-                saveButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
+        saveButton.setOnMouseExited(e -> saveButton
+                .setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
                         "-fx-background-radius: 5px; -fx-padding: 10px 20px; -fx-cursor: hand; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
 
         // Cancel button hover effect
-        cancelButton.setOnMouseEntered(e ->
-                cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #6c757d; " +
+        cancelButton.setOnMouseEntered(
+                e -> cancelButton.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #6c757d; " +
                         "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
-        cancelButton.setOnMouseExited(e ->
-                cancelButton.setStyle("-fx-background-color: transparent; -fx-border-color: #6c757d; " +
+        cancelButton.setOnMouseExited(
+                e -> cancelButton.setStyle("-fx-background-color: transparent; -fx-border-color: #6c757d; " +
                         "-fx-text-fill: #6c757d; -fx-border-radius: 5px; -fx-background-radius: 5px; " +
                         "-fx-padding: 8px 15px; -fx-cursor: hand;"));
 
         // In setupButtonHoverEffects(), add:
         if (generateButton != null) {
-            generateButton.setOnMouseEntered(e ->
-                    generateButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
+            generateButton.setOnMouseEntered(e -> generateButton
+                    .setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; " +
                             "-fx-background-radius: 5px; -fx-padding: 8px 15px; -fx-cursor: hand; " +
                             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
 
-            generateButton.setOnMouseExited(e ->
-                    generateButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
+            generateButton.setOnMouseExited(e -> generateButton
+                    .setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; " +
                             "-fx-background-radius: 5px; -fx-padding: 8px 15px; -fx-cursor: hand; " +
                             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
         }
 
         // Close button hover effect
-        closeFormButton.setOnMouseEntered(e ->
-                closeFormButton.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 50%; -fx-padding: 5px;"));
+        closeFormButton.setOnMouseEntered(e -> closeFormButton
+                .setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 50%; -fx-padding: 5px;"));
 
-        closeFormButton.setOnMouseExited(e ->
-                closeFormButton.setStyle("-fx-background-color: transparent; -fx-background-radius: 50%; -fx-padding: 5px;"));
+        closeFormButton.setOnMouseExited(e -> closeFormButton
+                .setStyle("-fx-background-color: transparent; -fx-background-radius: 50%; -fx-padding: 5px;"));
     }
 
     private void setupButtonActions() {
@@ -599,9 +717,8 @@ public class CompetitionController {
             // Get all competitions and filter by search term
             List<Competition> allCompetitions = competitionService.getAll();
             List<Competition> filteredCompetitions = allCompetitions.stream()
-                    .filter(comp ->
-                            comp.getNomComp().toLowerCase().contains(searchTerm) ||
-                                    comp.getDescComp().toLowerCase().contains(searchTerm))
+                    .filter(comp -> comp.getNomComp().toLowerCase().contains(searchTerm) ||
+                            comp.getDescComp().toLowerCase().contains(searchTerm))
                     .collect(Collectors.toList());
 
             updateCompetitionList(filteredCompetitions);
@@ -624,12 +741,17 @@ public class CompetitionController {
         goalTypeComboBox.setConverter(new StringConverter<GoalTypeEnum>() {
             @Override
             public String toString(GoalTypeEnum goalType) {
-                if (goalType == null) return "";
+                if (goalType == null)
+                    return "";
                 switch (goalType) {
-                    case EVENT_COUNT: return "Event Count";
-                    case EVENT_LIKES: return "Event Likes";
-                    case MEMBER_COUNT: return "Member Count";
-                    default: return goalType.toString();
+                    case EVENT_COUNT:
+                        return "Event Count";
+                    case EVENT_LIKES:
+                        return "Event Likes";
+                    case MEMBER_COUNT:
+                        return "Member Count";
+                    default:
+                        return goalType.toString();
                 }
             }
 
@@ -686,7 +808,8 @@ public class CompetitionController {
         card.setPadding(new Insets(15));
 
         // Add hover effect to card
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;");
+        card.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;");
 
         // Mission icon
         FontIcon icon = new FontIcon("mdi-trophy");
@@ -718,7 +841,8 @@ public class CompetitionController {
         // Points badge
         Label pointsLabel = new Label(competition.getPoints() + " Points");
         pointsLabel.getStyleClass().add("points-badge");
-        pointsLabel.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 10px;");
+        pointsLabel.setStyle(
+                "-fx-background-color: #28a745; -fx-text-fill: white; -fx-padding: 3px 8px; -fx-background-radius: 10px;");
 
         header.getChildren().addAll(titleLabel, pointsLabel);
 
@@ -752,7 +876,6 @@ public class CompetitionController {
         Label goalTypeValueLabel = new Label(formatGoalType(competition.getGoalType()));
         goalTypeValueLabel.getStyleClass().add("detail-value");
         detailsGrid.add(goalTypeValueLabel, 1, 1);
-
 
         // Status info
         Label statusLabel = new Label("Status:");
@@ -805,18 +928,22 @@ public class CompetitionController {
         Button editButton = new Button("Edit");
         editButton.setGraphic(new FontIcon("mdi-pencil"));
         editButton.getStyleClass().add("edit-button");
-        editButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;");
+        editButton.setStyle(
+                "-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;");
         editButton.setPadding(new Insets(8, 12, 8, 12));
         editButton.setOnAction(e -> showEditForm(competition));
 
         // Add hover effect
-        editButton.setOnMouseEntered(e -> editButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
-        editButton.setOnMouseExited(e -> editButton.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
+        editButton.setOnMouseEntered(e -> editButton.setStyle(
+                "-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
+        editButton.setOnMouseExited(e -> editButton.setStyle(
+                "-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
 
         Button deleteButton = new Button("Delete");
         deleteButton.setGraphic(new FontIcon("mdi-delete"));
         deleteButton.getStyleClass().add("delete-button");
-        deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;");
+        deleteButton.setStyle(
+                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;");
         deleteButton.setPadding(new Insets(8, 12, 8, 12));
         deleteButton.setOnAction(e -> {
             try {
@@ -828,8 +955,10 @@ public class CompetitionController {
         });
 
         // Add hover effect
-        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle("-fx-background-color: #bb2d3b; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
-        deleteButton.setOnMouseExited(e -> deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
+        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle(
+                "-fx-background-color: #bb2d3b; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
+        deleteButton.setOnMouseExited(e -> deleteButton.setStyle(
+                "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8px 15px;"));
 
         actions.getChildren().addAll(editButton, deleteButton);
 
@@ -837,27 +966,33 @@ public class CompetitionController {
         card.getChildren().addAll(iconContainer, content, actions);
 
         // Add hover effect to the entire card
-        card.setOnMouseEntered(e ->
-                card.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2); -fx-border-color: #e6e6e6; -fx-border-radius: 10;"));
-        card.setOnMouseExited(e ->
-                card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;"));
+        card.setOnMouseEntered(e -> card.setStyle(
+                "-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2); -fx-border-color: #e6e6e6; -fx-border-radius: 10;"));
+        card.setOnMouseExited(e -> card.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1); -fx-border-color: #f0f0f0; -fx-border-radius: 10;"));
 
         return card;
     }
 
     private String formatGoalType(GoalTypeEnum goalType) {
-        if (goalType == null) return "Unknown";
+        if (goalType == null)
+            return "Unknown";
 
         switch (goalType) {
-            case EVENT_COUNT: return "Event Count";
-            case EVENT_LIKES: return "Event Likes";
-            case MEMBER_COUNT: return "Member Count";
-            default: return goalType.toString();
+            case EVENT_COUNT:
+                return "Event Count";
+            case EVENT_LIKES:
+                return "Event Likes";
+            case MEMBER_COUNT:
+                return "Member Count";
+            default:
+                return goalType.toString();
         }
     }
 
     private String formatDate(LocalDateTime dateTime) {
-        if (dateTime == null) return "";
+        if (dateTime == null)
+            return "";
         return dateTime.toLocalDate().toString();
     }
 
@@ -977,8 +1112,8 @@ public class CompetitionController {
                 });
 
                 // Generate content
-                AIContentGeneratorService.GeneratedContent content =
-                        aiService.generateMissionContent(goalType, goalValue, points, saison);
+                AIContentGeneratorService.GeneratedContent content = aiService.generateMissionContent(goalType,
+                        goalValue, points, saison);
 
                 // Update UI with generated content
                 Platform.runLater(() -> {
@@ -997,7 +1132,8 @@ public class CompetitionController {
                     Alert reviewAlert = new Alert(AlertType.INFORMATION);
                     reviewAlert.setTitle("AI Generated Content");
                     reviewAlert.setHeaderText("AI has generated content for your mission");
-                    reviewAlert.setContentText("Please review the generated title and description. You can modify them if needed before saving.");
+                    reviewAlert.setContentText(
+                            "Please review the generated title and description. You can modify them if needed before saving.");
 
                     // Style the dialog
                     DialogPane dialogPane = reviewAlert.getDialogPane();
@@ -1007,16 +1143,14 @@ public class CompetitionController {
                                     "-fx-border-width: 1px;" +
                                     "-fx-border-radius: 8px;" +
                                     "-fx-background-radius: 8px;" +
-                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                    );
+                                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
                     Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
                     okButton.setStyle(
                             "-fx-background-color: #0dcaf0;" +
                                     "-fx-text-fill: white;" +
                                     "-fx-background-radius: 4px;" +
-                                    "-fx-font-weight: bold;"
-                    );
+                                    "-fx-font-weight: bold;");
 
                     reviewAlert.showAndWait();
                 });
@@ -1152,8 +1286,6 @@ public class CompetitionController {
             errorMessage.append("• Please select a season.\n");
         }
 
-
-
         if (errorMessage.length() > 0) {
             String title = "Form Validation";
             String header = "Please correct the following issues:";
@@ -1173,8 +1305,7 @@ public class CompetitionController {
                             "-fx-border-width: 1px;" +
                             "-fx-border-radius: 8px;" +
                             "-fx-background-radius: 8px;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-            );
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
             // Set custom button style
             Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
@@ -1182,8 +1313,7 @@ public class CompetitionController {
                     "-fx-background-color: #ffc107;" +
                             "-fx-text-fill: white;" +
                             "-fx-background-radius: 4px;" +
-                            "-fx-font-weight: bold;"
-            );
+                            "-fx-font-weight: bold;");
 
             alert.showAndWait();
             return false;
@@ -1213,24 +1343,21 @@ public class CompetitionController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         Button yesButton = (Button) dialogPane.lookupButton(ButtonType.OK);
         yesButton.setStyle(
                 "-fx-background-color: #dc3545;" +
                         "-fx-text-fill: white;" +
                         "-fx-background-radius: 4px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         Button noButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
         noButton.setStyle(
                 "-fx-background-color: #6c757d;" +
                         "-fx-text-fill: white;" +
                         "-fx-background-radius: 4px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
 
         if (confirmAlert.showAndWait().get() == ButtonType.OK) {
             competitionService.delete(competition.getId());
@@ -1287,7 +1414,7 @@ public class CompetitionController {
     @FXML
     public void showUserManagement() {
         try {
-            navigateTo("/com/esprit/views/adminDashboard.fxml");
+            navigateTo("/com/esprit/views/admin_dashboard.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to User Management", e.getMessage());
@@ -1297,7 +1424,7 @@ public class CompetitionController {
     @FXML
     public void showClubManagement() {
         try {
-            navigateTo("/com/esprit/views/adminClubs.fxml");
+            navigateTo("/com/esprit/views/ClubView.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Club Management", e.getMessage());
@@ -1307,7 +1434,7 @@ public class CompetitionController {
     @FXML
     public void showEventManagement() {
         try {
-            navigateTo("/com/esprit/views/adminEvents.fxml");
+            navigateTo("/com/esprit/views/AdminEvent.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Event Management", e.getMessage());
@@ -1316,6 +1443,7 @@ public class CompetitionController {
 
     @FXML
     public void showProductOrders() {
+
         try {
             navigateTo("/com/esprit/views/adminProducts.fxml");
         } catch (IOException e) {
@@ -1342,10 +1470,33 @@ public class CompetitionController {
     @FXML
     public void navigateToProfile() {
         try {
-            navigateTo("/com/esprit/views/adminProfile.fxml");
+            // Load the profile view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+            Parent root = loader.load();
+
+            // Create a completely new stage
+            Stage newStage = new Stage();
+
+            // Create scene with appropriate initial size
+            Scene scene = new Scene(root, 1200, 800); // Set initial size large enough
+
+            // Apply the stylesheet
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+            // Configure the new stage
+            newStage.setTitle("Admin Profile - UNICLUBS");
+            newStage.setScene(scene);
+            newStage.setMaximized(true); // Set maximized before showing
+
+            // Close the current stage
+            Stage currentStage = (Stage) contentArea.getScene().getWindow();
+            currentStage.close();
+
+            // Show the new stage
+            newStage.show();
         } catch (IOException e) {
-            showAlert(AlertType.ERROR, "Navigation Error",
-                    "Could not navigate to Profile", e.getMessage());
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Navigation Error", "Failed to navigate to admin profile", e.getMessage());
         }
     }
 
@@ -1365,8 +1516,7 @@ public class CompetitionController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         if (confirmLogout.showAndWait().get() == ButtonType.OK) {
             try {
@@ -1425,8 +1575,7 @@ public class CompetitionController {
                         "-fx-border-width: 1px;" +
                         "-fx-border-radius: 8px;" +
                         "-fx-background-radius: 8px;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-        );
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
 
         // Style the content text
         Label content = (Label) dialogPane.lookup(".content");
@@ -1434,8 +1583,7 @@ public class CompetitionController {
             content.setStyle(
                     "-fx-font-size: 14px;" +
                             "-fx-text-fill: #4b5c7b;" +
-                            "-fx-padding: 10 0 10 0;"
-            );
+                            "-fx-padding: 10 0 10 0;");
         }
 
         // Style the buttons
@@ -1471,8 +1619,7 @@ public class CompetitionController {
                             "-fx-background-radius: 4px;" +
                             "-fx-padding: 8 15;" +
                             "-fx-font-weight: bold;" +
-                            "-fx-cursor: hand;"
-            );
+                            "-fx-cursor: hand;");
 
             // Add hover effect
             button.setOnMouseEntered(e -> {
@@ -1483,8 +1630,7 @@ public class CompetitionController {
                                 "-fx-background-radius: 4px;" +
                                 "-fx-padding: 8 15;" +
                                 "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
+                                "-fx-cursor: hand;");
             });
 
             button.setOnMouseExited(e -> {
@@ -1495,8 +1641,7 @@ public class CompetitionController {
                                 "-fx-background-radius: 4px;" +
                                 "-fx-padding: 8 15;" +
                                 "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
+                                "-fx-cursor: hand;");
             });
         });
 
@@ -1530,6 +1675,7 @@ public class CompetitionController {
                     "Could not navigate to Season Management", e.getMessage());
         }
     }
+
     private void handleAIGeneration() {
         // Check if essential fields are filled but name/description are empty
         if (goalTypeComboBox.getValue() != null &&
@@ -1552,8 +1698,8 @@ public class CompetitionController {
                 // Generate content in background thread
                 new Thread(() -> {
                     try {
-                        AIContentGeneratorService.GeneratedContent content =
-                                aiService.generateMissionContent(goalType, goalValue, points, saison);
+                        AIContentGeneratorService.GeneratedContent content = aiService.generateMissionContent(goalType,
+                                goalValue, points, saison);
 
                         // Update UI on JavaFX thread
                         Platform.runLater(() -> {
@@ -1583,6 +1729,37 @@ public class CompetitionController {
             } catch (NumberFormatException e) {
                 // Invalid number format in fields
             }
+        }
+    }
+
+    public void toggleSurveySubmenu(ActionEvent actionEvent) {
+        // Toggle visibility of the survey submenu
+        surveySubmenu.setVisible(!surveySubmenu.isVisible());
+        surveySubmenu.setManaged(!surveySubmenu.isManaged());
+
+        // Update styling to show the Survey button as active when submenu is open
+        if (surveySubmenu.isVisible()) {
+            surveyButton.getStyleClass().add("active");
+        } else {
+            surveyButton.getStyleClass().remove("active");
+        }
+    }
+
+    public void showPollManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminPollsView.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+
+    public void showCommentsManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminCommentsView.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
         }
     }
 }

@@ -258,12 +258,18 @@ public class AfficherEvent implements Initializable {
 
     @FXML
     private void navigateToCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
-
+    @FXML
+    private void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
     /**
      * Handle user logout
      * Added method from HomeController integration
