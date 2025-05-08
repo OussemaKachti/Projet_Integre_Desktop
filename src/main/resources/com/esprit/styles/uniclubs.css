@@ -382,3 +382,6 @@
     -fx-spacing: 10;
     -fx-alignment: center-right;
 }
+.submenu-button {
+    -fx-padding: 10 0 10 40;
+}

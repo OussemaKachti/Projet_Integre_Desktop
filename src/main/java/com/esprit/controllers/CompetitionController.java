@@ -90,7 +90,7 @@ public class CompetitionController {
     @FXML private Label formTitleLabel;
     @FXML private Label paginationInfoLabel;
     @FXML private Button generateButton;
-
+    @FXML private VBox surveySubmenu;
 
     // Buttons
     @FXML private Button saveButton;
@@ -1287,7 +1287,7 @@ public class CompetitionController {
     @FXML
     public void showUserManagement() {
         try {
-            navigateTo("/com/esprit/views/adminDashboard.fxml");
+            navigateTo("/com/esprit/views/admin_dashboard.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to User Management", e.getMessage());
@@ -1297,7 +1297,7 @@ public class CompetitionController {
     @FXML
     public void showClubManagement() {
         try {
-            navigateTo("/com/esprit/views/adminClubs.fxml");
+            navigateTo("/com/esprit/views/ClubView.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Club Management", e.getMessage());
@@ -1307,7 +1307,7 @@ public class CompetitionController {
     @FXML
     public void showEventManagement() {
         try {
-            navigateTo("/com/esprit/views/adminEvents.fxml");
+            navigateTo("/com/esprit/views/AdminEvent.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Event Management", e.getMessage());
@@ -1316,6 +1316,7 @@ public class CompetitionController {
 
     @FXML
     public void showProductOrders() {
+
         try {
             navigateTo("/com/esprit/views/adminProducts.fxml");
         } catch (IOException e) {
@@ -1342,7 +1343,7 @@ public class CompetitionController {
     @FXML
     public void navigateToProfile() {
         try {
-            navigateTo("/com/esprit/views/adminProfile.fxml");
+            navigateTo("/com/esprit/views/admin_profile.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Profile", e.getMessage());
@@ -1583,6 +1584,37 @@ public class CompetitionController {
             } catch (NumberFormatException e) {
                 // Invalid number format in fields
             }
+        }
+    }
+
+    public void toggleSurveySubmenu(ActionEvent actionEvent) {
+        // Toggle visibility of the survey submenu
+        surveySubmenu.setVisible(!surveySubmenu.isVisible());
+        surveySubmenu.setManaged(!surveySubmenu.isManaged());
+
+        // Update styling to show the Survey button as active when submenu is open
+        if (surveySubmenu.isVisible()) {
+            surveyButton.getStyleClass().add("active");
+        } else {
+            surveyButton.getStyleClass().remove("active");
+        }
+    }
+
+    public void showPollManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminPollsView.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+
+    public void showCommentsManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminCommentsView.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
         }
     }
 }

@@ -8,10 +8,14 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,6 +25,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -43,6 +48,7 @@ public class MissionProgressViewController implements Initializable, MissionProg
     @FXML private ChoiceBox<String> viewModeBox;
     @FXML private Button refreshButton;
     @FXML private Label statusLabel;
+    @FXML private Button backToUserCompetitionButton;
 
     private final MissionProgressService missionProgressService;
     private ObservableList<ClubWithMissionProgress> allClubsWithProgress;
@@ -722,5 +728,21 @@ public class MissionProgressViewController implements Initializable, MissionProg
         }
         missionProgressService.removeCompletionListener(this);
         updateStatus("View closed");
+    }
+
+    public void navigateToUserCompetition(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/UserCompetition.fxml"));
+            Parent root = loader.load();
+            Scene scene = backToUserCompetitionButton.getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            // Create an alert for error handling
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Could not navigate to User Competition view");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 }

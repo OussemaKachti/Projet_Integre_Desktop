@@ -17,6 +17,13 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
+
+            <!-- Add a back button row at the top -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="backToUserCompetitionButton" text="← Back to Competition"
+                        styleClass="white-button" onAction="#navigateToUserCompetition"/>
+            </HBox>
+
             <Label text="Club Mission Progress" styleClass="header-title"/>
             <Label text="Track each club's mission progress in real-time" styleClass="header-subtitle"/>
 

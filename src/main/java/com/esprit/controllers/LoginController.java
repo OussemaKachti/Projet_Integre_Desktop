@@ -338,7 +338,7 @@ private void navigateToForgotPassword(ActionEvent event) throws IOException {
     }
 
     private void navigateToHome() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AjouterEvent.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) emailField.getScene().getWindow();
         MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
