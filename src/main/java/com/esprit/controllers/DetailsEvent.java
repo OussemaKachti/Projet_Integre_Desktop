@@ -1,11 +1,15 @@
 package com.esprit.controllers;
 
+import com.esprit.MainApp;
+import com.esprit.models.User;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
@@ -25,11 +29,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
 import org.json.simple.JSONObject;
+import com.esprit.utils.SessionManager;
 
 public class DetailsEvent implements Initializable {
 
     @FXML
     private Label eventTitleLabel;
+    @FXML
+    private Label userNameLabel;
+    @FXML
+    private VBox adminActionsContainer;
+
+    @FXML
+    private StackPane userProfileContainer;
     @FXML
     private Label eventTypeLabel;
     @FXML
@@ -43,6 +55,8 @@ public class DetailsEvent implements Initializable {
     @FXML
     private Label endDateLabel;
     @FXML
+    private VBox profileDropdown;
+    @FXML
     private Label locationLabel;
 
     // Weather components
@@ -54,9 +68,14 @@ public class DetailsEvent implements Initializable {
     private ImageView weatherIconView;
     @FXML
     private Label weatherTitleLabel;
+    @FXML
+    private ImageView userProfilePic;
 
     @FXML
     private ImageView eventImageView;
+
+    @FXML
+    private StackPane clubsContainer;
 
     @FXML
     private Button backButton;
@@ -64,8 +83,7 @@ public class DetailsEvent implements Initializable {
     private Button registerButton;
     @FXML
     private Button editButton;
-    @FXML
-    private Button shareButton;
+
     @FXML
     private Button presidentButton1; // Delete button
 
@@ -80,6 +98,7 @@ public class DetailsEvent implements Initializable {
     private ServiceEvent serviceEvent = new ServiceEvent();
     private ServiceParticipation serviceParticipation = new ServiceParticipation();
     private ServiceWeather serviceWeather = new ServiceWeather(); // Weather service
+    private User currentUser;
 
     // Changed from long to Long to match the required type
     private Long currentUserId = 1L; // Replace with the connected user's ID
@@ -88,9 +107,13 @@ public class DetailsEvent implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // Make the participation button visible
         registerButton.setVisible(true);
-        editButton.setVisible(true);
-        shareButton.setVisible(false);
-
+        // Hide admin features by default until we check permissions
+        editButton.setVisible(false);
+        presidentButton1.setVisible(false); // Delete button
+        presidentButton3.setVisible(false); // View participants button
+        scanQrCodeButton.setVisible(false);
+        initializeUserProfile();
+        setupUserPermissions();
         // By default, hide weather components until data is loaded
         if (weatherTitleLabel != null) {
             weatherTitleLabel.setVisible(false);
@@ -118,6 +141,87 @@ public class DetailsEvent implements Initializable {
             scanQrCodeButton.setOnAction(event -> handleScanQRCode());
         }
 
+    }
+    /**
+     * Configure les permissions d'interface utilisateur basées sur le rôle de l'utilisateur
+     */
+ // Add this field to reference your admin VBox
+
+    private void setupUserPermissions() {
+        SessionManager sessionManager = SessionManager.getInstance();
+
+        // Check user roles
+        boolean isPresident = sessionManager.hasRole("PRESIDENT_CLUB");
+        boolean isAdmin = sessionManager.hasRole("ADMINISTRATEUR");
+
+        // Determine which users can manage events
+        boolean canManageEvents = isPresident || isAdmin;
+
+        // Buttons visible only for presidents and administrators
+        editButton.setVisible(canManageEvents);
+        presidentButton1.setVisible(canManageEvents); // Delete button
+        presidentButton3.setVisible(canManageEvents); // View participants button
+        scanQrCodeButton.setVisible(canManageEvents); // Scan QR code
+
+        // Hide the entire admin VBox container if user has no admin permissions
+        adminActionsContainer.setVisible(canManageEvents);
+        adminActionsContainer.setManaged(canManageEvents); // This prevents the empty space from showing
+
+        // QR code button is visible for all registered participants
+        qrCodeButton.setVisible(true);
+
+        // Register button is visible for all logged-in users
+        registerButton.setVisible(true);
+    }
+
+    private void initializeUserProfile() {
+        // Get current user from session
+        currentUser = SessionManager.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            // Set user name
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+            // Load profile picture
+            String profilePicture = currentUser.getProfilePicture();
+            if (profilePicture != null && !profilePicture.isEmpty()) {
+                try {
+                    File imageFile = new File("uploads/profiles/" + profilePicture);
+                    if (imageFile.exists()) {
+                        Image image = new Image(imageFile.toURI().toString());
+                        userProfilePic.setImage(image);
+                    } else {
+                        loadDefaultProfilePic();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadDefaultProfilePic();
+                }
+            } else {
+                loadDefaultProfilePic();
+            }
+
+            // Apply circular clip to profile picture
+            double radius = 22.5; // Match the style
+            userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+
+            // Initially hide the dropdown
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+
+    /**
+     * Load default profile picture
+     * Added method from HomeController integration
+     */
+    private void loadDefaultProfilePic() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            userProfilePic.setImage(defaultImage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -151,6 +255,7 @@ public class DetailsEvent implements Initializable {
 
         // Check if the user is already participating in this event
         updateRegisterButtonStatus();
+        setupUserPermissions();
 
         // Load weather information for the event location and date
         loadWeatherData(event.getLieux(), event.getStart_date());
@@ -381,6 +486,9 @@ public class DetailsEvent implements Initializable {
     /**
      * Handles event registration/deregistration
      */
+
+
+
     @FXML
     private void handleRegister() {
         if (currentEvent == null) {
@@ -388,6 +496,20 @@ public class DetailsEvent implements Initializable {
                     "Unable to register for the event because no event is selected.");
             return;
         }
+
+        // Récupération de l'utilisateur connecté depuis le SessionManager
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+
+        // Vérifier si un utilisateur est connecté
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Not logged in",
+                    "You must be logged in to register for an event.");
+            return;
+        }
+
+        // Utiliser l'ID de l'utilisateur récupéré du SessionManager et le stocker dans la variable de classe
+        int userId = currentUser.getId();
+        this.currentUserId = Long.valueOf(userId);
 
         // Check if the user is already registered
         boolean isAlreadyRegistered = serviceParticipation.participationExists(currentUserId, currentEvent.getId());
@@ -408,7 +530,7 @@ public class DetailsEvent implements Initializable {
                 if (cancelled) {
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Registration Cancelled",
                             "Your registration for the event has been successfully cancelled.");
-                    updateRegisterButtonStatus();
+                    updateRegisterButtonStatus(); // Met à jour le bouton (devient bleu "Register for Event")
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Error", "Cancellation Failed",
                             "The cancellation of your registration failed. Please try again.");
@@ -437,7 +559,7 @@ public class DetailsEvent implements Initializable {
             if (registered) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Registration Confirmed",
                         "You are now registered for the event.");
-                updateRegisterButtonStatus();
+                updateRegisterButtonStatus(); // Met à jour le bouton (devient rouge "Cancel Registration")
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Registration Failed",
                         "Registration for the event failed. Please try again.");
@@ -457,13 +579,18 @@ public class DetailsEvent implements Initializable {
         }
 
         try {
-            // Load the participant list view (to be implemented later)
+            // Load the participant list view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ParticipantsList.fxml"));
             Parent root = loader.load();
 
-            // Pass the event ID to the controller
-            // ParticipantsListController controller = loader.getController();
-            // controller.setEventId(currentEvent.getId());
+            // Pass the event to the controller
+            ParticipantsListController controller = loader.getController();
+
+            // Décommenter et utiliser la méthode initData pour passer l'événement entier
+            controller.initData(currentEvent);
+
+            System.out.println("Ouverture de la liste des participants pour l'événement: " +
+                    currentEvent.getNom_event() + " (ID: " + currentEvent.getId() + ")");
 
             Stage stage = new Stage();
             stage.setTitle("Participants for event " + currentEvent.getNom_event());
@@ -477,7 +604,6 @@ public class DetailsEvent implements Initializable {
                     "Unable to load participant list: " + e.getMessage());
         }
     }
-
     /**
      * Loads the event image
      * @param imagePath the image path
@@ -525,34 +651,7 @@ public class DetailsEvent implements Initializable {
     /**
      * Handles the Back button action
      */
-    @FXML
-    private void handleBack() {
-        try {
-            // Load the previous view (events page)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
-            Parent root = loader.load();
 
-            // Get the controller of the previous page if necessary
-            // AfficherEventController controller = loader.getController();
-            // controller.initialiserDonnees(...); // If you need to pass data
-
-            // Get the current window from the button
-            Stage stage = (Stage) backButton.getScene().getWindow();
-
-            // Set the new scene
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the error, for example display an alert
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Navigation Error");
-            alert.setHeaderText("Unable to return to previous page");
-            alert.setContentText("An error occurred: " + e.getMessage());
-            alert.showAndWait();
-        }
-    }
 
     /**
      * Handles the Edit button action
@@ -645,6 +744,70 @@ public class DetailsEvent implements Initializable {
         }
     }
 
+    @FXML
+    private void showProfileDropdown() {
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
+    }
+
+    /**
+     * Hide profile dropdown menu
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void hideProfileDropdown() {
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
+    }
+
+    @FXML
+    private void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToClubPolls() throws IOException {
+        // Test database connection before attempting to load polls view
+        try {
+
+            // Navigate to SondageView
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) clubsContainer.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Failed to open Polls view");
+            alert.setContentText("An error occurred while trying to open the Polls view: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
     /**
      * Displays an alert dialog box
      */
@@ -655,4 +818,29 @@ public class DetailsEvent implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    @FXML
+    private void navigateToHome1() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
 }

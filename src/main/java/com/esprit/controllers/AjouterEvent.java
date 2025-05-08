@@ -1,5 +1,8 @@
 package com.esprit.controllers;
 
+import com.esprit.MainApp;
+import com.esprit.models.User;
+import com.esprit.utils.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -30,6 +35,8 @@ public class AjouterEvent implements Initializable {
 
     @FXML
     private TextArea desc_event;
+    @FXML
+    private StackPane userProfileContainer;
 
     @FXML
     private ComboBox<String> club_combo, categorie_combo, event_type_combo;
@@ -46,6 +53,12 @@ public class AjouterEvent implements Initializable {
     private Button addEventButton;
     @FXML
     private Button addCategoryButton;
+    @FXML
+    private VBox profileDropdown;
+    @FXML
+    private ImageView userProfilePic;
+    @FXML
+    private Label userNameLabel;
 
     private final ServiceEvent serviceEvent = new ServiceEvent();
     private String selectedImagePath;
@@ -57,6 +70,7 @@ public class AjouterEvent implements Initializable {
     private static final int MAX_DESC_LENGTH = 2000;
     private static final int MIN_DAYS_IN_FUTURE = 1; // Minimum days in the future for start date
     private static final int MAX_EVENT_DURATION_DAYS = 30; // Maximum duration of an event in days
+    private User currentUser;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -69,6 +83,8 @@ public class AjouterEvent implements Initializable {
 
         // Set up text field validation listeners
         setupTextFieldValidation();
+
+        initializeUserProfile();
     }
 
     private void setupDateValidation() {
@@ -359,6 +375,114 @@ public class AjouterEvent implements Initializable {
         end_date.setValue(null);
         imageView.setImage(null);
         selectedImagePath = null;
+    }
+    private void initializeUserProfile() {
+        // Get current user from session
+        currentUser = SessionManager.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            // Set user name
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+            // Load profile picture
+            String profilePicture = currentUser.getProfilePicture();
+            if (profilePicture != null && !profilePicture.isEmpty()) {
+                try {
+                    File imageFile = new File("uploads/profiles/" + profilePicture);
+                    if (imageFile.exists()) {
+                        Image image = new Image(imageFile.toURI().toString());
+                        userProfilePic.setImage(image);
+                    } else {
+                        loadDefaultProfilePic();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    loadDefaultProfilePic();
+                }
+            } else {
+                loadDefaultProfilePic();
+            }
+
+            // Apply circular clip to profile picture
+            double radius = 22.5; // Match the style
+            userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
+
+            // Initially hide the dropdown
+            profileDropdown.setVisible(false);
+            profileDropdown.setManaged(false);
+        }
+    }
+
+    /**
+     * Load default profile picture
+     * Added method from HomeController integration
+     */
+    private void loadDefaultProfilePic() {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            userProfilePic.setImage(defaultImage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void navigateToHome1() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+    @FXML
+    private void showProfileDropdown() {
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
+    }
+    @FXML
+    private void hideProfileDropdown() {
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
