@@ -84,6 +84,7 @@ public class SaisonController {
     @FXML private Button chooseImageButton;
     @FXML private Button prevPageButton;
     @FXML private Button nextPageButton;
+    @FXML private VBox surveySubmenu;
 
     // Navigation buttons
     @FXML private Button userManagementButton;
@@ -1186,7 +1187,7 @@ public class SaisonController {
     @FXML
     public void showUserManagement() {
         try {
-            navigateTo("/com/esprit/views/adminDashboard.fxml");
+            navigateTo("/com/esprit/views/admin_dashboard.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to User Management", e.getMessage());
@@ -1196,7 +1197,7 @@ public class SaisonController {
     @FXML
     public void showClubManagement() {
         try {
-            navigateTo("/com/esprit/views/adminClubs.fxml");
+            navigateTo("/com/esprit/views/ClubView.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Club Management", e.getMessage());
@@ -1241,7 +1242,7 @@ public class SaisonController {
     @FXML
     public void navigateToProfile() {
         try {
-            navigateTo("/com/esprit/views/adminProfile.fxml");
+            navigateTo("/com/esprit/views/admin_profile.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Profile", e.getMessage());
@@ -1426,6 +1427,36 @@ public class SaisonController {
     private void showCompetitionManagement() {
         try {
             navigateTo("/com/esprit/views/AdminCompetition.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+    public void toggleSurveySubmenu(ActionEvent actionEvent) {
+        // Toggle visibility of the survey submenu
+        surveySubmenu.setVisible(!surveySubmenu.isVisible());
+        surveySubmenu.setManaged(!surveySubmenu.isManaged());
+
+        // Update styling to show the Survey button as active when submenu is open
+        if (surveySubmenu.isVisible()) {
+            surveyButton.getStyleClass().add("active");
+        } else {
+            surveyButton.getStyleClass().remove("active");
+        }
+    }
+
+    public void showPollManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminPollsView.fxml");
+        } catch (IOException e) {
+            showAlert(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+
+    public void showCommentsManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminCommentsView.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Season Management", e.getMessage());

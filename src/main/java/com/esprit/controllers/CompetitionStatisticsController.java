@@ -5,6 +5,7 @@ import com.esprit.models.enums.GoalTypeEnum;
 import com.esprit.services.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,6 +25,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 
 public class CompetitionStatisticsController implements Initializable {
 
@@ -83,6 +85,8 @@ public class CompetitionStatisticsController implements Initializable {
     @FXML private Button surveyButton;
     @FXML private Button profileButton;
     @FXML private Button logoutButton;
+    @FXML private VBox surveySubmenu;
+
 
     // Trends
     @FXML private BarChart<String, Number> completionTrendsChart;
@@ -547,7 +551,7 @@ public class CompetitionStatisticsController implements Initializable {
     @FXML
     public void showUserManagement() {
         try {
-            navigateTo("/com/esprit/views/adminDashboard.fxml");
+            navigateTo("/com/esprit/views/admin_dashboard.fxml");
         } catch (IOException e) {
             showError("Navigation Error", "Could not navigate to User Management: " + e.getMessage());
         }
@@ -556,7 +560,7 @@ public class CompetitionStatisticsController implements Initializable {
     @FXML
     public void showClubManagement() {
         try {
-            navigateTo("/com/esprit/views/adminClubs.fxml");
+            navigateTo("/com/esprit/views/ClubView.fxml");
         } catch (IOException e) {
             showError("Navigation Error", "Could not navigate to Club Management: " + e.getMessage());
         }
@@ -565,7 +569,7 @@ public class CompetitionStatisticsController implements Initializable {
     @FXML
     public void showEventManagement() {
         try {
-            navigateTo("/com/esprit/views/adminEvents.fxml");
+            navigateTo("/com/esprit/views/AdminEvent.fxml");
         } catch (IOException e) {
             showError("Navigation Error", "Could not navigate to Event Management: " + e.getMessage());
         }
@@ -601,7 +605,7 @@ public class CompetitionStatisticsController implements Initializable {
     @FXML
     public void navigateToProfile() {
         try {
-            navigateTo("/com/esprit/views/adminProfile.fxml");
+            navigateTo("/com/esprit/views/admin_profile.fxml");
         } catch (IOException e) {
             showError("Navigation Error", "Could not navigate to Profile: " + e.getMessage());
         }
@@ -624,5 +628,151 @@ public class CompetitionStatisticsController implements Initializable {
         if (scene != null) {
             scene.setRoot(root);
         }
+    }
+    public void toggleSurveySubmenu(ActionEvent actionEvent) {
+        // Toggle visibility of the survey submenu
+        surveySubmenu.setVisible(!surveySubmenu.isVisible());
+        surveySubmenu.setManaged(!surveySubmenu.isManaged());
+
+        // Update styling to show the Survey button as active when submenu is open
+        if (surveySubmenu.isVisible()) {
+            surveyButton.getStyleClass().add("active");
+        } else {
+            surveyButton.getStyleClass().remove("active");
+        }
+    }
+
+    public void showPollManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminPollsView.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+
+    public void showCommentsManagement(ActionEvent actionEvent) {
+        try {
+            navigateTo("/com/esprit/views/AdminCommentsView.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Season Management", e.getMessage());
+        }
+    }
+    private void showAlert(Alert.AlertType alertType, String title, String message, String details) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+
+        if (details != null && !details.isEmpty()) {
+            alert.setContentText(message + "\n\nDetails: " + details);
+        } else {
+            alert.setContentText(message);
+        }
+
+        // Style the dialog pane based on alert type
+        DialogPane dialogPane = alert.getDialogPane();
+        String backgroundColor = "#ffffff";
+        String borderColor = "#dce3f0";
+
+        switch (alertType) {
+            case ERROR:
+                borderColor = "#dc3545";
+                break;
+            case WARNING:
+                borderColor = "#ffc107";
+                break;
+            case INFORMATION:
+                borderColor = "#0dcaf0";
+                break;
+            case CONFIRMATION:
+                borderColor = "#20c997";
+                break;
+            default:
+                break;
+        }
+
+        dialogPane.setStyle(
+                "-fx-background-color: " + backgroundColor + ";" +
+                        "-fx-border-color: " + borderColor + ";" +
+                        "-fx-border-width: 1px;" +
+                        "-fx-border-radius: 8px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+        );
+
+        // Style the content text
+        Label content = (Label) dialogPane.lookup(".content");
+        if (content != null) {
+            content.setStyle(
+                    "-fx-font-size: 14px;" +
+                            "-fx-text-fill: #4b5c7b;" +
+                            "-fx-padding: 10 0 10 0;"
+            );
+        }
+
+        // Style the buttons
+        dialogPane.getButtonTypes().forEach(buttonType -> {
+            Button button = (Button) dialogPane.lookupButton(buttonType);
+            String buttonColor = "#4a90e2";
+            String textColor = "white";
+
+            switch (alertType) {
+                case ERROR:
+                    buttonColor = "#dc3545";
+                    break;
+                case WARNING:
+                    buttonColor = "#ffc107";
+                    break;
+                case INFORMATION:
+                    buttonColor = "#0dcaf0";
+                    break;
+                case CONFIRMATION:
+                    if (buttonType == ButtonType.OK) {
+                        buttonColor = "#20c997";
+                    } else {
+                        buttonColor = "#6c757d";
+                    }
+                    break;
+                default:
+                    break;
+            }
+            final String finalButtonColor = buttonColor;
+            button.setStyle(
+                    "-fx-background-color: " + finalButtonColor + ";" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-background-radius: 4px;" +
+                            "-fx-padding: 8 15;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;"
+            );
+
+            // Add hover effect
+            button.setOnMouseEntered(e -> {
+                // Darken the button color when hovered
+                button.setStyle(
+                        "-fx-background-color: derive(" + finalButtonColor + ", -10%);" +
+                                "-fx-text-fill: " + textColor + ";" +
+                                "-fx-background-radius: 4px;" +
+                                "-fx-padding: 8 15;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;"
+                );
+            });
+
+            button.setOnMouseExited(e -> {
+                // Restore original color when not hovered
+                button.setStyle(
+                        "-fx-background-color: " + finalButtonColor + ";" +
+                                "-fx-text-fill: " + textColor + ";" +
+                                "-fx-background-radius: 4px;" +
+                                "-fx-padding: 8 15;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;"
+                );
+            });
+        });
+
+        alert.showAndWait();
     }
 }
