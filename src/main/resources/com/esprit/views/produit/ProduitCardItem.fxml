@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="10.0" styleClass="product-card" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.ProduitCardItemController">
+<VBox fx:id="cardContent" alignment="CENTER" spacing="10" 
+      style="-fx-background-color: white; 
+             -fx-background-radius: 15; 
+             -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+             -fx-min-width: 250;
+             -fx-max-width: 250;" 
+      xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    
     <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+        <Insets top="15" right="15" bottom="15" left="15"/>
     </padding>
-    <children>
-        <Label fx:id="lblClub" styleClass="club-label" />
-        <ImageView fx:id="imgProduct" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-        <Label fx:id="lblNom" styleClass="product-name" />
-        <Label fx:id="lblDescription" styleClass="product-description" wrapText="true" />
-        <HBox alignment="CENTER" spacing="10.0">
-            <children>
-                <Label fx:id="lblPrix" styleClass="product-price" />
-                <Label fx:id="lblQuantity" styleClass="product-quantity" />
-            </children>
-        </HBox>
-        <HBox alignment="CENTER" spacing="10.0">
-            <children>
-                <Button fx:id="btnDetails" onAction="#viewDetails" text="Details" />
-                <Button fx:id="btnAddToCart" onAction="#addToCart" text="Add to card" />
-            </children>
-        </HBox>
-    </children>
+
+    <!-- Product Image Container -->
+    <StackPane style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-min-height: 140; -fx-max-height: 140;">
+        <ImageView fx:id="imgProduct" fitHeight="120" fitWidth="120" preserveRatio="true"/>
+    </StackPane>
+
+    <!-- Product Info -->
+    <VBox spacing="3" alignment="CENTER_LEFT">
+        <Label fx:id="lblNom" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" wrapText="true"/>
+        <Label fx:id="lblDescription" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" wrapText="true"/>
+        <Label fx:id="lblPrix" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6200EE;"/>
+        <Label fx:id="lblQuantity" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+        <Label fx:id="lblClub" style="-fx-font-size: 11px; -fx-text-fill: #018786; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <!-- Buttons Container -->
+    <HBox alignment="CENTER" spacing="10">
+        <Button fx:id="btnAddToCart" text="Add to Cart" 
+                style="-fx-background-color: #FF5722; -fx-text-fill: white; -fx-font-weight: bold; 
+                       -fx-background-radius: 20; -fx-padding: 8 15; -fx-min-width: 110;"/>
+        <Button fx:id="btnDetails" text="Details" 
+                style="-fx-background-color: #3F51B5; -fx-text-fill: white; -fx-font-weight: bold; 
+                       -fx-background-radius: 20; -fx-padding: 8 15; -fx-min-width: 110;"/>
+    </HBox>
 </VBox>

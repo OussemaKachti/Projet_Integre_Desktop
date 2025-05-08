@@ -74,7 +74,7 @@
                </graphic>
             </Button>
             
-            <Button fx:id="clubManagementBtn" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="clubManagementBtn" styleClass="sidebar-button" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToClubManagement">
                <graphic>
                   <Label text="🏛️" />
                </graphic>
@@ -82,7 +82,7 @@
             
             <!-- Event Management dropdown menu -->
             <VBox spacing="2.0">
-               <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <Button fx:id="eventManagementBtn" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToEventManagement">
                   <graphic>
                      <Label text="📅" />
                   </graphic>
@@ -104,21 +104,39 @@
                </VBox>
             </VBox>
             
-            <Button fx:id="productOrdersBtn" styleClass="sidebar-button, active" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToAdmincommande">
-               <graphic>
-                  <Label text="🛒" />
-               </graphic>
-            </Button>
-            
             <Button fx:id="competitionBtn" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
                   <Label text="🏆" />
                </graphic>
             </Button>
+
+            <!-- Products Management dropdown menu -->
+            <VBox spacing="2.0">
+               <Button fx:id="productOrdersBtn" styleClass="sidebar-button" text="Products Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <graphic>
+                     <Label text="🛒" />
+                  </graphic>
+               </Button>
+               
+               <!-- Sous-menu Products Management -->
+               <VBox fx:id="productsSubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                  <Button fx:id="productsManagementBtn" styleClass="sidebar-button, active" text="Product Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                     <graphic>
+                        <Label text="📦" />
+                     </graphic>
+                  </Button>
+                  
+                  <Button fx:id="ordersManagementBtn" styleClass="sidebar-button" text="Order Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToCommandManagement">
+                     <graphic>
+                        <Label text="🧾" />
+                     </graphic>
+                  </Button>
+               </VBox>
+            </VBox>
             
             <!-- Survey Management dropdown menu -->
             <VBox spacing="2.0">
-               <Button fx:id="surveyManagementBtn" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+               <Button fx:id="surveyManagementBtn" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToSurveyManagement">
                   <graphic>
                      <Label text="📊" />
                   </graphic>
@@ -126,13 +144,13 @@
                
                <!-- Sous-menu Survey Management -->
                <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
-                  <Button fx:id="pollsManagementBtn" styleClass="sidebar-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <Button fx:id="pollsManagementBtn" styleClass="sidebar-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToPollsManagement">
                      <graphic>
                         <Label text="📋" />
                      </graphic>
                   </Button>
                   
-                  <Button fx:id="commentsManagementBtn" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                  <Button fx:id="commentsManagementBtn" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToCommentsManagement">
                      <graphic>
                         <Label text="💬" />
                      </graphic>
@@ -147,7 +165,7 @@
          
          <!-- Bottom Menu Options -->
          <VBox spacing="5.0">
-            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#goToProfile">
                <graphic>
                   <Label text="👤" />
                </graphic>
@@ -155,7 +173,7 @@
             
             <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
-                  <Label text="🚪" />
+                  <Label text="" />
                </graphic>
             </Button>
          </VBox>
@@ -240,7 +258,7 @@
                      <TextField fx:id="txtSearch" promptText="Rechercher un produit..." HBox.hgrow="ALWAYS" />
                      <Button fx:id="btnSearchh" mnemonicParsing="false" onAction="#searchProducts" style="-fx-background-color: #6200EE; -fx-text-fill: white;" text="Rechercher"/>
                      <ComboBox fx:id="filterClubComboBox" prefWidth="200.0" promptText="Filtrer par club" />
-                     <Button fx:id="btnAddProduct" mnemonicParsing="false" onAction="#showAddProductDialog" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4;" text="+ Ajouter un Produit">
+                     <Button fx:id="btnManageCommands" mnemonicParsing="false" onAction="#goToCommandManagement" style="-fx-background-color: #6200EE; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 4;" text="Gestion des Commandes">
                         <padding>
                            <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
                         </padding>

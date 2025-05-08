@@ -2,8 +2,12 @@ package com.esprit.controllers;
 
 import com.esprit.ProduitApp;
 import com.esprit.models.Club;
+import com.esprit.models.Commande;
+import com.esprit.models.Orderdetails;
 import com.esprit.models.Produit;
+import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.ClubService;
+import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
 import com.esprit.utils.AlertUtilsSirine;
 import com.esprit.MainApp;
@@ -35,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +58,7 @@ public class ProduitViewController implements Initializable {
     @FXML private Button btnAdmin;
     @FXML private Button btnAddProduct;
     @FXML private HBox paginationContainer; // Added for pagination
+    @FXML private Label cartItemCount;
     
     // Navbar components
     @FXML private StackPane userProfileContainer;
@@ -80,11 +86,18 @@ public class ProduitViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setupClubFilter();
-        loadAllProduits();
-        
         // Get current user from session
         currentUser = SessionManager.getInstance().getCurrentUser();
+        
+        // Show Add Product button only for PRESIDENT_CLUB role
+        if (currentUser != null && "PRESIDENT_CLUB".equals(currentUser.getRole())) {
+            btnAddProduct.setVisible(true);
+        } else {
+            btnAddProduct.setVisible(false);
+        }
+        
+        setupClubFilter();
+        loadAllProduits();
         
         if (currentUser != null && userNameLabel != null) {
             // Set user name
@@ -126,6 +139,9 @@ public class ProduitViewController implements Initializable {
             clubsDropdown.setVisible(false);
             clubsDropdown.setManaged(false);
         }
+        
+        // Update cart badge count
+        updateCartBadge();
     }
     
     private void loadDefaultProfilePic() {
@@ -142,19 +158,43 @@ public class ProduitViewController implements Initializable {
     // Navigation Methods for the Navbar
     
     @FXML
-    private void navigateToHome() throws IOException {
+    public void navigateToHome() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        Stage stage = (Stage) productContainer.getScene().getWindow();
+        stage.setScene(new Scene(root));
     }
     
     @FXML
-    private void navigateToClubPolls() throws IOException {
+    public void navigateToPolls() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        Stage stage = (Stage) productContainer.getScene().getWindow();
+        stage.setScene(new Scene(root));
+    }
+    
+    @FXML
+    public void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) productContainer.getScene().getWindow();
+        stage.setScene(new Scene(root));
+    }
+    
+    @FXML
+    public void navigateToEvents() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) productContainer.getScene().getWindow();
+        stage.setScene(new Scene(root));
+    }
+    
+    @FXML
+    public void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) productContainer.getScene().getWindow();
+        stage.setScene(new Scene(root));
     }
     
     @FXML
@@ -174,34 +214,10 @@ public class ProduitViewController implements Initializable {
     }
     
     @FXML
-    private void navigateToClubs() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Clubs.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) clubsContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
-    }
-    
-    @FXML
     private void navigateToMyClub() throws IOException {
         // This would navigate to the user's club page
         // For now, just navigate to clubs
         navigateToClubs();
-    }
-    
-    @FXML
-    private void navigateToEvents() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
-    }
-    
-    @FXML
-    private void navigateToCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -555,10 +571,10 @@ public class ProduitViewController implements Initializable {
         paginationContainer.setManaged(true);
 
         // Previous button
-        Button prevButton = new Button("←");
+        Button prevButton = new Button("«");
         prevButton.setStyle(currentPage == 1 ?
-                "-fx-background-color: #E0E0E0; -fx-text-fill: #999999;" :
-                "-fx-background-color: #6200EE; -fx-text-fill: white;");
+                "-fx-background-color: #E0E0E0; -fx-text-fill: #999999; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-font-weight: bold;" :
+                "-fx-background-color: #6200EE; -fx-text-fill: white; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-font-weight: bold;");
         prevButton.setDisable(currentPage == 1);
         prevButton.setOnAction(e -> {
             if (currentPage > 1) {
@@ -576,9 +592,9 @@ public class ProduitViewController implements Initializable {
         for (int i = startPage; i <= endPage; i++) {
             Button pageButton = new Button(String.valueOf(i));
             if (i == currentPage) {
-                pageButton.setStyle("-fx-font-weight: bold; -fx-background-color: #6200EE; -fx-text-fill: white;");
+                pageButton.setStyle("-fx-font-weight: bold; -fx-background-color: #6200EE; -fx-text-fill: white; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36;");
             } else {
-                pageButton.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #333333;");
+                pageButton.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #333333; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36;");
             }
 
             final int pageNum = i;
@@ -590,10 +606,10 @@ public class ProduitViewController implements Initializable {
         }
 
         // Next button
-        Button nextButton = new Button("→");
+        Button nextButton = new Button("»");
         nextButton.setStyle(currentPage == totalPages ?
-                "-fx-background-color: #E0E0E0; -fx-text-fill: #999999;" :
-                "-fx-background-color: #6200EE; -fx-text-fill: white;");
+                "-fx-background-color: #E0E0E0; -fx-text-fill: #999999; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-font-weight: bold;" :
+                "-fx-background-color: #6200EE; -fx-text-fill: white; -fx-background-radius: 50; -fx-min-width: 36; -fx-min-height: 36; -fx-max-width: 36; -fx-max-height: 36; -fx-font-weight: bold;");
         nextButton.setDisable(currentPage == totalPages);
         nextButton.setOnAction(e -> {
             if (currentPage < totalPages) {
@@ -605,8 +621,8 @@ public class ProduitViewController implements Initializable {
         paginationContainer.getChildren().add(nextButton);
 
         // Add page count information
-        Label pageInfoLabel = new Label(String.format("Page %d sur %d", currentPage, totalPages));
-        pageInfoLabel.setStyle("-fx-text-fill: #6c757d; -fx-padding: 5 0 0 10;");
+        Label pageInfoLabel = new Label(String.format("Page %d of %d", currentPage, totalPages));
+        pageInfoLabel.setStyle("-fx-text-fill: #6c757d; -fx-padding: 0 0 0 10;");
         paginationContainer.getChildren().add(pageInfoLabel);
     }
 
@@ -624,6 +640,23 @@ public class ProduitViewController implements Initializable {
         Button btnDetails = (Button) cardNode.lookup("#btnDetails");
         Button btnAddToCart = (Button) cardNode.lookup("#btnAddToCart");
 
+        // Style the details button
+        String detailsStyle = "-fx-background-color: #03DAC5; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-background-radius: 20; -fx-padding: 8 15; -fx-cursor: hand;";
+        btnDetails.setStyle(detailsStyle);
+        
+        // Style the add to cart button
+        String cartStyle = "-fx-background-color: #018786; -fx-text-fill: white; -fx-font-weight: bold; " +
+                          "-fx-background-radius: 20; -fx-padding: 8 15; -fx-cursor: hand;";
+        btnAddToCart.setStyle(cartStyle);
+
+        // Add hover effects
+        btnDetails.setOnMouseEntered(e -> btnDetails.setStyle(detailsStyle + "-fx-background-color: #018786;"));
+        btnDetails.setOnMouseExited(e -> btnDetails.setStyle(detailsStyle));
+        
+        btnAddToCart.setOnMouseEntered(e -> btnAddToCart.setStyle(cartStyle + "-fx-background-color: #01635E;"));
+        btnAddToCart.setOnMouseExited(e -> btnAddToCart.setStyle(cartStyle));
+
         // Configurer les données
         lblNom.setText(produit.getNomProd());
 
@@ -640,7 +673,6 @@ public class ProduitViewController implements Initializable {
         lblPrix.setText(String.format("%.2f €", produit.getPrix()));
         lblQuantity.setText("Stock: " + produit.getQuantity());
 
-        // Safely handle null club or null club name
         if (produit.getClub() != null && produit.getClub().getNomC() != null) {
             lblClub.setText(produit.getClub().getNomC().toUpperCase());
         } else {
@@ -676,14 +708,11 @@ public class ProduitViewController implements Initializable {
             // Leave the image as null if loading fails
         }
 
-        // Configurer les boutons d'action
+        // Configure button actions
         btnDetails.setOnAction(e -> viewProductDetails(produit));
         btnAddToCart.setOnAction(e -> addToCart(produit));
     }
 
-    /**
-     * Affiche les détails d'un produit
-     */
     private void viewProductDetails(Produit produit) {
         try {
             // Stocker l'ID du produit sélectionné dans un singleton ou une classe d'état
@@ -697,13 +726,140 @@ public class ProduitViewController implements Initializable {
         }
     }
 
-    /**
-     * Ajoute un produit au panier
-     */
     private void addToCart(Produit produit) {
-        // TODO: Implémenter la gestion du panier
-        AlertUtilsSirine.showInfo("Panier", "Produit ajouté",
-                "Le produit \"" + produit.getNomProd() + "\" a été ajouté au panier.");
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            AlertUtilsSirine.showError("Authentication Required", "Please log in", "You must be logged in to add items to your cart.");
+            return;
+        }
+
+        try {
+            // Create order detail for the cart
+            CommandeService commandeService = new CommandeService();
+            
+            // Check if there's an existing cart (order with EN_COURS status)
+            Commande existingCart = commandeService.getCartForUser(currentUser.getId());
+            
+            if (existingCart == null) {
+                // Create a new shopping cart
+                existingCart = new Commande();
+                existingCart.setDateComm(LocalDate.now());
+                existingCart.setStatut(StatutCommandeEnum.EN_COURS);
+                existingCart.setUser(currentUser);
+                commandeService.createCommande(existingCart);
+            }
+            
+            // Check if product is already in cart
+            boolean productFound = false;
+            for (Orderdetails detail : existingCart.getOrderDetails()) {
+                if (detail.getProduit().getId() == produit.getId()) {
+                    // Product already in cart, increase quantity
+                    detail.setQuantity(detail.getQuantity() + 1);
+                    detail.calculateTotal();
+                    commandeService.updateCommande(existingCart);
+                    productFound = true;
+                    break;
+                }
+            }
+            
+            if (!productFound) {
+                // Add new product to cart
+                Orderdetails detail = new Orderdetails();
+                detail.setProduit(produit);
+                detail.setQuantity(1);
+                detail.setPrice((int) produit.getPrix());
+                detail.calculateTotal();
+                
+                existingCart.getOrderDetails().add(detail);
+                commandeService.updateCommande(existingCart);
+            }
+            
+            // Update cart count badge
+            updateCartBadge();
+            
+            // Show success message with animation
+            showAddToCartSuccess();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtilsSirine.showError("Error", "Failed to add to cart", "There was an error adding the product to your cart: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Navigate to the cart/order view
+     */
+    @FXML
+    public void navigateToCart() {
+        User currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            AlertUtilsSirine.showError("Authentication Required", "Please log in", "You must be logged in to view your cart.");
+            return;
+        }
+        
+        try {
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/CommandeView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) productContainer.getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtilsSirine.showError("Error", "Navigation Failed", "Failed to navigate to cart: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Update the cart badge count
+     */
+    private void updateCartBadge() {
+        try {
+            User currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null || cartItemCount == null) return;
+            
+            CommandeService commandeService = new CommandeService();
+            Commande cart = commandeService.getCartForUser(currentUser.getId());
+            
+            if (cart == null) {
+                cartItemCount.setText("0");
+                cartItemCount.setVisible(false);
+                return;
+            }
+            
+            int itemCount = cart.getOrderDetails().size();
+            cartItemCount.setText(String.valueOf(itemCount));
+            cartItemCount.setVisible(itemCount > 0);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Show a nice animation when product is added to cart
+     */
+    private void showAddToCartSuccess() {
+        Alert success = new Alert(Alert.AlertType.INFORMATION);
+        success.setTitle("Added to Cart");
+        success.setHeaderText("Product added to your cart!");
+        success.setContentText("You can view your cart by clicking the cart icon in the top right corner.");
+        
+        DialogPane successPane = success.getDialogPane();
+        successPane.setStyle("-fx-background-color: white;");
+        
+        Button okBtn = (Button) success.getDialogPane().lookupButton(ButtonType.OK);
+        okBtn.setStyle("-fx-background-color: #018786; -fx-text-fill: white; -fx-font-weight: bold;");
+        
+        success.show();
+        
+        // Auto-close after 1.5 seconds
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500);
+                Platform.runLater(() -> success.close());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**

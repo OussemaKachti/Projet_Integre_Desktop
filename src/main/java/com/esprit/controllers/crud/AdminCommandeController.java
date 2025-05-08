@@ -18,21 +18,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 
-
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
@@ -79,13 +78,25 @@ public class AdminCommandeController implements Initializable {
     @FXML
     private Pane toastContainer;
 
-    // New components for popular products
+    // Navigation buttons
     @FXML
-    private VBox popularProductsCard;
+    private Button userManagementBtn;
     @FXML
-    private StackPane chartContainer;
-    private BarChart<String, Number> barChart;
-    private boolean isChartVisible = false;
+    private Button clubManagementBtn;
+    @FXML
+    private Button eventManagementBtn;
+    @FXML
+    private Button productOrdersBtn;
+    @FXML
+    private Button competitionBtn;
+    @FXML
+    private Button surveyManagementBtn;
+    @FXML
+    private Button profileBtn;
+    @FXML
+    private Button logoutBtn;
+    @FXML
+    private Label adminNameLabel;
 
     // Service
     private final CommandeService commandeService;
@@ -96,7 +107,7 @@ public class AdminCommandeController implements Initializable {
 
     // Pagination
     private int currentPage = 1;
-    private static final int ITEMS_PER_PAGE = 2;
+    private static final int ITEMS_PER_PAGE = 5;
     private int totalPages = 1;
 
     public AdminCommandeController() {
@@ -117,7 +128,8 @@ public class AdminCommandeController implements Initializable {
             loadAllCommandes();
             calculateStats();
             setupPagination();
-            setupPopularProductsCard(); // Added to set up the popular products card
+            setupNavigationEvents();
+            setupAdminInfo();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,7 +171,8 @@ public class AdminCommandeController implements Initializable {
 
         colUser.setCellValueFactory(cellData -> {
             if (cellData.getValue().getUser() != null) {
-                return new javafx.beans.property.SimpleStringProperty(cellData.getValue().getUser().getFirstName());
+                return new javafx.beans.property.SimpleStringProperty(
+                        cellData.getValue().getUser().getFirstName() + " " + cellData.getValue().getUser().getLastName());
             }
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
@@ -191,7 +204,7 @@ public class AdminCommandeController implements Initializable {
                 } else {
                     setText(status);
                     switch (status) {
-                        case "EN_ATTENTE":
+                        case "EN_COURS":
                             setStyle("-fx-text-fill: #FF9800; -fx-font-weight: bold;");
                             break;
                         case "CONFIRMEE":
@@ -219,7 +232,6 @@ public class AdminCommandeController implements Initializable {
             private final HBox container = new HBox(5);
 
             {
-                // Style buttons
                 validateButton.setStyle(
                         "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3;");
                 validateButton.setMinWidth(80);
@@ -228,7 +240,6 @@ public class AdminCommandeController implements Initializable {
                         "-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3;");
                 cancelButton.setMinWidth(80);
 
-                // Add hover effects
                 validateButton.setOnMouseEntered(e -> validateButton.setStyle(
                         "-fx-background-color: #388E3C; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3;"));
                 validateButton.setOnMouseExited(e -> validateButton.setStyle(
@@ -239,7 +250,6 @@ public class AdminCommandeController implements Initializable {
                 cancelButton.setOnMouseExited(e -> cancelButton.setStyle(
                         "-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 3;"));
 
-                // Set up actions
                 validateButton.setOnAction(event -> {
                     Commande commande = getTableView().getItems().get(getIndex());
                     validateCommande(commande);
@@ -250,7 +260,6 @@ public class AdminCommandeController implements Initializable {
                     cancelCommande(commande);
                 });
 
-                // Set up container
                 container.setAlignment(Pos.CENTER);
                 container.getChildren().addAll(validateButton, cancelButton);
             }
@@ -280,7 +289,9 @@ public class AdminCommandeController implements Initializable {
                         return true;
                     }
                     String lowerCaseFilter = newValue.toLowerCase();
-                    return (commande.getUser() != null && commande.getUser().getFirstName().toLowerCase().contains(lowerCaseFilter)) ||
+                    return (commande.getUser() != null && 
+                            (commande.getUser().getFirstName().toLowerCase().contains(lowerCaseFilter) ||
+                             commande.getUser().getLastName().toLowerCase().contains(lowerCaseFilter))) ||
                             commande.getStatut().name().toLowerCase().contains(lowerCaseFilter) ||
                             String.valueOf(commande.getId()).contains(newValue);
                 });
@@ -299,7 +310,6 @@ public class AdminCommandeController implements Initializable {
             filterStatusComboBox.setValue("Tous les statuts");
 
             filterStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                filterStatusComboBox.setDisable(true);
                 String selectedStatus = "Tous les statuts".equals(newValue) ? "all" : newValue;
 
                 filteredList.setPredicate(commande -> {
@@ -308,7 +318,9 @@ public class AdminCommandeController implements Initializable {
 
                     String searchText = txtSearch.getText();
                     boolean matchesSearch = searchText == null || searchText.isEmpty() ||
-                            (commande.getUser() != null && commande.getUser().getFirstName().toLowerCase().contains(searchText.toLowerCase())) ||
+                            (commande.getUser() != null && 
+                             (commande.getUser().getFirstName().toLowerCase().contains(searchText.toLowerCase()) ||
+                              commande.getUser().getLastName().toLowerCase().contains(searchText.toLowerCase()))) ||
                             commande.getStatut().name().toLowerCase().contains(searchText.toLowerCase()) ||
                             String.valueOf(commande.getId()).contains(searchText);
 
@@ -317,23 +329,12 @@ public class AdminCommandeController implements Initializable {
 
                 currentPage = 1;
                 updatePagination();
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(300);
-                        Platform.runLater(() -> filterStatusComboBox.setDisable(false));
-                    } catch (InterruptedException e) {
-                        Platform.runLater(() -> filterStatusComboBox.setDisable(false));
-                    }
-                }).start();
-
-                showToast("Filtré par " + ("all".equals(selectedStatus) ? "tous les statuts" : "statut: " + selectedStatus), "info");
             });
         }
     }
 
     @FXML
-    private void searchProducts() {
+    private void searchCommandes() {
         setupFilters();
     }
 
@@ -346,28 +347,15 @@ public class AdminCommandeController implements Initializable {
             commandeList.addAll(commandes);
 
             filteredList = new FilteredList<>(commandeList);
-            tableView.setItems(filteredList);
-            if (commandeList.isEmpty()) {
-                if (noCommandesContainer != null) {
-                    noCommandesContainer.setVisible(true);
-                }
-                if (tableView != null) {
-                    tableView.setVisible(false);
-                }
-                if (paginationContainer != null) {
-                    paginationContainer.setVisible(false);
-                }
-            } else {
-                if (noCommandesContainer != null) {
-                    noCommandesContainer.setVisible(false);
-                }
-                if (tableView != null) {
-                    tableView.setVisible(true);
-                }
-                if (paginationContainer != null) {
-                    paginationContainer.setVisible(true);
-                }
 
+            if (commandeList.isEmpty()) {
+                noCommandesContainer.setVisible(true);
+                tableView.setVisible(false);
+                paginationContainer.setVisible(false);
+            } else {
+                noCommandesContainer.setVisible(false);
+                tableView.setVisible(true);
+                paginationContainer.setVisible(true);
                 updatePagination();
             }
         } catch (Exception e) {
@@ -376,36 +364,120 @@ public class AdminCommandeController implements Initializable {
         }
     }
 
-    private void updatePagination() {
-        if (paginationContainer != null) {
-            int itemCount = filteredList.size();
-            totalPages = (itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+    private void validateCommande(Commande commande) {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Valider la Commande");
+        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir valider cette commande ?");
+        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
 
-            if (totalPages < 1) {
-                totalPages = 1;
+        if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
+            try {
+                commandeService.validerCommande(commande.getId());
+                
+                String userEmail = commande.getUser().getEmail();
+                if (userEmail != null && !userEmail.isEmpty()) {
+                    try {
+                        sendEmail(userEmail, commande);
+                        showToast("Email envoyé avec succès à " + userEmail, "success");
+                    } catch (MessagingException e) {
+                        showToast("Échec de l'envoi de l'email : " + e.getMessage(), "error");
+                    }
+                }
+
+                showToast("Commande validée avec succès", "success");
+                loadAllCommandes();
+                calculateStats();
+            } catch (Exception e) {
+                showToast("Erreur lors de la validation : " + e.getMessage(), "error");
+                e.printStackTrace();
             }
-
-            if (currentPage > totalPages) {
-                currentPage = totalPages;
-            }
-
-            loadCurrentPage();
-            setupPagination();
         }
     }
 
-    private void loadCurrentPage() {
-        int fromIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredList.size());
+    private void cancelCommande(Commande commande) {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Annuler la Commande");
+        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir annuler cette commande ?");
+        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
 
-        ObservableList<Commande> currentPageList;
-        if (fromIndex < toIndex) {
-            currentPageList = FXCollections.observableArrayList(filteredList.subList(fromIndex, toIndex));
-        } else {
-            currentPageList = FXCollections.observableArrayList();
+        if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
+            try {
+                commandeService.supprimerCommande(commande.getId());
+                showToast("Commande annulée avec succès", "success");
+                loadAllCommandes();
+                calculateStats();
+            } catch (Exception e) {
+                showToast("Erreur lors de l'annulation : " + e.getMessage(), "error");
+                e.printStackTrace();
+            }
         }
+    }
 
-        tableView.setItems(currentPageList);
+    private void sendEmail(String userEmail, Commande commande) throws MessagingException {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.debug", "true");
+
+        final String senderEmail = "wahbisirine3@gmail.com";
+        final String senderPassword = "rmiv tndu ffjc deob";
+
+        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+            @Override
+            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new jakarta.mail.PasswordAuthentication(senderEmail, senderPassword);
+            }
+        });
+
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(senderEmail));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
+        message.setSubject("Confirmation de votre commande #" + commande.getId());
+        message.setText("Bonjour " + commande.getUser().getFirstName() + ",\n\n" +
+                "Votre commande #" + commande.getId() + " a été validée avec succès.\n" +
+                "Montant total : " + String.format("%.2f €", commande.getTotal()) + "\n" +
+                "Date de commande : " + commande.getDateComm() + "\n\n" +
+                "Merci de votre confiance !\n" +
+                "L'équipe de gestion");
+
+        Transport.send(message);
+    }
+
+    private void calculateStats() {
+        try {
+            List<Commande> allCommandes = commandeService.getAllCommandes(null);
+
+            int totalCommandes = allCommandes.size();
+            totalCommandesLabel.setText(String.valueOf(totalCommandes));
+
+            int pendingCommandes = 0;
+            int completedCommandes = 0;
+            int cancelledCommandes = 0;
+
+            for (Commande commande : allCommandes) {
+                switch (commande.getStatut()) {
+                    case EN_COURS:
+                        pendingCommandes++;
+                        break;
+                    case CONFIRMEE:
+                        completedCommandes++;
+                        break;
+                    case ANNULEE:
+                        cancelledCommandes++;
+                        break;
+                }
+            }
+
+            pendingCommandesLabel.setText(String.valueOf(pendingCommandes));
+            completedCommandesLabel.setText(String.valueOf(completedCommandes));
+            cancelledCommandesLabel.setText(String.valueOf(cancelledCommandes));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Erreur lors du calcul des statistiques : " + e.getMessage());
+        }
     }
 
     private void setupPagination() {
@@ -476,232 +548,197 @@ public class AdminCommandeController implements Initializable {
         paginationContainer.getChildren().add(pageInfoLabel);
     }
 
-    private void validateCommande(Commande commande) {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Valider la Commande");
-        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir valider cette commande ?");
-        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
+    private void loadCurrentPage() {
+        int fromIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ITEMS_PER_PAGE, filteredList.size());
 
-        if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
-            try {
-                // Validate the command
-                commandeService.validerCommande(commande.getId());
+        ObservableList<Commande> currentPageList;
+        if (fromIndex < toIndex) {
+            currentPageList = FXCollections.observableArrayList(filteredList.subList(fromIndex, toIndex));
+        } else {
+            currentPageList = FXCollections.observableArrayList();
+        }
 
-                // Debug the user object
-                System.out.println("Commande ID: " + commande.getId());
-                System.out.println("User ID in Commande: " + commande.getId());
-                System.out.println("User object: " + (commande.getUser() != null ? commande.getUser().toString() : "null"));
+        tableView.setItems(currentPageList);
+    }
 
-                // Send email to the user
-                String userEmail = commande.getUser().getEmail(); // Assuming User class has getEmail()
-                System.out.println("User email: " + userEmail); // Debug log
-                if (userEmail != null && !userEmail.isEmpty()) {
-                    try {
-                        sendEmail(userEmail, commande);
-                        showToast("Email envoyé avec succès à " + userEmail, "success");
-                    } catch (MessagingException e) {
-                        showToast("Échec de l'envoi de l'email : " + e.getMessage(), "error");
-                    }
-                } else {
-                    showToast("Utilisateur n'a pas d'email défini", "error");
-                }
+    private void updatePagination() {
+        if (paginationContainer != null) {
+            int itemCount = filteredList.size();
+            totalPages = (itemCount + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
 
-                showToast("Commande validée avec succès", "success");
-                loadAllCommandes();
-                calculateStats();
-            } catch (Exception e) {
-                showToast("Erreur lors de la validation : " + e.getMessage(), "error");
-                e.printStackTrace();
+            if (totalPages < 1) {
+                totalPages = 1;
             }
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            loadCurrentPage();
+            setupPagination();
         }
     }
 
-
-    private void sendEmail(String userEmail, Commande commande) throws MessagingException {
-        // Email configuration for Gmail SMTP
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.debug", "true");
-
-        // Replace with your Gmail email and App Password
-        final String senderEmail = "wahbisirine3@gmail.com"; // Replace with your Gmail address
-        final String senderPassword = "rmiv tndu ffjc deob"; // Replace with your Gmail App Password
-
-        // Create a session with authentication
-        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
-            @Override
-            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new jakarta.mail.PasswordAuthentication(senderEmail, senderPassword); // Pass String directly
-            }
-        });
-
-        // Create the email message
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(senderEmail));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
-        message.setSubject("Confirmation de votre commande #" + commande.getId());
-        message.setText("Bonjour " + commande.getUser().getFirstName() + ",\n\n" +
-                "Votre commande #" + commande.getId() + " a été validée avec succès.\n" +
-                "Montant total : " + String.format("%.2f €", commande.getTotal()) + "\n" +
-                "Date de commande : " + commande.getDateComm() + "\n\n" +
-                "Merci de votre confiance !\n" +
-                "L'équipe de gestion");
-
-        // Send the email
-        Transport.send(message);
+    private void setupNavigationEvents() {
+        userManagementBtn.setOnAction(e -> goToAdminDashboard());
+        clubManagementBtn.setOnAction(e -> goToClubManagement());
+        eventManagementBtn.setOnAction(e -> goToEventManagement());
+        competitionBtn.setOnAction(e -> goToCompetition());
+        surveyManagementBtn.setOnAction(e -> goToSurveyManagement());
+        profileBtn.setOnAction(e -> goToProfile());
+        logoutBtn.setOnAction(e -> handleLogout());
     }
 
-    private void cancelCommande(Commande commande) {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Annuler la Commande");
-        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir annuler cette commande ?");
-        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
-
-        if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
-            try {
-                // You might need to add a method in CommandeService to cancel orders
-                // For now, we'll use the supprimerCommande method
-                commandeService.supprimerCommande(commande.getId());
-                showToast("Commande annulée avec succès", "success");
-                loadAllCommandes();
-                calculateStats();
-            } catch (Exception e) {
-                showToast("Erreur lors de l'annulation : " + e.getMessage(), "error");
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void calculateStats() {
-        try {
-            List<Commande> allCommandes = commandeService.getAllCommandes(null);
-
-            int totalCommandes = allCommandes.size();
-            totalCommandesLabel.setText(String.valueOf(totalCommandes));
-
-            int pendingCommandes = 0;
-            int completedCommandes = 0;
-
-            for (Commande commande : allCommandes) {
-                switch (commande.getStatut()) {
-                    case EN_COURS:
-                        pendingCommandes++;
-                        break;
-                    case CONFIRMEE:
-                        completedCommandes++;
-                        break;
-                }
-            }
-
-            pendingCommandesLabel.setText(String.valueOf(pendingCommandes));
-            completedCommandesLabel.setText(String.valueOf(completedCommandes));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erreur lors du calcul des statistiques : " + e.getMessage());
-        }
-    }
-
-    private void setupPopularProductsCard() {
-        // Initialize the bar chart
-        CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Produit");
-        yAxis.setLabel("Quantité Vendue");
-        barChart = new BarChart<>(xAxis, yAxis);
-        barChart.setTitle("Produits les plus populaires");
-        barChart.setPrefHeight(300);
-        barChart.setPrefWidth(600);
-
-        // Add the chart to the chartContainer
-        chartContainer.getChildren().add(barChart);
-
-        // Set up the click handler for the popular products card
-        popularProductsCard.setOnMouseClicked(event -> {
-            if (!isChartVisible) {
-                // Load the data and show the chart
-                loadPopularProductsChart();
-                chartContainer.setVisible(true);
-                chartContainer.setManaged(true);
-                isChartVisible = true;
-            } else {
-                // Hide the chart
-                chartContainer.setVisible(false);
-                chartContainer.setManaged(false);
-                isChartVisible = false;
-            }
-        });
-    }
-
-    private void loadPopularProductsChart() {
-        try {
-            // Clear any existing data in the chart
-            barChart.getData().clear();
-
-            // Fetch the most popular products
-            List<Object[]> topProducts = commandeService.getTopProduits();
-
-            // Create a series for the chart
-            XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName("Ventes");
-
-            // Add data to the series
-            for (Object[] product : topProducts) {
-                String productName = (String) product[0];
-                int totalSales = (int) product[1];
-                series.getData().add(new XYChart.Data<>(productName, totalSales));
-            }
-
-            // Add the series to the chart
-            barChart.getData().add(series);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showToast("Erreur lors du chargement des produits populaires: " + e.getMessage(), "error");
+    private void setupAdminInfo() {
+        if (adminNameLabel != null) {
+            adminNameLabel.setText("Admin User");
         }
     }
 
     private void showToast(String message, String type) {
-        Label toastLabel = (Label) ((HBox) toastContainer.getChildren().get(0)).getChildren().get(0);
-        HBox toastHBox = (HBox) toastContainer.getChildren().get(0);
-
-        switch (type) {
-            case "error":
-                toastHBox.setStyle("-fx-background-color: #dc3545; -fx-background-radius: 4px;");
-                break;
-            case "info":
-                toastHBox.setStyle("-fx-background-color: #007bff; -fx-background-radius: 4px;");
-                break;
-            default:
-                toastHBox.setStyle("-fx-background-color: #28a745; -fx-background-radius: 4px;");
-                break;
+        if (toastContainer != null) {
+            toastContainer.setVisible(true);
+            HBox toast = (HBox) toastContainer.getChildren().get(0);
+            
+            // Set background color based on type
+            String backgroundColor = type.equals("error") ? "#dc3545" : "#28a745";
+            toast.setStyle("-fx-background-color: " + backgroundColor + "; -fx-background-radius: 4px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 10);");
+            
+            // Set message
+            Label messageLabel = (Label) toast.getChildren().get(0);
+            messageLabel.setText(message);
+            
+            // Create fade transition
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), toastContainer);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toastContainer);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setDelay(Duration.seconds(2));
+            
+            fadeIn.play();
+            fadeOut.play();
+            
+            fadeOut.setOnFinished(e -> toastContainer.setVisible(false));
         }
+    }
 
-        toastLabel.setText(message);
-        toastContainer.setVisible(true);
+    // Navigation methods
+    @FXML
+    private void goToAdminDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin/AdminDashboard.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) userManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
 
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), toastContainer);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-        fadeIn.play();
+    @FXML
+    private void goToClubManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/club/AdminClubView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) clubManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
 
-        new Thread(() -> {
+    @FXML
+    private void goToEventManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/event/AdminEventView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) eventManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
+
+    @FXML
+    private void goToCompetition() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/competition/AdminCompetitionView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) competitionBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
+
+    @FXML
+    private void goToSurveyManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/survey/AdminSurveyView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) surveyManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
+
+    @FXML
+    private void goToProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/profile/AdminProfileView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) profileBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation", "error");
+        }
+    }
+
+    private void handleLogout() {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Déconnexion");
+        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir vous déconnecter ?");
+        confirmDialog.setContentText("Toutes les modifications non enregistrées seront perdues.");
+
+        if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
             try {
-                Thread.sleep(3000);
-                Platform.runLater(() -> {
-                    FadeTransition fadeOut = new FadeTransition(Duration.millis(500), toastContainer);
-                    fadeOut.setFromValue(1);
-                    fadeOut.setToValue(0);
-                    fadeOut.setOnFinished(e -> toastContainer.setVisible(false));
-                    fadeOut.play();
-                });
-            } catch (InterruptedException e) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+                Parent root = loader.load();
+                Stage stage = (Stage) logoutBtn.getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.setMaximized(false);
+                stage.setWidth(900);
+                stage.setHeight(600);
+                stage.centerOnScreen();
+                stage.show();
+            } catch (IOException e) {
                 e.printStackTrace();
-                Platform.runLater(() -> toastContainer.setVisible(false));
+                showToast("Erreur lors de la déconnexion", "error");
             }
-        }).start();
+        }
     }
 }

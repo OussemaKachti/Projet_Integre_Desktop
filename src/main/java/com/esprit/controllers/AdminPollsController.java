@@ -1089,4 +1089,23 @@ public class AdminPollsController implements Initializable {
                     .println("Erreur lors de la configuration des informations de l'administrateur: " + e.getMessage());
         }
     }
+
+    private void goToProductManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-style.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des produits: " + e.getMessage(), "error");
+        }
+    }
 }

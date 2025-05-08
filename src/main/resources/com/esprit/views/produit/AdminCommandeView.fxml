@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminCommandeController">
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
+            <children>
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="Gestion des Commandes">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Label>
+            </children>
+        </HBox>
+    </top>
+    
+    <left>
+        <VBox prefWidth="250.0" spacing="10.0" style="-fx-background-color: white;">
+            <padding>
+                <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+            </padding>
+            
+            <!-- Navigation Buttons -->
+            <Button fx:id="userManagementBtn" onAction="#goToAdminDashboard" text="Gestion des Utilisateurs" maxWidth="Infinity" />
+            <Button fx:id="clubManagementBtn" onAction="#goToClubManagement" text="Gestion des Clubs" maxWidth="Infinity" />
+            <Button fx:id="eventManagementBtn" onAction="#goToEventManagement" text="Gestion des Événements" maxWidth="Infinity" />
+            <Button fx:id="productOrdersBtn" text="Gestion des Produits" maxWidth="Infinity" />
+            <Button fx:id="competitionBtn" onAction="#goToCompetition" text="Compétitions" maxWidth="Infinity" />
+            <Button fx:id="surveyManagementBtn" onAction="#goToSurveyManagement" text="Sondages" maxWidth="Infinity" />
+            <Button fx:id="profileBtn" onAction="#goToProfile" text="Mon Profil" maxWidth="Infinity" />
+            <Button fx:id="logoutBtn" onAction="#handleLogout" text="Déconnexion" maxWidth="Infinity" />
+        </VBox>
+    </left>
+    
+    <center>
+        <VBox spacing="20.0">
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+            </padding>
+            
+            <!-- Statistics Cards -->
+            <HBox spacing="20.0">
+                <VBox styleClass="stat-card" alignment="CENTER">
+                    <Label fx:id="totalCommandesLabel" text="0" styleClass="stat-number"/>
+                    <Label text="Total Commandes" styleClass="stat-label"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" alignment="CENTER">
+                    <Label fx:id="pendingCommandesLabel" text="0" styleClass="stat-number"/>
+                    <Label text="Commandes en Attente" styleClass="stat-label"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" alignment="CENTER">
+                    <Label fx:id="completedCommandesLabel" text="0" styleClass="stat-number"/>
+                    <Label text="Commandes Complétées" styleClass="stat-label"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" alignment="CENTER">
+                    <Label fx:id="cancelledCommandesLabel" text="0" styleClass="stat-number"/>
+                    <Label text="Commandes Annulées" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+            
+            <!-- Search and Filter -->
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <TextField fx:id="txtSearch" promptText="Rechercher une commande..." HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="filterStatusComboBox" promptText="Filtrer par statut"/>
+            </HBox>
+            
+            <!-- Table -->
+            <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID"/>
+                    <TableColumn fx:id="colUser" text="Client"/>
+                    <TableColumn fx:id="colTotal" text="Total"/>
+                    <TableColumn fx:id="colStatus" text="Statut"/>
+                    <TableColumn fx:id="colDate" text="Date"/>
+                    <TableColumn fx:id="colActions" text="Actions"/>
+                </columns>
+            </TableView>
+            
+            <!-- Pagination -->
+            <HBox fx:id="paginationContainer" alignment="CENTER" spacing="5.0"/>
+            
+            <!-- Empty State -->
+            <VBox fx:id="noCommandesContainer" alignment="CENTER" visible="false" managed="false">
+                <Label text="Aucune commande trouvée"/>
+            </VBox>
+        </VBox>
+    </center>
+    
+    <!-- Toast Container -->
+    <Pane fx:id="toastContainer" visible="false">
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #28a745; -fx-background-radius: 4;">
+            <Label style="-fx-text-fill: white;" text="Message"/>
+        </HBox>
+    </Pane>
+</BorderPane> 

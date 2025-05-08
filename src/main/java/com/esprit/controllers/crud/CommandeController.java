@@ -3,8 +3,10 @@ package com.esprit.controllers.crud;
 import com.esprit.ProduitApp;
 import com.esprit.models.Commande;
 import com.esprit.models.Produit;
+import com.esprit.models.User;
 import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.CommandeService;
+import com.esprit.utils.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -38,9 +40,17 @@ public class CommandeController implements Initializable {
     private final CommandeService commandeService = new CommandeService();
     private Commande currentCommande;
     private boolean editMode = false;
+    private User currentUser;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Get current user from session
+        currentUser = SessionManager.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Non connecté", "Vous devez être connecté pour gérer les commandes.");
+            return;
+        }
+
         setupTable();
         setupButtons();
         setupComboBox();
@@ -107,10 +117,15 @@ public class CommandeController implements Initializable {
             return;
         }
 
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Non connecté", "Vous devez être connecté pour créer une commande.");
+            return;
+        }
+
         Commande cmd = new Commande();
         cmd.setDateComm(dateCommande.getValue());
         cmd.setStatut(StatutCommandeEnum.valueOf(cbStatut.getValue()));
-        // TODO : ajouter utilisateur et détails si nécessaire
+        cmd.setUser(currentUser); // Set the current user
 
         commandeService.createCommande(cmd);
         showAlert(Alert.AlertType.INFORMATION, "Succès", "Commande enregistrée", "La commande a été ajoutée avec succès.");
