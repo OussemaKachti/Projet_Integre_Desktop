@@ -178,9 +178,6 @@ public class SondageViewController implements Initializable {
     @FXML
     private Label userNameLabel;
 
-    @FXML
-    private VBox competitionDropdown;
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
@@ -2095,10 +2092,10 @@ public class SondageViewController implements Initializable {
     }
 
     @FXML
-    public void navigateToCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
 
@@ -2945,30 +2942,5 @@ public class SondageViewController implements Initializable {
             }
             return text.substring(0, maxLength - 3) + "...";
         }
-    }
-
-    @FXML
-    public void showCompetitionDropdown() {
-        if (competitionDropdown != null) {
-            competitionDropdown.setVisible(true);
-            competitionDropdown.setManaged(true);
-            competitionDropdown.toFront();
-        }
-    }
-
-    @FXML
-    public void hideCompetitionDropdown() {
-        if (competitionDropdown != null) {
-            competitionDropdown.setVisible(false);
-            competitionDropdown.setManaged(false);
-        }
-    }
-
-    @FXML
-    public void navigateToUserCompetition() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
     }
 }

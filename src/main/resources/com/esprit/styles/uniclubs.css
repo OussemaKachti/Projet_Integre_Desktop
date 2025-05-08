@@ -560,7 +560,9 @@
     -fx-background-radius: 4;
     -fx-padding: 4;
 }
-
+.submenu-button {
+    -fx-padding: 10 0 10 40;
+}
 .toast-container {
     -fx-background-color: #28a745;
     -fx-background-radius: 4;

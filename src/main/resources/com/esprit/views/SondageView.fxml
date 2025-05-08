@@ -57,23 +57,8 @@
                     <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
                     <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
                     
-                    <!-- Competition dropdown container -->
-                    <StackPane styleClass="nav-dropdown-container" onMouseExited="#hideCompetitionDropdown">
-                        <Button text="Competition" styleClass="nav-button" onMouseEntered="#showCompetitionDropdown"/>
-                        
-                        <!-- Competition Dropdown Menu - Initially hidden -->
-                        <VBox fx:id="competitionDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showCompetitionDropdown">
-                            <HBox styleClass="dropdown-item" onMouseClicked="#navigateToCompetition">
-                                <Label text="🏆" styleClass="dropdown-item-icon"/>
-                                <Label text="Competition Management" styleClass="dropdown-item-text"/>
-                            </HBox>
-                            <Separator styleClass="dropdown-divider"/>
-                            <HBox styleClass="dropdown-item" onMouseClicked="#navigateToUserCompetition">
-                                <Label text="👥" styleClass="dropdown-item-icon"/>
-                                <Label text="User Competition" styleClass="dropdown-item-text"/>
-                            </HBox>
-                        </VBox>
-                    </StackPane>
+                               <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>
+
                 </HBox>
                 
                 <HBox spacing="15" alignment="CENTER_RIGHT">

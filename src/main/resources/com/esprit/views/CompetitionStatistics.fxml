@@ -71,17 +71,41 @@
                         </graphic>
                     </Button>
 
-                    <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button, active" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
                         <graphic>
                             <Label text="🏆" />
                         </graphic>
                     </Button>
 
-                    <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
-                        <graphic>
-                            <Label text="📊" />
-                        </graphic>
-                    </Button>
+                    <!-- Replace the existing Survey button with this dropdown implementation -->
+                    <VBox fx:id="surveyContainer" spacing="2.0">
+                        <Button fx:id="surveyButton" onAction="#toggleSurveySubmenu" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                            <graphic>
+                                <Label text="📊" />
+                            </graphic>
+                        </Button>
+
+                        <!-- Submenu for Survey (initially hidden) -->
+                        <VBox fx:id="surveySubmenu" spacing="2.0" visible="false" managed="false">
+                            <Button fx:id="pollManagementButton" onAction="#showPollManagement" styleClass="sidebar-button, submenu-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                                <graphic>
+                                    <Label text="📋" />
+                                </graphic>
+                                <padding>
+                                    <Insets left="20.0" />
+                                </padding>
+                            </Button>
+
+                            <Button fx:id="commentsManagementButton" onAction="#showCommentsManagement" styleClass="sidebar-button, submenu-button" text="Comments Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                                <graphic>
+                                    <Label text="💬" />
+                                </graphic>
+                                <padding>
+                                    <Insets left="20.0" />
+                                </padding>
+                            </Button>
+                        </VBox>
+                    </VBox>
 
                     <VBox.margin>
                         <Insets bottom="20.0" />
