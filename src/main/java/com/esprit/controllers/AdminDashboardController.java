@@ -1360,11 +1360,21 @@ public class AdminDashboardController {
     
     @FXML
     public void showProductOrders() {
-        contentTitle.setText("Products & Orders");
-        setActiveButton(productOrdersButton);
-        
-        // Show placeholder for Products module
-        showModulePlaceholder("Products & Orders");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) productOrdersButton.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Navigation impossible", "Erreur lors de la navigation vers la gestion des produits: " + e.getMessage());
+        }
     }
     
     @FXML

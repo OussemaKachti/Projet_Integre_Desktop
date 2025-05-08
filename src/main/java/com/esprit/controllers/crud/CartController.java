@@ -10,6 +10,7 @@ import com.esprit.models.enums.StatutCommandeEnum;
 import com.esprit.services.CommandeService;
 import com.esprit.services.ProduitService;
 import com.esprit.utils.AlertUtilsSirine;
+import com.esprit.utils.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -196,21 +197,21 @@ public class CartController implements Initializable {
                 AlertUtilsSirine.showError("Erreur", "Panier vide", "Votre panier est vide.");
                 return;
             }
-            UserService userService = UserService.getInstance();
-            User staticUser = userService.getById(1);  // make sure this ID exists in your DB
 
-            if (staticUser == null) {
-                AlertUtilsSirine.showError("Erreur", "Utilisateur non trouvé", "L'utilisateur statique n'existe pas.");
+            // Get the currently logged in user from SessionManager
+            User currentUser = SessionManager.getInstance().getCurrentUser();
+
+            if (currentUser == null) {
+                AlertUtilsSirine.showError("Erreur", "Non connecté", "Vous devez être connecté pour passer une commande.");
                 return;
             }
 
             Commande commande = new Commande();
             commande.setDateComm(LocalDate.now());
             commande.setStatut(StatutCommandeEnum.EN_COURS);
-            commande.setUser(staticUser);
+            commande.setUser(currentUser);
 
             CommandeService commandeService = new CommandeService();
-
 
             for (CartItem item : cartItems) {
                 Produit produit = produitService.getProduitById(item.getProductId());

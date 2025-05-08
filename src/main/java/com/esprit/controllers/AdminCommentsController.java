@@ -925,29 +925,7 @@ public class AdminCommentsController implements Initializable {
         });
 
         // Add navigation to AdminProduitView for productOrdersBtn
-        productOrdersBtn.setOnAction(event -> {
-            try {
-                // Load the product management view
-                FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
-                Parent root = loader.load();
-
-                // Get current stage from the button's scene
-                Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
-
-                // Configure the scene
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-
-                // Apply the scene to the stage
-                stage.setScene(scene);
-                stage.setMaximized(true);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                showToast("Error navigating to product management: " + e.getMessage(), "error");
-            }
-        });
+        productOrdersBtn.setOnAction(e -> goToProductManagement());
 
         profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
         logoutBtn.setOnAction(e -> handleLogout());
@@ -993,6 +971,25 @@ public class AdminCommentsController implements Initializable {
                     showToast("Error navigating to category management: " + e.getMessage(), "error");
                 }
             });
+        }
+    }
+
+    private void goToProductManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminProduitView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-style.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des produits: " + e.getMessage(), "error");
         }
     }
 

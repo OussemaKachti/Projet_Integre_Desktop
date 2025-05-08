@@ -132,6 +132,8 @@ public class AdminProduitController implements Initializable {
     private TextField txtQuantity;
     @FXML
     private ComboBox<Club> comboClub;
+    @FXML
+    private Button ordersManagementBtn;
 
     // Services
     private final ProduitService produitService;
@@ -372,89 +374,14 @@ public class AdminProduitController implements Initializable {
      */
     private void setupNavigationEvents() {
         // Configure navigation for buttons
-        userManagementBtn.setOnAction(e -> {
-            goToAdminDashboard();
-        });
-
-        clubManagementBtn.setOnAction(e -> {
-            showToast("Fonctionnalité en développement: Gestion des clubs", "info");
-        });
-
-        // Toggle for Event Management submenu
-        eventManagementBtn.setOnAction(e -> {
-            boolean isVisible = eventsSubMenu.isVisible();
-            eventsSubMenu.setVisible(!isVisible);
-            eventsSubMenu.setManaged(!isVisible);
-        });
-
-        // Toggle for Survey Management submenu
-        surveyManagementBtn.setOnAction(e -> {
-            boolean isVisible = surveySubMenu.isVisible();
-            surveySubMenu.setVisible(!isVisible);
-            surveySubMenu.setManaged(!isVisible);
-        });
-
-        // Navigation to AdminPollsView
-        pollsManagementBtn.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
-                Parent root = loader.load();
-                
-                Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
-                stage.setScene(scene);
-                stage.setMaximized(true);
-                stage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                showToast("Erreur lors de la navigation: " + ex.getMessage(), "error");
-            }
-        });
-
-        // Navigation to AdminCommentsView
-        commentsManagementBtn.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
-                Parent root = loader.load();
-                
-                Stage stage = (Stage) commentsManagementBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
-                stage.setScene(scene);
-                stage.setMaximized(true);
-                stage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                showToast("Erreur lors de la navigation: " + ex.getMessage(), "error");
-            }
-        });
-
-        // Competitions button navigation
-        competitionBtn.setOnAction(e -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminSaisons.fxml"));
-                Parent root = loader.load();
-                
-                Stage stage = (Stage) competitionBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-                
-                stage.setScene(scene);
-                stage.setMaximized(true);
-                stage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                showToast("Erreur lors de la navigation: " + ex.getMessage(), "error");
-            }
-        });
-
-        profileBtn.setOnAction(e -> {
-            showToast("Fonctionnalité en développement: Profil", "info");
-        });
-
+        userManagementBtn.setOnAction(e -> goToAdminDashboard());
+        clubManagementBtn.setOnAction(e -> goToClubManagement());
+        eventManagementBtn.setOnAction(e -> goToEventManagement());
+        competitionBtn.setOnAction(e -> goToCompetition());
+        surveyManagementBtn.setOnAction(e -> goToSurveyManagement());
+        pollsManagementBtn.setOnAction(e -> goToPollsManagement());
+        commentsManagementBtn.setOnAction(e -> goToCommentsManagement());
+        profileBtn.setOnAction(e -> goToProfile());
         logoutBtn.setOnAction(e -> handleLogout());
     }
 
@@ -1457,33 +1384,133 @@ public class AdminProduitController implements Initializable {
     }
 
     @FXML
-    private void goToAdmincommande() {
-        ProduitApp.navigateTo("/com/esprit/views/produit/commandeview.fxml");
-    }
-    
-    @FXML
     private void goToAdminDashboard() {
         try {
-            // Load the admin dashboard view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_dashboard.fxml"));
             Parent root = loader.load();
             
-            // Get current stage from the scene
             Stage stage = (Stage) adminNameLabel.getScene().getWindow();
-            
-            // Create a new scene with the same dimensions
-            Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
-            
-            // Apply stylesheets
+            Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
             
-            // Set the scene to the stage
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showToast("Erreur lors de la navigation vers le tableau de bord", "error");
+        }
+    }
+
+    @FXML
+    private void goToClubManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) clubManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des clubs", "error");
+        }
+    }
+
+    @FXML
+    private void goToEventManagement() {
+        boolean isVisible = eventsSubMenu.isVisible();
+        eventsSubMenu.setVisible(!isVisible);
+        eventsSubMenu.setManaged(!isVisible);
+    }
+
+    @FXML
+    private void goToCompetition() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCompetition.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) competitionBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des compétitions", "error");
+        }
+    }
+
+    @FXML
+    private void goToSurveyManagement() {
+        boolean isVisible = surveySubMenu.isVisible();
+        surveySubMenu.setVisible(!isVisible);
+        surveySubMenu.setManaged(!isVisible);
+    }
+
+    @FXML
+    private void goToPollsManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) pollsManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des sondages", "error");
+        }
+    }
+
+    @FXML
+    private void goToCommentsManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
+            Parent root = loader.load();
+            
+            Stage stage = (Stage) commentsManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des commentaires", "error");
+        }
+    }
+
+    @FXML
+    private void goToProfile() {
+        showToast("Fonctionnalité en développement: Profil", "info");
+    }
+
+    @FXML
+    private void goToCommandManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ordersManagementBtn.getScene().getWindow();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Erreur lors de la navigation vers la gestion des commandes", "error");
         }
     }
 }

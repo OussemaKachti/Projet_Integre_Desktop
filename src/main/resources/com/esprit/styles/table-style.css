@@ -1,0 +1,110 @@
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px 8px 0px 0px;
+    -fx-background-insets: 0 0 0 0;
+    -fx-padding: 0 0 8px 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+    -fx-padding: 16px 8px;
+    -fx-border-color: transparent;
+}
+
+.table-view .table-cell {
+    -fx-padding: 12px 8px;
+    -fx-border-color: transparent;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER-LEFT;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f8f9fa;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #e9ecef;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+/* Style for the quantity spinners */
+.spinner {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 4px;
+}
+
+.spinner:focused {
+    -fx-border-color: #6200EE;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: transparent;
+}
+
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
+    -fx-background-color: #e9ecef;
+}
+
+/* Style for action buttons */
+.action-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6200EE;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #f0e6ff;
+}
+
+.remove-button {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-background-radius: 4px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+}
+
+.remove-button:hover {
+    -fx-background-color: #c82333;
+}
+
+/* Price columns styling */
+.price-cell {
+    -fx-alignment: CENTER-RIGHT;
+    -fx-font-weight: bold;
+}
+
+/* Image column styling */
+.image-cell {
+    -fx-alignment: CENTER;
+}
+
+.image-cell ImageView {
+    -fx-fit-width: 50px;
+    -fx-fit-height: 50px;
+    -fx-preserve-ratio: true;
+}
