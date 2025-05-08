@@ -532,30 +532,6 @@
                                                             </Label>
                                                         </HBox>
                                                     </graphic>
-                                                </Button> -->
-
-                                                <!-- QR Code Scanner -->
-                                                <Button fx:id="scanQrCodeButton" mnemonicParsing="false"
-                                                        style="-fx-background-color: linear-gradient(to right, #0069c0, #004a9f);
-               -fx-text-fill: white;
-               -fx-background-radius: 25;
-               -fx-padding: 16 22;
-               -fx-font-weight: bold;
-               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
-               -fx-cursor: hand;">
-                                                    <graphic>
-                                                        <HBox spacing="10" alignment="CENTER">
-                                                            <Label text="🔍" style="-fx-text-fill: white;">
-                                                                <font><Font size="16" /></font>
-                                                            </Label>
-                                                            <Label text="Scan QR Codes" style="-fx-text-fill: white;">
-                                                                <font><Font name="Arial Bold" size="15" /></font>
-                                                            </Label>
-                                                        </HBox>
-                                                    </graphic>
-                                                    <tooltip>
-                                                        <Tooltip text="Scan participants' QR codes (organizers only)" />
-                                                    </tooltip>
                                                 </Button>
                                                 <!-- QR Code Scanner -->
                                                 <Button fx:id="scanQrCodeButton" mnemonicParsing="false"

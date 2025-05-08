@@ -216,15 +216,37 @@ public class AfficherEvent implements Initializable {
         stage.getScene().setRoot(root);
     }
     @FXML
+    private void navigateToClubPolls() throws IOException {
+        // Test database connection before attempting to load polls view
+        try {
+
+            // Navigate to SondageView
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Failed to open Polls view");
+            alert.setContentText("An error occurred while trying to open the Polls view: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+        }
+    }
+    @FXML
     private Button navButton; // Injection du bouton
 
-    @FXML
-    private void navigateToHome1() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) navButton.getScene().getWindow();
-        stage.getScene().setRoot(root);
-    }
+    // @FXML
+    // private void navigateToHome1() throws IOException {
+    // FXMLLoader loader = new
+    // FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+    // Parent root = loader.load();
+    // Stage stage = (Stage) navButton.getScene().getWindow();
+    // stage.getScene().setRoot(root);
+    // }
 
     @FXML
     private void navigateToProducts() throws IOException {
@@ -276,7 +298,7 @@ public class AfficherEvent implements Initializable {
      */
     @FXML
     private void navigateToHome() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
@@ -384,7 +406,6 @@ public class AfficherEvent implements Initializable {
         }
     }
 
-
     private void loadEvents() {
         try {
             Connection conn = DataSource.getInstance().getCnx();
@@ -477,11 +498,14 @@ public class AfficherEvent implements Initializable {
         statusLabel.setText(eventType);
 
         if ("Closed".equalsIgnoreCase(eventType)) {
-            statusLabel.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
+            statusLabel.setStyle(
+                    "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
         } else if ("Open".equalsIgnoreCase(eventType)) {
-            statusLabel.setStyle("-fx-background-color: #040f71; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
+            statusLabel.setStyle(
+                    "-fx-background-color: #040f71; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
         } else {
-            statusLabel.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
+            statusLabel.setStyle(
+                    "-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 5 10;");
         }
 
         StackPane.setAlignment(statusLabel, javafx.geometry.Pos.TOP_RIGHT);
@@ -569,9 +593,10 @@ public class AfficherEvent implements Initializable {
         buttonsBox.setSpacing(10);
         buttonsBox.setStyle("-fx-padding: 10 0 0 0;");
 
-        //  bouton viewDetailsButton
+        // bouton viewDetailsButton
         Button viewDetailsButton = new Button("View Details");
-        viewDetailsButton.setStyle("-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
+        viewDetailsButton.setStyle(
+                "-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
         viewDetailsButton.setFont(new javafx.scene.text.Font("Arial Bold", 13));
 
         // Ajouter l'action pour le bouton "View Details"
@@ -592,9 +617,7 @@ public class AfficherEvent implements Initializable {
             }
         });
 
-
         // Disable registration if event is closed
-
 
         buttonsBox.getChildren().addAll(viewDetailsButton);
 
@@ -605,8 +628,7 @@ public class AfficherEvent implements Initializable {
                 descriptionLabel,
                 dateBox,
                 locationBox,
-                buttonsBox
-        );
+                buttonsBox);
 
         // Add image and details to event card
         eventCard.getChildren().addAll(imageContainer, detailsContainer);
@@ -673,8 +695,7 @@ public class AfficherEvent implements Initializable {
                     "This Week",
                     "This Month",
                     "Upcoming",
-                    "Past Events"
-            );
+                    "Past Events");
             dateFilter.setValue("All Dates");
         }
 
@@ -771,11 +792,9 @@ public class AfficherEvent implements Initializable {
 
         // Apply search text if not empty
         if (!searchText.isEmpty()) {
-            filteredEvents.removeIf(event ->
-                    !event.getNom_event().toLowerCase().contains(searchText) &&
-                            !event.getDesc_event().toLowerCase().contains(searchText) &&
-                            !event.getLieux().toLowerCase().contains(searchText)
-            );
+            filteredEvents.removeIf(event -> !event.getNom_event().toLowerCase().contains(searchText) &&
+                    !event.getDesc_event().toLowerCase().contains(searchText) &&
+                    !event.getLieux().toLowerCase().contains(searchText));
         }
 
         // Update allEvents with filtered list
@@ -813,7 +832,7 @@ public class AfficherEvent implements Initializable {
         cal.setTime(currentDate);
 
         // Apply date filtering
-        switch(dateFilter) {
+        switch (dateFilter) {
             case "Today":
                 // Today's events
                 for (Evenement event : events) {
@@ -888,7 +907,8 @@ public class AfficherEvent implements Initializable {
     // Single search method to handle searching
     @FXML
     private void handleSearch() {
-        // When user explicitly clicks search or presses Enter in search field, apply all filters
+        // When user explicitly clicks search or presses Enter in search field, apply
+        // all filters
         applyFilters();
     }
 

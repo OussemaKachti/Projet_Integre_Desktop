@@ -1,6 +1,7 @@
 package com.esprit.services;
 
 import com.esprit.models.Participation_event;
+import com.esprit.models.User;
 import com.esprit.utils.DataSource;
 
 import javax.xml.crypto.Data;
@@ -21,6 +22,7 @@ public class ServiceParticipation {
 
     /**
      * Ajoute une nouvelle participation à un événement
+     * 
      * @param participation La participation à ajouter
      * @return true si l'ajout est réussi, false sinon
      */
@@ -42,7 +44,8 @@ public class ServiceParticipation {
 
     /**
      * Vérifie si un utilisateur participe déjà à un événement
-     * @param userId ID de l'utilisateur
+     * 
+     * @param userId  ID de l'utilisateur
      * @param eventId ID de l'événement
      * @return true si l'utilisateur participe déjà, false sinon
      */
@@ -63,7 +66,8 @@ public class ServiceParticipation {
 
     /**
      * Supprime la participation d'un utilisateur à un événement
-     * @param userId ID de l'utilisateur
+     * 
+     * @param userId  ID de l'utilisateur
      * @param eventId ID de l'événement
      * @return true si la suppression est réussie, false sinon
      */
@@ -84,6 +88,7 @@ public class ServiceParticipation {
 
     /**
      * Récupère toutes les participations d'un utilisateur
+     * 
      * @param userId ID de l'utilisateur
      * @return Liste des participations de l'utilisateur
      */
@@ -113,6 +118,7 @@ public class ServiceParticipation {
 
     /**
      * Récupère toutes les participations à un événement
+     * 
      * @param eventId ID de l'événement
      * @return Liste des participations à l'événement
      */
@@ -142,6 +148,7 @@ public class ServiceParticipation {
 
     /**
      * Compte le nombre de participants à un événement
+     * 
      * @param eventId ID de l'événement
      * @return Nombre de participants
      */
@@ -161,4 +168,73 @@ public class ServiceParticipation {
 
         return 0;
     }
+
+    /**
+     * Récupère la liste des utilisateurs qui participent à un événement spécifique
+     * 
+     * @param eventId L'ID de l'événement
+     * @return Liste des utilisateurs participants
+     */
+    public List<User> getParticipantsByEvent(Long eventId) {
+        List<User> participants = new ArrayList<>();
+
+        try {
+            // Requête SQL corrigée pour utiliser les noms de colonnes corrects
+            String req = "SELECT u.*, p.dateparticipation FROM user u " +
+                    "JOIN participation_event p ON u.id = p.user_id " +
+                    "WHERE p.evenement_id = ? " +
+                    "ORDER BY p.dateparticipation DESC";
+
+            PreparedStatement ps = cnx.prepareStatement(req);
+            ps.setLong(1, eventId);
+
+            ResultSet rs = ps.executeQuery();
+
+            System.out.println("Exécution de la requête pour l'événement ID: " + eventId);
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                // Utilisez les noms corrects des colonnes de la BDD
+                user.setFirstName(rs.getString("prenom"));
+                user.setLastName(rs.getString("nom"));
+                user.setEmail(rs.getString("email"));
+
+                // Date d'inscription à l'événement (pour affichage dans la colonne
+                // registrationDate)
+                // Stockez la date de participation dans lastLoginAt comme solution temporaire
+                java.sql.Date sqlDate = rs.getDate("dateparticipation");
+                if (sqlDate != null) {
+                    java.time.LocalDateTime participationDate = sqlDate.toLocalDate().atStartOfDay();
+                    user.setLastLoginAt(participationDate);
+                }
+
+                System.out.println("Participant trouvé: " + user.getFullName() + " (" + user.getEmail() + ")");
+                participants.add(user);
+            }
+
+            System.out.println("Total des participants trouvés: " + participants.size());
+
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des participants: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return participants;
+    }
+
+    /**
+     * Vérifie si la classe User a un champ pour stocker la date d'inscription
+     * 
+     * @return true si le champ existe, false sinon
+     */
+    private boolean hasRegistrationDateField() {
+        try {
+            User.class.getDeclaredField("registrationDate");
+            return true;
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
+    }
+
 }

@@ -146,7 +146,8 @@ public class AdminCommandeController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Erreur de connexion");
         alert.setHeaderText("Impossible de se connecter à la base de données");
-        alert.setContentText("Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.");
+        alert.setContentText(
+                "Vérifiez que le serveur MySQL est démarré et que les paramètres de connexion sont corrects.");
 
         ButtonType retryButton = new ButtonType("Réessayer");
         ButtonType exitButton = new ButtonType("Quitter", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -172,7 +173,8 @@ public class AdminCommandeController implements Initializable {
         colUser.setCellValueFactory(cellData -> {
             if (cellData.getValue().getUser() != null) {
                 return new javafx.beans.property.SimpleStringProperty(
-                        cellData.getValue().getUser().getFirstName() + " " + cellData.getValue().getUser().getLastName());
+                        cellData.getValue().getUser().getFirstName() + " "
+                                + cellData.getValue().getUser().getLastName());
             }
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
@@ -289,9 +291,10 @@ public class AdminCommandeController implements Initializable {
                         return true;
                     }
                     String lowerCaseFilter = newValue.toLowerCase();
-                    return (commande.getUser() != null && 
+                    return (commande.getUser() != null &&
                             (commande.getUser().getFirstName().toLowerCase().contains(lowerCaseFilter) ||
-                             commande.getUser().getLastName().toLowerCase().contains(lowerCaseFilter))) ||
+                                    commande.getUser().getLastName().toLowerCase().contains(lowerCaseFilter)))
+                            ||
                             commande.getStatut().name().toLowerCase().contains(lowerCaseFilter) ||
                             String.valueOf(commande.getId()).contains(newValue);
                 });
@@ -318,9 +321,12 @@ public class AdminCommandeController implements Initializable {
 
                     String searchText = txtSearch.getText();
                     boolean matchesSearch = searchText == null || searchText.isEmpty() ||
-                            (commande.getUser() != null && 
-                             (commande.getUser().getFirstName().toLowerCase().contains(searchText.toLowerCase()) ||
-                              commande.getUser().getLastName().toLowerCase().contains(searchText.toLowerCase()))) ||
+                            (commande.getUser() != null &&
+                                    (commande.getUser().getFirstName().toLowerCase().contains(searchText.toLowerCase())
+                                            ||
+                                            commande.getUser().getLastName().toLowerCase()
+                                                    .contains(searchText.toLowerCase())))
+                            ||
                             commande.getStatut().name().toLowerCase().contains(searchText.toLowerCase()) ||
                             String.valueOf(commande.getId()).contains(searchText);
 
@@ -373,7 +379,7 @@ public class AdminCommandeController implements Initializable {
         if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
             try {
                 commandeService.validerCommande(commande.getId());
-                
+
                 String userEmail = commande.getUser().getEmail();
                 if (userEmail != null && !userEmail.isEmpty()) {
                     try {
@@ -481,7 +487,8 @@ public class AdminCommandeController implements Initializable {
     }
 
     private void setupPagination() {
-        if (paginationContainer == null) return;
+        if (paginationContainer == null)
+            return;
 
         paginationContainer.getChildren().clear();
 
@@ -600,28 +607,29 @@ public class AdminCommandeController implements Initializable {
         if (toastContainer != null) {
             toastContainer.setVisible(true);
             HBox toast = (HBox) toastContainer.getChildren().get(0);
-            
+
             // Set background color based on type
             String backgroundColor = type.equals("error") ? "#dc3545" : "#28a745";
-            toast.setStyle("-fx-background-color: " + backgroundColor + "; -fx-background-radius: 4px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 10);");
-            
+            toast.setStyle("-fx-background-color: " + backgroundColor
+                    + "; -fx-background-radius: 4px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 10);");
+
             // Set message
             Label messageLabel = (Label) toast.getChildren().get(0);
             messageLabel.setText(message);
-            
+
             // Create fade transition
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), toastContainer);
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
-            
+
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toastContainer);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setDelay(Duration.seconds(2));
-            
+
             fadeIn.play();
             fadeOut.play();
-            
+
             fadeOut.setOnFinished(e -> toastContainer.setVisible(false));
         }
     }
@@ -675,7 +683,8 @@ public class AdminCommandeController implements Initializable {
     @FXML
     private void goToCompetition() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/competition/AdminCompetitionView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/esprit/views/competition/AdminCompetitionView.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) competitionBtn.getScene().getWindow();
             Scene scene = new Scene(root);
@@ -705,7 +714,8 @@ public class AdminCommandeController implements Initializable {
     @FXML
     private void goToProfile() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/profile/AdminProfileView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/esprit/views/profile/AdminProfileView.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) profileBtn.getScene().getWindow();
             Scene scene = new Scene(root);
