@@ -11,58 +11,76 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.esprit.controllers.ShowClubsController"
-            prefHeight="600.0" prefWidth="800.0">
+            prefHeight="600.0" prefWidth="800.0"
+            stylesheets="@../styles/home.css">
 
     <!-- Header Section -->
-    <HBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT" spacing="20"
+    <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20"
           AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <padding>
-            <Insets top="10" right="20" bottom="10" left="20"/>
+            <Insets top="15" right="25" bottom="15" left="25"/>
         </padding>
 
-        <Label text="UNICLUBS" style="-fx-font-family: 'Arial'; -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;"
-               prefHeight="50.0" prefWidth="120"/>
+        <!-- Logo -->
+        <ImageView fitHeight="50" fitWidth="120" preserveRatio="true">
+            <Image url="@../images/logo.png"/>
+        </ImageView>
 
-        <HBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-padding: 0 10;">
-            <Button text="Home" style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
-                    />
-            <Button text="Clubs" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
-                    />
-            <Button text="Events" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
-                    />
-            <Button text="Products" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
-                    />
-            <Button text="Competition" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-padding: 5 10;"
-                    />
-        </HBox>
-
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <!-- Dropdown Menu -->
-            <StackPane fx:id="menuContainer" style="-fx-background-color: #f5f5f5; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5;"
-                       >
-                <Button text="Menu" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-radius: 5; -fx-padding: 5 15;"
-                        />
-
-                <!-- Dropdown Menu -->
-                <VBox fx:id="menuDropdown" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 5;" visible="false" managed="false">
-                    <Button text="My Profile" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 12; -fx-padding: 5;"
-                            />
-                    <Separator/>
-                    <Button text="Logout" style="-fx-background-color: #ffffff; -fx-text-fill: #333; -fx-font-family: 'Arial'; -fx-font-size: 12; -fx-padding: 5;"
-                           />
+        <!-- Navigation Bar -->
+        <HBox spacing="25" alignment="CENTER" HBox.hgrow="ALWAYS" styleClass="nav-container">
+            <Button text="Home" styleClass="nav-button"/>
+            <Button text="Polls" styleClass="nav-button"/>
+            <!-- Clubs Dropdown -->
+            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
+                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button-selected" onMouseEntered="#showClubsDropdown"/>
+                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
+                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
+                        <Label text="👥" styleClass="dropdown-item-icon"/>
+                        <Label text="Club Management" styleClass="dropdown-item-text"/>
+                    </HBox>
+                    <Separator styleClass="dropdown-divider"/>
+                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
+                        <Label text="🏆" styleClass="dropdown-item-icon"/>
+                        <Label text="My Club" styleClass="dropdown-item-text"/>
+                    </HBox>
                 </VBox>
             </StackPane>
+            <Button text="Events" styleClass="nav-button"/>
+            <Button text="Products" styleClass="nav-button"/>
+            <Button text="Competition" styleClass="nav-button"/>
+        </HBox>
+
+        <!-- User Profile and Contact Us -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <!-- User Profile Section -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseEntered="#showProfileDropdown" onMouseExited="#hideProfileDropdown">
+                <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
+                    <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
+                        <Image url="@../images/default-profile-png.png"/>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
+                </HBox>
+                <!-- Profile Dropdown -->
+                <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
+                    <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
+                    <Separator styleClass="dropdown-divider"/>
+                    <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
+                </VBox>
+            </StackPane>
+            <Button text="Contact Us" styleClass="contact-button"/>
         </HBox>
     </HBox>
 
     <!-- Search bar -->
     <TextField fx:id="searchField" promptText="🔍 Search by club name..."
                prefWidth="250.0"
-               style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #b0bec5; -fx-padding: 8 12 8 12; -fx-font-family: 'Arial'; -fx-font-size: 14; -fx-background-color: #ffffff; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2); -fx-text-fill: #333;"
+               styleClass="hero-description"
                AnchorPane.topAnchor="80.0" AnchorPane.leftAnchor="275.0" AnchorPane.rightAnchor="275.0"
                onKeyReleased="#handleSearch"/>
 
@@ -76,23 +94,24 @@
         <!-- Pagination controls -->
         <Button fx:id="prevButton" text="Previous"
                 onAction="#previousPage"
-                style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 15; -fx-padding: 8 15 8 15;"
+                styleClass="event-button"
                 prefHeight="30.0" prefWidth="90.0"/>
         <Label fx:id="pageLabel" text="Page 1"
-               style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 5 15 5 15; -fx-background-color: #f5f5f5; -fx-background-radius: 10;"/>
+               styleClass="event-time"/>
         <Button fx:id="nextButton" text="Next"
                 onAction="#nextPage"
-                style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12; -fx-background-radius: 15; -fx-padding: 8 15 8 15;"
+                styleClass="event-button"
                 prefHeight="30.0" prefWidth="90.0"/>
         <!-- Create Club button -->
         <Button fx:id="createClubButton" text="CREATE CLUB"
                 onAction="#handleCreateClub"
-                style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-background-radius: 15; -fx-padding: 8 20 8 20;"
+                styleClass="hero-button"
                 prefHeight="35.0" prefWidth="130.0"/>
     </HBox>
 
     <!-- ScrollPane for club cards -->
     <ScrollPane fitToWidth="true"
+                styleClass="content-scroll"
                 AnchorPane.topAnchor="180.0"
                 AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0"
@@ -101,27 +120,24 @@
             <FlowPane fx:id="clubCardContainer"
                       hgap="15"
                       vgap="15"
-                      prefWrapLength="750">
+                      prefWrapLength="750"
+                      styleClass="content-container">
                 <padding>
                     <Insets top="15" right="15" bottom="15" left="15"/>
                 </padding>
                 <!-- Sample club card with Participate button (to be removed and generated dynamically in controller) -->
-                <VBox style="-fx-background-color: #F5F5F5; -fx-border-color: #D3D3D3; -fx-border-radius: 5;"
-                      prefWidth="200.0" prefHeight="250.0" alignment="CENTER">
+                <VBox styleClass="club-card" prefWidth="300.0" prefHeight="300.0" alignment="CENTER">
                     <padding>
                         <Insets top="10" right="10" bottom="10" left="10"/>
                     </padding>
                     <!-- Placeholder for card content (e.g., image, title) -->
-                    <Label text="Club Name"
-                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                    <Label text="Description or details"
-                           style="-fx-font-size: 12px;"
-                           wrapText="true"/>
-                    <!-- Participate button -->
-                    <Button text="Participate"
-                            style="-fx-background-color: #1E90FF; -fx-text-fill: white; -fx-font-weight: bold;"
-                            prefHeight="30.0" prefWidth="100.0"
-                            VBox.vgrow="NEVER"/>
+                    <ImageView fitHeight="150" fitWidth="280" preserveRatio="false"/>
+                    <VBox styleClass="club-content">
+                        <Label text="Club Name" styleClass="club-name"/>
+                        <Label text="Description or details" styleClass="club-description" wrapText="true"/>
+                        <Label text="1520 Points" styleClass="club-points"/>
+                        <Button text="Participate" styleClass="event-button" prefHeight="30.0" prefWidth="100.0" VBox.vgrow="NEVER"/>
+                    </VBox>
                 </VBox>
             </FlowPane>
         </content>

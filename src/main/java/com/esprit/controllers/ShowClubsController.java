@@ -1,8 +1,10 @@
 package com.esprit.controllers;
 
+import com.esprit.MainApp;
 import com.esprit.models.Club;
 import com.esprit.services.ClubService;
 import com.esprit.utils.SessionManager; // Use SessionManager instead of UserSession
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,7 +16,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -45,12 +49,35 @@ public class ShowClubsController implements Initializable {
     @FXML
     private Label pageLabel;
 
+    @FXML
+    private StackPane userProfileContainer;
+
+    @FXML
+    private ImageView userProfilePic;
+
+    @FXML
+    private Label userNameLabel;
+
+    @FXML
+    private VBox profileDropdown;
+
+    @FXML
+    private StackPane clubsContainer;
+
+    @FXML
+    private Button clubsButton;
+
+    @FXML
+    private VBox clubsDropdown;
+
+
     private final ClubService clubService = new ClubService();
     private final int connectedUserId = getCurrentUserId(); // Updated to get from SessionManager
     private List<Club> allClubs; // All accepted clubs
     private List<Club> filteredClubs; // Clubs after search filter
     private int currentPage = 1;
     private final int clubsPerPage = 3;
+    private Club userClub;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -280,5 +307,147 @@ public class ShowClubsController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void showClubsDropdown() {
+        clubsDropdown.setVisible(true);
+        clubsDropdown.setManaged(true);
+        clubsDropdown.toFront();
+    }
+
+    @FXML
+    private void hideClubsDropdown() {
+        clubsDropdown.setVisible(false);
+        clubsDropdown.setManaged(false);
+    }
+
+    @FXML
+    private void navigateToClubPolls() throws IOException {
+        // Test database connection before attempting to load polls view
+        try {
+
+            // Navigate to SondageView
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) clubsContainer.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            // Handle any other exceptions that might occur
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText("Failed to open Polls view");
+            alert.setContentText("An error occurred while trying to open the Polls view: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void navigateToMyClub() throws IOException {
+        if (userClub != null) {
+            // Navigate to the user's club page
+            // Since ClubDetailsController might not exist or have the expected method,
+            // we'll just navigate to clubs for now
+            navigateToClubs();
+        } else {
+            // User doesn't have a club, navigate to clubs list
+            navigateToClubs();
+        }
+    }
+
+    @FXML
+    private void handleLogout() throws IOException {
+        // Clear the session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login page
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToSettings() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Settings.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToClubs() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubsContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToEvents() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToProducts() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/ProduitView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToCompetition() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Competition.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToContact() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void viewEventDetails() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/EventDetails.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    private void navigateToHome() throws IOException {
+        // Since we are already on the home page, we don't need to navigate
+        // But we need this method to satisfy the FXML reference
+    }
+
+    @FXML
+    private void showProfileDropdown() {
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
+    }
+
+    @FXML
+    private void hideProfileDropdown() {
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
     }
 }

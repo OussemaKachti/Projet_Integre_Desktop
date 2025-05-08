@@ -55,6 +55,8 @@ import com.esprit.utils.ProfanityLogManager;
 import com.esprit.utils.SessionManager;
 import javafx.application.Platform;
 
+import static com.esprit.utils.AlertUtilsSirine.showError;
+
 public class AdminDashboardController {
 
     @FXML
@@ -1339,14 +1341,33 @@ public class AdminDashboardController {
                 return roleName;
         }
     }
-    
+
     @FXML
     public void showClubManagement() {
-        contentTitle.setText("Club Management");
-        setActiveButton(clubManagementButton);
-        
-        // Show placeholder for Club module
-        showModulePlaceholder("Club Management");
+        try {
+            // Load the ClubView
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+            Parent root = loader.load();
+
+            // Get the current stage
+            Stage stage = (Stage) contentTitle.getScene().getWindow();
+
+            // Create a new scene
+            Scene scene = new Scene(root);
+
+            // Make sure the stylesheets are properly applied
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/home.css").toExternalForm());
+
+            // Set the scene to the stage
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error", "Navigation Error", "Failed to navigate to Club Management: " + e.getMessage());
+        }
     }
     
     @FXML
