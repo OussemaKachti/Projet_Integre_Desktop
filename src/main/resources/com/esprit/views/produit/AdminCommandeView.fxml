@@ -32,7 +32,7 @@
             <Button fx:id="competitionBtn" onAction="#goToCompetition" text="Compétitions" maxWidth="Infinity" />
             <Button fx:id="surveyManagementBtn" onAction="#goToSurveyManagement" text="Sondages" maxWidth="Infinity" />
             <Button fx:id="profileBtn" onAction="#goToProfile" text="Mon Profil" maxWidth="Infinity" />
-            <Button fx:id="logoutBtn" onAction="#handleLogout" text="Déconnexion" maxWidth="Infinity" />
+            <Button fx:id="logoutBtn" text="Déconnexion" maxWidth="Infinity" />
         </VBox>
     </left>
     
