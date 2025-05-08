@@ -7,6 +7,7 @@ import com.esprit.services.ProduitService;
 import com.esprit.utils.AlertUtilsSirine;
 import com.esprit.ProduitApp;
 import com.esprit.utils.DataSource;
+import javafx.event.ActionEvent;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -24,6 +25,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -323,7 +325,7 @@ public class AdminProduitController implements Initializable {
     public void goToCatalog() {
         try {
             if (ProduitApp.getPrimaryStage() != null) {
-                ProduitApp.navigateTo("/com/esprit/views/produit/ProduitView.fxml");
+                ProduitApp.navigateTo("/com/esprit/views/produit/AdminProduitView.fxml");
             } else {
                 AlertUtilsSirine.showError("Erreur", "Navigation impossible",
                         "Impossible d'accéder à la fenêtre principale.");
@@ -1497,20 +1499,39 @@ public class AdminProduitController implements Initializable {
         showToast("Fonctionnalité en développement: Profil", "info");
     }
 
-    @FXML
-    private void goToCommandManagement() {
+    // @FXML
+    // private void goToCommandManagement() {
+    //     try {
+    //         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
+    //         Parent root = loader.load();
+    //         Stage stage = (Stage) ordersManagementBtn.getScene().getWindow();
+    //         Scene scene = new Scene(root);
+    //         scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+    //         stage.setScene(scene);
+    //         stage.setMaximized(true);
+    //         stage.show();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         showToast("Erreur lors de la navigation vers la gestion des commandes", "error");
+    //     }
+    // }
+
+    public void goToCommandManagement() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/produit/AdminCommandeView.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) ordersManagementBtn.getScene().getWindow();
+            
+            Stage stage = (Stage) productOrdersBtn.getScene().getWindow();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/admin-style.css").toExternalForm());
+            
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showToast("Erreur lors de la navigation vers la gestion des commandes", "error");
+            showToast("Erreur lors de la navigation vers la gestion des produits: " + e.getMessage(), "error");
         }
     }
 }

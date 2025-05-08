@@ -2,6 +2,7 @@ package com.esprit.controllers;
 
 import com.esprit.models.Club;
 import com.esprit.services.ClubService;
+import com.esprit.utils.SessionManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,9 +13,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,6 +29,8 @@ import java.util.stream.Collectors;
 
 public class ClubController {
 
+    @FXML private Label adminNameLabel;
+    @FXML private Label contentTitle;
     @FXML private TextField idField;
     @FXML private TextField presidentIdField;
     @FXML private TextField nomCField;
@@ -35,8 +40,18 @@ public class ClubController {
     @FXML private TextField pointsField;
     @FXML private TextField searchField;
     @FXML private ListView<Club> clubList;
-    @FXML private BarChart<Number, String> statsChart; // Changed to BarChart<Number, String> for horizontal chart
+    @FXML private BarChart<Number, String> statsChart;
     @FXML private TabPane tabPane;
+    @FXML private Button userManagementButton;
+    @FXML private Button clubManagementButton;
+    @FXML private Button participantButton;
+    @FXML private Button eventManagementButton;
+    @FXML private Button productOrdersButton;
+    @FXML private Button competitionButton;
+    @FXML private Button surveyButton;
+    @FXML private VBox surveySubMenu;
+    @FXML private Button profileButton;
+    @FXML private Button logoutButton;
 
     private final ClubService clubService = new ClubService();
     private final ObservableList<Club> clubs = FXCollections.observableArrayList();
@@ -46,6 +61,21 @@ public class ClubController {
     @FXML
     public void initialize() {
         try {
+            // Load current admin user
+            var currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser == null || !"ADMINISTRATEUR".equals(currentUser.getRole().toString())) {
+                navigateToLogin();
+                return;
+            }
+
+            // Set admin name
+            adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+
+            // Set initial content title
+            contentTitle.setText("Club Management");
+            setActiveButton(clubManagementButton);
+
+            // Load clubs and initialize UI
             loadClubs();
             allClubs = clubService.afficher();
 
@@ -82,8 +112,13 @@ public class ClubController {
                     });
                 }
             });
+
+            // Setup search functionality
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> searchClubs());
         } catch (SQLException e) {
             showError("Erreur lors du chargement des clubs: " + e.getMessage());
+        } catch (IOException e) {
+            showError("Erreur lors de la navigation: " + e.getMessage());
         }
     }
 
@@ -91,97 +126,6 @@ public class ClubController {
         clubs.clear();
         clubs.addAll(clubService.afficher());
         clubList.setItems(clubs);
-    }
-
-    @FXML
-    private void ajouterClub() {
-        if (idField.getText().isEmpty() ||
-                presidentIdField.getText().isEmpty() ||
-                nomCField.getText().isEmpty() ||
-                descriptionField.getText().isEmpty() ||
-                imageField.getText().isEmpty()) {
-            showError("Tous les champs doivent être remplis !");
-            return;
-        }
-
-        String nomC = nomCField.getText();
-        String description = descriptionField.getText();
-
-        if (!nomC.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
-            showError("Le nom du club contient des caractères non autorisés.");
-            return;
-        }
-
-        if (!description.matches("[a-zA-Z0-9À-ÿ\\s.,!?'-]+")) {
-            showError("La description contient des caractères non autorisés.");
-            return;
-        }
-
-        if (description.trim().split("\\s+").length > 30) {
-            showError("La description ne doit pas dépasser 30 mots.");
-            return;
-        }
-
-        try {
-            int id = Integer.parseInt(idField.getText());
-            int presidentId = Integer.parseInt(presidentIdField.getText());
-            String image = imageField.getText();
-
-            String status = "en_attente";
-            int points = 0;
-
-            Club club = new Club(id, presidentId, nomC, description, status, image, points);
-            clubService.ajouter(club);
-            refreshClubList();
-            clearForm();
-
-            showSuccess("Club ajouté avec succès !");
-        } catch (NumberFormatException e) {
-            showError("Veuillez entrer des valeurs numériques valides pour ID et président.");
-        }
-    }
-
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    @FXML
-    private void modifierClub() {
-        if (selectedClub == null) {
-            showError("Veuillez sélectionner un club à modifier.");
-            return;
-        }
-
-        try {
-            selectedClub.setPresidentId(Integer.parseInt(presidentIdField.getText()));
-            selectedClub.setNomC(nomCField.getText());
-            selectedClub.setDescription(descriptionField.getText());
-            selectedClub.setStatus(statusField.getText());
-            selectedClub.setImage(imageField.getText());
-            selectedClub.setPoints(Integer.parseInt(pointsField.getText()));
-
-            clubService.modifier(selectedClub);
-            refreshClubList();
-            clearForm();
-        } catch (NumberFormatException e) {
-            showError("Veuillez entrer des valeurs valides.");
-        }
-    }
-
-    @FXML
-    private void supprimerClub() {
-        if (selectedClub == null) {
-            showError("Veuillez sélectionner un club à supprimer.");
-            return;
-        }
-
-        clubService.supprimer(selectedClub.getId());
-        refreshClubList();
-        clearForm();
     }
 
     @FXML
@@ -195,6 +139,7 @@ public class ClubController {
         clubService.modifier(selectedClub);
         refreshClubList();
         clearForm();
+        showSuccess("Club accepté avec succès !");
     }
 
     @FXML
@@ -208,6 +153,20 @@ public class ClubController {
         clubService.modifier(selectedClub);
         refreshClubList();
         clearForm();
+        showSuccess("Club refusé avec succès !");
+    }
+
+    @FXML
+    private void supprimerClub() {
+        if (selectedClub == null) {
+            showError("Veuillez sélectionner un club à supprimer.");
+            return;
+        }
+
+        clubService.supprimer(selectedClub.getId());
+        refreshClubList();
+        clearForm();
+        showSuccess("Club supprimé avec succès !");
     }
 
     @FXML
@@ -227,44 +186,30 @@ public class ClubController {
     private void loadStatistics() {
         try {
             if (statsChart == null) {
-                System.out.println("Erreur : statsChart est null !");
                 showError("Le graphique n'a pas pu être initialisé.");
                 return;
             }
 
-            System.out.println("Visibilité du graphique : " + statsChart.isVisible());
-            System.out.println("Taille du graphique : " + statsChart.getWidth() + "x" + statsChart.getHeight());
-
             statsChart.setAnimated(false);
             statsChart.getData().clear();
-            System.out.println("Graphique effacé.");
 
             List<Object[]> popularityStats;
             try {
                 popularityStats = clubService.getClubsByPopularity();
             } catch (Exception e) {
-                System.out.println("Erreur lors de la récupération des statistiques: " + e.getMessage());
-                e.printStackTrace();
                 popularityStats = new ArrayList<>();
                 popularityStats.add(new Object[]{"Club A", 3});
                 popularityStats.add(new Object[]{"Club B", 2});
                 popularityStats.add(new Object[]{"Club C", 1});
-                System.out.println("Utilisation de données fictives suite à une erreur.");
                 showError("Erreur lors de la récupération des statistiques. Affichage de données fictives.");
             }
 
-            System.out.println("Nombre de statistiques récupérées : " + popularityStats.size());
-            for (Object[] stat : popularityStats) {
-                System.out.println("Club: " + stat[0] + ", Participations: " + stat[1]);
-            }
-
             if (popularityStats.isEmpty()) {
-                System.out.println("Aucune donnée réelle trouvée.");
                 showError("Aucune donnée de popularité disponible.");
                 return;
             }
 
-            XYChart.Series<Number, String> series = new XYChart.Series<>(); // Changed to match BarChart<Number, String>
+            XYChart.Series<Number, String> series = new XYChart.Series<>();
             series.setName("Participations");
 
             for (Object[] stat : popularityStats) {
@@ -272,31 +217,23 @@ public class ClubController {
                 int participationCount = ((Number) stat[1]).intValue();
                 if (clubName == null || clubName.trim().isEmpty()) {
                     clubName = "Club Inconnu";
-                    System.out.println("Nom du club null ou vide, remplacé par 'Club Inconnu'");
                 }
-                // Swap the order: X is Number (participationCount), Y is String (clubName)
                 series.getData().add(new XYChart.Data<>(participationCount, clubName));
-                System.out.println("Ajout des données au graphique : " + clubName + " -> " + participationCount);
             }
 
             statsChart.getData().add(series);
-            System.out.println("Données ajoutées au graphique. Nombre de points de données : " + series.getData().size());
 
             Platform.runLater(() -> {
                 statsChart.applyCss();
                 statsChart.requestLayout();
-                System.out.println("Après requestLayout - Taille du graphique : " + statsChart.getWidth() + "x" + statsChart.getHeight());
                 Set<Node> nodes = statsChart.lookupAll(".chart-bar");
-                System.out.println("Nombre de barres trouvées : " + nodes.size());
                 for (Node node : nodes) {
                     node.setStyle("-fx-bar-fill: #f39c12;");
                     node.setOnMouseEntered(e -> node.setStyle("-fx-bar-fill: #e67e22;"));
                     node.setOnMouseExited(e -> node.setStyle("-fx-bar-fill: #f39c12;"));
                 }
 
-                // Adjust the X-axis to ensure small values are visible
-                if (statsChart.getXAxis() instanceof NumberAxis) {
-                    NumberAxis xAxis = (NumberAxis) statsChart.getXAxis();
+                if (statsChart.getXAxis() instanceof NumberAxis xAxis) {
                     xAxis.setAutoRanging(true);
                     xAxis.setForceZeroInRange(true);
                     xAxis.setLowerBound(0);
@@ -305,14 +242,10 @@ public class ClubController {
                             .max()
                             .orElse(5)));
                     xAxis.setTickUnit(1);
-                    System.out.println("X-axis adjusted: LowerBound=" + xAxis.getLowerBound() + ", UpperBound=" + xAxis.getUpperBound());
-                } else {
-                    System.out.println("X-axis is not a NumberAxis, cannot adjust bounds.");
                 }
             });
         } catch (Exception e) {
             showError("Erreur inattendue lors du chargement des statistiques: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -341,6 +274,14 @@ public class ClubController {
         clubList.getSelectionModel().clearSelection();
     }
 
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Succès");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Erreur");
@@ -350,16 +291,172 @@ public class ClubController {
     }
 
     @FXML
-    public void showClub(ActionEvent actionEvent) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/ClubView.fxml"));
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+    private void showUserManagement() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminDashboard.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubList.getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm()
+        );
+        stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 
     @FXML
-    public void showParticipant(ActionEvent actionEvent) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/ParticipantView.fxml"));
+    private void showClubManagement() {
+        contentTitle.setText("Club Management");
+        setActiveButton(clubManagementButton);
+        // Already in Club Management view, no need to navigate
+    }
+
+    @FXML
+    public void showParticipant() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ParticipantView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubList.getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/no-scrollbar.css").toExternalForm()
+        );
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    public void showEventManagement() {
+        contentTitle.setText("Event Management");
+        setActiveButton(eventManagementButton);
+        showModulePlaceholder("Event Management");
+    }
+
+    @FXML
+    public void showProductOrders() {
+        contentTitle.setText("Products & Orders");
+        setActiveButton(productOrdersButton);
+        showModulePlaceholder("Products & Orders");
+    }
+
+    @FXML
+    public void showCompetition() {
+        contentTitle.setText("Competition & Season");
+        setActiveButton(competitionButton);
+        showModulePlaceholder("Competition & Season");
+    }
+
+    @FXML
+    public void showSurvey() {
+        contentTitle.setText("Survey Management");
+        setActiveButton(surveyButton);
+        boolean isVisible = surveySubMenu.isVisible();
+        surveySubMenu.setVisible(!isVisible);
+        surveySubMenu.setManaged(!isVisible);
+    }
+
+    @FXML
+    public void navigateToPollsManagement() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminPollsView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubList.getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm()
+        );
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    public void navigateToCommentsManagement() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AdminCommentsView.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubList.getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().addAll(
+                getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm(),
+                getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm()
+        );
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    @FXML
+    public void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+        Parent root = loader.load();
+        Stage newStage = new Stage();
+        Scene scene = new Scene(root, 1200, 800);
+        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        newStage.setTitle("Admin Profile - UNICLUBS");
+        newStage.setScene(scene);
+        newStage.setMaximized(true);
+        Stage currentStage = (Stage) clubList.getScene().getWindow();
+        currentStage.close();
+        newStage.show();
+    }
+
+    @FXML
+    public void handleLogout() throws IOException {
+        SessionManager.getInstance().clearSession();
+        navigateToLogin();
+    }
+
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) clubList.getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setTitle("Login - UNICLUBS");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+    }
+
+    private void showModulePlaceholder(String moduleName) {
+        try {
+            VBox placeholder = new VBox();
+            placeholder.setSpacing(20);
+            placeholder.setStyle("-fx-padding: 50; -fx-alignment: center;");
+
+            Label title = new Label(moduleName + " Module");
+            title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+
+            Label message = new Label("This module is being developed by another team member.\nPlease check back later.");
+            message.setStyle("-fx-font-size: 16px; -fx-text-alignment: center;");
+
+            Button backButton = new Button("Go to Club Management");
+            backButton.setOnAction(e -> showClubManagement());
+            backButton.getStyleClass().add("button-primary");
+
+            placeholder.getChildren().addAll(title, message, backButton);
+
+            tabPane.setVisible(false);
+            tabPane.setManaged(false);
+            tabPane.getParent().getChildrenUnmodifiable().add(placeholder);
+        } catch (Exception e) {
+            showError("Failed to show " + moduleName + ": " + e.getMessage());
+        }
+    }
+
+    private void setActiveButton(Button activeButton) {
+        for (Button btn : new Button[]{userManagementButton, clubManagementButton, participantButton,
+                eventManagementButton, productOrdersButton, competitionButton, surveyButton}) {
+            btn.getStyleClass().remove("active");
+        }
+        activeButton.getStyleClass().add("active");
+    }
+
+    @FXML
+    public void showClub(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/ClubView.fxml"));
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.show();
