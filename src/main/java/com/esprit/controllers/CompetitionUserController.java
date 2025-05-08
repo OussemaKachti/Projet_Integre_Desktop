@@ -259,17 +259,17 @@ public class CompetitionUserController implements Initializable{
 
     @FXML
     public void navigateToClubs() {
-        navigate("/com/esprit/views/clubs.fxml");
+        navigate("/com/esprit/views/Clubs.fxml");
     }
 
     @FXML
     public void navigateToEvents() {
-        navigate("/com/esprit/views/events.fxml");
+        navigate("/com/esprit/views/Events.fxml");
     }
 
     @FXML
     public void navigateToProducts() {
-        navigate("/com/esprit/views/products.fxml");
+        navigate("/com/esprit/views/Products.fxml");
     }
 
     @FXML
