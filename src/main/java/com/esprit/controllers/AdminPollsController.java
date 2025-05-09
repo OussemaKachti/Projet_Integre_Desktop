@@ -1,6 +1,7 @@
 package com.esprit.controllers;
 
 import com.esprit.models.Sondage;
+import com.esprit.MainApp;
 import com.esprit.models.Club;
 import com.esprit.models.User;
 import com.esprit.services.SondageService;
@@ -9,16 +10,19 @@ import com.esprit.services.UserService;
 import com.esprit.services.ReponseService;
 import com.esprit.utils.AlertUtils;
 import com.esprit.utils.NavigationManager;
+import com.esprit.utils.SessionManager;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
@@ -47,7 +51,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AdminPollsController implements Initializable {
-
+    @FXML
+    private BorderPane contentArea;
     // FXML components
     @FXML
     private Label totalPollsLabel;
@@ -948,7 +953,28 @@ public class AdminPollsController implements Initializable {
             }
         });
 
-        clubManagementBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Gestion des clubs", "info"));
+        clubManagementBtn.setOnAction(event -> {
+            try {
+                // Load the seasons management view
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/ClubView.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) clubManagementBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException ee) {
+                ee.printStackTrace();
+                showToast("Error navigating to seasons management: " + ee.getMessage(), "error");
+            }
+        });
 
         // Competition button handler to navigate to AdminSaisons.fxml
         competitionBtn.setOnAction(event -> {
@@ -999,8 +1025,29 @@ public class AdminPollsController implements Initializable {
             }
         });
 
-        profileBtn.setOnAction(e -> showToast("Fonctionnalité en développement: Profil", "info"));
-        logoutBtn.setOnAction(e -> handleLogout());
+        profileBtn.setOnAction(event -> {
+            try {
+                // Load the seasons management view
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+                Parent root = loader.load();
+
+                // Get current stage from the button's scene
+                Stage stage = (Stage) profileBtn.getScene().getWindow();
+
+                // Configure the scene
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+                // Apply the scene to the stage
+                stage.setScene(scene);
+                stage.setMaximized(true);
+                stage.show();
+            } catch (IOException ee) {
+                ee.printStackTrace();
+                showToast("Error navigating to seasons management: " + ee.getMessage(), "error");
+            }
+        });
+        // logoutBtn.setOnAction(e -> handleLogout());
 
         // Add event handlers for submenu options
         if (eventsSubMenu != null && eventsSubMenu.getChildren().size() >= 2) {
@@ -1046,31 +1093,66 @@ public class AdminPollsController implements Initializable {
         }
     }
 
-    /**
-     * Gère la déconnexion de l'utilisateur
-     */
-    private void handleLogout() {
+     @FXML
+    private void handleLogout(ActionEvent event) {
+        // Clear session
+        SessionManager.getInstance().clearSession();
+
+        // Navigate to login
         try {
-            // Afficher une confirmation avant de se déconnecter
-            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmDialog.setTitle("Déconnexion");
-            confirmDialog.setHeaderText("Êtes-vous sûr de vouloir vous déconnecter ?");
-            confirmDialog.setContentText("Toutes les données non enregistrées seront perdues.");
-
-            // Personnaliser la boîte de dialogue
-            DialogPane dialogPane = confirmDialog.getDialogPane();
-            dialogPane.getStylesheets()
-                    .add(getClass().getResource("/com/esprit/styles/admin-polls-style.css").toExternalForm());
-
-            // Afficher la boîte de dialogue et traiter le résultat
-            if (confirmDialog.showAndWait().filter(response -> response == ButtonType.OK).isPresent()) {
-                // Naviguer vers la page de connexion ou fermer l'application
-                Platform.exit();
-            }
-        } catch (Exception e) {
+            navigateToLogin();
+        } catch (IOException e) {
             e.printStackTrace();
-            showToast("Erreur lors de la déconnexion: " + e.getMessage(), "error");
+            showAlert2("Error", "Logout Error", "Failed to navigate to login page");
         }
+    }
+
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) (contentArea != null ? contentArea.getScene().getWindow()
+                : (adminNameLabel != null ? adminNameLabel.getScene().getWindow() : null));
+
+        if (stage != null) {
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+        } else {
+            // If we can't get the stage from the UI elements, create a new one
+            stage = new Stage();
+
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+
+            // Close any existing windows
+            if (contentArea != null && contentArea.getScene() != null &&
+                    contentArea.getScene().getWindow() != null) {
+                ((Stage) contentArea.getScene().getWindow()).close();
+            }
+        }
+    }
+
+    private void showAlert2(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+@FXML
+    private void navigateToProfile(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+        stage.setTitle("Admin Profile - UNICLUBS");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     /**

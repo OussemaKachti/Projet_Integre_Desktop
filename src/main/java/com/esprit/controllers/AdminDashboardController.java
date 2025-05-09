@@ -28,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ProgressBar;
@@ -1372,18 +1373,132 @@ public class AdminDashboardController {
         stage.setMaximized(true);
         stage.show();
     }
-
-    @FXML
-    public void showEventManagement(ActionEvent actionEvent) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/AdminEvent.fxml"));
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-        stage.setScene(new Scene(root));
-        stage.show();
-
+ private void navigateTo(String fxmlPath) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+        Parent root = loader.load();
+        Scene scene = contentArea.getScene();
+        scene.setRoot(root);
     }
+   @FXML
+    public void showEventManagement() {
+        try {
+            navigateTo("/com/esprit/views/AdminEvent.fxml");
+        } catch (IOException e) {
+            showAlert7(AlertType.ERROR, "Navigation Error",
+                    "Could not navigate to Event Management", e.getMessage());
+        }
+    }
+private void showAlert7(AlertType alertType, String title, String message, String details) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
 
+        if (details != null && !details.isEmpty()) {
+            alert.setContentText(message + "\n\nDetails: " + details);
+        } else {
+            alert.setContentText(message);
+        }
+
+        // Style the dialog pane based on alert type
+        DialogPane dialogPane = alert.getDialogPane();
+        String backgroundColor = "#ffffff";
+        String borderColor = "#dce3f0";
+
+        switch (alertType) {
+            case ERROR:
+                borderColor = "#dc3545";
+                break;
+            case WARNING:
+                borderColor = "#ffc107";
+                break;
+            case INFORMATION:
+                borderColor = "#0dcaf0";
+                break;
+            case CONFIRMATION:
+                borderColor = "#20c997";
+                break;
+            default:
+                break;
+        }
+
+        dialogPane.setStyle(
+                "-fx-background-color: " + backgroundColor + ";" +
+                        "-fx-border-color: " + borderColor + ";" +
+                        "-fx-border-width: 1px;" +
+                        "-fx-border-radius: 8px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
+
+        // Style the content text
+        Label content = (Label) dialogPane.lookup(".content");
+        if (content != null) {
+            content.setStyle(
+                    "-fx-font-size: 14px;" +
+                            "-fx-text-fill: #4b5c7b;" +
+                            "-fx-padding: 10 0 10 0;");
+        }
+
+        // Style the buttons
+        dialogPane.getButtonTypes().forEach(buttonType -> {
+            Button button = (Button) dialogPane.lookupButton(buttonType);
+            String buttonColor = "#4a90e2";
+            String textColor = "white";
+
+            switch (alertType) {
+                case ERROR:
+                    buttonColor = "#dc3545";
+                    break;
+                case WARNING:
+                    buttonColor = "#ffc107";
+                    break;
+                case INFORMATION:
+                    buttonColor = "#0dcaf0";
+                    break;
+                case CONFIRMATION:
+                    if (buttonType == ButtonType.OK) {
+                        buttonColor = "#20c997";
+                    } else {
+                        buttonColor = "#6c757d";
+                    }
+                    break;
+                default:
+                    break;
+            }
+            final String finalButtonColor = buttonColor;
+            button.setStyle(
+                    "-fx-background-color: " + finalButtonColor + ";" +
+                            "-fx-text-fill: " + textColor + ";" +
+                            "-fx-background-radius: 4px;" +
+                            "-fx-padding: 8 15;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;");
+
+            // Add hover effect
+            button.setOnMouseEntered(e -> {
+                // Darken the button color when hovered
+                button.setStyle(
+                        "-fx-background-color: derive(" + finalButtonColor + ", -10%);" +
+                                "-fx-text-fill: " + textColor + ";" +
+                                "-fx-background-radius: 4px;" +
+                                "-fx-padding: 8 15;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;");
+            });
+
+            button.setOnMouseExited(e -> {
+                // Restore original color when not hovered
+                button.setStyle(
+                        "-fx-background-color: " + finalButtonColor + ";" +
+                                "-fx-text-fill: " + textColor + ";" +
+                                "-fx-background-radius: 4px;" +
+                                "-fx-padding: 8 15;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;");
+            });
+        });
+
+        alert.showAndWait();
+    }
     @FXML
     public void showProductOrders() {
         try {

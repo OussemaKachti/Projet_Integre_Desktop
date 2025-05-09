@@ -9,8 +9,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import com.esprit.MainApp;
 import com.esprit.models.Categorie;
 import com.esprit.services.ServiceCategorie;
 import com.esprit.services.ServiceCategorie.CategoryUsage;
@@ -32,7 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class AdminCategorie implements Initializable {
-
+    @FXML
+    private BorderPane contentArea;
     // Menu navigation elements
     @FXML
     private Label dateLabel;
@@ -666,16 +670,54 @@ public class AdminCategorie implements Initializable {
         stage.show();
     }
     
-    @FXML
-    private void handleLogout(ActionEvent actionEvent) throws IOException {
-        SessionManager.getInstance().clearSession();
-        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/login.fxml"));
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-        stage.setTitle("Login - UNICLUBS");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
+    // @FXML
+    // private void handleLogout(ActionEvent event) {
+    //     // Clear session
+    //     SessionManager.getInstance().clearSession();
+
+    //     // Navigate to login
+    //     try {
+    //         navigateToLogin();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         showAlert("Error", "Logout Error", "Failed to navigate to login page");
+    //     }
+    // }
+
+    private void navigateToLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) (contentArea != null ? contentArea.getScene().getWindow()
+                : (adminNameLabel != null ? adminNameLabel.getScene().getWindow() : null));
+
+        if (stage != null) {
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+        } else {
+            // If we can't get the stage from the UI elements, create a new one
+            stage = new Stage();
+
+            // Use the utility method for consistent setup
+            MainApp.setupStage(stage, root, "Login - UNICLUBS", true);
+
+            stage.show();
+
+            // Close any existing windows
+            if (contentArea != null && contentArea.getScene() != null &&
+                    contentArea.getScene().getWindow() != null) {
+                ((Stage) contentArea.getScene().getWindow()).close();
+            }
+        }
+    }
+
+    private void showAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
