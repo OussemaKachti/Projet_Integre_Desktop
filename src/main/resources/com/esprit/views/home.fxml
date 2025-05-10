@@ -25,23 +25,8 @@
             <!-- Add a direct Polls button to the main navbar -->
             <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
             
-            <!-- Clubs dropdown container -->
-            <StackPane fx:id="clubsContainer" styleClass="nav-dropdown-container" onMouseExited="#hideClubsDropdown">
-                <Button fx:id="clubsButton" text="Clubs" styleClass="nav-button" onMouseEntered="#showClubsDropdown"/>
-                
-                <!-- Clubs Dropdown Menu - Initially hidden -->
-                <VBox fx:id="clubsDropdown" styleClass="nav-dropdown-menu" visible="false" managed="false" onMouseEntered="#showClubsDropdown">
-                    <HBox fx:id="clubMembersItem" styleClass="dropdown-item" onMouseClicked="#navigateToClubs">
-                        <Label text="👥" styleClass="dropdown-item-icon"/>
-                        <Label text="Club Management" styleClass="dropdown-item-text"/>
-                    </HBox>
-                    <Separator styleClass="dropdown-divider"/>
-                    <HBox styleClass="dropdown-item" onMouseClicked="#navigateToMyClub">
-                        <Label text="🏆" styleClass="dropdown-item-icon"/>
-                        <Label text="My Club" styleClass="dropdown-item-text"/>
-                    </HBox>
-                </VBox>
-            </StackPane>
+            <!-- Simple Clubs button -->
+            <Button text="Clubs" styleClass="nav-button" onAction="#navigateToClubs"/>
             
             <Button text="Events" styleClass="nav-button" onAction="#navigateToEvents"/>
             <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>

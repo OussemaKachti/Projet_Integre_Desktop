@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -156,8 +157,8 @@ public class AdminEvent implements Initializable {
                 // Setting up cell styling
                 content.setStyle(
                         "-fx-padding: 10px; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 5px;");
-                content.setPrefWidth(1150);
-
+                content.setPrefWidth(10);
+content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
                 // Configure labels
                 nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
                 detailsLabel.setStyle("-fx-font-size: 14px;");
@@ -594,18 +595,39 @@ public class AdminEvent implements Initializable {
     }
 
     @FXML
-    private void navigateToProfile(ActionEvent actionEvent) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
-        stage.setTitle("Admin Profile - UNICLUBS");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
+    public void navigateToProfile() {
+        try {
+            // Load the profile view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/admin_profile.fxml"));
+            Parent root = loader.load();
+
+            // Create a completely new stage
+            Stage newStage = new Stage();
+
+            // Create scene with appropriate initial size
+            Scene scene = new Scene(root, 1200, 800); // Set initial size large enough
+
+            // Apply the stylesheet
+            scene.getStylesheets().add(getClass().getResource("/com/esprit/styles/uniclubs.css").toExternalForm());
+
+            // Configure the new stage
+            newStage.setTitle("Admin Profile - UNICLUBS");
+            newStage.setScene(scene);
+            newStage.setMaximized(true); // Set maximized before showing
+
+            // Close the current stage
+            Stage currentStage = (Stage) contentArea.getScene().getWindow();
+            currentStage.close();
+
+            // Show the new stage
+            newStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Navigation Error", "Failed to navigate to admin profile", e.getMessage());
+        }
     }
 
-   @FXML
+    @FXML
     private void handleLogout(ActionEvent event) {
         // Clear session
         SessionManager.getInstance().clearSession();

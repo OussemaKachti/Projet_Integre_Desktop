@@ -89,38 +89,7 @@ public class HomeController implements Initializable {
             // Initially hide the dropdowns
             profileDropdown.setVisible(false);
             profileDropdown.setManaged(false);
-            clubsDropdown.setVisible(false);
-            clubsDropdown.setManaged(false);
-
-            // Check if user is a club member or president and setup club dropdown
-            setupClubsDropdown();
         }
-    }
-
-    /**
-     * Checks if the current user is a member or president of a club
-     * and sets up the club dropdown accordingly
-     */
-    private void setupClubsDropdown() {
-        // Get all clubs that the user is a member of
-        boolean isMemberOfAnyClub = false;
-
-        try {
-            // Check if the user is a president of any club
-            userClub = clubService.findByPresident(currentUser.getId());
-            if (userClub != null) {
-                isMemberOfAnyClub = true;
-            } else {
-                // Check if user is a member of any club
-                isMemberOfAnyClub = !participationService.getParticipationsByClub(currentUser.getId()).isEmpty();
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking club membership: " + e.getMessage());
-        }
-
-        // For simplicity, we keep the clubs dropdown visible regardless of membership
-        // In a production app, you might want to hide it if the user isn't a member of
-        // any club
     }
 
     private void loadDefaultProfilePic() {
@@ -142,19 +111,6 @@ public class HomeController implements Initializable {
     private void hideProfileDropdown() {
         profileDropdown.setVisible(false);
         profileDropdown.setManaged(false);
-    }
-
-    @FXML
-    private void showClubsDropdown() {
-        clubsDropdown.setVisible(true);
-        clubsDropdown.setManaged(true);
-        clubsDropdown.toFront();
-    }
-
-    @FXML
-    private void hideClubsDropdown() {
-        clubsDropdown.setVisible(false);
-        clubsDropdown.setManaged(false);
     }
 
     @FXML
@@ -224,7 +180,7 @@ public class HomeController implements Initializable {
     private void navigateToClubs() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) clubsContainer.getScene().getWindow();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
 
