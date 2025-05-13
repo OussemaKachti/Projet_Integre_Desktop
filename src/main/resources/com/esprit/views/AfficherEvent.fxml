@@ -43,7 +43,7 @@
                         <Button fx:id="navButton" styleClass="nav-button" text="Home" onAction="#navigateToHome" />
                         <Button text="Polls" styleClass="nav-button" onAction="#navigateToClubPolls"/>
 
-                        <Button styleClass="nav-button" text="Clubs" />
+                        <Button styleClass="nav-button" text="Clubs" onAction="#navigateToClubs"/>
                         <Button styleClass="nav-button-selected" text="Events" />
                         <Button text="Products" styleClass="nav-button" onAction="#navigateToProducts"/>
                         <Button text="Competition" styleClass="nav-button" onAction="#navigateToCompetition"/>

@@ -134,13 +134,13 @@
          
          <!-- Bottom Menu Options -->
          <VBox spacing="5.0">
-            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="profileBtn" onAction="#navigateToProfile" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
                   <Label text="👤" />
                </graphic>
             </Button>
             
-            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" onAction="#handleLogout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
                   <Label text="🚪" />
                </graphic>
@@ -152,20 +152,20 @@
       <!-- Main content area with purple header style (image 2) -->
       <VBox>
          <!-- Header avec fond violet comme dans l'image 2 -->
-         <HBox alignment="CENTER" style="-fx-background-color: #8000ff;" prefHeight="60.0">
+         <HBox alignment="CENTER" style="-fx-background-color: #f6f9fe;" prefHeight="60.0">
             <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
-                <Label text="Comments Management" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Label text="Comments Management" style="-fx-text-fill: #040f71; -fx-font-size: 24px; -fx-font-weight: bold;" />
             </HBox>
             <padding>
                 <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
             </padding>
          </HBox>
          
-         <HBox alignment="CENTER" style="-fx-background-color: #8000ff;">
-            <HBox alignment="CENTER_LEFT" style="-fx-text-fill: white;">
-               <Label text="Dashboard" style="-fx-text-fill: white;" />
+         <HBox alignment="CENTER" style="-fx-background-color: #f6f9fe;">
+            <HBox alignment="CENTER_LEFT" style="-fx-text-fill: #040f71;">
+               <Label text="Dashboard" style="-fx-text-fill: #040f71;" />
                <Label text=" > " style="-fx-text-fill: white;" />
-               <Label text="Comments Management" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+               <Label text="Comments Management" style="-fx-text-fill: #040f71; -fx-font-weight: bold;" />
             </HBox>
             <padding>
                <Insets bottom="10.0" left="20.0" right="20.0" top="5.0" />

@@ -153,22 +153,7 @@ public class SondageViewController implements Initializable {
     // Add these FXML field declarations at the top of the class with the other
     // declarations
     @FXML
-    private VBox clubsDropdown;
-
-    @FXML
     private VBox profileDropdown;
-
-    @FXML
-    private StackPane clubsContainer;
-
-    @FXML
-    private Button clubsButton;
-
-    @FXML
-    private HBox clubPollsItem;
-
-    @FXML
-    private Label clubPollsLabel;
 
     @FXML
     private StackPane userProfileContainer;
@@ -223,10 +208,6 @@ public class SondageViewController implements Initializable {
             if (profileDropdown != null) {
                 profileDropdown.setVisible(false);
                 profileDropdown.setManaged(false);
-            }
-            if (clubsDropdown != null) {
-                clubsDropdown.setVisible(false);
-                clubsDropdown.setManaged(false);
             }
 
             // Check if user has admin role and add toxicity management button
@@ -1995,38 +1976,17 @@ public class SondageViewController implements Initializable {
     // Add these methods for the navbar
     @FXML
     public void showProfileDropdown() {
-        if (profileDropdown != null) {
-            profileDropdown.setVisible(true);
-            profileDropdown.setManaged(true);
-        }
+        profileDropdown.setVisible(true);
+        profileDropdown.setManaged(true);
     }
 
     @FXML
     public void hideProfileDropdown() {
-        if (profileDropdown != null) {
-            profileDropdown.setVisible(false);
-            profileDropdown.setManaged(false);
-        }
+        profileDropdown.setVisible(false);
+        profileDropdown.setManaged(false);
     }
 
-    @FXML
-    public void showClubsDropdown() {
-        if (clubsDropdown != null) {
-            clubsDropdown.setVisible(true);
-            clubsDropdown.setManaged(true);
-            clubsDropdown.toFront();
-        }
-    }
-
-    @FXML
-    public void hideClubsDropdown() {
-        if (clubsDropdown != null) {
-            clubsDropdown.setVisible(false);
-            clubsDropdown.setManaged(false);
-        }
-    }
-
-    @FXML
+     @FXML
     public void navigateToHome() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
         Parent root = loader.load();

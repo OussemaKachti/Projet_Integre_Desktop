@@ -138,13 +138,13 @@
          
          <!-- Bottom Menu Options -->
          <VBox spacing="5.0">
-            <Button fx:id="profileBtn" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="profileBtn" onAction="#navigateToProfile" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
                   <Label text="👤" />
                </graphic>
             </Button>
             
-            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+            <Button fx:id="logoutBtn" styleClass="sidebar-button, sidebar-button-logout" onAction="#handleLogout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
                <graphic>
                   <Label text="🚪" />
                </graphic>
@@ -157,9 +157,9 @@
       <!-- Main content area with modern header style -->
       <VBox>
          <!-- Header with gradient background -->
-         <HBox alignment="CENTER" style="-fx-background-color: linear-gradient(to right, #1a73e8, #5195ee);" prefHeight="80.0">
+         <HBox alignment="CENTER" style="-fx-background-color: #f6f9fe;" prefHeight="80.0">
             <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
-                <Label text="Polls Management" style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;">
+                <Label text="Polls Management" style="-fx-text-fill: #040f71; -fx-font-size: 28px; -fx-font-weight: bold;">
                     <HBox.margin>
                         <Insets left="20.0" />
                     </HBox.margin>

@@ -1445,7 +1445,7 @@ public class CompetitionController {
     public void showProductOrders() {
 
         try {
-            navigateTo("/com/esprit/views/adminProducts.fxml");
+            navigateTo("/com/esprit/views/produit/AdminProduitView.fxml");
         } catch (IOException e) {
             showAlert(AlertType.ERROR, "Navigation Error",
                     "Could not navigate to Products & Orders", e.getMessage());

@@ -408,7 +408,7 @@ public class ShowClubsController implements Initializable {
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) clubsContainer.getScene().getWindow();
+            Stage stage = (Stage) userProfileContainer.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
             // Handle any other exceptions that might occur

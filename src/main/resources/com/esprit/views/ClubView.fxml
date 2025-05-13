@@ -13,29 +13,133 @@
 
     <!-- Sidebar -->
     <left>
-        <VBox prefWidth="220" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 30;">
-            <Label text="🎯 Admin Panel"
-                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
-            <Separator style="-fx-background-color: white;"/>
+        <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="250.0" spacing="10.0" styleClass="sidebar">
+            <padding>
+                <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+            </padding>
+            
+            <!-- Application Logo -->
+            <HBox alignment="CENTER" styleClass="logo-container" spacing="10.0">
+                <Label text="UNICLUBS" styleClass="logo-text">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+            </HBox>
+            
+            <Separator>
+                <VBox.margin>
+                    <Insets top="20.0" bottom="20.0" />
+                </VBox.margin>
+            </Separator>
+            
+            <!-- Admin Info -->
+            <Label fx:id="adminNameLabel" text="Admin Name" styleClass="admin-name">
+                <font>
+                    <Font name="System Bold" size="16.0" />
+                </font>
+            </Label>
+            <Label text="Administrator" styleClass="admin-role" />
+            
+            <Separator>
+                <VBox.margin>
+                    <Insets top="20.0" bottom="20.0" />
+                </VBox.margin>
+            </Separator>
+            
+            <!-- Menu Items -->
+            <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+                <Button fx:id="userManagementButton" onAction="#showUserManagement" styleClass="sidebar-button" text="User Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="👤" />
+                    </graphic>
+                </Button>
+                
+                <Button fx:id="clubManagementButton" onAction="#showClub" styleClass="sidebar-button, active" text="Club Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="🏛" />
+                    </graphic>
+                </Button>
+                
+                <Button fx:id="eventManagementButton" onAction="#showEventManagement" styleClass="sidebar-button" text="Event Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="📅" />
+                    </graphic>
+                </Button>
 
-            <Button text="🏆 Clubs"
-                    onAction="#showClub"
-                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-padding: 10 20;" />
-            <Button text="👥 Participants"
-                    onAction="#showParticipant"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                <Button fx:id="productOrdersButton" onAction="#showProductOrders" styleClass="sidebar-button" text="Products &amp; Orders" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="🛒" />
+                    </graphic>
+                </Button>
 
-            <VBox VBox.vgrow="ALWAYS"/>
-            <Label text="Admin connecté"
-                   style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px;"/>
+                <Button fx:id="competitionButton" onAction="#showCompetition" styleClass="sidebar-button" text="Competition &amp; Season" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="🏆" />
+                    </graphic>
+                </Button>
+                
+                <!-- Survey Management dropdown menu -->
+                <VBox spacing="2.0">
+                    <Button fx:id="surveyButton" onAction="#showSurvey" styleClass="sidebar-button" text="Survey Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                        <graphic>
+                            <Label text="📊" />
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Sous-menu Survey Management -->
+                    <VBox fx:id="surveySubMenu" spacing="2.0" style="-fx-padding: 0 0 0 30;" visible="false" managed="false">
+                        <Button fx:id="pollsManagementBtn" onAction="#navigateToPollsManagement" styleClass="sidebar-button" text="Poll Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                            <graphic>
+                                <Label text="📋" />
+                            </graphic>
+                        </Button>
+                        
+                        <Button fx:id="commentsManagementBtn" onAction="#navigateToCommentsManagement" styleClass="sidebar-button" text="Comment Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                            <graphic>
+                                <Label text="💬" />
+                            </graphic>
+                        </Button>
+                    </VBox>
+                </VBox>
+                
+                <VBox.margin>
+                    <Insets bottom="20.0" />
+                </VBox.margin>
+            </VBox>
+            
+            <!-- Bottom Menu Options -->
+            <VBox spacing="5.0">
+                <Button fx:id="profileButton" onAction="#navigateToProfile" styleClass="sidebar-button" text="My Profile" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="👤" />
+                    </graphic>
+                </Button>
+                
+                <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="sidebar-button, sidebar-button-logout" text="Logout" maxWidth="Infinity" alignment="BASELINE_LEFT">
+                    <graphic>
+                        <Label text="🚪" />
+                    </graphic>
+                </Button>
+            </VBox>
         </VBox>
     </left>
 
     <!-- Main Content -->
     <center>
         <VBox spacing="20" style="-fx-padding: 30;">
-            <Label text="Gestion des Clubs"
-                   style="-fx-font-size: 28px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" styleClass="dashboard-header" spacing="20.0">
+                <padding>
+                    <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+                </padding>
+                
+                <Label fx:id="contentTitle" text="Club Management" styleClass="dashboard-title">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+            </HBox>
 
             <!-- TabPane for pagination -->
             <TabPane fx:id="tabPane" style="-fx-background-color: white; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);">
@@ -99,7 +203,7 @@
                                             style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
                                     <Button text="❌ Refuser" onAction="#refuserClub"
                                             style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-                                    <Button text="🗑️ Supprimer" onAction="#supprimerClub"
+                                    <Button text="🗑 Supprimer" onAction="#supprimerClub"
                                             style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
                                 </HBox>
                             </VBox>
