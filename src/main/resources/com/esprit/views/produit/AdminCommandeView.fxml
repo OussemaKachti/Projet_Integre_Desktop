@@ -5,39 +5,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<<<<<<< HEAD
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminCommandeController">
-    <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #6200EE;" BorderPane.alignment="CENTER">
-            <children>
-                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" text="Gestion des Commandes">
-                    <HBox.margin>
-                        <Insets left="20.0" />
-                    </HBox.margin>
-                </Label>
-            </children>
-        </HBox>
-    </top>
-    
-    <left>
-        <VBox prefWidth="250.0" spacing="10.0" style="-fx-background-color: white;">
-            <padding>
-                <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
-            </padding>
-            
-            <!-- Navigation Buttons -->
-            <Button fx:id="userManagementBtn" onAction="#goToAdminDashboard" text="Gestion des Utilisateurs" maxWidth="Infinity" />
-            <Button fx:id="clubManagementBtn" onAction="#goToClubManagement" text="Gestion des Clubs" maxWidth="Infinity" />
-            <Button fx:id="eventManagementBtn" onAction="#goToEventManagement" text="Gestion des Événements" maxWidth="Infinity" />
-            <Button fx:id="productOrdersBtn" text="Gestion des Produits" maxWidth="Infinity" />
-            <Button fx:id="competitionBtn" onAction="#goToCompetition" text="Compétitions" maxWidth="Infinity" />
-            <Button fx:id="surveyManagementBtn" onAction="#goToSurveyManagement" text="Sondages" maxWidth="Infinity" />
-            <Button fx:id="profileBtn" onAction="#goToProfile" text="Mon Profil" maxWidth="Infinity" />
-            <Button fx:id="logoutBtn" text="Déconnexion" maxWidth="Infinity" />
-        </VBox>
-    </left>
-    
-=======
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../styles/uniclubs.css,@../../styles/admin-polls-style.css,@../../styles/admin-style.css,@../../styles/no-scrollbar.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.crud.AdminCommandeController">
   
    
@@ -203,7 +170,6 @@
                </Label>
       </HBox>
    </top>
->>>>>>> 1dd82d16d9145f448ed49640afae00ce8fa408b7
     <center>
         <VBox spacing="20.0">
             <padding>
@@ -261,14 +227,6 @@
         </VBox>
     </center>
     
-<<<<<<< HEAD
-    <!-- Toast Container -->
-    <Pane fx:id="toastContainer" visible="false">
-        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #28a745; -fx-background-radius: 4;">
-            <Label style="-fx-text-fill: white;" text="Message"/>
-        </HBox>
-    </Pane>
-=======
    <!-- Toast notification container -->
    <Pane fx:id="toastContainer" prefHeight="60.0" prefWidth="300.0" visible="false" BorderPane.alignment="BOTTOM_RIGHT">
       <BorderPane.margin>
@@ -286,5 +244,4 @@
          </HBox>
       </children>
    </Pane>
->>>>>>> 1dd82d16d9145f448ed49640afae00ce8fa408b7
 </BorderPane> 

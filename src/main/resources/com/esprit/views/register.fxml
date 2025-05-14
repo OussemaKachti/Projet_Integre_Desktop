@@ -45,10 +45,10 @@
             text="Please correct the errors below" visible="false" wrapText="true" />
 
          <!-- Registration Form - ultra compact spacing -->
-         <VBox alignment="CENTER" spacing="3" styleClass="form-container">
+         <VBox alignment="CENTER" spacing="10" styleClass="form-container">
             <!-- Name Fields in one row -->
             <HBox spacing="10.0">
-               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
                   <Label text="First Name" />
                   <TextField fx:id="firstNameField" promptText="Enter your first name" />
                   <Label fx:id="firstNameErrorLabel" styleClass="error-message"
@@ -56,7 +56,7 @@
                   <Label fx:id="firstNameValidationStatus" text="" visible="false" />
                </VBox>
 
-               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="1.0">
+               <VBox HBox.hgrow="ALWAYS" styleClass="field-container" spacing="3.0">
                   <Label text="Last Name" />
                   <TextField fx:id="lastNameField" promptText="Enter your last name" />
                   <Label fx:id="lastNameErrorLabel" styleClass="error-message"
@@ -66,21 +66,23 @@
             </HBox>
 
             <!-- Email field -->
-            <VBox styleClass="field-container" spacing="1">
+            <VBox styleClass="field-container" spacing="3">
                <Label text="Email Address" />
                <TextField fx:id="emailField" promptText="Enter your email address" />
                <Label fx:id="emailErrorLabel" styleClass="error-message"
-                  visible="false" />
+                  text="" managed="true" minHeight="24" wrapText="true"
+                  style="-fx-text-fill: red; -fx-font-weight: bold; -fx-padding: 5 0 5 0;" />
             </VBox>
 
             <!-- Phone field - compact -->
-            <VBox styleClass="field-container" spacing="1">
+            <VBox styleClass="field-container" spacing="3">
                <HBox alignment="CENTER_LEFT" spacing="5.0">
                   <Label text="Phone Number" />
                </HBox>
                <TextField fx:id="phoneField" promptText="Tunisian format (e.g. +21655123456)" />
                <Label fx:id="phoneErrorLabel" styleClass="error-message"
-                  visible="false" />
+                  text="" managed="true" minHeight="24" wrapText="true"
+                  style="-fx-text-fill: red; -fx-font-weight: bold; -fx-padding: 5 0 5 0;" />
                <Label styleClass="text-small, text-muted"
                   text="Phone numbers must be in Tunisian format">
                   <font>

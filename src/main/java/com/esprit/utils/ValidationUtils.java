@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class ValidationUtils {
     
     private static final Pattern EMAIL_PATTERN = 
-        Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+        Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     
     private static final Pattern PASSWORD_PATTERN = 
         Pattern.compile("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
@@ -60,17 +60,62 @@ public class ValidationUtils {
     public static boolean isUniqueConstraintViolation(Exception e, String fieldName) {
         if (e == null) return false;
         
-        String message = e.getMessage();
-        if (message == null) {
-            if (e.getCause() != null && e.getCause().getMessage() != null) {
-                message = e.getCause().getMessage();
-            } else {
-                return false;
+        // Extract complete exception message chain
+        StringBuilder fullMessageBuilder = new StringBuilder();
+        Throwable current = e;
+        while (current != null) {
+            if (current.getMessage() != null) {
+                fullMessageBuilder.append(current.getMessage()).append(" ");
+            }
+            current = current.getCause();
+        }
+        
+        String fullMessage = fullMessageBuilder.toString().toLowerCase();
+        
+        // First, check if it's any type of constraint violation
+        boolean isConstraintViolation = 
+            fullMessage.contains("duplicate") || 
+            fullMessage.contains("unique") ||
+            fullMessage.contains("constraint") ||
+            fullMessage.contains("integrity") ||
+            fullMessage.contains("violation") ||
+            e.getClass().getSimpleName().contains("Constraint");
+        
+        if (!isConstraintViolation) {
+            return false;
+        }
+        
+        // MySQL specific pattern for duplicate entry
+        // Example: Duplicate entry 'baltinour118@gmail.com' for key 'UNIQ_8D93D649E7927C74'
+        // Example: Duplicate entry '29103858' for key 'UNIQ_8D93D649435805D'
+        if (fullMessage.contains("duplicate entry")) {
+            // For email field
+            if ("email".equals(fieldName)) {
+                return fullMessage.contains("@") || // Emails contain @
+                       fullMessage.contains("e7927c74"); // MySQL uses this key for email
+            }
+            
+            // For phone field
+            if ("tel".equals(fieldName) || "phone".equals(fieldName)) {
+                return fullMessage.matches(".*duplicate entry ['\"]\\d{8,}['\"].*") || // Phone numbers are 8+ digits
+                       fullMessage.contains("435805d"); // MySQL uses this key for phone number
             }
         }
         
-        return message.toLowerCase().contains("unique") && 
-               message.toLowerCase().contains(fieldName.toLowerCase());
+        // For email field general check
+        if ("email".equals(fieldName)) {
+            return fullMessage.contains("email") || 
+                   fullMessage.contains("@");
+        }
+        
+        // For phone field general check
+        if ("tel".equals(fieldName) || "phone".equals(fieldName)) {
+            return fullMessage.contains("tel") || 
+                   fullMessage.contains("phone");
+        }
+        
+        // Generic check for other fields
+        return fullMessage.contains(fieldName.toLowerCase());
     }
 
     /**
@@ -83,5 +128,32 @@ public class ValidationUtils {
             return true;
         }
         return !ProfanityFilter.containsProfanity(text);
+    }
+    
+    /**
+     * Parses validation error messages from a ConstraintViolationException
+     * @param e The exception containing validation errors
+     * @return A map of field names to error messages
+     */
+    public static java.util.Map<String, String> parseValidationErrors(Exception e) {
+        java.util.Map<String, String> errors = new java.util.HashMap<>();
+        
+        if (e == null || e.getMessage() == null) {
+            return errors;
+        }
+        
+        String message = e.getMessage();
+        
+        // Parse messages that follow pattern: "fieldName: error message"
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("([a-zA-Z]+):\\s*([^,]+)");
+        java.util.regex.Matcher matcher = pattern.matcher(message);
+        
+        while (matcher.find()) {
+            String fieldName = matcher.group(1);
+            String errorMessage = matcher.group(2).trim();
+            errors.put(fieldName, errorMessage);
+        }
+        
+        return errors;
     }
 }

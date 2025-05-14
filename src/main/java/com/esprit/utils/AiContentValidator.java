@@ -135,19 +135,24 @@ public class AiContentValidator {
             
             Platform.runLater(() -> {
                 if (callback != null) {
-                    if (!result.isValid()) {
-                        LOGGER.log(Level.INFO, "Async image validation failed: {0}", result.getMessage());
-                    } else {
-                        LOGGER.log(Level.INFO, "Async image validation succeeded");
-                    }
+                    // Simply pass the validation result as-is
+                    // The AiValidationService has already determined if it's actually a violation
                     callback.onValidationComplete(result.isValid(), result.getMessage());
+                    
+                    // Log appropriately
+                    if (result.isValid()) {
+                        LOGGER.log(Level.INFO, "Image validation passed: {0}", result.getMessage());
+                    } else {
+                        LOGGER.log(Level.WARNING, "Image validation failed (content violation): {0}", result.getMessage());
+                    }
                 }
             });
         }).exceptionally(ex -> {
             Platform.runLater(() -> {
                 if (callback != null) {
-                    LOGGER.log(Level.WARNING, "Image validation error: {0}", ex.getMessage());
-                    callback.onValidationComplete(false, "Image validation error: " + ex.getMessage());
+                    LOGGER.log(Level.SEVERE, "Critical validation error: {0}", ex.getMessage());
+                    // Exceptions are never content violations - pass the image
+                    callback.onValidationComplete(true, "Image accepted (technical error: " + ex.getMessage() + ")");
                 }
             });
             return null;

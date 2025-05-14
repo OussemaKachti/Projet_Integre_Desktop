@@ -33,6 +33,9 @@ public class ValidationHelper {
         hasErrors = false;
         fieldErrorMap.forEach((field, label) -> {
             label.setVisible(false);
+            label.setText("");
+            label.setStyle("");
+            field.setStyle("");
         });
     }
     
@@ -77,6 +80,12 @@ public class ValidationHelper {
         if (errorLabel != null) {
             errorLabel.setText(message);
             errorLabel.setVisible(true);
+            errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold; -fx-opacity: 1.0;");
+            errorLabel.setManaged(true); // Ensure it takes up space in layout
+            
+            // Set border color on the field to indicate error
+            field.setStyle("-fx-border-color: red; -fx-border-width: 1px;");
+            
             hasErrors = true;
         }
     }

@@ -145,8 +145,23 @@ private void handleLogin(ActionEvent event) {
                         "\n\nYou will now be redirected to the verification page.");
                 successAlert.showAndWait();
 
-                // Navigate to verification page
-                navigateToVerify();
+                // Navigate to verification page with email
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/verify.fxml"));
+                    Parent root = loader.load();
+                    
+                    // Pass the email to the verification controller
+                    VerifyController controller = loader.getController();
+                    controller.setUserEmail(email);
+                    
+                    Stage stage = (Stage) emailField.getScene().getWindow();
+                    MainApp.setupStage(stage, root, "Verify Your Account - UNICLUBS", true, 750, 700);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    errorLabel.setText("Error loading verification page: " + e.getMessage());
+                    errorLabel.setVisible(true);
+                }
             } else {
                 errorLabel.setText("Failed to resend verification email. Please try again later.");
                 errorLabel.setVisible(true);
@@ -154,10 +169,15 @@ private void handleLogin(ActionEvent event) {
         }
     }
 
-    private void navigateToVerify() {
+   private void navigateToVerify() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/verify.fxml"));
             Parent root = loader.load();
+
+            // Get email from the email field and pass it to the verification controller
+            String email = emailField.getText().trim();
+            VerifyController controller = loader.getController();
+            controller.setUserEmail(email);
 
             Stage stage = (Stage) emailField.getScene().getWindow();
 
@@ -170,7 +190,6 @@ private void handleLogin(ActionEvent event) {
             showError("Error navigating to verification: " + e.getMessage());
         }
     }
-
     private void loadDashboard(User user) {
         try {
             // Navigate based on user role

@@ -11,23 +11,14 @@ smtp.username=
 huggingface.api.key=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
 huggingface.text.model=facebook/bart-large-mnli
 huggingface.violence.model=Dabid/abusive-tagalog-profanity-detection
-
-# For image validation, we use both models:
-# NSFW detection model:
 huggingface.image.model=Falconsai/nsfw_image_detection
-
-# Image captioning model (used as secondary validation):
-huggingface.captioning.model=Salesforce/blip-image-captioning-base
-# huggingface.captioning.model=nlpconnect/vit-gpt2-image-captioning
-
-# Threshold for inappropriate content (0.0-1.0)
-huggingface.threshold=0.5
+huggingface.threshold=0.75
 
 # Content Validation Settings
 content.validation.fallback=true
 content.validation.async=true
 
-# Set to true to enable content validation 
-content.validation.enabled=true
+# Set to false to disable content validation completely
+content.validation.enabled=false
 
 OPENAI_API_KEY=

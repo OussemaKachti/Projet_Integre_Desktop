@@ -169,6 +169,10 @@
 .error-message {
     -fx-text-fill: -fx-error;
     -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 0 5 0;
+    -fx-min-height: 20;
+    -fx-opacity: 1.0;
 }
 
 /* Header and Navigation */

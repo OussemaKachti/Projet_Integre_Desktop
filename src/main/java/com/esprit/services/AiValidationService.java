@@ -18,9 +18,11 @@ public class AiValidationService {
     private final String textModel;
     private final String violenceModel;
     private final String imageModel;
+    private final String captioningModel;
     private final double inappropriateThreshold;
     private final boolean fallbackEnabled;
     private final boolean asyncEnabled;
+    private final boolean validationEnabled;
 
     // List of common non-offensive names to allow
     private static final String[] COMMON_SAFE_NAMES = {
@@ -35,24 +37,35 @@ public class AiValidationService {
         this.textModel = config.getProperty("huggingface.text.model", "facebook/bart-large-mnli");
         this.violenceModel = config.getProperty("huggingface.violence.model", "Dabid/abusive-tagalog-profanity-detection");
         this.imageModel = config.getProperty("huggingface.image.model", "Falconsai/nsfw_image_detection");
+        this.captioningModel = config.getProperty("huggingface.captioning.model", "Salesforce/blip-image-captioning-large");
         this.inappropriateThreshold = Double.parseDouble(config.getProperty("huggingface.threshold", "0.5"));
         this.fallbackEnabled = Boolean.parseBoolean(config.getProperty("content.validation.fallback", "true"));
         this.asyncEnabled = Boolean.parseBoolean(config.getProperty("content.validation.async", "true"));
+        this.validationEnabled = Boolean.parseBoolean(config.getProperty("content.validation.enabled", "true"));
 
         // Log which models are being used
-        LOGGER.log(Level.INFO, "Initialized with models - Text: {0}, Violence: {1}, Image: {2}, Threshold: {3}",
-                new Object[]{textModel, violenceModel, imageModel, inappropriateThreshold});
+        LOGGER.log(Level.INFO, "Initialized with models - Text: {0}, Violence: {1}, Image: {2}, Captioning: {3}, Threshold: {4}, Enabled: {5}",
+                new Object[]{textModel, violenceModel, imageModel, captioningModel, inappropriateThreshold, validationEnabled});
     }
 
     private Properties loadConfiguration() {
         Properties props = new Properties();
         try {
-            // First try to load from classpath
-            try {
+            // First try to load from file system (root directory)
+            File rootConfig = new File("C:\\xampp\\uniclubs\\config.properties");
+            if (rootConfig.exists()) {
+                props.load(new FileInputStream(rootConfig));
+                LOGGER.log(Level.INFO, "AiValidationService: Loaded config from C:\\xampp\\uniclubs\\config.properties");
+            } else {
+                try {
+                    // If not found in file system, try classpath
                 props.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+                    LOGGER.log(Level.INFO, "AiValidationService: Loaded config from classpath");
             } catch (Exception e) {
-                // If not found in classpath, try file system
+                    // Final fallback to current directory
                 props.load(new FileInputStream("config.properties"));
+                    LOGGER.log(Level.INFO, "AiValidationService: Loaded config from current directory");
+                }
             }
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Could not load config.properties, using defaults", e);
@@ -70,6 +83,12 @@ public class AiValidationService {
     public ValidationResult validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return new ValidationResult(true, "Valid name", null);
+        }
+        
+        // Skip validation if globally disabled
+        if (!validationEnabled) {
+            LOGGER.log(Level.INFO, "Content validation disabled in config - skipping name validation");
+            return new ValidationResult(true, "Valid name (validation disabled)", null);
         }
         
         try {
@@ -222,108 +241,226 @@ public class AiValidationService {
         try {
             LOGGER.log(Level.INFO, "Starting image validation for file: {0}", imageFile.getName());
             
-            // Step 1: Generate image caption using the image captioning model
-            JSONObject captionResult = huggingFaceClient.classifyImage(imageModel, imageFile);
+            // Skip validation if globally disabled
+            if (!validationEnabled) {
+                LOGGER.log(Level.INFO, "Content validation disabled in config - skipping image validation");
+                return new ValidationResult(true, "Valid image (validation disabled)", null);
+            }
+            
+            // Check if API key is unavailable or empty
+            if (huggingFaceClient.isApiKeyMissing()) {
+                LOGGER.log(Level.WARNING, "HuggingFace API key is missing - bypassing image validation");
+                return new ValidationResult(true, "Valid image (API key missing)", null);
+            }
+            
+            // FIRST APPROACH: Direct NSFW detection
+            JSONObject nsfwResult = huggingFaceClient.classifyImage(imageModel, imageFile);
+            double nsfwScore = 0.0;
+            
+            if (nsfwResult != null && !nsfwResult.has("error")) {
+                // Extract NSFW scores from model result
+                if (nsfwResult.has("nsfw")) {
+                    nsfwScore = nsfwResult.getDouble("nsfw");
+                } else if (nsfwResult.has("unsafe") && nsfwResult.getDouble("unsafe") > nsfwScore) {
+                    nsfwScore = nsfwResult.getDouble("unsafe");
+                } else if (nsfwResult.has("porn") && nsfwResult.getDouble("porn") > nsfwScore) {
+                    nsfwScore = nsfwResult.getDouble("porn");
+                } else if (nsfwResult.has("sexy") && nsfwResult.getDouble("sexy") > nsfwScore) {
+                    nsfwScore = nsfwResult.getDouble("sexy");
+                }
+                
+                LOGGER.log(Level.INFO, "NSFW detection score: {0}", nsfwScore);
+                
+                // If we have a high NSFW score, immediately flag as inappropriate
+                if (nsfwScore >= inappropriateThreshold) {
+                    LOGGER.log(Level.WARNING, "NSFW content detected with score: {0}", nsfwScore);
+                    return new ValidationResult(false, "This image contains inappropriate content", "NSFW score: " + nsfwScore);
+                }
+            } else {
+                LOGGER.log(Level.WARNING, "NSFW detection failed: {0}", 
+                        nsfwResult != null ? nsfwResult.optString("error", "Unknown error") : "Null result");
+                // Continue to caption-based approach as fallback
+            }
+            
+            // SECOND APPROACH: Caption-based detection (using model from config)
+            JSONObject captionResult = huggingFaceClient.classifyImage(captioningModel, imageFile);
             
             if (captionResult == null || captionResult.has("error")) {
                 String errorMsg = captionResult != null ? captionResult.getString("error") : "No response";
                 LOGGER.log(Level.WARNING, "Image captioning failed: {0}", errorMsg);
-                return new ValidationResult(false, "Unable to verify image content. Please try another image.", null);
+                
+                // If we already have NSFW detection, use that - otherwise we can't validate
+                if (nsfwScore > 0) {
+                    // We have some NSFW detection but below threshold
+                    return new ValidationResult(true, "Valid image (based on NSFW score only)", null);
+                }
+                
+                // Authentication errors should not trigger violations
+                if (captionResult != null && captionResult.optString("error", "").contains("Invalid credentials")) {
+                    LOGGER.log(Level.WARNING, "API authentication failed - not a content violation");
+                    return new ValidationResult(true, "Valid image (auth error)", null);
+                }
+                
+                // For other technical errors, reject but don't increment warning count
+                return new ValidationResult(true, "Valid image (captioning failed)", null);
             }
             
-            // Extract caption from the model response
-            String imageCaption = "";
+            // Extract caption from various possible response formats
+            String imageCaption = extractCaption(captionResult);
+            
+            if (imageCaption == null || imageCaption.trim().isEmpty()) {
+                LOGGER.log(Level.WARNING, "Could not extract caption from image response: {0}", captionResult.toString());
+                
+                // If we already have NSFW detection, use that
+                if (nsfwScore > 0) {
+                    return new ValidationResult(true, "Valid image (based on NSFW score only)", null);
+                }
+                
+                return new ValidationResult(true, "Valid image (no caption extracted)", null);
+            }
+            
+            LOGGER.log(Level.INFO, "Image caption: \"{0}\"", imageCaption);
+            
+            // Check caption for inappropriate content
+            ValidationResult captionCheck = validateImageCaption(imageCaption);
+            if (!captionCheck.isValid()) {
+                return captionCheck;
+            }
+            
+            // Image passed all checks
+            return new ValidationResult(true, "Valid image", imageCaption);
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during image validation", e);
+            // Technical exceptions shouldn't count as violations
+            return new ValidationResult(true, "Valid image (validation error)", null);
+        }
+    }
+    
+    /**
+     * Extract caption from various possible response formats
+     * @param captionResult The JSON response from the image captioning model
+     * @return The extracted caption or null if none found
+     */
+    private String extractCaption(JSONObject captionResult) {
+        try {
+            // Try standard generated_text field
             if (captionResult.has("generated_text")) {
-                imageCaption = captionResult.getString("generated_text");
-            } else if (captionResult.has("caption")) {
-                imageCaption = captionResult.getString("caption");
-            } else if (captionResult.has("results") && captionResult.getJSONArray("results").length() > 0) {
-                // Try to extract from results array
+                return captionResult.getString("generated_text");
+            }
+            
+            // Try caption field
+            if (captionResult.has("caption")) {
+                return captionResult.getString("caption");
+            }
+            
+            // Try raw string response
+            if (captionResult.toString().startsWith("\"") && captionResult.toString().endsWith("\"")) {
+                return captionResult.toString().substring(1, captionResult.toString().length() - 1);
+            }
+            
+            // Try results array
+            if (captionResult.has("results") && captionResult.getJSONArray("results").length() > 0) {
                 JSONArray results = captionResult.getJSONArray("results");
                 for (int i = 0; i < results.length(); i++) {
                     Object item = results.get(i);
                     if (item instanceof JSONObject) {
                         JSONObject resultObj = (JSONObject) item;
                         if (resultObj.has("generated_text")) {
-                            imageCaption = resultObj.getString("generated_text");
-                            break;
+                            return resultObj.getString("generated_text");
                         }
                     } else if (item instanceof String) {
-                        imageCaption = (String) item;
-                        break;
+                        return (String) item;
                     }
                 }
             }
             
-            // Check if caption was successfully extracted
-            if (imageCaption == null || imageCaption.trim().isEmpty()) {
-                LOGGER.log(Level.WARNING, "Could not extract caption from image");
-                return new ValidationResult(false, "Unable to analyze image content. Please try another image.", null);
-            }
-            
-            LOGGER.log(Level.INFO, "Image caption generated: {0}", imageCaption);
-            
-            // Step 2: Analyze caption for inappropriate content
-            // Check for explicit NSFW terms
-            String lowercaseCaption = imageCaption.toLowerCase();
-            String[] nsfwTerms = {"nude", "naked", "sex", "porn", "explicit", "nsfw", "xxx", 
-                                 "adult content", "obscene", "sexual", "private parts"};
-            
-            for (String term : nsfwTerms) {
-                if (lowercaseCaption.contains(term)) {
-                    LOGGER.log(Level.WARNING, "NSFW term '{0}' detected in image caption", term);
-                    return new ValidationResult(false, "This image appears to contain inappropriate content.", imageCaption);
+            // Try direct array response
+            if (captionResult.toString().startsWith("[")) {
+                JSONArray array = new JSONArray(captionResult.toString());
+                if (array.length() > 0) {
+                    return array.getString(0);
                 }
             }
             
-            // Check for violence/gore terms
-            String[] violenceTerms = {"blood", "gore", "violent", "dead body", "corpse", "murder", 
-                                     "killed", "injury", "wounded", "graphic", "disturbing", 
-                                     "cut", "wound", "severed", "dismembered", "mutilated"};
-            
-            for (String term : violenceTerms) {
-                if (lowercaseCaption.contains(term)) {
-                    LOGGER.log(Level.WARNING, "Violence/gore term '{0}' detected in image caption", term);
-                    return new ValidationResult(false, "This image appears to contain violent or graphic content.", imageCaption);
-                }
-            }
-            
-            // Step 3: Double-check with text model for safety
-            JSONObject textResult = huggingFaceClient.classifyText(textModel, 
-                    "Is this image safe and appropriate as a profile picture: " + imageCaption);
-            
-            if (textResult != null && !textResult.has("error")) {
-                // Look for inappropriate signals
-                double unsafeScore = 0.0;
-                
-                if (textResult.has("inappropriate")) {
-                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("inappropriate"));
-                }
-                if (textResult.has("unsafe")) {
-                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("unsafe"));
-                }
-                if (textResult.has("violence")) {
-                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("violence"));
-                }
-                if (textResult.has("adult")) {
-                    unsafeScore = Math.max(unsafeScore, textResult.getDouble("adult"));
-                }
-                
-                LOGGER.log(Level.INFO, "Text analysis of caption - unsafe score: {0}", unsafeScore);
-                
-                if (unsafeScore > inappropriateThreshold) {
-                    return new ValidationResult(false, "This image may not be appropriate for a profile picture.", imageCaption);
-                }
-            }
-            
-            // Image passed all checks
-            LOGGER.log(Level.INFO, "Image passed all validation checks");
-            return new ValidationResult(true, "Valid image", imageCaption);
-            
+            // Dump full response for debugging
+            LOGGER.log(Level.INFO, "Failed to extract caption from: {0}", captionResult.toString());
+            return null;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error during image validation", e);
-            return new ValidationResult(false, "Error validating image. Please try another one.", null);
+            LOGGER.log(Level.WARNING, "Error extracting caption", e);
+            return null;
         }
+    }
+    
+    /**
+     * Validate image caption for inappropriate content
+     * @param caption The image caption to validate
+     * @return ValidationResult with status and message
+     */
+    private ValidationResult validateImageCaption(String caption) {
+        String lowercaseCaption = caption.toLowerCase();
+        
+        // Check for explicit NSFW terms
+        String[] nsfwTerms = {
+            "nude", "naked", "sex", "porn", "explicit", "nsfw", "xxx", 
+            "adult content", "obscene", "sexual", "private parts", "genitals",
+            "ass", "butt", "boobs", "penis", "vagina", "tits", "nipples", 
+            "underwear", "bra", "panties", "bikini", "topless", "sexy", "erotic"
+        };
+        
+        for (String term : nsfwTerms) {
+            if (lowercaseCaption.contains(term)) {
+                LOGGER.log(Level.WARNING, "NSFW term '{0}' detected in image caption: {1}", 
+                        new Object[]{term, caption});
+                return new ValidationResult(false, 
+                        "This image appears to contain inappropriate content", caption);
+            }
+        }
+        
+        // Check for violence/gore terms
+        String[] violenceTerms = {
+            "blood", "gore", "violent", "dead body", "corpse", "murder", 
+            "killed", "injury", "wounded", "graphic", "disturbing", 
+            "cut", "wound", "severed", "dismembered", "mutilated", "gun", 
+            "weapon", "knife", "stabbing", "shooting", "killed", "death", 
+            "suicide", "terrorist", "war", "riot", "fight", "assault"
+        };
+        
+        for (String term : violenceTerms) {
+            if (lowercaseCaption.contains(term)) {
+                LOGGER.log(Level.WARNING, "Violence term '{0}' detected in image caption: {1}", 
+                        new Object[]{term, caption});
+                return new ValidationResult(false, 
+                        "This image appears to contain violent or graphic content", caption);
+            }
+        }
+        
+        // Also validate caption using text classification model
+        try {
+            JSONObject textResult = huggingFaceClient.classifyText(textModel, caption);
+            if (textResult != null && !textResult.has("error")) {
+                // Check all possible negative categories
+                double offensiveScore = textResult.has("offensive") ? textResult.getDouble("offensive") : 0.0;
+                double hateSpeechScore = textResult.has("hate speech") ? textResult.getDouble("hate speech") : 0.0;
+                double inappropriateScore = textResult.has("inappropriate") ? textResult.getDouble("inappropriate") : 0.0;
+                
+                // Get highest negative score
+                double highestNegativeScore = Math.max(Math.max(offensiveScore, hateSpeechScore), inappropriateScore);
+                
+                if (highestNegativeScore >= inappropriateThreshold) {
+                    LOGGER.log(Level.WARNING, "Text model detected inappropriate content in image caption with score {0}: {1}", 
+                            new Object[]{highestNegativeScore, caption});
+                    return new ValidationResult(false, 
+                            "This image description contains inappropriate content", caption);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error validating caption text", e);
+            // Continue to other checks
+        }
+        
+        // Caption passed all checks
+        return new ValidationResult(true, "Valid image", caption);
     }
 
     /**

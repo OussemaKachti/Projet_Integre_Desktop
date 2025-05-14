@@ -189,6 +189,14 @@ public class RegisterController {
         validator.reset();
         errorLabel.setVisible(false);
         
+        // Reset any previously shown error messages
+        emailErrorLabel.setText("");
+        phoneErrorLabel.setText("");
+        emailErrorLabel.setVisible(false);
+        phoneErrorLabel.setVisible(false);
+        emailField.setStyle("");
+        phoneField.setStyle("");
+        
         // Get form data
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
@@ -196,6 +204,33 @@ public class RegisterController {
         String phone = phoneField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
+        
+        // Track if we have validation errors
+        boolean hasErrors = false;
+        
+        // PRE-CHECK for existing email - Add this direct check before validation
+        User existingUser = authService.findUserByEmail(email);
+        if (existingUser != null) {
+            // Email already exists - directly display error
+            emailErrorLabel.setText("This email address is already registered");
+            emailErrorLabel.setVisible(true);
+            emailField.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            hasErrors = true;
+        }
+        
+        // PRE-CHECK for existing phone number
+        User existingUserByPhone = authService.findUserByPhone(phone);
+        if (existingUserByPhone != null) {
+            // Phone number already exists - directly display error
+            phoneErrorLabel.setText("This phone number is already registered");
+            phoneErrorLabel.setVisible(true);
+            phoneField.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            return;
+        }
         
         // Basic validation first
         boolean isFirstNameValid = validator.validateRequired(firstNameField, "First name is required");
@@ -324,20 +359,60 @@ public class RegisterController {
                         
                         // Show success and navigate to verification page
                         navigateToVerification(registeredUser);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                         
-                        // Check if it's a unique constraint violation and provide specific error message
-                        if (ValidationUtils.isUniqueConstraintViolation(e, "email")) {
-                            validator.showError(emailField, "This email is already registered");
-                        } else if (ValidationUtils.isUniqueConstraintViolation(e, "tel")) {
-                            validator.showError(phoneField, "This phone number is already registered");
-                        } else {
-                            // Generic error message for other exceptions
-                            errorLabel.setText("Error: " + e.getMessage());
-                            errorLabel.setVisible(true);
+                        // Check if it's a validation exception
+                        if (ex.getMessage() != null && ex.getMessage().contains("ConstraintViolation")) {
+                            // Parse validation errors
+                            java.util.Map<String, String> validationErrors = ValidationUtils.parseValidationErrors(ex);
+                            
+                            // Display specific error for each field
+                            if (validationErrors.containsKey("firstName")) {
+                                validator.showError(firstNameField, validationErrors.get("firstName"));
+                                registerButton.setDisable(false);
+                            }
+                            
+                            if (validationErrors.containsKey("lastName")) {
+                                validator.showError(lastNameField, validationErrors.get("lastName"));
+                                registerButton.setDisable(false);
+                            }
+                            
+                            if (validationErrors.containsKey("email")) {
+                                validator.showError(emailField, validationErrors.get("email"));
+                                registerButton.setDisable(false);
+                            }
+                            
+                            if (validationErrors.containsKey("password")) {
+                                validator.showError(passwordField, validationErrors.get("password"));
+                                registerButton.setDisable(false);
+                            }
+                            
+                            if (validationErrors.containsKey("phone")) {
+                                validator.showError(phoneField, validationErrors.get("phone"));
+                                registerButton.setDisable(false);
+                            }
+                            
+                            // If we found and displayed specific errors, return
+                            if (!validationErrors.isEmpty()) {
+                                return;
+                            }
                         }
-                        registerButton.setDisable(false);
+                        
+                        // Handle other types of exceptions as before
+                        if (ValidationUtils.isUniqueConstraintViolation(ex, "email")) {
+                            validator.showError(emailField, "This email is already registered");
+                            LOGGER.log(Level.INFO, "Registration failed: Email already exists: {0}", email);
+                            registerButton.setDisable(false);
+                        } else if (ValidationUtils.isUniqueConstraintViolation(ex, "tel")) {
+                            validator.showError(phoneField, "This phone number is already registered");
+                            LOGGER.log(Level.INFO, "Registration failed: Phone number already exists: {0}", phone);
+                            registerButton.setDisable(false);
+                        } else {
+                            errorLabel.setText("Error: " + ex.getMessage());
+                            errorLabel.setVisible(true);
+                            registerButton.setDisable(false);
+                        }
                     }
                 });
             } catch (Exception e) {
@@ -367,13 +442,17 @@ public class RegisterController {
                         ex.printStackTrace();
                         if (ValidationUtils.isUniqueConstraintViolation(ex, "email")) {
                             validator.showError(emailField, "This email is already registered");
+                            LOGGER.log(Level.INFO, "Registration failed: Email already exists: {0}", email);
+                            registerButton.setDisable(false);
                         } else if (ValidationUtils.isUniqueConstraintViolation(ex, "tel")) {
                             validator.showError(phoneField, "This phone number is already registered");
+                            LOGGER.log(Level.INFO, "Registration failed: Phone number already exists: {0}", phone);
+                            registerButton.setDisable(false);
                         } else {
                             errorLabel.setText("Error: " + ex.getMessage());
                             errorLabel.setVisible(true);
+                            registerButton.setDisable(false);
                         }
-                        registerButton.setDisable(false);
                     }
                 });
             }

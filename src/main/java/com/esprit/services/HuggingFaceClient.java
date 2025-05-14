@@ -33,11 +33,20 @@ public class HuggingFaceClient {
         try {
             Properties properties = new Properties();
             try {
-                // First try to load from classpath
-                properties.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+                // First try to load from file system (root directory)
+                File rootConfig = new File("C:\\xampp\\uniclubs\\config.properties");
+                if (rootConfig.exists()) {
+                    properties.load(new FileInputStream(rootConfig));
+                    LOGGER.log(Level.INFO, "Loaded config from C:\\xampp\\uniclubs\\config.properties");
+                } else {
+                    // If not found in file system, try classpath
+                    properties.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
+                    LOGGER.log(Level.INFO, "Loaded config from classpath");
+                }
             } catch (Exception e) {
-                // If not found in classpath, try file system
+                // Final fallback to current directory
                 properties.load(new FileInputStream("config.properties"));
+                LOGGER.log(Level.INFO, "Loaded config from current directory");
             }
             String key = properties.getProperty("huggingface.api.key");
             if (key == null || key.trim().isEmpty()) {
@@ -49,6 +58,14 @@ public class HuggingFaceClient {
             LOGGER.log(Level.SEVERE, "Error loading Hugging Face API key", e);
             return "";
         }
+    }
+    
+    /**
+     * Checks if the API key is missing or empty
+     * @return true if the API key is missing or empty, false otherwise
+     */
+    public boolean isApiKeyMissing() {
+        return apiKey == null || apiKey.trim().isEmpty();
     }
     
     /**
@@ -326,87 +343,124 @@ public class HuggingFaceClient {
                 return cachedResult;
             }
             
-            // Minimal logging
-            LOGGER.log(Level.FINE, "Classifying image with model: {0}", model);
+            // Log the request details
+            LOGGER.log(Level.INFO, "Sending image to model: {0}", model);
             
+            // Read and encode the image
             byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
             String base64Image = Base64.getEncoder().encodeToString(imageBytes);
             
-            // Create payload based on model requirements
+            // Create payload based on model type
             String payload;
+            HttpRequest request;
+            
+            // Key part: different formats for different model types
             if (model.contains("nsfw_image_detection")) {
-                // Format for nsfw detection model
+                // Format for NSFW detection models (JSON with base64 image)
                 JSONObject requestObj = new JSONObject();
                 requestObj.put("inputs", base64Image);
                 requestObj.put("options", new JSONObject().put("wait_for_model", true));
                 payload = requestObj.toString();
-            } else {
-                // Default format
+                
+                request = HttpRequest.newBuilder()
+                    .uri(URI.create(HUGGING_FACE_API_URL + model))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .build();
+            } 
+            else if (model.contains("vit-gpt2-image-captioning") || 
+                     model.contains("blip-image-captioning")) {
+                // Format for image captioning models (binary image data)
+                request = HttpRequest.newBuilder()
+                    .uri(URI.create(HUGGING_FACE_API_URL + model))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/octet-stream")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(imageBytes))
+                    .build();
+            }
+            else {
+                // Default format for other image models (JSON with base64)
                 JSONObject requestObj = new JSONObject();
                 requestObj.put("inputs", base64Image);
                 payload = requestObj.toString();
+                
+                request = HttpRequest.newBuilder()
+                    .uri(URI.create(HUGGING_FACE_API_URL + model))
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload))
+                    .build();
             }
             
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(HUGGING_FACE_API_URL + model))
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload))
-                .build();
-            
+            // Send the request
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             
-            // Only log on error
-            if (response.statusCode() != 200) {
-                LOGGER.log(Level.WARNING, "API image request failed with status {0}: {1}", 
-                    new Object[]{response.statusCode(), response.body()});
-            }
+            // Log full response for debugging
+            LOGGER.log(Level.INFO, "API response for {0}: Status={1}, Body={2}", 
+                new Object[]{model, response.statusCode(), response.body()});
             
             JSONObject resultObject = null;
             
             if (response.statusCode() == 200) {
                 String responseBody = response.body();
                 
-                // Check if response is an array or object
+                // Handle different response formats
                 if (responseBody.trim().startsWith("[")) {
-                    // Handle array response
+                    // Array response
                     JSONArray jsonArray = new JSONArray(responseBody);
                     resultObject = new JSONObject();
                     resultObject.put("results", jsonArray);
                     
-                    // Extract and add nsfw scores to top level
-                    if (jsonArray.length() > 0) {
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            if (jsonArray.get(i) instanceof JSONObject) {
-                                JSONObject item = jsonArray.getJSONObject(i);
-                                // Extract key scores to top level
-                                for (String key : new String[]{"nsfw", "adult", "porn", "unsafe"}) {
-                                    if (item.has(key)) {
-                                        double score = item.getDouble(key);
-                                        resultObject.put(key, score);
+                    // For captioning models that return array with text
+                    if (model.contains("image-captioning")) {
+                        if (jsonArray.length() > 0) {
+                            // Try to get the caption from the first element
+                            if (jsonArray.get(0) instanceof JSONObject) {
+                                JSONObject firstItem = jsonArray.getJSONObject(0);
+                                if (firstItem.has("generated_text")) {
+                                    resultObject.put("generated_text", firstItem.getString("generated_text"));
+                                }
+                            } else if (jsonArray.get(0) instanceof String) {
+                                resultObject.put("generated_text", jsonArray.getString(0));
+                            }
+                        }
+                    }
+                    
+                    // Extract NSFW scores for detection models
+                    if (model.contains("nsfw")) {
+                        if (jsonArray.length() > 0) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                if (jsonArray.get(i) instanceof JSONObject) {
+                                    JSONObject item = jsonArray.getJSONObject(i);
+                                    for (String key : new String[]{"nsfw", "adult", "porn", "unsafe", "sexy"}) {
+                                        if (item.has(key)) {
+                                            resultObject.put(key, item.getDouble(key));
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 } else if (responseBody.trim().startsWith("{")) {
-                    // Standard JSON object response
+                    // Object response
                     resultObject = new JSONObject(responseBody);
                 } else {
-                    // Handle unexpected response format
-                    LOGGER.log(Level.WARNING, "Unexpected image response format: {0}", responseBody);
+                    // String response (common for some captioning models)
                     resultObject = new JSONObject();
-                    resultObject.put("error", "Unexpected response format");
-                    resultObject.put("rawResponse", responseBody);
+                    // Clean the response if it's a raw string with quotes
+                    if (responseBody.startsWith("\"") && responseBody.endsWith("\"")) {
+                        responseBody = responseBody.substring(1, responseBody.length() - 1);
+                    }
+                    resultObject.put("generated_text", responseBody);
                 }
                 
-                // Cache the result for future use
+                // Cache the result
                 if (resultObject != null && !resultObject.has("error")) {
                     cache.put(cacheKey, resultObject, 60, java.util.concurrent.TimeUnit.MINUTES);
                 }
             } else if (response.statusCode() == 503) {
                 // Model is loading
-                LOGGER.log(Level.FINE, "Model is loading, response: {0}", response.body());
                 resultObject = new JSONObject();
                 resultObject.put("error", "Model is loading, please try again later");
             } else {

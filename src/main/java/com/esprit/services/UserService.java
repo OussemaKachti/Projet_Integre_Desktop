@@ -162,10 +162,14 @@ public class UserService implements Service<User>, AutoCloseable {
 
     public User findByEmail(String email) {
         try {
+            // Clear the EntityManager cache to ensure fresh data
+            em.clear();
+            
             TypedQuery<User> query = em.createQuery(
                     "SELECT u FROM User u WHERE u.email = :email",
                     User.class);
             query.setParameter("email", email);
+            query.setHint("jakarta.persistence.cache.storeMode", "REFRESH"); // Force refresh from database
             List<User> result = query.getResultList();
             return result.isEmpty() ? null : result.get(0);
         } catch (Exception e) {
