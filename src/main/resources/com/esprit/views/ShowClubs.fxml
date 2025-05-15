@@ -34,7 +34,8 @@
 
         <!-- User Profile and Contact -->
         <HBox spacing="15" alignment="CENTER_RIGHT">
-            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container">
+            <!-- User Profile Section - Now clickable, no dropdown -->
+            <StackPane fx:id="userProfileContainer" styleClass="user-profile-container" onMouseClicked="#navigateToProfile">
                 <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
                     <ImageView fx:id="userProfilePic" fitHeight="45" fitWidth="45" styleClass="profile-pic">
                         <Image url="@../images/default-profile-png.png"/>
@@ -42,7 +43,8 @@
                     <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
                 </HBox>
             </StackPane>
-            <Button text="Contact Us" styleClass="contact-button"/>
+            <!-- Changed to Logout button -->
+            <Button text="Logout" styleClass="contact-button" onAction="#handleLogout"/>
         </HBox>
     </HBox>
 
@@ -58,7 +60,7 @@
         <!-- Search and Create Club Container -->
         <HBox spacing="15" alignment="CENTER">
             <VBox.margin>
-                <Insets top="10" bottom="15"/>
+                <Insets top="10" bottom="30"/>
             </VBox.margin>
             
             <!-- Styled Search Box -->
@@ -81,7 +83,7 @@
     </VBox>
 
     <!-- Main Content with Clubs -->
-    <VBox AnchorPane.topAnchor="180.0" 
+    <VBox AnchorPane.topAnchor="200.0" 
           AnchorPane.bottomAnchor="80.0"
           AnchorPane.leftAnchor="0.0" 
           AnchorPane.rightAnchor="0.0">

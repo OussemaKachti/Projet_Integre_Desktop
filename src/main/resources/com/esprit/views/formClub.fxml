@@ -5,10 +5,12 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.FormClubController">
+<AnchorPane prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.esprit.controllers.FormClubController">
     <VBox alignment="TOP_CENTER" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
         <padding>
             <Insets bottom="20" left="20" right="20" top="20"/>
@@ -29,10 +31,16 @@
             <TextArea fx:id="descriptionField" promptText="Enter description" prefWidth="400" prefHeight="100" wrapText="true" />
         </VBox>
 
-        <!-- Club Image URL -->
+        <!-- Club Image Upload Section -->
         <VBox alignment="TOP_LEFT" spacing="5">
-            <Label style="-fx-font-weight: bold;" text="Club Image URL" />
-            <TextField fx:id="imageField" promptText="Enter image URL (e.g., http://...)" prefWidth="400" prefHeight="35" />
+            <Label style="-fx-font-weight: bold;" text="Club Image" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="chooseImageButton" text="Choose Image" onAction="#handleChooseImage" 
+                       style="-fx-background-color: #3498db; -fx-text-fill: white;" prefHeight="35" />
+                <Label fx:id="selectedImageLabel" text="No file selected" />
+            </HBox>
+            <!-- Image Preview -->
+            <ImageView fx:id="imagePreview" fitHeight="150" fitWidth="200" preserveRatio="true" />
         </VBox>
 
         <!-- Info Label -->

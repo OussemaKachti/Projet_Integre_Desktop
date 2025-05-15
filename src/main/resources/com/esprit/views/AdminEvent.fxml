@@ -83,7 +83,7 @@
                         
                         <Button onAction="#navigateToCategoryManagement" styleClass="sidebar-button" text="Category Management" maxWidth="Infinity" alignment="BASELINE_LEFT">
                             <graphic>
-                                <Label text="🗂️" />
+                                <Label text="🗂" />
                             </graphic>
                         </Button>
                     </VBox>
@@ -268,16 +268,6 @@
                                 <Label style="-fx-text-fill: #666666;" text="↻ Refresh">
                                     <font>
                                         <Font name="Arial" size="13" />
-                                    </font>
-                                </Label>
-                            </graphic>
-                        </Button>
-
-                        <Button fx:id="addEventButton" onAction="#handleAddEvent" style="-fx-background-color: #1e90ff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15;">
-                            <graphic>
-                                <Label style="-fx-text-fill: white;" text="+ Add New Event">
-                                    <font>
-                                        <Font name="Arial Bold" size="13" />
                                     </font>
                                 </Label>
                             </graphic>

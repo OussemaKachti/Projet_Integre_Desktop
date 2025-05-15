@@ -63,7 +63,6 @@ public class CompetitionUserController implements Initializable{
     @FXML private ImageView userProfilePic;
     @FXML private Label userNameLabel;
     @FXML private StackPane userProfileContainer;
-    @FXML private VBox profileDropdown;
 
     // Season navigation components
     @FXML private FlowPane seasonsContainer;
@@ -118,6 +117,10 @@ public class CompetitionUserController implements Initializable{
                             userProfilePic.setPreserveRatio(true);
                             userProfilePic.setFitHeight(40);
                             userProfilePic.setFitWidth(40);
+
+                            // Apply circular clip to profile picture
+                            javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
+                            userProfilePic.setClip(clip);
                         } else {
                             loadDefaultProfilePic();
                         }
@@ -132,23 +135,6 @@ public class CompetitionUserController implements Initializable{
                 // Apply circular clip to profile picture
                 javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
                 userProfilePic.setClip(clip);
-
-                // Ensure dropdown is properly positioned and hidden initially
-                javafx.application.Platform.runLater(() -> {
-                    profileDropdown.setVisible(false);
-                    profileDropdown.setManaged(false);
-                    profileDropdown.toFront();
-
-                    // Position the dropdown properly
-                    userProfileContainer.layout(); // Force layout to calculate proper size
-                    // Set mouse event handlers for better interaction
-                    profileDropdown.setOnMouseEntered(e -> profileDropdown.setVisible(true));
-                    profileDropdown.setOnMouseExited(e -> {
-                        if (!userProfileContainer.isHover()) {
-                            hideProfileDropdown();
-                        }
-                    });
-                });
             }
 
             // Set up back button with icon
@@ -202,37 +188,6 @@ public class CompetitionUserController implements Initializable{
         } catch (Exception e) {
             System.err.println("Error loading profile image: " + e.getMessage());
         }
-    }
-
-    @FXML
-    public void toggleProfileDropdown() {
-        if (profileDropdown.isVisible()) {
-            hideProfileDropdown();
-        } else {
-            showProfileDropdown();
-        }
-    }
-
-    @FXML
-    public void showProfileDropdown() {
-        System.out.println("Showing profile dropdown"); // Debug message
-
-        // Ensure dropdown is visible and positioned correctly
-        profileDropdown.toFront();
-        profileDropdown.setVisible(true);
-        profileDropdown.setManaged(true);
-
-        // Position the dropdown correctly
-        double xOffset = 0;
-        double yOffset = userProfileContainer.getHeight() + 5;
-        profileDropdown.setTranslateX(xOffset);
-        profileDropdown.setTranslateY(yOffset);
-    }
-
-    @FXML
-    public void hideProfileDropdown() {
-        profileDropdown.setVisible(false);
-        profileDropdown.setManaged(false);
     }
 
     private void setupBackButton() {

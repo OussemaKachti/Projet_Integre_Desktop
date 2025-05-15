@@ -199,8 +199,6 @@ private void handleLogin(ActionEvent event) {
             } else {
                 // For all other users, navigate to home page
                 navigateToHome();
-                // For all other users, navigate to home page
-                navigateToHome();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -363,12 +361,32 @@ private void navigateToForgotPassword(ActionEvent event) throws IOException {
         errorLabel.setVisible(true);
     }
 
-    private void navigateToHome() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
-        stage.show();
+    private void navigateToHome() {
+        try {
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            
+            if (stage != null) {
+                MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
+                stage.show();
+            } else {
+                // If stage is null, create a new stage
+                stage = new Stage();
+                MainApp.setupStage(stage, root, "Home - UNICLUBS", false);
+                
+                // Close any existing login window
+                if (emailField != null && emailField.getScene() != null && 
+                    emailField.getScene().getWindow() != null) {
+                    ((Stage) emailField.getScene().getWindow()).close();
+                }
+                
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error navigating to home: " + e.getMessage());
+        }
     }
 
     /**

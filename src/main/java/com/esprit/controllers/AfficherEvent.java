@@ -80,9 +80,6 @@ public class AfficherEvent implements Initializable {
     @FXML
     private Label userNameLabel;
 
-    @FXML
-    private VBox profileDropdown;
-
     private ServiceEvent serviceEvent;
     private List<Evenement> allEvents;
     private User currentUser; // Added for user profile
@@ -164,10 +161,6 @@ public class AfficherEvent implements Initializable {
             // Apply circular clip to profile picture
             double radius = 22.5; // Match the style
             userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
-
-            // Initially hide the dropdown
-            profileDropdown.setVisible(false);
-            profileDropdown.setManaged(false);
         }
     }
 
@@ -184,37 +177,6 @@ public class AfficherEvent implements Initializable {
         }
     }
 
-    /**
-     * Show profile dropdown menu
-     * Added method from HomeController integration
-     */
-    @FXML
-    private void showProfileDropdown() {
-        profileDropdown.setVisible(true);
-        profileDropdown.setManaged(true);
-    }
-
-    /**
-     * Hide profile dropdown menu
-     * Added method from HomeController integration
-     */
-    @FXML
-    private void hideProfileDropdown() {
-        profileDropdown.setVisible(false);
-        profileDropdown.setManaged(false);
-    }
-
-    /**
-     * Navigate to user profile view
-     * Added method from HomeController integration
-     */
-    @FXML
-    private void navigateToProfile() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
-    }
     @FXML
     private void navigateToClubPolls() throws IOException {
         // Test database connection before attempting to load polls view
@@ -238,15 +200,6 @@ public class AfficherEvent implements Initializable {
     }
     @FXML
     private Button navButton; // Injection du bouton
-
-    // @FXML
-    // private void navigateToHome1() throws IOException {
-    // FXMLLoader loader = new
-    // FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
-    // Parent root = loader.load();
-    // Stage stage = (Stage) navButton.getScene().getWindow();
-    // stage.getScene().setRoot(root);
-    // }
 
     @FXML
     private void navigateToProducts() throws IOException {
@@ -456,6 +409,13 @@ public class AfficherEvent implements Initializable {
     }
 
     private VBox createEventCard(Evenement event) {
+        // Debug logging to help understand event image paths
+        System.out.println("==========================================");
+        System.out.println("Creating card for event ID: " + event.getId());
+        System.out.println("Event Name: " + event.getNom_event());
+        System.out.println("Event Image Path: " + event.getImage_description());
+        System.out.println("==========================================");
+
         // Récupérer les noms du club et de la catégorie à partir des IDs
         String categoryName = serviceEvent.getCategoryNameById(event.getCategorie_id());
         String clubName = serviceEvent.getClubNameById(event.getClub_id());
@@ -475,26 +435,8 @@ public class AfficherEvent implements Initializable {
         imageView.setPreserveRatio(true);
         imageView.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 15 15 0 0;");
 
-        // Try to load image from path or use default
-        try {
-            if (event.getImage_description() != null && !event.getImage_description().isEmpty()) {
-                File imageFile = new File(event.getImage_description());
-                if (imageFile.exists()) {
-                    Image image = new Image(imageFile.toURI().toString());
-                    imageView.setImage(image);
-                } else {
-                    // Default image if file not found
-                    imageView.setImage(new Image("/images/default-event.png"));
-                }
-            } else {
-                // Default image if no path
-                imageView.setImage(new Image("/images/default-event.png"));
-            }
-        } catch (Exception ex) {
-            System.err.println("Error loading image: " + ex.getMessage());
-            // Use default image on error
-            imageView.setImage(new Image("/images/default-event.png"));
-        }
+        // Image setup
+        loadEventImage(imageView, event);
 
         // Create status label
         Label statusLabel = new Label();
@@ -939,5 +881,123 @@ public class AfficherEvent implements Initializable {
             System.err.println("Error loading CalendarView.fxml: " + ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    // Helper method for loading default image
+    private void loadDefaultImage(ImageView imageView) {
+        try {
+            URL defaultImageUrl = getClass().getResource("/images/default-profile.png");
+            if (defaultImageUrl != null) {
+                Image defaultImage = new Image(defaultImageUrl.toString());
+                imageView.setImage(defaultImage);
+                System.out.println("Loaded default image");
+            } else {
+                System.err.println("Default image not found in resources");
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading default image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // Image setup methods for event cards
+    private void loadEventImage(ImageView imageView, Evenement event) {
+        try {
+            if (event.getImage_description() != null && !event.getImage_description().isEmpty()) {
+                String imagePath = event.getImage_description();
+                System.out.println("DEBUG: Event ID " + event.getId() + " - Attempting to load image: " + imagePath);
+                boolean imageLoaded = false;
+                
+                // Get just the filename (for Symfony uploads)
+                String filename = new File(imagePath).getName();
+                
+                // Try all possible locations for the image
+                String[] possiblePaths = {
+                    // Direct path from database
+                    imagePath,
+                    // In uploads/images with filename
+                    "uploads/images/" + imagePath,
+                    // In uploads/images with just filename (no path)
+                    "uploads/images/" + filename,
+                    // Symfony paths
+                    "uploads/assets/images/event/" + filename,
+                    "assets/images/event/" + filename,
+                    "public/uploads/images/event/" + filename,
+                    // Relative path from working directory
+                    System.getProperty("user.dir") + "/uploads/images/" + filename,
+                    // Path with backslashes replaced
+                    imagePath.replace("\\", "/")
+                };
+                
+                // Try each path
+                for (String path : possiblePaths) {
+                    File imageFile = new File(path);
+                    if (imageFile.exists() && imageFile.isFile() && imageFile.length() > 0) {
+                        try {
+                            Image image = new Image(imageFile.toURI().toString());
+                            imageView.setImage(image);
+                            System.out.println("SUCCESS: Loaded image from: " + path);
+                            imageLoaded = true;
+                            break; // Exit the loop if successful
+                        } catch (Exception e) {
+                            System.err.println("ERROR: File exists but cannot be loaded: " + path + " - " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("TRIED: " + path + " - " + 
+                            (imageFile.exists() ? (imageFile.isFile() ? 
+                                (imageFile.length() > 0 ? "Unknown error" : "Empty file") : 
+                                "Not a file") : 
+                                "Does not exist"));
+                    }
+                }
+                
+                // If no image was loaded, try resources
+                if (!imageLoaded) {
+                    // Check if this is a Symfony-style path like "uploads/eventimages/filename.jpg"
+                    if (imagePath.contains("/")) {
+                        // Try to find the file in uploads with just the filename
+                        String symFilename = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+                        File symFile = new File("uploads/images/" + symFilename);
+                        if (symFile.exists() && symFile.isFile() && symFile.length() > 0) {
+                            try {
+                                Image image = new Image(symFile.toURI().toString());
+                                imageView.setImage(image);
+                                System.out.println("SUCCESS: Loaded Symfony image from: " + symFile.getPath());
+                                imageLoaded = true;
+                            } catch (Exception e) {
+                                System.err.println("ERROR: Symfony file exists but cannot be loaded: " + symFile.getPath());
+                            }
+                        }
+                    }
+                }
+                
+                // If we still haven't loaded an image, use the default
+                if (!imageLoaded) {
+                    System.err.println("WARNING: Could not load image for event " + event.getId() + ": " + imagePath);
+                    loadDefaultImage(imageView);
+                }
+                
+            } else {
+                // No image path provided
+                System.out.println("DEBUG: No image path for event " + event.getId());
+                loadDefaultImage(imageView);
+            }
+        } catch (Exception ex) {
+            System.err.println("ERROR in image loading: " + ex.getMessage());
+            ex.printStackTrace();
+            loadDefaultImage(imageView);
+        }
+    }
+
+    /**
+     * Navigate to user profile view
+     * Added method from HomeController integration
+     */
+    @FXML
+    private void navigateToProfile() throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Profile.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        stage.getScene().setRoot(root);
     }
 }

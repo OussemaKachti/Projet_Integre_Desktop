@@ -28,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
@@ -109,6 +110,15 @@ public class AdminDashboardController {
 
     @FXML
     private TextField searchField;
+
+    @FXML
+    private ComboBox<String> roleFilter;
+
+    @FXML
+    private ComboBox<String> statusFilter;
+
+    @FXML
+    private ComboBox<String> verificationFilter;
 
     @FXML
     private ScrollPane userManagementView;
@@ -200,7 +210,7 @@ public class AdminDashboardController {
                     showAlert("Error", "Session Error", "Could not redirect to login page");
                 }
             }
-
+            
             // Check if the user is an admin
             if (!"ADMINISTRATEUR".equals(currentUser.getRole().toString())) {
                 try {
@@ -212,27 +222,129 @@ public class AdminDashboardController {
                 }
             }
 
-            // Set admin name
+            // Set up filter ComboBoxes
+            initializeFilters();
+
+            // Set current user information
             adminNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
 
-            // Initialize user management view
+            // Setup the user management table view
             setupUserManagementView();
-
-            // Hide create user button
+            
+            // Hide create user button if needed
             if (createUserButton != null) {
                 createUserButton.setVisible(false);
                 createUserButton.setManaged(false);
             }
 
-            // Load user data - this will update the pagination
+            // Load initial data
             loadUserData();
 
+            // Setup search field event handler
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                // Apply search filter whenever text changes
+                applyFilters();
+            });
+
+            // Back button in user details view
+            backToUsersButton.setOnAction(e -> showUserManagement());
+
+            // Initially hide the user details view
+            userDetailsView.setVisible(false);
+            userDetailsView.setManaged(false);
+            
             // By default, show the user management view
             showUserManagement();
+
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "Initialization Error", "Failed to initialize the controller");
+            showAlert("Initialization Error", "Failed to initialize dashboard", e.getMessage());
         }
+    }
+    
+    private void initializeFilters() {
+        // Initialize role filter options
+        roleFilter.getItems().addAll(
+            "All Roles",
+            "NON_MEMBRE",
+            "MEMBRE",
+            "PRESIDENT_CLUB"
+        );
+        roleFilter.setValue("All Roles");
+        roleFilter.setOnAction(e -> applyFilters());
+        
+        // Initialize status filter options
+        statusFilter.getItems().addAll(
+            "All Statuses",
+            "active",
+            "inactive"
+        );
+        statusFilter.setValue("All Statuses");
+        statusFilter.setOnAction(e -> applyFilters());
+        
+        // Initialize verification filter options
+        verificationFilter.getItems().addAll(
+            "All",
+            "Verified",
+            "Unverified"
+        );
+        verificationFilter.setValue("All");
+        verificationFilter.setOnAction(e -> applyFilters());
+    }
+    
+    private void applyFilters() {
+        String searchText = searchField.getText().toLowerCase();
+        String selectedRole = roleFilter.getValue();
+        String selectedStatus = statusFilter.getValue();
+        String selectedVerification = verificationFilter.getValue();
+        
+        filteredUsers.setPredicate(user -> {
+            // If no filter is active, include all non-admin users
+            if (searchText.isEmpty() && 
+                "All Roles".equals(selectedRole) && 
+                "All Statuses".equals(selectedStatus) && 
+                "All".equals(selectedVerification)) {
+                return !"ADMINISTRATEUR".equals(user.getRole().toString());
+            }
+            
+            // By default, we exclude ADMINISTRATEUR users from the list
+            if ("ADMINISTRATEUR".equals(user.getRole().toString())) {
+                return false;
+            }
+            
+            // Check if user matches search text
+            boolean matchesSearch = searchText.isEmpty() ||
+                user.getFirstName().toLowerCase().contains(searchText) ||
+                user.getLastName().toLowerCase().contains(searchText) ||
+                user.getEmail().toLowerCase().contains(searchText) ||
+                (user.getPhone() != null && user.getPhone().toLowerCase().contains(searchText));
+            
+            // Check if user matches selected role
+            boolean matchesRole = "All Roles".equals(selectedRole) ||
+                selectedRole.equals(user.getRole().toString());
+            
+            // Check if user matches selected status
+            boolean matchesStatus = "All Statuses".equals(selectedStatus) ||
+                (selectedStatus.equals(user.getStatus()));
+            
+            // Check if user matches verification filter
+            boolean matchesVerification = "All".equals(selectedVerification) ||
+                ("Verified".equals(selectedVerification) && user.isVerified()) ||
+                ("Unverified".equals(selectedVerification) && !user.isVerified());
+            
+            // User is included only if matches all active filters
+            return matchesSearch && matchesRole && matchesStatus && matchesVerification;
+        });
+        
+        // Reset to first page and update pagination
+        currentPage = 0;
+        updatePagination();
+        loadPage(currentPage);
+    }
+
+    @FXML
+    private void handleSearch() {
+        applyFilters();
     }
 
     private void setupUserManagementView() {
@@ -884,58 +996,42 @@ public class AdminDashboardController {
             // Get all users
             List<User> allUsers = userService.recuperer();
 
-            // Filter out admin users for the table display
+            // Update the observable list
             usersList.clear();
-            for (User user : allUsers) {
-                if (!"ADMINISTRATEUR".equals(user.getRole().toString())) {
-                    usersList.add(user);
-                }
-            }
+            usersList.addAll(allUsers);
 
-            filteredUsers = new FilteredList<>(usersList, p -> true);
+            // Apply default filter (excludes admin users from view)
+            applyFilters();
 
-            // Reset current page and update pagination
-            currentPage = 0;
-            updatePagination();
-
-            // Calculate new insightful statistics instead of basic counts
-
-            // 1. New users this month
-            LocalDate now = LocalDate.now();
-            LocalDate firstOfMonth = now.withDayOfMonth(1);
-
-            long newUsersThisMonth = usersList.stream()
-                    .filter(u -> u.getCreatedAt() != null &&
-                            u.getCreatedAt().toLocalDate().isAfter(firstOfMonth.minusDays(1)))
+            // Gather statistics for info cards
+            int totalUsers = (int) usersList.stream()
+                    .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()))
                     .count();
 
-            // 2. Inactive users (haven't logged in for 30+ days)
-            LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-
-            long inactiveUsers = usersList.stream()
-                    .filter(u -> u.getLastLoginAt() == null || // Never logged in
-                            u.getLastLoginAt().isBefore(thirtyDaysAgo))
+            int activeUsers = (int) usersList.stream()
+                    .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()) && 
+                           "active".equalsIgnoreCase(u.getStatus()))
                     .count();
 
-            // 3. Users requiring attention (with warning counts)
-            long usersNeedingAttention = usersList.stream()
-                    .filter(u -> u.getWarningCount() > 0)
+            int unverifiedUsers = (int) usersList.stream()
+                    .filter(u -> !"ADMINISTRATEUR".equals(u.getRole().toString()) && 
+                           !u.isVerified())
                     .count();
 
-            // Update the card labels with new statistics
-            totalUsersLabel.setText(String.valueOf(newUsersThisMonth));
-            activeUsersLabel.setText(String.valueOf(inactiveUsers));
-            unverifiedUsersLabel.setText(String.valueOf(usersNeedingAttention));
+            // Update the stat cards with current counts
+            Platform.runLater(() -> {
+                totalUsersLabel.setText(String.valueOf(totalUsers));
+                activeUsersLabel.setText(String.valueOf(activeUsers));
+                unverifiedUsersLabel.setText(String.valueOf(unverifiedUsers));
+                
+                // Make sure the labels have the correct titles
+                updateStatCardLabels();
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "Data Loading Error", "Failed to load user data: " + e.getMessage());
         }
-    }
-
-    @FXML
-    private void handleSearch() {
-        // The filtering is handled by the listener already
     }
 
     @FXML
@@ -973,17 +1069,12 @@ public class AdminDashboardController {
 
     // Method to update the labels of the stat cards
     private void updateStatCardLabels() {
-        // The method assumes there are labels near the totalUsersLabel,
-        // activeUsersLabel, etc.
-        // Find their parent containers and update the title labels
-
-        // Look for the parent containers of the stat value labels and find their
-        // sibling labels
+        // Update the statistic card titles
         if (totalUsersLabel.getParent() != null && totalUsersLabel.getParent() instanceof VBox) {
             VBox container = (VBox) totalUsersLabel.getParent();
             for (javafx.scene.Node node : container.getChildren()) {
                 if (node instanceof Label && node != totalUsersLabel) {
-                    ((Label) node).setText("New This Month");
+                    ((Label) node).setText("Total Users");
                     break;
                 }
             }
@@ -993,7 +1084,7 @@ public class AdminDashboardController {
             VBox container = (VBox) activeUsersLabel.getParent();
             for (javafx.scene.Node node : container.getChildren()) {
                 if (node instanceof Label && node != activeUsersLabel) {
-                    ((Label) node).setText("Inactive (30+ days)");
+                    ((Label) node).setText("Active Users");
                     break;
                 }
             }
@@ -1003,7 +1094,7 @@ public class AdminDashboardController {
             VBox container = (VBox) unverifiedUsersLabel.getParent();
             for (javafx.scene.Node node : container.getChildren()) {
                 if (node instanceof Label && node != unverifiedUsersLabel) {
-                    ((Label) node).setText("Need Attention");
+                    ((Label) node).setText("Unverified Users");
                     break;
                 }
             }
@@ -1373,13 +1464,15 @@ public class AdminDashboardController {
         stage.setMaximized(true);
         stage.show();
     }
- private void navigateTo(String fxmlPath) throws IOException {
+
+    private void navigateTo(String fxmlPath) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent root = loader.load();
         Scene scene = contentArea.getScene();
         scene.setRoot(root);
     }
-   @FXML
+
+    @FXML
     public void showEventManagement() {
         try {
             navigateTo("/com/esprit/views/AdminEvent.fxml");
@@ -1388,7 +1481,8 @@ public class AdminDashboardController {
                     "Could not navigate to Event Management", e.getMessage());
         }
     }
-private void showAlert7(AlertType alertType, String title, String message, String details) {
+
+    private void showAlert7(AlertType alertType, String title, String message, String details) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -1499,6 +1593,7 @@ private void showAlert7(AlertType alertType, String title, String message, Strin
 
         alert.showAndWait();
     }
+
     @FXML
     public void showProductOrders() {
         try {

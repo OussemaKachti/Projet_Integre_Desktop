@@ -34,6 +34,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.geometry.Pos;
+import com.esprit.models.enums.RoleEnum;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +65,6 @@ public class ProduitViewController implements Initializable {
     @FXML private StackPane userProfileContainer;
     @FXML private ImageView userProfilePic;
     @FXML private Label userNameLabel;
-    @FXML private VBox profileDropdown;
     @FXML private StackPane clubsContainer;
     @FXML private VBox clubsDropdown;
 
@@ -84,14 +84,16 @@ public class ProduitViewController implements Initializable {
         this.clubService = ClubService.getInstance();
     }
 
-    @Override
+   @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Get current user from session
         currentUser = SessionManager.getInstance().getCurrentUser();
         
         // Show Add Product button only for PRESIDENT_CLUB role
-        if (currentUser != null && "PRESIDENT_CLUB".equals(currentUser.getRole())) {
+        if (currentUser != null && RoleEnum.PRESIDENT_CLUB == currentUser.getRole()) {
             btnAddProduct.setVisible(true);
+            // Add event handler for the Add Product button
+            btnAddProduct.setOnAction(e -> showAddProductDialog());
         } else {
             btnAddProduct.setVisible(false);
         }
@@ -129,12 +131,7 @@ public class ProduitViewController implements Initializable {
             }
         }
         
-        // Initially hide the dropdowns
-        if (profileDropdown != null) {
-            profileDropdown.setVisible(false);
-            profileDropdown.setManaged(false);
-        }
-        
+       
         if (clubsDropdown != null) {
             clubsDropdown.setVisible(false);
             clubsDropdown.setManaged(false);
@@ -159,10 +156,10 @@ public class ProduitViewController implements Initializable {
     
     @FXML
     public void navigateToHome() throws IOException {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Home.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) productContainer.getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -170,7 +167,7 @@ public class ProduitViewController implements Initializable {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/SondageView.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) productContainer.getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -178,7 +175,7 @@ public class ProduitViewController implements Initializable {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/ShowClubs.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) productContainer.getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -186,7 +183,7 @@ public class ProduitViewController implements Initializable {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/AfficherEvent.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) productContainer.getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -194,7 +191,7 @@ public class ProduitViewController implements Initializable {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/UserCompetition.fxml"));
         Parent root = loader.load();
         Stage stage = (Stage) productContainer.getScene().getWindow();
-        stage.setScene(new Scene(root));
+        stage.getScene().setRoot(root);
     }
     
     @FXML
@@ -220,21 +217,6 @@ public class ProduitViewController implements Initializable {
         navigateToClubs();
     }
     
-    @FXML
-    private void showProfileDropdown() {
-        if (profileDropdown != null) {
-            profileDropdown.setVisible(true);
-            profileDropdown.setManaged(true);
-        }
-    }
-    
-    @FXML
-    private void hideProfileDropdown() {
-        if (profileDropdown != null) {
-            profileDropdown.setVisible(false);
-            profileDropdown.setManaged(false);
-        }
-    }
     
     @FXML
     private void navigateToProfile() throws IOException {
@@ -250,17 +232,20 @@ public class ProduitViewController implements Initializable {
         SessionManager.getInstance().clearSession();
 
         // Navigate to login page
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
         Parent root = loader.load();
+        
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        
+        // Use the utility method for consistent setup
+        MainApp.setupStage(stage, root, "Login - UNICLUBS",true);
     }
     
     @FXML
     private void navigateToContact() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Contact.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        Stage stage = (Stage) productContainer.getScene().getWindow();
         stage.getScene().setRoot(root);
     }
 
@@ -801,7 +786,7 @@ public class ProduitViewController implements Initializable {
             FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/produit/CommandeView.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) productContainer.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
             AlertUtilsSirine.showError("Error", "Navigation Failed", "Failed to navigate to cart: " + e.getMessage());

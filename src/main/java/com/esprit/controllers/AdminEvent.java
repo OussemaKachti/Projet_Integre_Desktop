@@ -1,30 +1,5 @@
 package com.esprit.controllers;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-
-import com.esprit.MainApp;
-import com.esprit.models.Evenement;
-import com.esprit.services.ServiceEvent;
-import com.esprit.utils.DataSource;
-import com.esprit.utils.SessionManager;
-
-import javafx.stage.Stage;
-import javafx.event.ActionEvent;
-import javafx.scene.Node;
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -36,6 +11,39 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import com.esprit.MainApp;
+import com.esprit.models.Evenement;
+import com.esprit.models.User;
+import com.esprit.models.enums.RoleEnum;
+import com.esprit.services.ServiceEvent;
+import com.esprit.utils.DataSource;
+import com.esprit.utils.SessionManager;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class AdminEvent implements Initializable {
     @FXML
@@ -148,7 +156,6 @@ public class AdminEvent implements Initializable {
             private final Label dateLabel = new Label();
             private final Label statusLabel = new Label();
             private final HBox buttonsBox = new HBox(5);
-            private final Button viewButton = new Button("View");
             private final Button editButton = new Button("Edit");
             private final Button deleteButton = new Button("Delete");
             private final Region spacer = new Region();
@@ -166,10 +173,6 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
                 statusLabel.setStyle("-fx-font-size: 14px; -fx-padding: 3px 8px; -fx-background-radius: 3px;");
 
                 // Set up buttons with consistent styling
-                viewButton.getStyleClass().add("view-button");
-                viewButton
-                        .setStyle("-fx-background-color: #e6f7e6; -fx-text-fill: #2e8b57; -fx-background-radius: 3px;");
-
                 editButton.getStyleClass().add("edit-button");
                 editButton
                         .setStyle("-fx-background-color: #e6e6f7; -fx-text-fill: #4169e1; -fx-background-radius: 3px;");
@@ -178,16 +181,9 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
                 deleteButton
                         .setStyle("-fx-background-color: #f7e6e6; -fx-text-fill: #b22222; -fx-background-radius: 3px;");
 
-                buttonsBox.getChildren().addAll(viewButton, editButton, deleteButton);
+                buttonsBox.getChildren().addAll(editButton, deleteButton);
 
                 // Configure action handlers
-                viewButton.setOnAction(event -> {
-                    Evenement evenement = getItem();
-                    if (evenement != null) {
-                        handleViewEvent(evenement);
-                    }
-                });
-
                 editButton.setOnAction(event -> {
                     Evenement evenement = getItem();
                     if (evenement != null) {
@@ -368,6 +364,16 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
     }
 
     @FXML
+    private void handleRefresh() {
+        loadEvents();
+        searchField.clear();
+        categoryFilter.setValue("All Categories");
+        clubFilter.setValue("All Clubs");
+        statusFilter.setValue("All");
+    }
+
+    /*
+    @FXML
     private void handleAddEvent() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AjouterEvent.fxml"));
@@ -378,15 +384,7 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to open Add Event page", e.getMessage());
         }
     }
-
-    @FXML
-    private void handleRefresh() {
-        loadEvents();
-        searchField.clear();
-        categoryFilter.setValue("All Categories");
-        clubFilter.setValue("All Clubs");
-        statusFilter.setValue("All");
-    }
+    */
 
     private void handleEditEvent(Evenement event) {
         try {
@@ -396,6 +394,14 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
             // Assuming you have a ModifierEvent controller that accepts an event to edit
             ModifierEvent modifierController = loader.getController();
             modifierController.setEventId(event.getId());
+            
+            // Pass the user role to the ModifierEvent controller to handle redirection properly
+            User currentUser = SessionManager.getInstance().getCurrentUser();
+            if (currentUser != null && currentUser.getRole() == RoleEnum.ADMINISTRATEUR) {
+                modifierController.setIsAdmin(true);
+            } else {
+                modifierController.setIsAdmin(false);
+            }
 
             // Create a new stage for the edit view
             Stage editStage = new Stage();
@@ -451,6 +457,7 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
         }
     }
 
+    /*
     private void handleViewEvent(Evenement event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/DetailsEvent.fxml"));
@@ -471,6 +478,7 @@ content.maxWidthProperty().bind(eventListView.widthProperty().subtract(30));
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to open Event Details page", e.getMessage());
         }
     }
+    */
 
     // Sidebar Navigation Methods
     @FXML

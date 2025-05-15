@@ -49,7 +49,13 @@ public class ProduitApp extends Application {
             Parent root = loader.load();
 
             if (primaryStage != null) {
-                primaryStage.setScene(new Scene(root));
+                if (primaryStage.getScene() != null) {
+                    // If a scene already exists, just replace its root
+                    primaryStage.getScene().setRoot(root);
+                } else {
+                    // If no scene exists yet, create a new one
+                    primaryStage.setScene(new Scene(root));
+                }
             } else {
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));

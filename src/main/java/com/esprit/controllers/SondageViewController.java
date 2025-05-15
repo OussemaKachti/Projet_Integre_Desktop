@@ -1,4 +1,3 @@
-
 package com.esprit.controllers;
 
 import com.esprit.models.Commentaire;
@@ -100,6 +99,7 @@ import java.net.URI;
 import javafx.scene.layout.GridPane;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import java.io.InputStream;
 
 public class SondageViewController implements Initializable {
 
@@ -153,9 +153,6 @@ public class SondageViewController implements Initializable {
     // Add these FXML field declarations at the top of the class with the other
     // declarations
     @FXML
-    private VBox profileDropdown;
-
-    @FXML
     private StackPane userProfileContainer;
 
     @FXML
@@ -204,14 +201,8 @@ public class SondageViewController implements Initializable {
                 userProfilePic.setClip(new javafx.scene.shape.Circle(radius, radius, radius));
             }
 
-            // Initially hide the dropdowns
-            if (profileDropdown != null) {
-                profileDropdown.setVisible(false);
-                profileDropdown.setManaged(false);
-            }
-
             // Check if user has admin role and add toxicity management button
-            if (currentUser.getRole() != null && currentUser.getRole().equals("ADMIN")) {
+            if (currentUser.getRole() != null && currentUser.getRole().equals("ADMINISTRATEUR")) {
                 addToxicityManagementButton();
             }
 
@@ -257,10 +248,29 @@ public class SondageViewController implements Initializable {
      */
     private void loadDefaultProfilePic() {
         try {
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/esprit/images/default-profile.png"));
+            // Try to load from class resources
+            InputStream stream = getClass().getResourceAsStream("/com/esprit/images/default-profile.png");
+            
+            // Check if stream is null and try alternative paths
+            if (stream == null) {
+                // Try different paths
+                stream = getClass().getResourceAsStream("/images/default-profile.png");
+                
+                if (stream == null) {
+                    // Last resort - create a simple default image
+                    WritableImage defaultImg = new WritableImage(45, 45);
+                    userProfilePic.setImage(defaultImg);
+                    return;
+                }
+            }
+            
+            Image defaultImage = new Image(stream);
             userProfilePic.setImage(defaultImage);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to load default profile picture: " + e.getMessage());
+            // Create a simple colored circle as fallback
+            WritableImage defaultImg = new WritableImage(45, 45);
+            userProfilePic.setImage(defaultImg);
         }
     }
 
@@ -1975,18 +1985,6 @@ public class SondageViewController implements Initializable {
 
     // Add these methods for the navbar
     @FXML
-    public void showProfileDropdown() {
-        profileDropdown.setVisible(true);
-        profileDropdown.setManaged(true);
-    }
-
-    @FXML
-    public void hideProfileDropdown() {
-        profileDropdown.setVisible(false);
-        profileDropdown.setManaged(false);
-    }
-
-     @FXML
     public void navigateToHome() throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/home.fxml"));
         Parent root = loader.load();
@@ -2030,10 +2028,13 @@ public class SondageViewController implements Initializable {
         SessionManager.getInstance().clearSession();
 
         // Navigate to login page
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+   FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage) sondagesContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
+        
+        Stage stage = (Stage) userProfileContainer.getScene().getWindow();
+        
+        // Use the utility method for consistent setup
+        MainApp.setupStage(stage, root, "Login - UNICLUBS",true);
     }
 
     @FXML

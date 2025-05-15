@@ -35,26 +35,19 @@
             </HBox>
 
             <HBox spacing="10" alignment="CENTER_RIGHT">
-                <!-- User Profile Section -->
+                <!-- User Profile Section - Now clickable, no dropdown -->
                 <StackPane fx:id="userProfileContainer" styleClass="user-profile-container"
-                           onMouseClicked="#toggleProfileDropdown">
+                           onMouseClicked="#navigateToProfile">
                     <HBox spacing="10" alignment="CENTER" styleClass="user-profile-content">
                         <StackPane styleClass="profile-pic-container">
                             <ImageView fx:id="userProfilePic" fitHeight="40" fitWidth="40" preserveRatio="true" styleClass="profile-pic" />
                         </StackPane>
                         <Label fx:id="userNameLabel" text="John Doe" styleClass="user-name"/>
                     </HBox>
-
-                    <!-- Dropdown Menu -->
-                    <VBox fx:id="profileDropdown" styleClass="profile-dropdown" visible="false" managed="false">
-                        <Button text="My Profile" styleClass="dropdown-item" onAction="#navigateToProfile"/>
-                        <Separator/>
-                        <Button text="Logout" styleClass="dropdown-item" onAction="#handleLogout"/>
-                    </VBox>
                 </StackPane>
 
-                <Button text="Contact Us" styleClass="contact-button" onAction="#navigateToContact"/>
-
+                <!-- Changed to Logout button -->
+                <Button text="Logout" styleClass="contact-button" onAction="#handleLogout"/>
             </HBox>
         </HBox>
 

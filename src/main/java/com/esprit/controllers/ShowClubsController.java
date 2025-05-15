@@ -64,9 +64,6 @@ public class ShowClubsController implements Initializable {
     private Label userNameLabel;
 
     @FXML
-    private VBox profileDropdown;
-
-    @FXML
     private StackPane clubsContainer;
 
     @FXML
@@ -504,21 +501,12 @@ public class ShowClubsController implements Initializable {
         SessionManager.getInstance().clearSession();
 
         // Navigate to login page
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("views/Login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/login.fxml"));
         Parent root = loader.load();
+        
         Stage stage = (Stage) userProfileContainer.getScene().getWindow();
-        stage.getScene().setRoot(root);
-    }
-
-    @FXML
-    private void showProfileDropdown() {
-        profileDropdown.setVisible(true);
-        profileDropdown.setManaged(true);
-    }
-
-    @FXML
-    private void hideProfileDropdown() {
-        profileDropdown.setVisible(false);
-        profileDropdown.setManaged(false);
+        
+        // Use the utility method for consistent setup
+        MainApp.setupStage(stage, root, "Login - UNICLUBS",true);
     }
 }

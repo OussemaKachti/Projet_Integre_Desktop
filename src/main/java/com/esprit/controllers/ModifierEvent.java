@@ -1,26 +1,32 @@
 package com.esprit.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.ResourceBundle;
+
+import com.esprit.models.Evenement;
+import com.esprit.services.ServiceEvent;
+
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import com.esprit.models.Evenement;
-import com.esprit.services.ServiceEvent;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import javafx.fxml.Initializable;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class ModifierEvent implements Initializable {
 
@@ -55,6 +61,12 @@ public class ModifierEvent implements Initializable {
     private String selectedImagePath;
     private Evenement currentEvent;
     private int eventId;
+    private boolean isAdmin = false; // Flag to track if user is admin
+
+    // Method to set the admin status
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -78,14 +90,23 @@ public class ModifierEvent implements Initializable {
 
     private void navigateToEventsList() {
         try {
-            // Retourner à la page d'affichage des événements
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/esprit/views/AfficherEvent.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) cancelButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            Stage currentStage = (Stage) cancelButton.getScene().getWindow();
+
+            if (isAdmin) {
+                // If admin, just close the edit window
+                // The refresh handler in AdminEvent will update the list
+                currentStage.close();
+            } else {
+                // For regular users, navigate to the events page
+                String targetView = "/com/esprit/views/AfficherEvent.fxml";
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(targetView));
+                Parent root = loader.load();
+                currentStage.setScene(new Scene(root));
+                currentStage.show();
+            }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page d'affichage des événements: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Impossible de charger la page d'affichage des événements: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -141,7 +162,8 @@ public class ModifierEvent implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors du chargement des données de l'événement: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Erreur lors du chargement des données de l'événement: " + e.getMessage());
         }
     }
 
@@ -180,7 +202,8 @@ public class ModifierEvent implements Initializable {
             // Recharger les catégories après la fermeture de la fenêtre d'ajout
             loadCategories();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger la page d'ajout de catégorie: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Impossible de charger la page d'ajout de catégorie: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -190,8 +213,7 @@ public class ModifierEvent implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner une image");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
+                new FileChooser.ExtensionFilter("Images", ".png", ".jpg", ".jpeg", ".gif"));
 
         File selectedFile = fileChooser.showOpenDialog(chooseImageButton.getScene().getWindow());
         if (selectedFile != null) {
@@ -264,7 +286,7 @@ public class ModifierEvent implements Initializable {
             // Afficher une alerte de succès
             showAlert(Alert.AlertType.INFORMATION, "Succès", "Événement mis à jour avec succès !");
 
-            // Rediriger vers la page qui affiche tous les événements
+            // Use the navigateToEventsList method to handle navigation based on user role
             navigateToEventsList();
         } catch (Exception ex) {
             ex.printStackTrace();
