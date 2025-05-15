@@ -35,9 +35,14 @@ Faciliter et centraliser la gestion des activités parascolaires au sein de l'é
 
 ### 👥 Gestion des Utilisateurs
 - 🔐 Système d'authentification sécurisé
-- 👤 Gestion des profils utilisateurs
+- 👤 Gestion des profils utilisateurs avec interface administrateur complète
 - 🎭 Différents rôles (Administrateur, Président de Club, Membre, Non-Membre)
-- ✉️ Système de vérification par email
+- ✉ Système de vérification par email
+- 🔍 Système de filtration avancé pour les utilisateurs (par rôle, statut, vérification)
+- 📊 Statistiques en temps réel sur les utilisateurs (total, actifs, non-vérifiés)
+- 🚫 Modération des utilisateurs (activation/désactivation, suppression)
+- 🛡 Détection de contenu inapproprié avec système d'avertissement
+- 📈 Tableau de bord analytique pour suivre les tendances d'inscription
 
 ### 🏢 Gestion des Clubs
 - 📋 Création et gestion des clubs
@@ -48,7 +53,7 @@ Faciliter et centraliser la gestion des activités parascolaires au sein de l'é
 ### 📊 Sondages et Intelligence Artificielle
 - 📝 Création et gestion des sondages
 - 🤖 Fonctionnalités IA avancées :
-  - 🛡️ Détection automatique des commentaires toxiques
+  - 🛡 Détection automatique des commentaires toxiques
   - 🌐 Traduction automatique des commentaires
   - 📊 Analyse des sentiments dans les commentaires
   - 📑 Génération automatique de résumés des commentaires
@@ -72,17 +77,17 @@ Faciliter et centraliser la gestion des activités parascolaires au sein de l'é
 - 🎯 Suivi des scores
 - 🏆 Gestion des récompenses
 
-### 🛍️ Gestion des Produits
+### 🛍 Gestion des Produits
 - 📦 Ajout et gestion des produits
 - 💰 Gestion des prix et des stocks
-- 🏷️ Catégorisation des produits
+- 🏷 Catégorisation des produits
 - 🛒 Système de commande
 - 📊 Suivi des ventes
 
-## 🛠️ Technologies Utilisées
+## 🛠 Technologies Utilisées
 - ☕ Java 17
 - 🎨 JavaFX
-- 🗃️ MySQL
+- 🗃 MySQL
 - 🔄 Hibernate
 - 📧 JavaMail API
 - 🎨 CSS pour le styling
@@ -94,39 +99,39 @@ Faciliter et centraliser la gestion des activités parascolaires au sein de l'é
 
 ## 📋 Prérequis
 - ☕ Java Development Kit (JDK) 17 ou supérieur
-- 🗃️ MySQL Server
+- 🗃 MySQL Server
 - 📦 Maven
 
-## ⚙️ Installation
+## ⚙ Installation
 
-1. **Cloner le repository**
-```bash
+1. *Cloner le repository*
+bash
 git clone https://github.com/OussemaKachti/Projet_Integre_Desktop.git
 cd esprit-club-hub
-```
 
-2. **Configurer la base de données**
-```bash
+
+2. *Configurer la base de données*
+bash
 # Créer la base de données
 mysql -u root -p
 CREATE DATABASE dbpi;
 
 # Importer le script SQL
 mysql -u root -p dbpi < database.sql
-```
 
-3. **Configurer le fichier `config.properties`**
-```properties
+
+3. **Configurer le fichier config.properties**
+properties
 db.url=jdbc:mysql://localhost:3306/esprit_club_hub
 db.username=votre_username
 db.password=votre_password
-```
 
-4. **Compiler et exécuter le projet**
-```bash
+
+4. *Compiler et exécuter le projet*
+bash
 mvn clean install
 mvn javafx:run
-```
+
 
 ## 📖 Utilisation
 
@@ -137,16 +142,16 @@ mvn javafx:run
    - Mot de passe : Lina-lanouna1818
 
 ### Fonctionnalités Principales
-- **Gestion des Clubs** : Créer, modifier et gérer les clubs
-- **Événements** : Organiser et participer aux événements
-- **Sondages et IA** : 
+- *Gestion des Clubs* : Créer, modifier et gérer les clubs
+- *Événements* : Organiser et participer aux événements
+- *Sondages et IA* : 
   - Créer et répondre aux sondages
   - Modération automatique des commentaires
   - Analyse des sentiments
   - Génération de résumés
   - Traduction automatique
-- **Compétitions** : Gérer les compétitions et suivre les scores
-- **Produits** : Gérer le catalogue des produits, les stocks et les commandes
+- *Compétitions* : Gérer les compétitions et suivre les scores
+- *Produits* : Gérer le catalogue des produits, les stocks et les commandes
 
 ## 🔗 Intégration avec l'Application Web
 
@@ -161,10 +166,10 @@ Cette application desktop est intégrée avec une application web Symfony, perme
 ## 🤝 Contribution
 Nous accueillons et apprécions toute contribution à UNICLUBS ! Voici comment vous pouvez contribuer :
 
-1. **Fork** le projet
-2. Créez votre branche de fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
+1. *Fork* le projet
+2. Créez votre branche de fonctionnalité (git checkout -b feature/AmazingFeature)
+3. Committez vos changements (git commit -m 'Add some AmazingFeature')
+4. Push vers la branche (git push origin feature/AmazingFeature)
 5. Ouvrez une Pull Request
 
 ### Guide de Style
@@ -233,4 +238,4 @@ Ce projet est sous licence MIT - voir le fichier [LICENSE.md](LICENSE.md) pour p
 - 🎓 ESPRIT pour le support et l'opportunité
 - 👨‍🏫 Les encadrants pour leur guidance
 - 🤝 Tous les contributeurs au projet
-- 📚 La communauté open source pour les outils et bibliothèques utilisés 
+- 📚 La communauté open source pour les outils et bibliothèques utilisés
